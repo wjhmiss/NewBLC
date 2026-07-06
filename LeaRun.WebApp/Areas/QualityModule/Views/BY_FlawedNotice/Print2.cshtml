@@ -1,0 +1,176 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>粗料单打印预览</title>
+    @*   <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/barcode/jquery-barcode.min.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+    @Scripts.Render("~/Content/Scripts/barcode/barcodejquery")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+
+    <script>
+        //初始化
+        $(function () {
+            AjaxJson("/QualityModule/BY_FlawedNotice/FlawedNoticeListJson", { flawednoticeid: GetQuery('flawednoticeid') }, function (data) {
+                //var OrderEntiy = data.OrderEntiy;
+                var BY_FlawedNotice = data.BY_FlawedNotice;
+                var BY_OrderDetail = data.BY_OrderDetail;
+                var BY_Order = data.BY_Order;
+                var Orderhtml = '';
+                if (!BY_OrderDetail.BillCode) {
+                    BY_OrderDetail.BillCode = "";
+                }
+
+                Orderhtml += '<table id="tb_Order" border="0" class="form-print" style="width: 100%;border-collapse:collapse;">';
+                Orderhtml += '    <tr>';
+                Orderhtml += '        <td colspan="8" align="center" style="padding: 2px;line-height:22px;">';
+                Orderhtml += '            <span style="font-size: 30px; font-weight: bold; height: 30px;line-height:30px;">《北仑产品返修通知单》</span>';
+                Orderhtml += '        </td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr>';
+                Orderhtml += '        <td colspan="8" align="center" style="padding: 2px;line-height:22px;">';
+                Orderhtml += '            <span style="font-size: 10px; font-weight: bold; height: 30px;line-height:30px;"></span>';
+                Orderhtml += '        </td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr>';
+                Orderhtml += '        <td style=" text-align: right;" colspan="2">日期：</td>';
+                Orderhtml += '        <td style=" text-align: left;" colspan="2">' + formatDate(BY_FlawedNotice.WriteDate, 'yyyy-MM-dd') + '</td>';
+                Orderhtml += '        <td style=" text-align: right;" colspan="2">N O：</td>';
+                Orderhtml += '        <td style=" text-align: left;" colspan="2">' + BY_FlawedNotice.BillCode + '</td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '</table>';
+                Orderhtml += '<table border="0" class="form-print" style="width: 100%;border-collapse:collapse;">';
+                Orderhtml += '                <tr>';
+                Orderhtml += '                    <td style="border: 1px solid #000000;text-align: center;width:10%;" >客户名称：</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;width:20%;" >' + BY_Order.CustomerName + '</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;width:10%;">材料名称：</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;width:20%;">' + BY_OrderDetail.SteelDescription + '</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;width:10%;">材料来源：</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;width:20%;"><div style="float: left; "></div></td>';
+                Orderhtml += '                </tr>';
+                Orderhtml += '                <tr>';
+                Orderhtml += '                    <td style="border: 1px solid #000000;text-align: center;">尺寸：</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;" >' + BY_OrderDetail.Length + "*" + BY_OrderDetail.Weigh + "*" + BY_OrderDetail.Thick  + '</td>';
+                Orderhtml += '                    <td style="border: 1px solid #000000;text-align: center;" >数量：</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;" >' + BY_OrderDetail.Qty + '</td>';
+                Orderhtml += '                    <td style="border: 1px solid #000000;text-align: center;">生产日期：</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;" >' + formatDate(BY_OrderDetail.CreateDate, 'yyyy-MM-dd') + '</td>';
+                Orderhtml += '                </tr>';
+                Orderhtml += '                <tr>';
+                Orderhtml += '                    <td style="border: 1px solid #000000;text-align: center;" colspan="3" >返修原因：' + BY_FlawedNotice.ReasonCode + '<br/><br/><br/><br/><br/><br/><br/><br/><br/></td>';
+          
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;" colspan="3">处理意见：' + BY_FlawedNotice.Remark + '<br/><br/><br/><br/><br/><br/><br/><br/><br/></td>';
+                Orderhtml += '                </tr>';
+                Orderhtml += '                <tr>';
+                Orderhtml += '                    <td style="border: 1px solid #000000;text-align: left;" colspan="3">车间主管：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;时间：</td>';
+
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: left;" colspan="3" >检验人：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;时间：</td>';
+                Orderhtml += '                </tr>';
+
+                Orderhtml += '            </table>';
+
+                
+                Orderhtml += '<table id="tb_Order" border="0" class="form-print" style="width: 100%;border-collapse:collapse;">';
+                Orderhtml += '    <tr>';
+                Orderhtml += '        <td style=" text-align: left;" colspan="8">说明：本单一式两份，一份检验留存，另一份交车间返修依据，作为不合格统计考核凭证！</td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '</table>';
+                $("#my_area").append(Orderhtml);
+            });
+            $(".barcodeTarget").each(function () {
+                //$(this).barcode($(this).attr('barcode'), "code128", { barWidth: 1.0, barHeight: 15 });
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+            MyPreview();
+        }
+    </script>
+
+</head>
+<body style="overflow-x: hidden;">
+    <div id="my_area" style="background: #fff;">
+        <div style="float: left; position: absolute; ">
+            @*<img style="width: 40px;padding: 5px;" src="@Url.Content("~/Content/Images/111.jpg")"  />*@
+            
+        </div>
+        @*<div id="reprint" style="position: absolute; right: 15px; top: 15px; display: none; "><span style="font-size: 18px; font-weight: bold;"></span></div>*@
+    </div>
+
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_PAGESIZE(1, "217mm", "140mm", "")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+
+        //LODOP.PRINTA();
+        LODOP.PREVIEW();
+        top.frames[tabiframeId()].windowload();
+        window.setTimeout(function () {closeDialog();}, 500);
+        //if (LODOP.PRINTA()) {
+        //    LODOP.PRINT();
+        //    tipDialog("打印成功", 3, 1);
+        //    top.frames[tabiframeId()].windowload();
+        //    window.setTimeout(function () {closeDialog();}, 500);
+
+        //}
+        //else
+        //    //alert("");
+        //    tipDialog("放弃打印！", 3, 1);
+
+    };
+</script>
+<style>
+    .form-print th {
+        font-size: 12pt;
+        font-family: sans-serif;
+        background-color: #fff;
+        height: 25px;
+        line-height: 25;
+        white-space: nowrap;
+        width: 80px;
+        font-weight: bold;
+        text-align: right;
+        padding-right: 2px;
+    }
+
+    .form-print td {
+        font-family: sans-serif;
+        height: 25px;
+        line-height: 25px;
+        padding-right: 2px;
+        font-size: 12pt;
+        font-weight: bold;
+    }
+
+    .tb_Order_Detail td {
+        border: 1px solid #000000;
+    }
+
+    .tb_Order_Detail th {
+        text-align: center;
+    }
+
+    .topline {
+        border-top: 1px solid #000000;
+        text-align: center;
+    }
+
+    .rightline {
+        border-right: 1px solid #000000;
+    }
+
+    .bottomline {
+        border-bottom: 1px solid #000000;
+    }
+</style>
+</html>

@@ -1,0 +1,251 @@
+@{
+    ViewBag.Title = "Base_Supplier》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        //账期
+        BindDropItem("#PaymentMode", "PaymentMode", "==请选择==");
+        //所在省
+        $("#Sellregion").append("<option value=''>==请选择==</option>");
+        $("#Sellarea").append("<option value=''>==请选择==</option>");
+        AjaxJson("/Utility/GetProvinceCityListJson", { ParentId: 0 }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Sellregion").append($("<option Code=" + DataJson[i].Code + "></option>").val(DataJson[i].FullName).html(DataJson[i].FullName));
+            });
+        })
+        //所在市
+        $("#Sellregion").change(function () {
+            BindCityId();
+        });
+
+        InitControl();
+    })
+
+    //所在市下拉框
+    function BindCityId() {
+        $("#Sellarea").html("");
+        $("#Sellarea").append("<option value=''>==请选择==</option>");
+        if (!$("#Sellregion").find("option:selected").attr('Code')) {
+            return false;
+        }
+        AjaxJson("/Utility/GetProvinceCityListJson", { ParentId: $("#Sellregion").find("option:selected").attr('Code') }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Sellarea").append($("<option></option>").val(DataJson[i].FullName).html(DataJson[i].FullName));
+            });
+        })
+    }
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CommonModule/Base_Supplier/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+                BindCityId();
+                $("#Sellarea").val(data.Sellarea);
+                $("#Code").attr('disabled', 'disabled');
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var code = $("#Code").val().replace("-S", "") + "-S";
+        $("#Code").val(code)
+        var postData = GetWebControls("#form1");
+
+        $(".ui_state_highlight").attr("disabled", true);
+        AjaxJson("/CommonModule/Base_Supplier/SubmitFormSupplier?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle' style=" width:120px;">供应商编号：</th>
+            <td class='formValue'>
+                <input id="Code" maxlength="50" type="text" class="txt required" datacol="yes" err="供应商编号" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle' style=" width:120px;">供应商名称：</th>
+            <td class='formValue'>
+                <input id="FullName" maxlength="50" type="text" class="txt required" datacol="yes" err="供应商名称" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>供应商简称：</th>
+            <td class='formValue'>
+                <input id="ShortName" maxlength="200" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>账期：</th>
+            <td class='formValue'>
+                <select id="PaymentMode" class="txtselect"></select>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>销售大区：</th>
+            <td class='formValue'>
+                <select id="Sellregion" class="txtselect"></select>
+            </td>
+            <th class='formTitle'>销售区域：</th>
+            <td class='formValue'>
+                <select id="Sellarea" class="txtselect"></select>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>联系人：</th>
+            <td class='formValue'>
+                <input id="Sellpeople" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>联系人手机：</th>
+            <td class='formValue'>
+                <input id="SellpeoplePhone" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+         <tr>
+             <th class='formTitle'>公司电话：</th>
+            <td class='formValue'>
+                <input id="GSPhone" maxlength="50" type="text" class="txt" />
+            </td>
+             <th class='formTitle'>公司传真：</th>
+            <td class='formValue'>
+                <input id="Fax" maxlength="50" type="text" class="txt" />
+            </td>
+           
+            
+        </tr>
+         <tr>
+              <th class='formTitle'>QQ/微信：</th>
+            <td class='formValue'>
+                <input id="SellpeopleQQ" maxlength="50" type="text" class="txt" />
+            </td>
+             <th class="formTitle">邮箱：
+            </th>
+            <td class="formValue" >
+                <input id="Email" maxlength="50" type="text" class="txt" />
+            </td>
+            
+        </tr>
+        <tr>
+            <th class='formTitle'>其他联系人：</th>
+            <td class='formValue'>
+                <input id="SellpeopleOther" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>联系人电话：</th>
+            <td class='formValue'>
+                <input id="OtherPhone" maxlength="50" type="text" class="txt" />
+            </td>
+            
+        </tr>
+        <tr>
+           <th class="formTitle">供应商地址：
+            </th>
+            <td class="formValue" >
+                <textarea id="Address" class="txtArea"  datacol="yes" err="供应商地址" checkexpession="NotNull"></textarea>
+            </td>
+            <th class='formTitle'>是否含税：</th>
+            <td class='formValue'>
+                <span class="item">
+                            <input id="IsInvoice" name="PrintTypeGS" type="checkbox"  style="vertical-align: middle;" />
+                            <label for="IsInvoice" style="vertical-align: middle;">含税</label>
+                            &nbsp;&nbsp;
+                        </span>
+            </td>
+        </tr>
+        
+@*         <tr>
+            <th class='formTitle'>光板软料单价(80下)：</th>
+            <td class='formValue'>
+                <input id="GRsteelPrice7" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>光板软料保底(80下)：</th>
+            <td class='formValue'>
+                <input id="GRsteelPrice71" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+         <tr>
+            <th class='formTitle'>光硬软料单价(80下)：</th>
+            <td class='formValue'>
+                <input id="GYsteelPrice7" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>光硬软料保底(80下)：</th>
+            <td class='formValue'>
+                <input id="GYsteelPrice71" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+          <tr>
+            <th class='formTitle'>光板软料单价(80上)：</th>
+            <td class='formValue'>
+                <input id="GRsteelPrice8" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>光板软料保底(80上)：</th>
+            <td class='formValue'>
+                <input id="GRsteelPrice81" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+         <tr>
+            <th class='formTitle'>光硬软料单价(80上)：</th>
+            <td class='formValue'>
+                <input id="GYsteelPrice8" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>光硬软料保底(80上)：</th>
+            <td class='formValue'>
+                <input id="GYsteelPrice81" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+
+        <tr>
+            <th class='formTitle'>精光板单价：</th>
+            <td class='formValue'>
+                <input id="JGsteelPrice" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>精光板保底：</th>
+            <td class='formValue'>
+                <input id="JGsteelPrice1" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+         <tr>
+            <th class='formTitle'>精板单价：</th>
+            <td class='formValue'>
+                <input id="JsteelPrice" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>精板保底：</th>
+            <td class='formValue'>
+                <input id="JsteelPrice1" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>*@
+
+
+
+        <tr>
+            <th class="formTitle">单价信息：
+            </th>
+            <td class="formValue" colspan="3">
+                <textarea id="PriceMessage" class="txtArea" rows="6"></textarea>
+            </td>
+        </tr>
+        
+        <tr>
+            <th class="formTitle">供应材料：
+            </th>
+            <td class="formValue" colspan="3">
+                <textarea id="MateRemark" class="txtArea" rows="6"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">说明：
+            </th>
+            <td class="formValue" colspan="3">
+                <textarea id="Remark" class="txtArea" rows="6"></textarea>
+            </td>
+        </tr>
+    </table>
+
+
+</form>

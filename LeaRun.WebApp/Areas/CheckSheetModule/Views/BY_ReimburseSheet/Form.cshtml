@@ -1,0 +1,225 @@
+@{
+    ViewBag.Title = "费用申请单》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        BindDropItem("#BankNum", "银行名称", "==请选择==");
+        InitControl();
+        $("#Type").val(GetQuery('Type'));
+    })
+
+    function setType() {
+        if ($("#Type0").val() == "收款") {
+            $("#Type1").empty()
+            BindDropItemT2("#Type1", "#Type2", "收款类型", "==请选择==");
+
+        }
+        else {
+            $("#Type1").empty()
+            BindDropItemT2("#Type1", "#Type2", "CostType", "==请选择==");
+        }
+    }
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CheckSheetModule/BY_ReimburseSheet/SetForm", { KeyValue: KeyValue }, function (dataff) {
+                SetWebControls(dataff);
+                $("#Type0").val(dataff["Type0"]);
+                if ($("#Type0").val() == "收款") {
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: "收款类型" }, function (data) {
+                        var itemjson = eval("(" + data + ")");
+                        $.each(itemjson, function (i) {
+                            $("#Type1").append($("<option></option>").val(itemjson[i].Code).html(itemjson[i].FullName));
+                        });
+                        $("#Type1").val(dataff["Type1"]);
+                        getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "收款类型", FullName: $("#Type1").val() }, function (data1) {
+                            $("#Type2").empty();
+                            var itemjson1 = eval("(" + data1 + ")");
+                            $.each(itemjson1, function (i) {
+                                $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                            });
+                            $("#Type2").val(dataff["Type2"]);
+                        });
+                        $("#Type1").change(function () {
+                            getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "收款类型", FullName: $("#Type1").val() }, function (data1) {
+                                $("#Type2").empty();
+                                var itemjson1 = eval("(" + data1 + ")");
+                                $.each(itemjson1, function (i) {
+                                    $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                                });
+                            });
+                        });
+                    });
+                }
+                else {
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: "CostType" }, function (data) {
+                        var itemjson = eval("(" + data + ")");
+                        $.each(itemjson, function (i) {
+                            $("#Type1").append($("<option></option>").val(itemjson[i].Code).html(itemjson[i].FullName));
+                        });
+                        $("#Type1").val(dataff["Type1"]);
+                        getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "CostType", FullName: $("#Type1").val() }, function (data1) {
+                            $("#Type2").empty();
+                            var itemjson1 = eval("(" + data1 + ")");
+                            $.each(itemjson1, function (i) {
+                                $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                            });
+                            $("#Type2").val(dataff["Type2"]);
+                        });
+                        $("#Type1").change(function () {
+                            getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "CostType", FullName: $("#Type1").val() }, function (data1) {
+                                $("#Type2").empty();
+                                var itemjson1 = eval("(" + data1 + ")");
+                                $.each(itemjson1, function (i) {
+                                    $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                                });
+                            });
+                        });
+                    });
+                }
+            });
+        }
+        else {
+            if ($("#Type0").val() == "收款") {
+                getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: "收款类型" }, function (data) {
+                    var itemjson = eval("(" + data + ")");
+                    $.each(itemjson, function (i) {
+                        $("#Type1").append($("<option></option>").val(itemjson[i].Code).html(itemjson[i].FullName));
+                    });
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "收款类型", FullName: $("#Type1").val() }, function (data1) {
+                        $("#Type2").empty();
+                        var itemjson1 = eval("(" + data1 + ")");
+                        $.each(itemjson1, function (i) {
+                            $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                        });
+                    });
+                    $("#Type1").change(function () {
+                        getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "收款类型", FullName: $("#Type1").val() }, function (data1) {
+                            $("#Type2").empty();
+                            var itemjson1 = eval("(" + data1 + ")");
+                            $.each(itemjson1, function (i) {
+                                $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                            });
+                        });
+                    });
+                });
+            }
+            else {
+                getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: "CostType" }, function (data) {
+                    var itemjson = eval("(" + data + ")");
+                    $.each(itemjson, function (i) {
+                        $("#Type1").append($("<option></option>").val(itemjson[i].Code).html(itemjson[i].FullName));
+                    });
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "CostType", FullName: $("#Type1").val() }, function (data1) {
+                        $("#Type2").empty();
+                        var itemjson1 = eval("(" + data1 + ")");
+                        $.each(itemjson1, function (i) {
+                            $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                        });
+                    });
+                    $("#Type1").change(function () {
+                        getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "CostType", FullName: $("#Type1").val() }, function (data1) {
+                            $("#Type2").empty();
+                            var itemjson1 = eval("(" + data1 + ")");
+                            $.each(itemjson1, function (i) {
+                                $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                            });
+                        });
+                    });
+                });
+            }
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        $(".ui_state_highlight").attr("disabled", true);
+        AjaxJson("/CheckSheetModule/BY_ReimburseSheet/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <div class="note-prompt" style="margin: 1px;">
+        温馨提示：修改金额后，请记得修改备注，不然金额与备注对不上
+    </div>
+    <table class="form">
+        
+       <tr>
+            <th class='formTitle'>类型：</th>
+            <td class='formValue'>
+                 <input id="Opions"  type="hidden"  />
+                 <input id="CodeType" onfocus="IsMoney(this.id);" type="text" class="txt" disabled />
+            </td>
+            <th class='formTitle'>单号：</th>
+            <td class='formValue'>
+                 <input id="Code" onfocus="IsMoney(this.id);" type="text" class="txt" disabled/>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>实收：</th>
+            <td class='formValue'>
+                 <input id="GETMoney" type="text" class="txt" datacol="yes" err="实收" checkexpession="NotNull"/>
+            </td>
+            <th class='formTitle'>折让：</th>
+            <td class='formValue'>
+                  <input id="ZRMoney" onfocus="IsMoney(this.id);" value="0" maxlength="18" type="text" class="txt" datacol="yes" err="折让金额" checkexpession="NotNull" style="width:46%" />
+                <select id="ZRRemark"  type="text" class="txt"  style="width:46%" >
+                    <option value="">无</option>
+                    <option value="银行贴息">银行贴息</option>
+                    <option value="佣金">佣金</option>
+                    <option value="手续费">手续费</option>
+                    <option value="其他费用">其他费用</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>类型：</th>
+            <td class='formValue'>
+                 <select id="GetType" class="txtselect">
+                    <option value="现金">现金</option>
+                    <option value="银行">银行</option>
+                    <option value="承兑">承兑</option>
+                </select>
+            </td>
+              <th class='formTitle'>收款日期：</th>
+            <td class='formValue'>
+                <input id="RequiredDate" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetTime()" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})" datacol="yes" err="收款日期" checkexpession="NotNull"/>
+            </td>
+        </tr>
+         <tr>
+            <th class='formTitle'>银行账户：</th>
+            <td class='formValue'>
+                 <select id="BankNum"  class="txtselect" datacol="yes" err="银行账户" checkexpession="NotNull">
+                 </select>
+            </td>
+             <th class='formTitle'>收款项：</th>
+            <td class='formValue'  >
+                <select id="Type0" class="txtselect" style="width:30%" onchange="setType();"  datacol="yes" err="收款项0" checkexpession="NotNull">
+                    <option value="收款">收款</option>
+                    <option value="付款">付款</option>
+                </select>
+                <select id="Type1" class="txtselect" style="width:30%"  datacol="yes" err="收款项1" checkexpession="NotNull">
+                </select>
+                <select id="Type2" class="txtselect"  style="width:35%" datacol="yes" err="收款项2" checkexpession="NotNull">
+                </select>
+            </td>
+        </tr>
+        <tr>
+            
+            <th class='formTitle'>备注：</th>
+            <td class='formValue' colspan="3">
+                <textarea id="Remark" class="txtArea" rows="6" datacol="yes" err="备注" checkexpession="NotNull" ></textarea>
+            </td>
+        </tr>
+        
+    </table>
+</form>

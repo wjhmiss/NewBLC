@@ -1,0 +1,60 @@
+@{
+    ViewBag.Title = "产能表》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        $("#CapacityValue").val(GetQuery('CapacityValue'));
+        $("#DayPart").val(GetQuery('DayPart'));
+        $("#CapacityType").val(unescape(GetQuery('CapacityType')));
+        $("#CapacityValue").focus();
+    })
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/OrderModule/Capacity/SubmitCapacityForm", postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].Replace();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>产能值：</th>
+            <td class='formValue'>
+                <input id="CapacityValue" maxlength="18" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>加工类型：</th>
+            <td class='formValue'>
+                <input id="CapacityType" disabled type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>产能时段：</th>
+            <td class='formValue'>
+                <input id="DayPart" disabled type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>最近更新时间：</th>
+            <td class='formValue'>
+                <input id="ModifyDate" disabled maxlength="23" type="text" value="@DNS.Utilities.DateTimeHelper.GetTime()" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>最近更新人：</th>
+            <td class='formValue'>
+                <input id="ModifyUserName" disabled maxlength="50" type="text" value="@DNS.Utilities.ManageProvider.Provider.Current().UserName" class="txt" />
+            </td>
+        </tr>
+    </table>
+</form>

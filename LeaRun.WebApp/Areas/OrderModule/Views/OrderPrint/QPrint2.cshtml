@@ -1,0 +1,468 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>精料单打印预览</title>
+    @* <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+     <style>
+
+    .form-print th {
+        font-size: 11pt;
+        font-family: Arial;
+        height: 20.6px;
+        line-height:20.6px;
+        white-space: nowrap;
+        
+        text-align: right;
+        padding-right: 2px;
+    }
+
+    .form-print td {
+        font-size: 11pt;
+        font-family: Arial;
+        
+        height: 20.6px;
+        line-height:20.6px;
+        padding-right: 2px;
+       
+    }
+</style>
+    <script>
+        var YH = GetQuery('YH');
+        var JKCost = 0;
+        var SmallCost = 0;
+        var WorkPrice = 0;
+        var DDCostPer = 0;
+        var rownum = 20
+        //初始化
+        $(function () {
+            AjaxJson("/QuotationModule/QuotationPrint/BCPrintDataJson", { QuotationId: GetQuery('QuotationId'),rownum:rownum }, function (data) {
+                var Quotation = data.Quotation;
+                var QuotationDetail = data.QuotationDetail;
+                var Customer = data.Customer;
+                var base_customerprocessJ = data.base_customerprocessJ;
+                var base_customerprocessG = data.base_customerprocessG;
+
+                $("#CompanyName").text(data.Quotation.CompanyName);
+                $("#CompanyName1").text(data.Quotation.CompanyName);
+                $("#CompanyName2").text(data.Quotation.CompanyName);
+
+                $("#CustomerPO").text($.trim(Quotation.CustomerPO));
+                $("#OrderType").text("精料");
+
+                if (!!base_customerprocessJ.Price) {
+                    $("#PriceJ").text(base_customerprocessJ.Price);
+                }
+                else {
+                    $("#PriceJ").text(0);
+
+                }
+                if (!!base_customerprocessJ.WhereQty) {
+                    $("#WhereQtyJ").text(base_customerprocessJ.WhereQty);
+                } else {
+
+                    $("#WhereQtyJ").text(0);
+                }
+                if (!!base_customerprocessG.Price) {
+                    $("#PriceG").text(base_customerprocessG.Price);
+                } else {
+                    $("#PriceG").text(0);
+
+                }
+                if (!!base_customerprocessG.WhereQty) {
+                    $("#WhereQtyG").text(base_customerprocessG.WhereQty);
+                } else {
+                    $("#WhereQtyG").text(0);
+
+                }
+                if (!!Customer.LimitWeight) {
+                    $("#LimitWeight1").text(Customer.LimitWeight);
+                } else {
+                    $("#LimitWeight1").text(0);
+
+                }
+                if (!!Customer.LimitWeight) {
+                    $("#LimitWeight2").text(Customer.LimitWeight);
+                } else {
+                    $("#LimitWeight2").text(0);
+
+                }
+                if (!!Customer.LimitWeight) {
+                    $("#LimitWeight3").text(Customer.LimitWeight);
+                } else {
+                    $("#LimitWeight3").text(0);
+
+                }
+                if (!!Customer.LimitWeight) {
+                    $("#LimitWeight4").text(Customer.LimitWeight);
+                } else {
+                    $("#LimitWeight4").text(0);
+
+                }
+                if (!!Customer.LimitWeight) {
+                    $("#LimitWeight5").text(Customer.LimitWeight);
+                } else {
+                    $("#LimitWeight5").text(0);
+
+                }
+                if (!!Customer.LimitWeight) {
+                    $("#LimitWeight6").text(Customer.LimitWeight);
+                } else {
+                    $("#LimitWeight6").text(0);
+
+                }
+
+
+                if (!!Quotation.PaymentMode) {
+                    $("#PaymentMode").text(Quotation.PaymentMode.replace("&nbsp;", ""));
+                }
+                if (!!Quotation.Remark) {
+                    $("#Remark").text(Quotation.Remark.replace("&nbsp;", ""));
+                }
+                if (!!Quotation.ShipMode) {
+                    $("#ShipMode").text(Quotation.ShipMode.replace("&nbsp;", ""));
+                }
+                if (!!Quotation.QuotationCode) {
+                    $("#QuotationCode").text("NO：" + Quotation.QuotationCode.replace("&nbsp;", ""));
+                }
+                if (!!Quotation.CustomerName) {
+                    $("#CustomerName").text(Quotation.CustomerName.replace("&nbsp;", ""));
+                }
+            
+                if (!!Quotation.ShipAddress) {
+                    $("#CustomerAddress").text(Quotation.ShipAddress.replace("&nbsp;", ""));
+                }
+                if (!!Customer.LeaderTele) {
+                    $("#LeaderTele").text(Customer.LeaderTele.replace("&nbsp;", ""));
+                }
+                if (!!Customer.CheckFaxs) {
+                    $("#CheckFaxs").text(Customer.CheckFaxs.replace("&nbsp;", ""));
+                }
+                if (!!Customer.Leader) {
+                    $("#Leader").text(Customer.Leader.replace("&nbsp;", ""));
+                }
+                if (!!Customer.BankName) {
+                    $("#BankName").text(Customer.BankName.replace("&nbsp;", ""));
+                }
+                if (!!Customer.TaxNumber) {
+                    $("#TaxNumber").text(Customer.TaxNumber.replace("&nbsp;", ""));
+                }
+                if (!!Customer.Account) {
+                    $("#Account").text(Customer.Account.replace("&nbsp;", ""));
+                }
+                if (!!data.QtySum) {
+                    $("#QtySum").text(data.QtySum.toFixed(0));
+                }
+                if (!!data.WeightSum) {
+                    $("#WeightSum").text(FormatCurrency(data.WeightSum));
+                }
+
+                var PriceSum = 0;
+                var tempAddLength = 0;
+                var tempAddWeigh = 0;
+
+                $.each(QuotationDetail, function (i) {
+                    tempAddLength = QuotationDetail[i].AddLength;
+                    tempAddWeigh = QuotationDetail[i].AddWeigh;
+                    if (Number(QuotationDetail[i].Weigh) > 0) {
+                        // var Weigh = Number(QuotationDetail[i].Weigh);
+                        // var Thick = Number(QuotationDetail[i].Thick);
+                        // var Length = Number(QuotationDetail[i].Length);
+                        // var values = [Weigh, Thick, Length];
+                        // values.sort(compare);
+                        // if (QuotationDetail[i].Length == values[2]) {
+                        //     QuotationDetail[i].AddLength = QuotationDetail[i].AddThick;
+                        //     QuotationDetail[i].AddWeigh = tempAddWeigh;
+                        //     QuotationDetail[i].AddThick = tempAddWeigh;
+                        // }
+                        //else if (QuotationDetail[i].Weigh == values[2]) {
+                        //     QuotationDetail[i].AddLength = tempAddWeigh;
+                        //     QuotationDetail[i].AddWeigh = QuotationDetail[i].AddThick;
+                        //     QuotationDetail[i].AddThick = tempAddWeigh;
+                        // }
+
+                    }
+
+                    var size = "";
+                    if (QuotationDetail[i].Length > 0) {
+                        if (parseFloat(QuotationDetail[i].Weigh) <= 0) {
+                            var BoreSize = "";
+                            if (!!QuotationDetail[i].BoreSize) {
+                                BoreSize = "xΦ" + QuotationDetail[i].BoreSize;
+                            }
+                            size = "Φ" + parseFloat(QuotationDetail[i].Thick) + BoreSize + '*' + parseFloat(QuotationDetail[i].Length);
+                        }
+                        else {
+                            size = parseFloat(QuotationDetail[i].Length) + '*' + parseFloat(QuotationDetail[i].Weigh) + '*' + parseFloat(QuotationDetail[i].Thick);
+                        }
+                    }
+                    var sizeall = "";
+                    if (QuotationDetail[i].Length > 0) {
+                        if (parseFloat(QuotationDetail[i].Weigh) <= 0) {
+                            var BoreSize = "";
+                            if (!!QuotationDetail[i].BoreSize) {
+                                BoreSize = "xΦ" + QuotationDetail[i].BoreSize;
+                            }
+                            sizeall = "Φ" + parseFloat(QuotationDetail[i].Thick + QuotationDetail[i].AddThick) + BoreSize + '*' + parseFloat(QuotationDetail[i].Length + QuotationDetail[i].AddLength);
+                        }
+                        else {
+                            sizeall = parseFloat(QuotationDetail[i].Length + QuotationDetail[i].AddLength) + '*' + parseFloat(QuotationDetail[i].Weigh + QuotationDetail[i].AddWeigh) + '*' + parseFloat(QuotationDetail[i].Thick + QuotationDetail[i].AddThick);
+                        }
+                    }
+
+                    var QuotationDetailhtml = "";
+
+
+                    if (QuotationDetail[i].LineCode == "99999") {
+                        QuotationDetailhtml += '<tr>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ; " colspan="3">合计金额：' + data.UpperMaterialAmountSum + '</td>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].Qty + '</td>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].Weight + '</td>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;" ></td>';
+                        QuotationDetailhtml += '     <td name="WorkPrice" style="border: 1px solid #000;text-align:center ;"></td>';
+                        QuotationDetailhtml += '     <td name="WorkPrice" style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].WorkAmount + '</td>';
+                        QuotationDetailhtml += '     <td name="SmallCost" style="border: 1px solid #000;text-align:center ;"></td>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].SalesAmount + '</td>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;" colspan="2"></td>';
+                        QuotationDetailhtml += '</tr>';
+                    }
+                    else {
+                        if (QuotationDetail[i].LineCode == "999") {
+                            QuotationDetail[i].LineCode = "";
+                            size = "";
+                            sizeall = "";
+                            QuotationDetail[i].MaterialPrice = "";
+                            QuotationDetail[i].WorkPrice = "";
+                            QuotationDetail[i].SmallCost = "";
+                            QuotationDetail[i].JKCost = "";
+                            QuotationDetail[i].DDCostPer = "";
+                            QuotationDetail[i].Qty = "";
+                            QuotationDetail[i].Weight = "";
+                            QuotationDetail[i].SalesAmount = "";
+                            QuotationDetail[i].WorkAmount = "";
+                        }
+                        QuotationDetailhtml += '<tr>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].LineCode + '</td>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].ProductName + '</td>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + size + '</td>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].Qty + '</td>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].Weight + '</td>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].MaterialPrice + '</td>';
+                        QuotationDetailhtml += '     <td name="WorkPrice" style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].WorkPrice + '</td>';
+
+                        QuotationDetailhtml += '     <td name="WorkPrice" style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].WorkAmount + '</td>';
+                        
+
+                        QuotationDetailhtml += '     <td name="SmallCost" style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].SmallCost + '</td>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].SalesAmount + '</td>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].CustomerProduct + '</td>';
+                        QuotationDetailhtml += '</tr>';
+                    }
+
+
+
+                    $("#tb_QuotationDetail").append(QuotationDetailhtml);
+                    PriceSum += Number(QuotationDetail[i].SalesAmount);
+                    if (QuotationDetail[i].DDCostPer > 0) {
+                        DDCostPer = 1;
+                    }
+                    if (QuotationDetail[i].WorkPrice > 0) {
+                        WorkPrice = 1;
+                    }
+                    if (QuotationDetail[i].SmallCost > 0) {
+                        SmallCost = 1;
+                    }
+                    if (QuotationDetail[i].JKCost > 0) {
+                        JKCost = 1;
+                    }
+                });
+                $("#PriceSum").text(FormatCurrency(PriceSum));
+                if (JKCost == 0) {
+                    $("td[name='JKCost']").hide();
+                    $("th[name='JKCost']").hide();
+                }
+                if (SmallCost == 0) {
+                    $("td[name='SmallCost']").hide();
+                    $("th[name='SmallCost']").hide();
+                }
+                if (WorkPrice == 0) {
+                    $("td[name='WorkPrice']").hide();
+                    $("th[name='WorkPrice']").hide();
+                }
+                if (DDCostPer == 0) {
+                    $("td[name='DDCostPer']").hide();
+                    $("th[name='DDCostPer']").hide();
+                }
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+            //AjaxJson("/QuotationModule/QuotationPrint/StateModify", { KeyValue: GetQuery('QuotationId') }, function (data) {
+            
+            MyPreview();
+
+            //});
+        }
+    </script>
+</head>
+<body style="overflow-x: hidden;">
+    <div id="my_area" style="width: 95%; height: 95%; margin-left: 25px; margin-top: 30px;">
+        <div style="float: left; position: absolute;">
+            @*<img id="logo1" style="width: 60px;padding: 5px; padding-left:20px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@
+        </div>
+        <table id="tb_Order" border="0" class="form-print" style="width: 100%;">
+            <tr>
+                <td colspan="4" align="center" style="padding: 2px;"><span style="font-size: 30px; font-weight: bold;"><label id="CompanyName"></label></span></td>
+            </tr>
+            <tr>
+                <td colspan="4" align="center">DONGGUAN Xinze Steel Co.,Ltd.</td>
+            </tr>
+            <tr>
+                <td colspan="4" align="center">地址：宁波市北仑区大矸龙潭山三路15号&nbsp;&nbsp;&nbsp;&nbsp;电话：18892600521&nbsp;&nbsp;&nbsp;&nbsp;邮箱：124176905@qq.com</td>
+            </tr>
+            
+            <tr>
+                <td colspan="4" align="center" style="padding: 2px;border-top: 2px solid #000;"><span style="font-size: 26px; font-weight: bold;">产品订货合同(<label id="QuotationCode"></label>)</span></td>
+            </tr>
+          
+            <tr>
+                <th style="width: 10%">客&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;户：</th>
+                <td style="width: 40%">
+                    <label style="font-size: 11pt;font-family: Arial;" id="CustomerName"></label>
+                </td>
+                <th style="width: 10%">供&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;方：</th>
+                <td ><label id="CompanyName1"></label>
+                </td>
+            </tr>
+            <tr>
+                <th >地&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;址：</th>
+                <td>
+                    <label style="font-size: 11pt;font-family: Arial;" id="CustomerAddress"></label>
+                </td>
+                <th>地&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;址：</th>
+                <td>宁波市北仑区大矸龙潭山三路15号</td>
+            </tr>
+            <tr>
+                <th >联&nbsp;系&nbsp;人：</th>
+                <td>
+                    <label style="font-size: 11pt;font-family: Arial;" id="Leader"></label>
+                </td>
+                <th>联&nbsp;系&nbsp;人：</th>
+                <td>@DNS.Utilities.ManageProvider.Provider.Current().UserName</td>
+            </tr>
+            <tr>
+                <th >电&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;话：</th>
+                <td>
+                    <label style="font-size: 11pt;font-family: Arial;" id="LeaderTele"></label>
+                </td>
+                <th>电&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;话：</th>
+                <td>18892600521</td>
+            </tr>
+            <tr>
+                <th>传&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;真：</th>
+                <td>
+                    <label style="font-size: 11pt;font-family: Arial;" id="CheckFaxs"></label>
+                </td>
+                <th>日&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;期：</th>
+                <td>@DNS.Utilities.DateTimeHelper.GetDate(0)</td>
+            </tr>
+           
+            <tr>
+                <td colspan="4" valign="top">
+                    <div>
+                        <table id="tb_QuotationDetail" border="0" class="form-print" style="width: 100%; border-collapse: collapse">
+                            <tr>
+                                <td align="center" style="border: 1px solid #000; width: 40px; text-align: center;">序号</td>
+                                <td style="border: 1px solid #000; text-align: center;">品名</td>
+                                <td style="border: 1px solid #000; text-align: center;">规格(厚*宽*长)</td>
+                                <td style="border: 1px solid #000; text-align: center;">件数</td>
+                                <td style="border: 1px solid #000; text-align: center;">重量</td>
+                                <td style="border: 1px solid #000; text-align: center;">单价<br>(元/KG)</td>
+                                <td name="WorkPrice" style="border: 1px solid #000; text-align: center;">加工费</td>
+                                <td name="WorkPrice" style="border: 1px solid #000; text-align: center;">加工总额</td>
+                                <td name="SmallCost" style="border: 1px solid #000; text-align: center;">加工费</td>
+                                <td style="border: 1px solid #000; text-align: center;">金额</td>
+                                <td style="border: 1px solid #000; text-align: center;">备注</td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;一、质量要求，技术标准，供方对质量负责的条件和期限按抚顺特钢公司相应产品的技术标准。</td>
+            </tr>
+            <tr>
+                <td colspan="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;二、交货期：收到合同回传的五到七天。</td>
+            </tr>
+            <tr>
+                <td colspan="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;三、质量问题处理：需方在产品使用当中出现材料开裂质量问题，供方先提供同尺寸、同规格、同型号材料。经有关部门确认是供方材料质量问题，供方向需方赔偿方式是以料换料，如果不是材料原因引起的模具开裂，需方要正常支付本件材料的货款给供方，供方不承担其他任何费用。</td>
+            </tr>
+            <tr>
+                <td colspan="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;四、结算方式及期限：<label style="font-size: 11pt;font-family: Arial;" id="PaymentMode"></label>，超过约定付款时间，按每天万分之八承担违约金；</td>
+            </tr>
+            <tr>
+                <td colspan="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;五、双方发生经济合同纠纷协商解决不成时，采取下列第（1）种方式解决，
+                     <img id="logo"  style="z-index: -1; position: absolute;right:5px; width: 4cm;" src="@Url.Content("~/Content/Images/123.png")" />
+
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1，向有管辖权的工商行政管理局经济合同仲裁委员会申请裁决。2，向有管辖权的人民法院起诉。3，其他解决方式。</td>
+            </tr>
+             
+            <tr>
+                <td colspan="4">
+                    <table border="0"  style="width: 100%; border-collapse: collapse;background-color:none;">
+                        <tr>
+                            <th style="width:40%;text-align:center;height:28px;line-height:28px;border-bottom:2px solid #000;" >客户确认及接收：</th>
+                            <th style="width:20%;text-align:center;height:28px;line-height:28px;" ></th>
+                            <th style="width:40%;text-align:center;height:28px;line-height:28px;border-bottom:2px solid #000;" >本公司确认：</th>
+                        </tr>
+                        <tr>
+                            <th style="width:40%;text-align:center;height:28px;line-height:28px;">客户签名及盖章：</th>
+                            <th style="width:20%;text-align:center;height:28px;line-height:28px;" ></th>
+                            <th style="width:40%;text-align:center;height:28px;line-height:28px;"><label id="CompanyName2"></label>：</th>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="4">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;备注：请签名、签章后回传至 18892600521</td>
+            </tr>
+        </table>
+    </div>
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_PAGESIZE(1, "210mm", "297mm", "A4")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        LODOP.PREVIEW();
+        //LODOP.PRINTA();
+        window.setTimeout(function () {closeDialog();}, 500);
+        //if (LODOP.PRINTA()) {
+        //    LODOP.PRINT();
+        //    tipDialog("打印成功", 3, 1);
+        //    top.frames[tabiframeId()].windowload();
+        //    window.setTimeout(function () {closeDialog();}, 500);
+
+        //}
+        //else
+        //    //alert("");
+        //    tipDialog("放弃打印！", 3, 1);
+
+    };
+</script>
+</html>

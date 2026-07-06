@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>粗料单打印预览</title>
+    @*    <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+    <style>
+        .form-print th {
+            font-size: 10pt;
+            font-family: Arial;
+            font-weight: bold;
+            background-color: #fff;
+            height: 18.6px;
+            line-height: 18.6px;
+            white-space: nowrap;
+            text-align: right;
+            padding-right: 2px;
+        }
+
+        .form-print td {
+            font-size: 10pt;
+            font-family: Arial;
+            font-weight: bold;
+            height: 18.6px;
+            line-height: 18.6px;
+            padding-right: 2px;
+        }
+    </style>
+    <script>
+        var YH = GetQuery('YH');
+        //初始化
+        $(function () {
+            if (YH != "1") {
+                $("#MyCompany").text("北仑机械锻造厂");
+                $("#logo").attr("src", "@Url.Content("~/Content/Images/123.png")");
+
+            }
+            else {
+                $("#logo").attr("src", "@Url.Content("~/Content/Images/123.png")");
+                $("#MyCompany").text("北仑机械锻造厂");
+            }
+
+            $("#CNAME").text("@DNS.Utilities.ManageProvider.Provider.Current().UserName".substr(0,1)+"小姐");
+            
+
+            AjaxJsonNoMassge("/PaymentModule/Base_SteelPurchase/PrintDataJson?SteelPurchaseId=" + GetQuery('SteelPurchaseId'), { A: 1 }, function (data) {
+
+                $("#CustomerName").html(data.Base_Supplier.FullName);
+                $("#ContactTel").html(data.Base_Supplier.SellpeoplePhone);
+                $("#ContactFax").html(data.Base_Supplier.Fax);
+                $("#ContactName").html(data.Base_Supplier.Sellpeople);
+                $("#CustomerAddress").html(data.Base_Supplier.Address);
+                $("#PaymentMode").html(data.Base_Supplier.PaymentMode);
+                $("#TaxNumber").html(data.Base_Supplier.TaxNumber);
+                $("#SteelPurchaseCode").html(data.Base_SteelPurchase.SteelPurchaseCode);
+
+                var title = "";
+                if (data.Base_SteelPurchase.TypeJC == "进仓") {
+                    title = "钢材采购单";
+                    $("#CheckName").html(title);
+                }
+                else {
+                    title = "钢材退货单";
+                    $("#CheckName").html(title);
+
+                }
+
+                $("#date").html("@DNS.Utilities.DateTimeHelper.GetDate(1)");
+                $("#man").html("@DNS.Utilities.ManageProvider.Provider.Current().UserName");
+                var SumTotalMoney = 0;
+                var SumWeight = 0;
+                var SumQty = 0;
+                $.each(data.BY_Inventorys, function (i) {
+                    var QuotationDetailhtml = "";
+                    if (!data.BY_Inventorys[i].Remark) {
+                        data.BY_Inventorys[i].Remark = "";
+                    }
+
+                    if (!data.BY_Inventorys[i].PlaceOrigin) {
+                        data.BY_Inventorys[i].PlaceOrigin = "";
+                    }
+
+                    var size = "";
+                    if (!!data.BY_Inventorys[i].OWeigh) {
+                        size = parseFloat(data.BY_Inventorys[i].OLength) + "*" + parseFloat(data.BY_Inventorys[i].OWeigh) + "*" + parseFloat(data.BY_Inventorys[i].OThick);
+                    }
+                    else {
+                        var BoreSize = "";
+                        if (!!data.BY_Inventorys[i].BoreSize) {
+                            BoreSize = "xΦ" + data.BY_Inventorys[i].BoreSize;
+                        }
+                        size = "Φ" + parseFloat(data.BY_Inventorys[i].OThick) + BoreSize + "*" + parseFloat(data.BY_Inventorys[i].OLength);
+                    }
+                    var money = 0;
+                    if (data.BY_Inventorys[i].SteelDescription == "特定费用") {
+                        size = "";
+                        money = (data.BY_Inventorys[i].Qty * data.BY_Inventorys[i].Price).toFixed(2)
+                    }
+                    else {
+                        money = (data.BY_Inventorys[i].OWeight * data.BY_Inventorys[i].Price).toFixed(2)
+                    }
+                    if (!data.BY_Inventorys[i].QuotationCodeLine) {
+                        data.BY_Inventorys[i].QuotationCodeLine = "";
+                    }
+                    money = "";
+                    if (i == 0) {
+                        QuotationDetailhtml += '<tr>';
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].SortCode + '</td>';
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].SteelDescription + '</td>';
+                        QuotationDetailhtml += '     <td colspan="3" align="center" style="font-size: 14pt;">' + size + '</td>';
+
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].Qty + '</td>';
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].OWeight + '</td>';
+                        if (data.Base_SteelPurchase.TypeJC != "进仓") {
+                            QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].TotalAmount + '</td>';
+                        }
+                        else {
+                            QuotationDetailhtml += '     <td align="center"></td>';
+
+                        }
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].QuotationCodeLine + '</td>';
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].PlaceOrigin + '</td>';
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].Remark + '</td>';
+                        QuotationDetailhtml += '     <td align="center" rowspan="' + data.BY_Inventorys.length + '">' + data.Base_SteelPurchase.Remark + '</td>';
+                        QuotationDetailhtml += '</tr>';
+                    }
+                    else {
+                        QuotationDetailhtml += '<tr>';
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].SortCode + '</td>';
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].SteelDescription + '</td>';
+                        QuotationDetailhtml += '     <td colspan="3" align="center"  style="font-size: 14pt;">' + size + '</td>';
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].Qty + '</td>';
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].OWeight + '</td>';
+                        if (data.Base_SteelPurchase.TypeJC != "进仓") {
+                            QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].TotalAmount + '</td>';
+                        }
+                        else {
+                            QuotationDetailhtml += '     <td align="center"></td>';
+
+                        }
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].QuotationCodeLine + '</td>';
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].PlaceOrigin + '</td>';
+                        QuotationDetailhtml += '     <td align="center">' + data.BY_Inventorys[i].Remark + '</td>';
+                        QuotationDetailhtml += '</tr>';
+                    }
+
+
+                    $("#tb_QuotationDetail").append(QuotationDetailhtml);
+                    SumTotalMoney = Number(SumTotalMoney) + Number(money);
+                    if (data.BY_Inventorys[i].SteelDescription != "特定费用") {
+                        SumQty = SumQty + data.BY_Inventorys[i].Qty;
+                    }
+                    SumWeight = Number(SumWeight) + Number(data.BY_Inventorys[i].OWeight);
+                });
+
+                var tempfoot = "";
+                tempfoot += '<tr>';
+                tempfoot += '     <td colspan="5" align="center">合   计</td>';
+
+                tempfoot += '     <td align="center">' + Number(SumQty).toFixed(2) + '</td>';
+                //tempfoot += '     <td colspan="2" align="center">' + SumWeight.toFixed(2) + '</td>';
+                //tempfoot += '     <td align="center">￥' + SumTotalMoney.toFixed(2) + '</td>';
+                tempfoot += '     <td align="center">' + Number(SumWeight).toFixed(2) + '</td>';
+                if (data.Base_SteelPurchase.TypeJC != "进仓") {
+                    tempfoot += '     <td align="center">' + data.Base_SteelPurchase.TotalAmount.toFixed(2) + '</td>';
+                }
+                else {
+                    tempfoot += '     <td align="center"></td>';
+
+                }
+                tempfoot += '     <td align="center"></td>';
+                tempfoot += '     <td align="center"></td>';
+                tempfoot += '     <td align="center"></td>';
+                tempfoot += '     <td align="center"></td>';
+                tempfoot += '</tr>';
+
+                $("#tb_QuotationDetail").append(tempfoot);
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+            //AjaxJson("/QuotationModule/QuotationPrint/StateModify", { KeyValue: GetQuery('QuotationId') }, function (data) {
+            MyPreview();
+
+            //});
+        }
+    </script>
+</head>
+<body style="overflow-x: hidden; ">
+    <div id="my_area" style="width:95%;height:90%;margin-left: 30px;margin-top:30px;">
+        <div style="float: left; position: absolute; padding: 0px 5px 5px 10px;">
+            @*<img style="width: 50px;margin-left:120px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@
+        </div>
+        <table id="tb_Order" border="0" class="form-print" style="width: 100%;">
+            <tr>
+                <td colspan="4" align="center" style="padding: 2px;"><span style="font-size: 25px; font-weight: bold;"><label style="font-size: 25px; font-weight: bold;" id="MyCompany"></label></span></td>
+            </tr>
+            @*<tr>
+                <td colspan="4" align="center">地址：宁波市北仑区大矸龙潭山三路15号</td>
+            </tr>
+            <tr>
+                <td colspan="4" align="center">电话：18892600521&nbsp;传真：0755-28127166&nbsp;</td>
+            </tr>*@
+            <tr>
+                <td colspan="4" align="center" style="border-bottom: 1px solid #000; padding-bottom: 10px;"><span style="font-size: 18px; font-weight: bold;" id="CheckName"><label id="title"></label></span>(<label id="SteelPurchaseCode"></label>)</td>
+            </tr>
+            <tr>
+                <td colspan="4" align="center"></td>
+            </tr>
+            <tr>
+                <td colspan="4" valign="top">
+                    <div>
+                        <table id="tbs_Order" border="0" class="form-print" style="width: 100%;">
+                            <tr>
+                                <th style="width:15%">供&nbsp;&nbsp;&nbsp;&nbsp;方：</th>
+                                <td style="width:35%">
+                                    <label id="CustomerName"></label>
+                                </td>
+                                
+                                <th style="width:15%">需&nbsp;&nbsp;&nbsp;&nbsp;方：</th>
+                                <td style="width:35%">
+                                    北仑机械锻造厂
+                                </td>
+                            </tr>
+                             <tr>
+                                <th>联系人：</th>
+                                <td>
+                                     <label id="ContactName"></label>
+                                </td>
+                                
+                                <th>联系人：</th>
+                                <td>
+                                     <label id="CNAME"></label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>电&nbsp;&nbsp;&nbsp;&nbsp;话：</th>
+                                <td>
+                                    <label id="ContactTel"></label>
+                                </td>
+                                
+                                <th>电&nbsp;&nbsp;&nbsp;&nbsp;话：</th>
+                                <td>
+                                   18892600521-8633
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>传&nbsp;&nbsp;&nbsp;&nbsp;真：</th>
+                                <td>
+                                    <label id="ContactFax"></label>
+                                </td>
+                                
+                                <th>传&nbsp;&nbsp;&nbsp;&nbsp;真：</th>
+                                <td>
+                                   18892600521(fax)
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>地&nbsp;&nbsp;&nbsp;&nbsp;址： </th>
+                                <td>
+                                    <label id="CustomerAddress"></label>
+                                </td>
+                                
+                                <th>地&nbsp;&nbsp;&nbsp;&nbsp;址：</th>
+                                <td >
+                                    宁波市北仑区大矸龙潭山三路15号
+                                </td>
+
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+
+
+
+
+            <tr>
+                <td colspan="4" valign="top">
+                    <div>
+                        <table id="tb_QuotationDetail" border="1" class="form-print" style="width: 100%; border: 1px solid #000; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 5%" align="center">序号</td>
+                                <td  align="center">钢种</td>
+                                <td style="width: 20%" colspan="3" align="center">规格(厚/直径*宽*长)</td>
+                                <td  align="center">件数</td>
+                                <td  align="center">理重</td>
+                                <td  align="center">金额</td>
+                                <td  align="center">编号</td>
+                                <td  align="center">产地</td>
+                                <td   align="center">公差</td>
+                                <td   align="center">备注</td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+
+            <tr>
+                <td colspan="4">说明：</td>
+            </tr>
+            <tr>
+                <td colspan="4">1，请收到订单1.5小时内回复交期是否达到？<img id="logo"  style="z-index: -1; position: absolute;right:150px; width: 4cm;" src="@Url.Content("~/Content/Images/123.png")" /></td>
+            </tr>
+            <tr>
+                <td colspan="4">2，材料探伤合格，符合国家二级标准，不可有夹层，板面要平，无沙眼，无裂纹。</td>
+            </tr>
+            <tr>
+                <td colspan="4">3，回复确认后未能达到，影响严重需扣款处理。</td>
+            </tr>
+            <tr>
+                <td colspan="4">4，材料上写明材质与规格。</td>
+            </tr>
+            <tr>
+                <td style="white-space: nowrap;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td style="white-space: nowrap;">供方签字：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td style="white-space: nowrap;"></td>
+                <td style="white-space: nowrap;">需方签字：</td>
+            </tr>
+            <tr>
+                <td style="white-space: nowrap;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td style="white-space: nowrap;">发货日期：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td style="white-space: nowrap;"></td>
+                <td style="white-space: nowrap;">收货日期：</td>
+            </tr>
+        </table>
+    </div>
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_PAGESIZE(1, "", "", "A4")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        LODOP.PREVIEW();
+        //LODOP.PRINTA();
+        window.setTimeout(function () {closeDialog();}, 500);
+        //if (LODOP.PRINTA()) {
+        //    LODOP.PRINT();
+        //    tipDialog("打印成功", 3, 1);
+        //    top.frames[tabiframeId()].windowload();
+        //    window.setTimeout(function () {closeDialog();}, 500);
+
+        //}
+        //else
+        //    //alert("");
+        //    tipDialog("放弃打印！", 3, 1);
+
+    };
+</script>
+</html>

@@ -1,0 +1,282 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>粗料单打印预览</title>
+ @*   <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/barcode/jquery-barcode.min.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+        @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+        @Scripts.Render("~/Content/Scripts/barcode/barcodejquery")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+
+    <script>
+        var RowNum = 0;
+        if (GetQuery('perType') == "A5") {
+            RowNum = 11;
+        }
+        else {
+
+            RowNum = 34;
+        }
+        //初始化
+        $(function () {
+            AjaxJson("/QuotationHeatModule/BY_QuotationHeatBeout/BeOutListJson", { QuotationHeatBeoutId: GetQuery('QuotationHeatBeoutId') }, function (data) {
+                //var OrderEntiy = data.OrderEntiy;
+                var BY_QuotationHeatBeoutDetails = data.BY_QuotationHeatBeoutDetails;
+                var Base_Supplier = data.Base_Supplier;
+
+                var index = 0;
+                var pageindex = 0;
+                var Orderhtml = '';
+                var total = 0
+                if (BY_QuotationHeatBeoutDetails.length % RowNum == 0) {
+                    total = BY_QuotationHeatBeoutDetails.length / RowNum;
+                }
+                else {
+                    total = Math.floor(BY_QuotationHeatBeoutDetails.length / RowNum) + 1
+                }
+
+                var title = "";
+                if (data.BY_QuotationHeatBeout.TypeJC == "进仓") {
+                    title = "热处理委外";
+                }
+                else {
+                    title = "退货单";
+
+                }
+
+                var quotitle = "";
+                var MnemonicCode = "";
+                var tempAddLength = 0;
+                var tempAddWeigh = 0;
+                var rowNUM = 0;
+                $.each(BY_QuotationHeatBeoutDetails, function (i) {
+
+                    if (index % RowNum == 0) {
+                        pageindex++;
+                        Orderhtml += '<div style="background: #fff;page-break-after:always;width: 100%;"><table id="tb_Order" border="0" class="form-print" style="width: 100%;border-collapse:collapse;">';
+                        Orderhtml += '    <tr>';
+                        Orderhtml += '        <td colspan="8" align="center" style="padding: 2px;line-height:22px;">@*<img style="width: 50px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@';
+                        Orderhtml += '            <span style="font-size: 24px; font-weight: bold; height: 30px;line-height:30px;">北仑机械锻造厂' + title + '（' + data.BY_QuotationHeatBeout.QuotationHeatBeoutCode + '）</span><span style="float:right ;">（' + pageindex + '/' + total + '）</span>';
+                        Orderhtml += '        </td>';
+                        Orderhtml += '    </tr>';
+                        Orderhtml += '    <tr>';
+                        Orderhtml += '        <td colspan="8" align="center" style="padding: 2px;line-height:17px;">';
+                        Orderhtml += '            <span style="font-size: 10pt; font-weight: bold; height: 17px;line-height:17px;">地址：宁波市北仑区大矸龙潭山三路15号&nbsp;电话：18892600521&nbsp;邮箱：124176905@qq.com&nbsp;</span>';
+                        Orderhtml += '        </td>';
+                        Orderhtml += '    </tr>';
+                        Orderhtml += '    <tr>';
+                        Orderhtml += '        <td colspan="8" style="vertical-align:top;" >';
+                        Orderhtml += '            <table id="tb_BY_QuotationHeatBeoutDetails" border="0" cellpadding="0" cellspacing="0"  style="width: 100%; float:right;">';
+                        
+                        Orderhtml += '                <tr>';
+                        Orderhtml += '                    <td style=" text-align: right;" colspan="2">TO 致：</td>';
+                        Orderhtml += '                    <td style=" text-align: left;" colspan="2">' + Base_Supplier.FullName + '</td>';
+                        Orderhtml += '                    <td style=" text-align: right;" colspan="2">电话/传真：</td>';
+                        Orderhtml += '                    <td style=" text-align: left;" colspan="2">' + (!!Base_Supplier.SellpeoplePhone?Base_Supplier.SellpeoplePhone:"无") + '/' + Base_Supplier.Fax  + '(fax)</td>';
+                        Orderhtml += '                    <td style=" text-align: right;" colspan="2">单号：</td>';
+                        Orderhtml += '                    <td style=" text-align: left;" colspan="2">' + data.BY_QuotationHeatBeout.QuotationHeatBeoutCode + '</td>';
+                        Orderhtml += '                    <td style=" text-align: right" colspan="2">日期：</td>';
+                        Orderhtml += '                    <td style=" text-align: left;" colspan="2">@DNS.Utilities.DateTimeHelper.GetToday()</td>';
+                        Orderhtml += '                </tr>';
+                        Orderhtml += '                <tr>';
+                        Orderhtml += '                    <td style="border: 1px solid #000;text-align: left;" colspan="16">备注：' + data.BY_QuotationHeatBeout.Remark + '</td>';
+                        Orderhtml += '                </tr>';
+                        Orderhtml += '             </table></td>';
+                        Orderhtml += '    </tr>';
+
+                        Orderhtml += '    <tr>';
+                        Orderhtml += '        <td colspan="8" style="vertical-align:top;" >';
+                        Orderhtml += '            <div >';
+                        Orderhtml += '            <table id="tb_BY_QuotationHeatBeoutDetails" border="0" cellpadding="0" cellspacing="0"  style="width: 100%; float:right;">';
+                      
+                        Orderhtml += '                <tr>';
+                        Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;" >生产编号</td>';
+                        Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;" >材质</td>';
+                        Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;" >工件名称</td>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" colspan="3">外形尺寸</td>';
+                        Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;">热处理类别</td>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" >技术要求</td>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;">件数</td>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" >重量</td>';
+                        Orderhtml += '                </tr>';
+                    }
+                    Orderhtml += '<tr style="height:25px;">';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + BY_QuotationHeatBeoutDetails[i].QuotationHeatCode + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + BY_QuotationHeatBeoutDetails[i].SteelDescription + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + BY_QuotationHeatBeoutDetails[i].ProductName + '</td>';
+                    Orderhtml += '    <td  style=" font-weight: bold;text-align:center;border: 1px solid #000;" colspan="3">' + BY_QuotationHeatBeoutDetails[i].Remark + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + BY_QuotationHeatBeoutDetails[i].Technology + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + BY_QuotationHeatBeoutDetails[i].TechnologQuery + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + BY_QuotationHeatBeoutDetails[i].Qty + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + BY_QuotationHeatBeoutDetails[i].Weight + '</td>';
+                    Orderhtml += '</tr>';
+                    if ((index + 1) % RowNum == 0) {
+                        Orderhtml += '            </table>';
+                        Orderhtml += '            </div>';
+                        Orderhtml += '        </td>';
+                        Orderhtml += '    </tr>';
+                        Orderhtml += '</table>';
+                        Orderhtml += '            <table border="0" class="form-print" style="width: 100%;border-collapse:collapse;">';
+                        Orderhtml += '                <tr >';
+                        Orderhtml += '                    <td style="width: 5%; border-top: 1px solid #000;">合计：</td>';
+                        Orderhtml += '                    <td style="width: 15%; border-top: 1px solid #000;text-align: left;" colspan="2"></td>';
+                        Orderhtml += '                    <td style="width: 10%; border-top: 1px solid #000;text-align: left;" colspan="2">总数量：' + data.OrderDetailTotal + '</td>';
+                        Orderhtml += '                    <td style="width: 15%; text-align: center;border-top: 1px solid #000;text-align: left;" colspan="4">总重量：' + data.WeightAll + '</td>';
+                        Orderhtml += '                </tr>';
+                        Orderhtml += '                <tr >';
+                        Orderhtml += '                    <td style="width: 5%; border-top: 1px solid #000;text-align: left;" colspan="2">交货地点：</td>';
+                        Orderhtml += '                    <td style="width: 10%; border-top: 1px solid #000;text-align: left;" colspan="4">宁波市北仑区大矸龙潭山三路15号</td>';
+                        Orderhtml += '                    <td style="width: 15%; text-align: center;border-top: 1px solid #000;text-align: left;" colspan="4">交货时间：' + formatDate(data.BY_QuotationHeatBeout.Delivery, 'yyyy-MM-dd') + '</td>';
+                    Orderhtml += '                </tr>';
+                    Orderhtml += '                <tr >';
+                    Orderhtml += '                    <td style="width: 5%; " colspan="10">备注：1，请收到订单1.5小时内回复交期是否达到？2，材料探伤合格，符合国家二级标准，不可有夹层，板面要平，无沙眼，无裂纹。3，回复确认后未能达到，影响严重需扣款处理。4，材料上写明材质与规格。</td>';
+                    Orderhtml += '                </tr>';
+                    Orderhtml += '                <tr >';
+                    Orderhtml += '                    <td colspan="4" style="width: 5%;text-align: left ">供应商认可：</td>';
+                    Orderhtml += '                    <td colspan="2" style="width: 5%;text-align: left "></td>';
+                    Orderhtml += '                    <td colspan="3" style="width: 5%;text-align: right ">采购方认可：@DNS.Utilities.ManageProvider.Provider.Current().UserName</td>';
+                    Orderhtml += '                    <td></td>';
+                    Orderhtml += '                </tr>';
+                    Orderhtml += '            </table>';
+                    Orderhtml += '            </div>';
+                    }
+                    index++;
+                });
+                if (BY_QuotationHeatBeoutDetails.length % RowNum != 0) {
+                    Orderhtml += '            </table>';
+
+                    Orderhtml += '            </div>';
+                    Orderhtml += '        </td>';
+                    Orderhtml += '    </tr>';
+                    Orderhtml += '</table>';
+                    Orderhtml += '            <table border="0" class="form-print" style="width: 100%;border-collapse:collapse;">';
+                    Orderhtml += '                <tr >';
+                    Orderhtml += '                    <td style="width: 5%; border-top: 1px solid #000;">合计：</td>';
+                    Orderhtml += '                    <td style="width: 15%; border-top: 1px solid #000;text-align: left;" colspan="2"></td>';
+                    Orderhtml += '                    <td style="width: 10%; border-top: 1px solid #000;text-align: left;" colspan="2">总数量：' + data.OrderDetailTotal + '</td>';
+                    Orderhtml += '                    <td style="width: 15%; text-align: center;border-top: 1px solid #000;text-align: left;" colspan="4">总重量：' + data.WeightAll + '</td>';
+                    Orderhtml += '                </tr>';
+                    Orderhtml += '                <tr >';
+                    Orderhtml += '                    <td style="width: 5%; border-top: 1px solid #000;text-align: left;" colspan="2">交货地点：</td>';
+                    Orderhtml += '                    <td style="width: 10%; border-top: 1px solid #000;text-align: left;" colspan="4">宁波市北仑区大矸龙潭山三路15号</td>';
+                    Orderhtml += '                    <td style="width: 15%; text-align: center;border-top: 1px solid #000;text-align: left;" colspan="4">交货时间：' + formatDate(data.BY_QuotationHeatBeout.Delivery, 'yyyy-MM-dd') + '</td>';
+                    Orderhtml += '                </tr>';
+                    Orderhtml += '                <tr >';
+                    Orderhtml += '                    <td style="font-size: 8pt; " colspan="10">1、备注：收到委托加工单后，按照加工类别要求处理。2、委托方提供的材料不相符导致热处理过程中使配件报废由委托方承担。3、供应方未按照委托方的要求和违反工艺流程造成工件报废。由供方赔偿报废工件的原材料价格和加工费。</td>';
+                    Orderhtml += '                </tr>';
+                    Orderhtml += '                <tr >';
+                    Orderhtml += '                    <td colspan="4" style="width: 5%;text-align: left ">供应商认可：</td>';
+                    Orderhtml += '                    <td colspan="2" style="width: 5%;text-align: left "></td>';
+                    Orderhtml += '                    <td colspan="3" style="width: 5%;text-align: right ">采购方认可：@DNS.Utilities.ManageProvider.Provider.Current().UserName</td>';
+                    Orderhtml += '                    <td></td>';
+                    Orderhtml += '                </tr>';
+                    Orderhtml += '            </table>';
+                    Orderhtml += '            </div>';
+                }
+
+                $("#my_area").append(Orderhtml);
+            });
+            $(".barcodeTarget").each(function () {
+                $(this).barcode($(this).attr('barcode'), "code128", { barWidth: 1, barHeight: 20 });
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+            AjaxJson("/OrderModule/OrderPrint/UpdateOrderStatus", { OrderId: GetQuery('OrderId') }, function (data) {
+                MyPreview();
+
+            });
+        }
+    </script>
+
+</head>
+<body style="overflow-x: hidden;">
+    <div id="my_area" style=" width:98%   " >
+        @*<div id="reprint" style="position: absolute; right: 15px; top: 15px; display: none; "><span style="font-size: 18px; font-weight: bold;"></span></div>*@
+    </div>
+   
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+
+        //if (GetQuery('perType') == "A5") {
+        //    LODOP.SET_PRINT_PAGESIZE(1, "217mm", "140mm", "")
+        //}
+        //else {
+        //    LODOP.SET_PRINT_PAGESIZE(1, "", "", "A4")
+
+        //}
+        LODOP.SET_PRINT_PAGESIZE(1, "217mm", "140mm", "")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(2, 0, "100%", "100%", strHTML);
+        LODOP.PREVIEW();
+        //LODOP.PRINTA();
+        top.frames[tabiframeId()].windowload();
+        window.setTimeout(function () {closeDialog();}, 500);
+        //if (LODOP.PRINTA()) {
+        //    LODOP.PRINT();
+        //    tipDialog("打印成功", 3, 1);
+        //    top.frames[tabiframeId()].windowload();
+        //    window.setTimeout(function () {closeDialog();}, 500);
+
+        //}
+        //else
+        //    //alert("");
+        //    tipDialog("放弃打印！", 3, 1);
+
+    };
+</script>
+    <style>
+    .form-print th {
+        font-size: 10pt;
+        font-family: sans-serif;
+        background-color: #fff;
+        height: 25px;
+        line-height:25;
+        white-space: nowrap;
+        width: 80px;
+        font-weight: bold;
+        text-align: right;
+        padding-right: 2px;
+    }
+
+    .form-print td {
+        font-family: sans-serif;
+        height: 25px;
+        line-height:25px;
+        padding-right: 2px;
+        font-size: 10pt; 
+        font-weight: bold;
+    }
+
+    .tb_Order_Detail td {
+        border: 1px solid #000;
+    }
+
+    .tb_Order_Detail th {
+        text-align: center;
+    }
+
+    .topline {
+        border-top: 1px solid #000;
+        text-align: center;
+    }
+
+    .rightline {
+        border-right: 1px solid #000;
+    }
+
+    .bottomline {
+        border-bottom: 1px solid #000;
+    }
+</style>
+</html>

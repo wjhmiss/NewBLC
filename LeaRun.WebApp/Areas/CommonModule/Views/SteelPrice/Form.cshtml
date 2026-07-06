@@ -1,0 +1,173 @@
+@{
+    ViewBag.Title = "钢材价目表》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        //钢材编码自动补全
+        SteelAutocomplete();
+        //加工类型
+        BindDropItem("#ProcessType", "ProcessType", "==请选择==");
+        //单位
+        BindDropItem("#Unit", "MeasureUnit", "==请选择==");
+        InitControl();
+    })
+    //钢材编码自动补全
+    function SteelAutocomplete() {
+        var $SteelCode = $("#SteelCode");
+        $SteelCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("SteelCode", function (data) {
+            $("#SteelId").val(data.SteelId);
+            $("#SteelCode").val(data.SteelCode);
+            $("#SteelName").val(data.SteelName);
+            $("#Price").val(FormatCurrency(data.Price));
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/CommonModule/Steel/GetAutoCompleJson", { keywords: $SteelCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="SteelId" style="display: none;">' + DataJson[i].SteelId + '</td>';
+                    html += '<td id="SteelCode" style="width: 50%;">' + DataJson[i].SteelCode + '</td>';
+                    html += '<td id="SteelName" style="width: 100%;">' + DataJson[i].SteelName + '</td>';
+                    html += '<td id="Price" style="display: none;">' + DataJson[i].Price + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("SteelCode", $SteelCode.width() + "px", "200px", html, function (data) {
+                    $("#SteelId").val(data.SteelId);
+                    $("#SteelCode").val(data.SteelCode);
+                    $("#SteelName").val(data.SteelName);
+                    $("#Price").val(FormatCurrency(data.Price));
+                    CountDiscountPrice();
+                });
+            });
+        }
+    }
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CommonModule/SteelPrice/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        $(".ui_state_highlight").attr("disabled", true);
+        AjaxJson("/CommonModule/SteelPrice/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+    //计算折扣单价 
+    function CountDiscountPrice() {
+        var Price = $("#Price").val();
+        var DiscountRate = $("#DiscountRate").val();
+        $("#DiscountPrice").val(FormatCurrency(Price * (100 - DiscountRate) / 100));
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>加工类型：</th>
+            <td class='formValue'>
+                <select id="ProcessType" class="txtselect" datacol="yes" err="加工类型" checkexpession="NotNull"></select>
+            </td>
+            <th class='formTitle'>钢材编码：</th>
+            <td class='formValue'>
+                <input id="SteelId" type="hidden" class="txt" />
+                <input id="SteelCode" maxlength="50" type="text" class="txt" datacol="yes" err="钢材编码" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>通用编码：</th>
+            <td class='formValue'>
+                <input id="CommonCode" maxlength="50" type="text" class="txt"  />
+            </td>
+            <th class='formTitle'>钢材名称：</th>
+            <td class='formValue'>
+                <input id="SteelName" readonly maxlength="200" type="text" class="txt readonly" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>厚度/直径 从：</th>
+            <td class='formValue'>
+                <input id="SizeStart" maxlength="18" onfocus="IsMoney(this.id)" type="text" class="txt" value="0" datacol="yes" err="厚度/直径 从" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle'>厚度/直径 至：</th>
+            <td class='formValue'>
+                <input id="SizeEnd" maxlength="18" onfocus="IsMoney(this.id)" type="text" class="txt" value="0" datacol="yes" err="厚度/直径 至" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>单位：</th>
+            <td class='formValue'>
+                <select id="Unit" class="txt" datacol="yes" err="单位" checkexpession="NotNull"></select>
+            </td>
+            <th class='formTitle'>圆料：</th>
+            <td class='formValue'>
+                <span class="item">
+                    <input type="checkbox" name="checkbox" id="RoundFeed" />
+                    <label for="RoundFeed">圆料</label>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>单价：</th>
+            <td class='formValue'>
+                <input id="Price" maxlength="18" onfocus="IsMoney(this.id);" onkeyup="CountDiscountPrice();" type="text" class="txt" value="0.00" datacol="yes" err="单价" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle'>折扣率：</th>
+            <td class='formValue'>
+                <input id="DiscountRate" maxlength="18" onfocus="IsMoney(this.id);" disabled onkeyup="CountDiscountPrice();" type="text" class="txt" value="0.00" datacol="yes" err="折扣率" checkexpession="NotNull" style="width: 90%; border-right: 1px solid #ccc;" />
+                <span style="color: red; font-weight: bold;">%</span>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>折扣单价：</th>
+            <td class='formValue'>
+                <input id="DiscountPrice" readonly maxlength="18" type="text" class="txt readonly" value="0.00" />
+            </td>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <span class="item">
+                    <input type="checkbox" name="checkbox" checked="checked" id="Enabled" />
+                    <label for="Enabled">有效</label>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue' colspan="3">
+                <textarea id="Remark" name="Description" maxlength="200" class="txtArea" rows="4"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>最近更新时间：</th>
+            <td class='formValue'>
+                <input id="ModifyDate" readonly maxlength="23" type="text" value="@DNS.Utilities.DateTimeHelper.GetTime()" class="txt readonly" />
+            </td>
+            <th class='formTitle'>最近更新人：</th>
+            <td class='formValue'>
+                <input id="ModifyUserName" readonly maxlength="50" type="text" value="@DNS.Utilities.ManageProvider.Provider.Current().UserName" class="txt readonly" />
+            </td>
+        </tr>
+    </table>
+</form>

@@ -1,0 +1,1312 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{DCD9D380-C2E1-41B2-9761-43F40DBA1567}</ProjectGuid>
+    <ProjectTypeGuids>{E3E379DF-F4C6-4180-9B81-6769533ABE47};{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LeaRun.WebApp</RootNamespace>
+    <AssemblyName>LeaRun.WebApp</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <MvcBuildViews>false</MvcBuildViews>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <WebGreaseLibPath>..\packages\WebGrease.1.5.2\lib</WebGreaseLibPath>
+    <Use64BitIISExpress />
+    <UseGlobalApplicationHostFile />
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Antlr3.Runtime">
+      <HintPath>..\packages\Antlr.3.4.1.9004\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework, Version=4.1.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.ReportViewer.WebForms, Version=11.0.0.0, Culture=neutral, PublicKeyToken=89845dcd8080cc91, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.5.0.4\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Senparc.Weixin, Version=4.5.16.25387, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Senparc.Weixin.4.5.16\lib\net40\Senparc.Weixin.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Senparc.Weixin.MP, Version=13.6.10.25423, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Senparc.Weixin.MP.13.6.10\lib\net40\Senparc.Weixin.MP.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Senparc.Weixin.MP.MvcExtension, Version=4.0.1.32581, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Senparc.Weixin.MP.MVC.4.0.2\lib\net40\Senparc.Weixin.MP.MvcExtension.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="sharpPDF, Version=1.0.1723.37634, Culture=neutral">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\sharpPDF.dll</HintPath>
+    </Reference>
+    <Reference Include="Svg, Version=1.5.2.33180, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Lib\Svg.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Management" />
+    <Reference Include="System.Management.Instrumentation" />
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20505.0\lib\net40\System.Web.Helpers.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.4.0.20505.0\lib\net40\System.Web.Mvc.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.Optimization">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.20505.0\lib\net40\System.Web.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20505.0\lib\net40\System.Web.WebPages.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20505.0\lib\net40\System.Web.WebPages.Deployment.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20505.0\lib\net40\System.Web.WebPages.Razor.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Net.Http">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.4.0.20710.0\lib\net40\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.WebRequest.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.4.0.20710.0\lib\net40\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.4.0.20710.0\lib\net40\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="WebGrease">
+      <HintPath>..\packages\WebGrease.1.5.2\lib\WebGrease.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="01 Extension\BarCode.cs" />
+    <Compile Include="01 Extension\BaseCommon.cs" />
+    <Compile Include="01 Extension\LoginAuthorizeAttribute.cs" />
+    <Compile Include="01 Extension\PublicController.cs" />
+    <Compile Include="01 Extension\ManagerPermissionAttribute.cs" />
+    <Compile Include="App_Start\BundleConfig.cs" />
+    <Compile Include="App_Start\FilterConfig.cs" />
+    <Compile Include="App_Start\RouteConfig.cs" />
+    <Compile Include="App_Start\WebApiConfig.cs" />
+    <Compile Include="Areas\CheckSheetModule\CheckSheetModuleAreaRegistration.cs" />
+    <Compile Include="Areas\CheckSheetModule\Controllers\Base_SheetController.cs" />
+    <Compile Include="Areas\CheckSheetModule\Controllers\BY_CheckCompanyController.cs" />
+    <Compile Include="Areas\CheckSheetModule\Controllers\BY_CheckSheetController.cs" />
+    <Compile Include="Areas\CheckSheetModule\Controllers\By_InvoiceForDetailController.cs" />
+    <Compile Include="Areas\CheckSheetModule\Controllers\BY_ReimburseSheetController.cs" />
+    <Compile Include="Areas\CodeMaticModule\CodeMaticModuleAreaRegistration.cs" />
+    <Compile Include="Areas\CodeMaticModule\Controllers\CodeMaticController.cs" />
+    <Compile Include="Areas\CommonModule\CommonModuleAreaRegistration.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\Base_CustomerRequeryController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\base_fileController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\Base_ProcessListController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\Base_SetCostController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\Base_SetPerformanceController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\Base_SetPerformanceForAreaController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\Base_SupplierController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\CustomerController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\CustomerPriceController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\ExportExcelsController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\FormLayoutController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\InterfaceManageController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\CodeRuleController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\DataBaseController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\ExcelImportController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\PermissionController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\SteelController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\SteelPriceController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\SteelStatusController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\UserController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\RolesController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\PostController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\GroupUserController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\DepartmentController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\CompanyController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\QueryRecordController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\ButtonController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\DataDictionaryController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\ModuleController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\SysLogController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\ViewController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\WorkDayController.cs" />
+    <Compile Include="Areas\CommonModule\Controllers\WorkerController.cs" />
+    <Compile Include="Areas\DeliveryModule\Controllers\BY_DeliveryController.cs" />
+    <Compile Include="Areas\DeliveryModule\Controllers\BY_DeliveryDetailController.cs" />
+    <Compile Include="Areas\DeliveryModule\Controllers\InventoryComfirmController.cs" />
+    <Compile Include="Areas\DeliveryModule\DeliveryModuleAreaRegistration.cs" />
+    <Compile Include="Areas\MachineModule\Controllers\BY_MachineController.cs" />
+    <Compile Include="Areas\MachineModule\MachineModuleAreaRegistration.cs" />
+    <Compile Include="Areas\MaterielModule\Controllers\Base_MaterielCheckController.cs" />
+    <Compile Include="Areas\MaterielModule\Controllers\Base_MaterielGetController.cs" />
+    <Compile Include="Areas\MaterielModule\Controllers\Base_MaterielReturnController.cs" />
+    <Compile Include="Areas\MaterielModule\Controllers\Base_MaterielStorageController.cs" />
+    <Compile Include="Areas\MaterielModule\Controllers\Base_MaterielTypeController.cs" />
+    <Compile Include="Areas\MaterielModule\MaterielModuleAreaRegistration.cs" />
+    <Compile Include="Areas\OfficialWebSite\OfficialWebSiteAreaRegistration.cs" />
+    <Compile Include="Areas\OrderDetailProcessModule\Controllers\BY_OrderDetailController.cs" />
+    <Compile Include="Areas\OrderDetailProcessModule\Controllers\BY_OrderDetailProcessController.cs" />
+    <Compile Include="Areas\OrderDetailProcessModule\Controllers\BY_OrderDetailProcessDetailController.cs" />
+    <Compile Include="Areas\OrderDetailProcessModule\OrderDetailProcessModuleAreaRegistration.cs" />
+    <Compile Include="Areas\OrderModule\Controllers\Base_SteelDDBeoutController.cs" />
+    <Compile Include="Areas\OrderModule\Controllers\Base_SteelDDBeoutDetailController.cs" />
+    <Compile Include="Areas\OrderModule\Controllers\Base_SteelDDPerchaseController.cs" />
+    <Compile Include="Areas\OrderModule\Controllers\Base_SteelDDPerchaseDetailController.cs" />
+    <Compile Include="Areas\OrderModule\Controllers\BY_OrderDetailBeOutController.cs" />
+    <Compile Include="Areas\OrderModule\Controllers\CapacityController.cs" />
+    <Compile Include="Areas\OrderModule\Controllers\OrderCompleteController.cs" />
+    <Compile Include="Areas\OrderModule\Controllers\OrderDetailController.cs" />
+    <Compile Include="Areas\OrderModule\Controllers\OrderPrintController.cs" />
+    <Compile Include="Areas\OrderModule\Controllers\OrderQueryController.cs" />
+    <Compile Include="Areas\OrderModule\Controllers\OrderStatusController.cs" />
+    <Compile Include="Areas\OrderModule\Controllers\OrderUndoneController.cs" />
+    <Compile Include="Areas\OrderModule\OrderModuleAreaRegistration.cs" />
+    <Compile Include="Areas\PaymentModule\Controllers\Base_MaterielPurchaseController.cs" />
+    <Compile Include="Areas\PaymentModule\Controllers\Base_PayCompanyController.cs" />
+    <Compile Include="Areas\PaymentModule\Controllers\Base_PaySheetController.cs" />
+    <Compile Include="Areas\PaymentModule\Controllers\Base_SteelPurchaseController.cs" />
+    <Compile Include="Areas\PaymentModule\Controllers\BY_PayCheckSheelController.cs" />
+    <Compile Include="Areas\PaymentModule\Controllers\BY_PayReimburseSheetController.cs" />
+    <Compile Include="Areas\PaymentModule\PaymentModuleAreaRegistration.cs" />
+    <Compile Include="Areas\QualityModule\Controllers\BY_CJReportController.cs" />
+    <Compile Include="Areas\QualityModule\Controllers\BY_CSBReportController.cs" />
+    <Compile Include="Areas\QualityModule\Controllers\BY_FKReportController.cs" />
+    <Compile Include="Areas\QualityModule\Controllers\BY_FlawedNoticeController.cs" />
+    <Compile Include="Areas\QualityModule\Controllers\BY_InStockQualityController.cs" />
+    <Compile Include="Areas\QualityModule\Controllers\BY_JXReportController.cs" />
+    <Compile Include="Areas\QualityModule\Controllers\BY_SteelQualityreportController.cs" />
+    <Compile Include="Areas\QualityModule\Controllers\BY_SteelQualityreportListController.cs" />
+    <Compile Include="Areas\QualityModule\Controllers\BY_SteelQualityreportTController.cs" />
+    <Compile Include="Areas\QualityModule\QualityModuleAreaRegistration.cs" />
+    <Compile Include="Areas\QuotationHeatModule\Controllers\BY_QuotationHeatBeoutController.cs" />
+    <Compile Include="Areas\QuotationHeatModule\Controllers\BY_QuotationHeatBeoutDetailController.cs" />
+    <Compile Include="Areas\QuotationHeatModule\Controllers\BY_QuotationHeatController.cs" />
+    <Compile Include="Areas\QuotationHeatModule\Controllers\BY_StoveController.cs" />
+    <Compile Include="Areas\QuotationHeatModule\Controllers\BY_StoveHeatListController.cs" />
+    <Compile Include="Areas\QuotationHeatModule\QuotationHeatModuleAreaRegistration.cs" />
+    <Compile Include="Areas\QuotationModule\Controllers\AssemblePartsController.cs" />
+    <Compile Include="Areas\QuotationModule\Controllers\QuotationAuditController.cs" />
+    <Compile Include="Areas\QuotationModule\Controllers\QuotationInputController.cs" />
+    <Compile Include="Areas\QuotationModule\Controllers\QuotationManageController.cs" />
+    <Compile Include="Areas\QuotationModule\Controllers\QuotationPlaceOrderController.cs" />
+    <Compile Include="Areas\QuotationModule\Controllers\QuotationPrintController.cs" />
+    <Compile Include="Areas\QuotationModule\Controllers\QuotationQueryController.cs" />
+    <Compile Include="Areas\QuotationModule\Controllers\QuotationSureController.cs" />
+    <Compile Include="Areas\QuotationModule\QuotationModuleAreaRegistration.cs" />
+    <Compile Include="Areas\ReportModule\Controllers\DeliveryController.cs" />
+    <Compile Include="Areas\ReportModule\Controllers\ProductionController.cs" />
+    <Compile Include="Areas\ReportModule\Controllers\SellSummaryController.cs" />
+    <Compile Include="Areas\ReportModule\ReportModuleAreaRegistration.cs" />
+    <Compile Include="Areas\StorageModule\Controllers\AdjustStockController.cs" />
+    <Compile Include="Areas\StorageModule\Controllers\BY_AdjustQueryController.cs" />
+    <Compile Include="Areas\StorageModule\Controllers\BY_InStockController.cs" />
+    <Compile Include="Areas\StorageModule\Controllers\BY_InventoryController.cs" />
+    <Compile Include="Areas\StorageModule\Controllers\BY_OutStockController.cs" />
+    <Compile Include="Areas\StorageModule\StorageModuleAreaRegistration.cs" />
+    <Compile Include="Areas\WeiWebSite\Controllers\WeiLoginController.cs" />
+    <Compile Include="Areas\WeiWebSite\WeiWebSiteAreaRegistration.cs" />
+    <Compile Include="Controllers\ErrorController.cs" />
+    <Compile Include="Controllers\ExportHighChart.cs" />
+    <Compile Include="Controllers\HighChartsController.cs" />
+    <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\LoginController.cs" />
+    <Compile Include="Controllers\UtilityController.cs" />
+    <Compile Include="Global.asax.cs">
+      <DependentUpon>Global.asax</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="BUG单.txt" />
+    <Content Include="Content\DownLoad\CLodop_Setup.exe" />
+    <Content Include="Content\Scripts\Conversion.js" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\css\index.css" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\demo.html" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\2009511102511591969.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\2009511102511591969_small.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\2009511956153474660.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\2009511956153474660_small.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\2009512172933475478.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\2009512172933475478_small.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\20095121750198009074.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\20095121750198009074_small.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\20095121752382849770.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\20095121752382849770_small.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\200955181308903992.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\200955181308903992_small.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\2009551813457815940.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\2009551813457815940_small.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\200955181403758690.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\200955181403758690_small.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\200957188213477090.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\images\200957188213477090_small.jpg" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\js\ToolTip.js" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\说明.txt" />
+    <Content Include="Content\Scripts\imgGreate\demo.html" />
+    <Content Include="Content\Scripts\imgGreate\images\01.png" />
+    <Content Include="Content\Scripts\imgGreate\js\fn.js" />
+    <Content Include="Content\Scripts\imgGreate\style\style.css" />
+    <Content Include="Content\Scripts\Index.js" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\AUTHORS.txt" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\CHANGES.txt" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\COPYING.txt" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\cs.css" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\Future.txt" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\index.html" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\index2.html" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\index3.html" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\jquery-1.9.1.min.js" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\jquery.webcam.js" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\jquery.webcam.min.js" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\jscam480x360.swf" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\jscam600x480.swf" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\jscam_1024x768.swf" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\jscam_1754×1240.swf" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\jscam_2105×1487.swf" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\jscam_3508×2479.swf" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\jscam_842×595.swf" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\jscam_960x720.swf" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\jscam_canvas_only.swf" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\CHANGES.txt" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\Future.txt" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\mtasc.exe" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\Readme.txt" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc.exe" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\NEWS.txt" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\Readme.txt" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\src\jscam-source.xml" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\src\jscam.xml" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\swfmill-0.3.6-win32\AUTHORS.txt" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\swfmill-0.3.6-win32\COPYING.txt" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\swfmill-0.3.6-win32\NEWS.txt" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\swfmill-0.3.6-win32\README.txt" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\swfmill-0.3.6-win32\swfmill.exe" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\swfmill.exe" />
+    <Content Include="Content\Scripts\jquery.form.js" />
+    <Content Include="Content\Scripts\jquery\jquery-1.3.2.min.js" />
+    <Content Include="Content\Scripts\jquery\jquery-1.8.2.min.js" />
+    <Content Include="Content\Scripts\jquery\jquery-1.9.1.min.js" />
+    <Content Include="Content\Scripts\jquery\jquery-2.1.1.min.js" />
+    <Content Include="Content\Scripts\jquery\jQuery.md5.js" />
+    <Content Include="Content\Scripts\learunui-framework.js" />
+    <Content Include="Content\Scripts\lodop\CLodopfuncs.js" />
+    <Content Include="Content\Scripts\lodop\LodopFuncs.js" />
+    <Content Include="Content\Scripts\lodop\LodopFuncs1.js" />
+    <Content Include="Content\Scripts\qrcodejs-master\index-svg.html" />
+    <Content Include="Content\Scripts\qrcodejs-master\index.html" />
+    <Content Include="Content\Scripts\qrcodejs-master\index.svg" />
+    <Content Include="Content\Scripts\qrcodejs-master\jquery.min.js" />
+    <Content Include="Content\Scripts\qrcodejs-master\qrcode.js" />
+    <Content Include="Content\Scripts\qrcodejs-master\qrcode.min.js" />
+    <Content Include="Content\Scripts\temp.js" />
+    <Content Include="Content\Scripts\validator\learunui-validator.js" />
+    <Content Include="Content\Scripts\webcamjs\demos\basic.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\click-to-run.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\combo.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\constraints.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\continuous.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\crop-large.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\crop.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\events.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\flash-disabled.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\flash.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\flip-flash.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\flip.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\hd.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\ios-large.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\large.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\preview.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\reset.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\sfx.html" />
+    <Content Include="Content\Scripts\webcamjs\demos\shutter.mp3" />
+    <Content Include="Content\Scripts\webcamjs\flash\README.txt" />
+    <Content Include="Content\Scripts\webcamjs\webcam.js" />
+    <Content Include="Content\Scripts\webcamjs\webcam.min.js" />
+    <Content Include="Content\Scripts\webcamjs\webcam.swf" />
+    <Content Include="Content\Scripts\webcamjs\www.jq22.com.txt" />
+    <Content Include="Content\Scripts\Workday\kalendar.css" />
+    <Content Include="Content\Scripts\Workday\kalendar.js" />
+    <Content Include="Content\Scripts\Workday\kalendaryyyy.js" />
+    <Content Include="Content\Scripts\Workday\kalendaryyyydd.js" />
+    <Content Include="Content\Scripts\Workday\kalendaryyyydd1.js" />
+    <Content Include="Content\Styles\learunui-accordion.css" />
+    <Content Include="Content\Styles\learunui-accordionTree.css" />
+    <Content Include="Content\Styles\learunui-framework.css" />
+    <Content Include="Content\Styles\learunui-startmenu.css" />
+    <Content Include="Content\Styles\learunui-login.css" />
+    <Content Include="Global.asax" />
+    <Content Include="Index.htm" />
+    <Content Include="Remark_wjh.txt" />
+    <Content Include="Resource\Document\NetworkDisk\149c1ae5-f4b0-4d88-b26b-0c84c4507ec6\20141021\568efce7-20c9-466e-9632-e74e77231658.dll" />
+    <Content Include="Resource\Document\NetworkDisk\149c1ae5-f4b0-4d88-b26b-0c84c4507ec6\20141021\869d2c99-cb65-4b70-9019-b6952b2d17fa.exe" />
+    <Content Include="Views\Home\AccordionIndex.cshtml" />
+    <Content Include="Views\Home\AccordionPage.cshtml" />
+    <Content Include="Views\Home\TreeIndex.cshtml" />
+    <Content Include="Views\Home\TreePage.cshtml" />
+    <Content Include="Areas\CommonModule\Views\InterfaceManage\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\InterfaceManage\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\FormLayout\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\FormLayout\Layout.cshtml" />
+    <Content Include="Areas\CommonModule\Views\FormLayout\Form.cshtml" />
+    <Content Include="Views\Shared\_BuildForm.cshtml" />
+    <Content Include="Areas\CommonModule\Views\ExcelImport\DeriveDialog.cshtml" />
+    <Content Include="Areas\CommonModule\Views\User\PersonCenter.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Post\Detail.cshtml" />
+    <Content Include="Areas\CommonModule\Views\GroupUser\Detail.cshtml" />
+    <Content Include="Areas\CommonModule\Views\User\Detail.cshtml" />
+    <Content Include="Areas\CommonModule\Views\SysLog\LogChartIndex.cshtml" />
+    <Content Include="Areas\StorageModule\Views\Web.config" />
+    <Content Include="Areas\QuotationModule\Views\Web.config" />
+    <Content Include="Areas\OrderModule\Views\Web.config" />
+    <Content Include="Areas\QualityModule\Views\Web.config" />
+    <Content Include="Areas\CommonModule\Views\Customer\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Customer\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\SteelStatus\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\SteelStatus\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Steel\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Steel\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\WorkDay\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\SteelPrice\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\SteelPrice\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\CustomerPrice\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\CustomerPrice\SetDiscount.cshtml" />
+    <Content Include="Areas\CommonModule\Views\CustomerPrice\ProcessForm.cshtml" />
+    <Content Include="Areas\CommonModule\Views\CustomerPrice\MaterialsForm.cshtml" />
+    <Content Include="Areas\CommonModule\Views\CustomerPrice\ManageForm.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationInput\Index.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationInput\DetailForm.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationInput\QueryQuotation.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationAudit\Index.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationAudit\Detail.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationAudit\Audit.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationPrint\Index.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationSure\Index.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Capacity\Form.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Capacity\Index.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_InStock\BoardDetail.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_InStock\BoardForm.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_InStock\BoardIndex.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_InStock\BrokenDetail.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_InStock\BrokenForm.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_InStock\BrokenIndex.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_Inventory\Detail.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_Inventory\Form.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_Inventory\Index.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationPlaceOrder\Index.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationQuery\Index.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationPlaceOrder\NonauTomatic.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\Web.config" />
+    <Content Include="packages.config" />
+    <Content Include="Areas\DeliveryModule\Views\InventoryComfirm\Index.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Capacity\CapacityReport.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderQuery\Index.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderPrint\BCPrint.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderPrint\BJPrint.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderStatus\Index.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderComplete\Index.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_DeliveryDetail\Detail.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_DeliveryDetail\Form.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_DeliveryDetail\Index.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\Detail.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\Form.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderComplete\Form.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderUndone\Index.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderStatus\Form.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderStatus\UpdataNumber.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderStatus\OrderDetailStatus.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\Index.cshtml" />
+    <Content Include="Areas\StorageModule\Views\AdjustStock\AdjustStockForm.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_OutStock\BoardIndex.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_OutStock\BrokenIndex.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_OutStock\Index.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_InStock\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Worker\Detail.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Worker\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Worker\Index.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_FlawedNotice\FlawedNoticeInput.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_FlawedNotice\Index.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationQuery\QuotationOpearLog.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationManage\CloseBills.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationManage\Index.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_InStockQuality\InStockQualityInput.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_InStockQuality\Index.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationPrint\BCPrint.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationPrint\BJPrint.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationPrint\BJPrintPreview.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Worker\WorkerBarCode.cshtml" />
+    <Content Include="Areas\ReportModule\Views\Web.config" />
+    <Content Include="Areas\ReportModule\Views\Production\Index.cshtml" />
+    <Content Include="Areas\ReportModule\Views\Delivery\Index.cshtml" />
+    <Content Include="Areas\ReportModule\Views\SellSummary\Index.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_OutStock\OutStockIndex.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_OutStock\ScaleIndex.cshtml" />
+    <Content Include="部署.txt" />
+    <Content Include="Areas\CommonModule\Views\Worker\AllWorkerBarCode.cshtml" />
+    <Content Include="Areas\CommonModule\Views\DataDictionary\PrintBarCode.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\Web.config" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetailProcessDetail\Detail.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetailProcessDetail\Form.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetailProcessDetail\Index.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetailProcess\Detail.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetailProcess\Form.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetailProcess\Index.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetail\Detail.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetail\Form.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetail\Index.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetailProcessDetail\ChangeReport.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetailProcessDetail\WorkingHours.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetailProcessDetail\OpenReport.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetailProcessDetail\ClassesReport.cshtml" />
+    <Content Include="Areas\StorageModule\Views\AdjustStock\AdjustQuery.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_AdjustQuery\Detail.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_AdjustQuery\Form.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_AdjustQuery\Index.cshtml" />
+    <Content Include="Areas\OfficialWebSite\Views\Web.config" />
+    <Content Include="Areas\WeiWebSite\Views\Web.config" />
+    <Content Include="Areas\StorageModule\Views\BY_OutStock\ChangeOuter.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\WeiLogin.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\WeiIndex.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\Web.config" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\Detail.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\Form.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\ExportExcels\Detail.cshtml" />
+    <Content Include="Areas\CommonModule\Views\ExportExcels\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\ExportExcels\Index.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\Detail.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\Form.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\Index.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\CustomerIndex.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\EarningsIndex.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\Form1.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\AuditForm.cshtml" />
+    <Content Include="Areas\MachineModule\Views\Web.config" />
+    <Content Include="Areas\MachineModule\Views\BY_Machine\Detail.cshtml" />
+    <Content Include="Areas\MachineModule\Views\BY_Machine\Form.cshtml" />
+    <Content Include="Areas\MachineModule\Views\BY_Machine\Index.cshtml" />
+    <Content Include="Areas\MachineModule\Views\BY_Machine\MachineScan.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\Print.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\InstockIndex.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\UserCenter.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\Proinfo.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\Password.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\InputQuot.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QuotFrom.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QuoDetailCreate.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\InstockIndexWhere.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryQuot.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryQuotWhere.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryOrder.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryOrderWhere.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryOrderDetail.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryDelivery.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryDeliveryDetail.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryDeliveryWhere.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\Contact.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryCheckSheet.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryCheckSheetDetail.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryCheckSheetWhere.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryPlan.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryReport.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryCustomers.cshtml" />
+    <Content Include="Areas\WeiWebSite\Views\WeiLogin\QueryCustomersWhere.cshtml" />
+    <Content Include="Areas\OrderModule\Views\BY_OrderDetailBeOut\Detail.cshtml" />
+    <Content Include="Areas\OrderModule\Views\BY_OrderDetailBeOut\Form.cshtml" />
+    <Content Include="Areas\OrderModule\Views\BY_OrderDetailBeOut\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_Supplier\Detail.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_Supplier\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_Supplier\Index.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckCompany\Detail.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckCompany\Form.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckCompany\Index.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\SaleDetail.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_SetCost\Detail.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_SetCost\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_SetCost\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_SetPerformance\Detail.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_SetPerformance\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_SetPerformance\Index.cshtml" />
+    <Content Include="Areas\ReportModule\Views\Delivery\SummaryCost.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Web.config" />
+    <Content Include="Areas\PaymentModule\Views\Web.config" />
+    <Content Include="Areas\PaymentModule\Views\Base_MaterielPurchase\Detail.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_MaterielPurchase\Form.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_MaterielPurchase\Index.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_SteelPurchase\Detail.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_SteelPurchase\Form.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_SteelPurchase\Index.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielCheck\Detail.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielCheck\Form.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielCheck\Index.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielGet\Detail.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielGet\Form.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielGet\Index.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielReturn\Detail.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielReturn\Form.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielReturn\Index.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielStorage\Detail.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielStorage\Form.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielStorage\Index.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielType\Detail.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielType\Form.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielType\Index.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderComplete\ShowComplete.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_PayCompany\Detail.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_PayCompany\Form.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_PayCompany\Index.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_PaySheet\Detail.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_PaySheet\Form.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_PaySheet\Index.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_MaterielPurchase\GridPageJsonCost.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_MaterielPurchase\GridPageJsonCostPerYear.cshtml" />
+    <Content Include="Areas\OrderModule\Views\BY_OrderDetailBeOut\BeOutPrintList.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_MaterielPurchase\Print.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_SteelPurchase\Print.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\ChoosePrint.cshtml" />
+    <Content Include="Areas\OrderModule\Views\BY_OrderDetailBeOut\AllFrom.cshtml" />
+    <Content Include="Areas\MaterielModule\Views\Base_MaterielStorage\Summary.cshtml" />
+    <Content Include="Areas\ReportModule\Views\Production\WorkDetail.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderComplete\QueryOrder.cshtml" />
+    <Content Include="Areas\OrderModule\Views\BY_OrderDetailBeOut\ChangePrice.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationQuery\QueryQuotation.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\Print1.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationQuery\QueryQuotationForSteelP.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_DeliveryDetail\SetCostForm.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LF1.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\QueryDelivery.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationInput\ChangeRemark.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_MaterielPurchase\FormSummary.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\BY_PayCheckSheel\Detail.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\BY_PayCheckSheel\Form.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\BY_PayCheckSheel\Index.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\Audit.cshtml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\ReturnMoneyView.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\PayMoneyView.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\DayReport.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\Print.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\DHT.cshtml" />
+    <Content Include="Areas\ReportModule\Views\Delivery\FormSummary.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\InvoiceIndex.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\InvoiceForm.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\LWDetail.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\IndexList.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\BY_PayReimburseSheet\Detail.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\BY_PayReimburseSheet\Form.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\BY_PayReimburseSheet\Index.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationInput\ExcelImportDialog.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\BankSFList.cshtml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Areas\CommonModule\Views\Base_ProcessList\Detail.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_ProcessList\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_ProcessList\Index.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_SetPerformanceForArea\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_SetPerformanceForArea\Index.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\EarningsIndexCust.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\QueryWeight.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationInput\DetailFormForQ.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationInput\DetailFormForY.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDBeoutDetail\Detail.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDBeoutDetail\Form.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDBeoutDetail\Index.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDBeout\Detail.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDBeout\Form.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDBeout\Index.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDPerchaseDetail\Detail.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDPerchaseDetail\Form.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDPerchaseDetail\Index.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDPerchase\Detail.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDPerchase\Form.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDPerchase\Index.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDBeout\BeOutPrintList.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDPerchase\BeOutPrintList1.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\PrintLW.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\Print2.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\Print1.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\BY_PayReimburseSheet\PayMoneyView.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\BY_PayReimburseSheet\ReturnMoneyView.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_FlawedNotice\BCPrintPreview.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_CustomerRequery\Detail.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_CustomerRequery\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\Base_CustomerRequery\Index.cshtml" />
+    <Content Include="Content\DownLoad\普通导入模板.xls" />
+    <Content Include="Areas\OrderModule\Views\OrderPrint\ChoosePrint.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderPrint\BCPrintPreviewkl.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\By_InvoiceForDetail\Detail.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\By_InvoiceForDetail\Form.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\By_InvoiceForDetail\Index.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\BankDetail.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\BankChange.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\BankDetailLst.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\BY_PayReimburseSheet\BankPrint.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_ReimburseSheet\BankPrint.cshtml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Areas\PaymentModule\Views\BY_PayCheckSheel\Print.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\Base_Sheet\Detail.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\Base_Sheet\Form.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\Base_Sheet\Index.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\BY_PayReimburseSheet\LWDetail.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\Base_SteelPurchase\IndexDetail.cshtml" />
+    <Content Include="Areas\PaymentModule\Views\BY_PayReimburseSheet\BankSummary.cshtml" />
+    <Content Include="Areas\StorageModule\Views\BY_OutStock\ScaleIndex2.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_SteelQualityreportList\Detail.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_SteelQualityreportList\Form.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_SteelQualityreportList\Index.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_SteelQualityreport\Detail.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_SteelQualityreport\Form.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_SteelQualityreport\Index.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_SteelQualityreport\Print.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderPrint\QPrint.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderPrint\QPrint1.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderPrint\QPrint2.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderPrint\QPrint3.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_FlawedNotice\Print.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_FlawedNotice\Print2.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_CSBReport\Detail.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_CSBReport\Form.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_CSBReport\Index.cshtml" />
+    <Content Include="Content\Scripts\imgGreate\00540\kao\本源码来自酷站代码.URL" />
+    <Content Include="Areas\QualityModule\Views\BY_CSBReport\Print.cshtml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Areas\QuotationHeatModule\Views\Web.config" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\Detail.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\Form.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\Index.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\FormAll.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\Complete.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\Delivery.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\Inventory.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LF2.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_StoveHeatList\Detail.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_StoveHeatList\Form.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_StoveHeatList\Index.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_Stove\Detail.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_Stove\Form.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_Stove\Index.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\IndexSelect.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_Stove\PrintCG.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_Stove\PrintZK.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\Print.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\HeatReport.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\HeatReportList.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\HeatReportPrintCG.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\HeatReportPrintZK.cshtml" />
+    <Content Include="Areas\ReportModule\Views\Delivery\SummeryDetail.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeatBeoutDetail\Detail.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeatBeoutDetail\Form.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeatBeoutDetail\Index.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeatBeout\Detail.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeatBeout\Form.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeatBeout\Index.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeatBeout\BeOutPrint.cshtml" />
+    <Content Include="Areas\OrderDetailProcessModule\Views\BY_OrderDetailProcessDetail\Summary.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\PrintGC.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\PrintRCL.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\BJPrintPreview.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\SaleSummary.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\DetailIndex.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_CJReport\Detail.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_CJReport\Form.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_CJReport\Index.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_JXReport\Detail.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_JXReport\Form.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_JXReport\Index.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_CJReport\Print.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_JXReport\Print.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_FKReport\Detail.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_FKReport\Form.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_FKReport\Index.cshtml" />
+    <Content Include="Areas\QualityModule\Views\BY_FKReport\Print.cshtml">
+      <SubType>Code</SubType>
+    </Content>
+    <Content Include="Areas\OrderModule\Views\OrderPrint\BCPrintPreviewxm.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LF3.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LFMB.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderPrint\BCPrintPreviewLogo.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderPrint\BJPrintForLab.cshtml" />
+    <Content Include="Areas\ReportModule\Views\Delivery\QuoSummary.cshtml" />
+    <Content Include="Areas\ReportModule\Views\Delivery\SummeryDetail1.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LF4.cshtml" />
+    <Content Include="Areas\CheckSheetModule\Views\BY_CheckSheet\FormForQC.cshtml" />
+    <Content Include="Content\Scripts\qrcodejs-master\.gitignore" />
+    <Content Include="Content\Scripts\qrcodejs-master\bower.json" />
+    <Content Include="Content\Scripts\qrcodejs-master\LICENSE" />
+    <Content Include="Content\Scripts\qrcodejs-master\README.md" />
+    <Content Include="Areas\OrderModule\Views\OrderPrint\YCPrint2.cshtml" />
+    <Content Include="Areas\QuotationHeatModule\Views\BY_QuotationHeat\WorkPrint.cshtml" />
+    <Content Include="Content\Scripts\webcamjs\demos\shutter.ogg" />
+    <Content Include="Content\Scripts\webcamjs\DOCS.md" />
+    <Content Include="Content\Scripts\webcamjs\flash\com\adobe\images\BitString.as" />
+    <Content Include="Content\Scripts\webcamjs\flash\com\adobe\images\JPGEncoder.as" />
+    <Content Include="Content\Scripts\webcamjs\flash\com\adobe\images\PNGEncoder.as" />
+    <Content Include="Content\Scripts\webcamjs\flash\mx\utils\Base64Encoder.as" />
+    <Content Include="Content\Scripts\webcamjs\flash\Webcam.as" />
+    <Content Include="Content\Scripts\webcamjs\flash\Webcam.fla" />
+    <Content Include="Content\Scripts\webcamjs\jquery插件库.url" />
+    <Content Include="Content\Scripts\webcamjs\README.md" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\bower.json" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\jQuery-webcam-master.7z" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\Makefile" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\Button.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\display\BitmapData.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\external\ExternalInterface.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\filters\BevelFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\filters\BitmapFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\filters\BlurFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\filters\ColorMatrixFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\filters\ConvolutionFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\filters\DisplacementMapFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\filters\DropShadowFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\filters\GlowFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\filters\GradientBevelFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\filters\GradientGlowFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\geom\ColorTransform.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\geom\Matrix.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\geom\Point.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\geom\Rectangle.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\geom\Transform.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\net\FileReference.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\net\FileReferenceList.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\flash\text\TextRenderer.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\Key.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\MovieClip.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\Stage.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\System\IME.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\System\security.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\TextField.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\TextFormat.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std8\XMLNode.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std9\flash\display\BitmapData.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std9\flash\net\FileReference.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std9\flash\text\TextRenderer.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std9\MovieClip.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std9\MovieClipLoader.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std9\NetStream.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std9\Sound.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std9\Stage.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Accessibility.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Array.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\ArrayParam.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\ArrayPoly.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\AsBroadcaster.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Boolean.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Button.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Camera.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Color.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\ContextMenu.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\ContextMenuItem.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Date.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Error.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\ExtendedKey.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Function.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\FunctionArguments.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Key.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\LoadVars.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\LocalConnection.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Math.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Microphone.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Mouse.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\MovieClip.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\MovieClipLoader.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\NetConnection.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\NetStream.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Number.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Object.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\PrintJob.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Selection.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\SharedObject.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Sound.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Stage.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\StdPresent.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\String.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\System.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\System\capabilities.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\System\security.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\TextField.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\TextField\StyleSheet.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\TextFormat.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\TextSnapshot.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\TopLevel.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\Video.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\XML.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\XMLNode.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\mtasc-1.15-win\std\XMLSocket.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\README.md" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\src\BitString.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\src\JPGEncoder.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\src\jscam.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\Button.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\display\BitmapData.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\external\ExternalInterface.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\filters\BevelFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\filters\BitmapFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\filters\BlurFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\filters\ColorMatrixFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\filters\ConvolutionFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\filters\DisplacementMapFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\filters\DropShadowFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\filters\GlowFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\filters\GradientBevelFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\filters\GradientGlowFilter.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\geom\ColorTransform.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\geom\Matrix.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\geom\Point.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\geom\Rectangle.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\geom\Transform.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\net\FileReference.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\net\FileReferenceList.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\flash\text\TextRenderer.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\Key.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\MovieClip.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\Stage.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\System\IME.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\System\security.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\TextField.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\TextFormat.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std8\XMLNode.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std9\flash\display\BitmapData.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std9\flash\net\FileReference.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std9\flash\text\TextRenderer.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std9\MovieClip.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std9\MovieClipLoader.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std9\NetStream.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std9\Sound.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std9\Stage.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Accessibility.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Array.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\ArrayParam.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\ArrayPoly.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\AsBroadcaster.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Boolean.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Button.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Camera.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Color.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\ContextMenu.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\ContextMenuItem.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Date.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Error.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\ExtendedKey.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Function.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\FunctionArguments.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Key.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\LoadVars.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\LocalConnection.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Math.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Microphone.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Mouse.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\MovieClip.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\MovieClipLoader.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\NetConnection.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\NetStream.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Number.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Object.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\PrintJob.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Selection.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\SharedObject.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Sound.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Stage.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\StdPresent.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\String.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\System.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\System\capabilities.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\System\security.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\TextField.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\TextField\StyleSheet.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\TextFormat.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\TextSnapshot.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\TopLevel.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\Video.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\XML.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\XMLNode.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\std\XMLSocket.as" />
+    <Content Include="Content\Scripts\jQuery-webcam-master\webcam.jquery.json" />
+    <Content Include="Areas\QuotationModule\Views\assembleparts\ChoosePrint.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\assembleparts\ComfirmIndex.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\assembleparts\CompleteIndex.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\assembleparts\DeliveryIndex.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\assembleparts\DetailForm.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\assembleparts\Index.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\assembleparts\OrderDetailIndex.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\assembleparts\OrderQueryIndex.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\assembleparts\QueryIndex.cshtml" />
+    <Content Include="Areas\CommonModule\Views\base_file\Detail.cshtml" />
+    <Content Include="Areas\CommonModule\Views\base_file\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\base_file\Index.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationPrint\BJPrintPreviewLJ.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationPrint\BJPrintPreviewLJ2.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationPrint\BJPrintPreview1.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderPrint\BCPrintPreviewLJ.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDBeout\BeOutPrintListLJ.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LF1ForLJ.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationPrint\BJPrintPreviewLJ3.cshtml" />
+    <Content Include="Areas\OrderModule\Views\OrderPrint\OrderPrintSigle2.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LF1ForLJ2.cshtml" />
+    <Content Include="Areas\QuotationModule\Views\QuotationPrint\BJPrintPreviewLJ4.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_DeliveryDetail\IndexLJ.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LF1ForLJ3.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LF1ForLJ4.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LF1ForLJ5.cshtml" />
+    <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LF1ForLJ6.cshtml" />
+    <None Include="Properties\PublishProfiles\LR-FDMS.pubxml" />
+    <Content Include="Views\Home\SkinIndex.cshtml" />
+    <Content Include="Views\Login\Default.cshtml" />
+    <None Include="Properties\PublishProfiles\LFpublish.pubxml" />
+    <Content Include="Resource\IPScaner\QQWry.Dat" />
+    <Content Include="Views\Home\test.cshtml" />
+    <Content Include="Views\Login\MacInfo.cshtml" />
+    <Content Include="Views\Shared\_LayoutMobile.cshtml" />
+    <Content Include="Views\Shared\_PartialMobileBottom.cshtml" />
+    <Content Include="Views\Login\LED.cshtml" />
+    <Content Include="Views\Home\LEDIndex.cshtml" />
+    <Content Include="Views\Login\LEDWorkers.cshtml" />
+    <None Include="Properties\PublishProfiles\YLZGerp.pubxml" />
+    <None Include="Properties\PublishProfiles\ZDERP.pubxml" />
+    <Content Include="Views\HighCharts\Index.cshtml" />
+    <None Include="Views\Utility\PrintPage.cshtml" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+    <Content Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="XmlConfig\log4net.config" />
+    <Content Include="XmlConfig\system.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Home\StartIndex.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LeaRun.Business\DNS.Business.csproj">
+      <Project>{644d58b9-1467-416c-b031-00b6f4b385d4}</Project>
+      <Name>DNS.Business</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LeaRun.Cache\DNS.Cache.csproj">
+      <Project>{ce495c65-356d-453a-919e-329879fdf47c}</Project>
+      <Name>DNS.Cache</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LeaRun.DataAccess\DNS.DataAccess.csproj">
+      <Project>{7d1a96cf-9b89-443f-ab95-12343f52a1ac}</Project>
+      <Name>DNS.DataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LeaRun.Entity\DNS.Entity.csproj">
+      <Project>{fe90ed79-3221-4c96-9361-9019a17be9f7}</Project>
+      <Name>DNS.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LeaRun.Repository\DNS.Repository.csproj">
+      <Project>{1848efad-3f70-4e52-8bd8-e952dc127f4d}</Project>
+      <Name>DNS.Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LeaRun.Utilities\DNS.Utilities.csproj">
+      <Project>{7a9e54b1-d54d-4af2-99e9-06e9baff4846}</Project>
+      <Name>DNS.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Home\StartPanel.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Web.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_LayoutForm.cshtml" />
+    <Content Include="Views\Shared\_LayoutIndex.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Module\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Error\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CodeMaticModule\Views\Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CodeMaticModule\DataModel\LeaRun.Framework.pdm" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CodeMaticModule\Views\CodeMatic\CodeMaticIndex.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CodeMaticModule\Views\CodeMatic\CodeMaticConten.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Module\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Button\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Button\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\DataDictionary\SortManage.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\View\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\View\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\DataDictionary\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\DataDictionary\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\SysLog\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\SysLog\RemoveLog.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\SysLog\Detail.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Utility\QueryPage.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\QueryRecord\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Company\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Company\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Department\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Department\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Roles\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Roles\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Post\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Post\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\GroupUser\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\GroupUser\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\User\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\User\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Permission\AllotMember.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Permission\AllotPermission.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Error\Error404.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Error\Browser.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Permission\ScopePermission.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\User\ResetPassword.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Login\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\User\UserRole.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Permission\AllotMemberBatch.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Permission\AllotUser.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Shared\_PartialButton.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\Roles\Detail.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\SysLog\FileIndex.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\DataBase\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\DataBase\Form.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\DataBase\Detail.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\DataBase\SqlCommand.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\DataBase\DbBackup.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Utility\OptionUser.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\ExcelImport\EditExcelImportConten.cshtml" />
+    <Content Include="Areas\CommonModule\Views\ExcelImport\ExcelImportConten.cshtml" />
+    <Content Include="Areas\CommonModule\Views\ExcelImport\ExcelImportDialog.cshtml" />
+    <Content Include="Areas\CommonModule\Views\ExcelImport\ExcelImportIndex.cshtml" />
+    <Content Include="Areas\CommonModule\Views\ExcelImport\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Home\Shortcuts.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Areas\CommonModule\Views\CodeRule\Form.cshtml" />
+    <Content Include="Areas\CommonModule\Views\CodeRule\Index.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Views\Home\SupportPage.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Areas\CheckSheetModule\Views\Shared\" />
+    <Folder Include="Areas\DeliveryModule\Views\Shared\" />
+    <Folder Include="Areas\OfficialWebSite\Controllers\" />
+    <Folder Include="Areas\OfficialWebSite\Models\" />
+    <Folder Include="Resource\DbBackup\" />
+    <Folder Include="Resource\Document\Email\" />
+    <Folder Include="Resource\Photo\" />
+    <Folder Include="Resource\Template\" />
+    <Folder Include="Resource\UploadFile\ImportExcel\" />
+  </ItemGroup>
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <Target Name="MvcBuildViews" AfterTargets="AfterBuild" Condition="'$(MvcBuildViews)'=='true'">
+    <AspNetCompiler VirtualPath="temp" PhysicalPath="$(WebProjectOutputDir)" />
+  </Target>
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>4056</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:8099/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target> -->
+</Project>

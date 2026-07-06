@@ -1,0 +1,95 @@
+@{
+    ViewBag.Title = "By_InvoiceForDetail》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CheckSheetModule/By_InvoiceForDetail/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <table class="form">
+        <tr>
+            <th class='formTitle'>InvoiceId：</th>
+            <td class='formValue'>
+                <label id="InvoiceId" />
+            </td>
+            <th class='formTitle'>发运单明细ID：</th>
+            <td class='formValue'>
+                <label id="DeliveryDetailId" />
+            </td>
+            <th class='formTitle'>InvoiceDate：</th>
+            <td class='formValue'>
+                <label id="InvoiceDate" />
+            </td>
+            <th class='formTitle'>InvoiceNum：</th>
+            <td class='formValue'>
+                <label id="InvoiceNum" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>接收单位：</th>
+            <td class='formValue'>
+                <label id="InvoiceCustomer" />
+            </td>
+            <th class='formTitle'>InvoiceMoney：</th>
+            <td class='formValue'>
+                <label id="InvoiceMoney" />
+            </td>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue'>
+                <label id="Remark" />
+            </td>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <label id="Enabled" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>排序码：</th>
+            <td class='formValue'>
+                <label id="SortCode" />
+            </td>
+            <th class='formTitle'>删除标记：</th>
+            <td class='formValue'>
+                <label id="DeleteMark" />
+            </td>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <label id="CreateDate" />
+            </td>
+            <th class='formTitle'>创建用户主键：</th>
+            <td class='formValue'>
+                <label id="CreateUserId" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>创建用户：</th>
+            <td class='formValue'>
+                <label id="CreateUserName" />
+            </td>
+            <th class='formTitle'>修改时间：</th>
+            <td class='formValue'>
+                <label id="ModifyDate" />
+            </td>
+            <th class='formTitle'>修改用户主键：</th>
+            <td class='formValue'>
+                <label id="ModifyUserId" />
+            </td>
+            <th class='formTitle'>修改用户：</th>
+            <td class='formValue'>
+                <label id="ModifyUserName" />
+            </td>
+        </tr>
+        <tr>
+        </tr>
+    </table>
+</form>

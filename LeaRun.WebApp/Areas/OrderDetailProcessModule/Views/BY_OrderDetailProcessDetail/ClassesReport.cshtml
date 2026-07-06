@@ -1,0 +1,208 @@
+﻿
+@{
+    ViewBag.Title = "班次完成订单量";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/highcharts/highchartsjquery")
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //查询
+    function btn_Search() {
+        var datetime = $("#StartTime").val();
+        var datetime2 = $("#StartTime2").val();
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/OrderDetailProcessModule/BY_OrderDetailProcessDetail/ClassGridPageJson")?datetime=" + datetime + "&datetime2=" + datetime2, page: 1 }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid() {
+        var datetime = $("#StartTime").val();
+        var datetime2 = $("#StartTime2").val();
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/OrderDetailProcessModule/BY_OrderDetailProcessDetail/ClassGridPageJson")?datetime=" + datetime + "&datetime2=" + datetime2,
+            datatype: "json",
+            height: $(window).height() - 158,
+            autowidth: true,
+            colModel: [
+                    {
+                        label: '日期', name: 'classesdate', index: 'classesdate', width: 80, align: 'center',
+                        cellattr: function(rowId, tv, rawObject, cm, rdata) {
+                            //合并单元格
+                            return 'id=\'classesdate' + rowId + "\'";
+                            //if (Number(rowId) < 5) { return ' colspan=2' }
+                        },
+                        formatter: function (cellvalue, options, rowObject) {
+                            return cellvalue.substr(0, 10);
+                            
+                        }
+                    },
+                    {
+                        label: '班次', name: 'classesshift', index: 'classesshift', width: 80, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (cellvalue == 'A') return "白班";
+                            if (cellvalue == 'B') return "夜班";
+                        }
+                    },
+                    { label: '粗料件数', name: 'bcqty', index: 'bcqty', width: 80, align: 'right' },
+                    { label: '粗料重量', name: 'bcqweight', index: 'bcqweight', width: 80, align: 'right' },
+                    { label: '精料件数', name: 'bjqty', index: 'bjqty', width: 80, align: 'right' },
+                    { label: '精料重量', name: 'bjqweight', index: 'bjqweight', width: 80, align: 'right' },
+                    { label: '合计件数', name: 'totalqty', index: 'totalqty', width: 80, align: 'right' },
+                    { label: '合计重量', name: 'totalqtyweight', index: 'totalqtyweight', width: 80, align: 'right' },
+                    { label: '加工件数', name: 'compeletqty', index: 'compeletqty', width: 80, align: 'right' },
+                    { label: '加工重量', name: 'compeletweight', index: 'compeletweight', width: 80, align: 'right' },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            
+            sortname: 'classesdate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+           
+            gridview: true,
+            footerrow: true,
+            
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "classesdate": "合计",
+                    "bcqty": FormatCurrency($("#gridTable").getCol('bcqty', false, 'sum')),
+                    "bcqweight": FormatCurrency($("#gridTable").getCol('bcqweight', false, 'sum')),
+                    "bjqty": FormatCurrency($("#gridTable").getCol('bjqty', false, 'sum')),
+                    "bjqweight": FormatCurrency($("#gridTable").getCol('bjqweight', false, 'sum')),
+                    "totalqty": FormatCurrency($("#gridTable").getCol('totalqty', false, 'sum')),
+                    "totalqtyweight": FormatCurrency($("#gridTable").getCol('totalqtyweight', false, 'sum')),
+                    "compeletqty": FormatCurrency($("#gridTable").getCol('compeletqty', false, 'sum')),
+                    "compeletweight": FormatCurrency($("#gridTable").getCol('compeletweight', false, 'sum'))
+                });
+
+                //②在gridComplete调用合并方法
+                var gridName = "gridTable";
+                Merger(gridName, 'classesdate');
+            }
+            
+        });
+       
+        //表头合并
+        $("#gridTable").jqGrid('setGroupHeaders', {
+            useColSpanStyle: true,
+            groupHeaders: [
+              { startColumnName: 'bcqty', numberOfColumns: 6, titleText: '开料情况' },
+              { startColumnName: 'compeletqty', numberOfColumns: 2, titleText: '精料完工情况' }
+            ]
+        });
+        
+    }
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "销售汇总表");
+        
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+
+    function OverrideTabchange(id) {
+            Tabchange(id);
+            if (id == "Report") {
+            }
+            else if (id == "Plato") {
+                //CreatePlato();
+            } 
+    }
+    function CreatePlato() {
+        $('#container').highcharts({
+            chart: {
+                type: 'spline'
+            },
+            title: {
+                text: '销售产品统计表'
+            },
+            xAxis: {
+                categories: ['一周', '二周', '三周', '四周', '五周']
+            },
+            yAxis: {
+                title: {
+                    text: '销售产品'
+                },
+                labels: {
+                    formatter: function () {
+                        return this.value + ''
+                    }
+                }
+            },
+            tooltip: {
+                crosshairs: true,
+                shared: true
+            },
+            plotOptions: {
+                spline: {
+                    marker: {
+                        radius: 4,
+                        lineColor: '#666666',
+                        lineWidth: 1
+                    }
+                }
+            },
+            series: [{
+                name: '工单统计',
+                data: listA
+            }, {
+                name: '报价单统计',
+                data: listB
+
+            }, {
+                name: '发运单统计',
+                data: listC
+
+            }]
+        });
+    };
+</script>
+<div class="leftline rightline topline QueryArea" style="margin: 1px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>日期从</th>
+            <td>
+                <input id="StartTime" type="text" class="txt Wdate"  style="width: 120px" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" />
+            </td>
+            <th style=" width:20px;">至</th>
+            <td>
+                <input id="StartTime2" type="text" class="txt Wdate"  style="width: 120px" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+            @*<td>
+                <input id="btn_export" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
+            </td>*@
+        </tr>
+    </table>
+</div>
+
+<div class="bd" style="border-bottom: none; margin: 1px;">
+    <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+        <div class="tab_list_top" style="position: absolute">
+            <div id="TabReport" class="tab_list bd actived" onclick="OverrideTabchange('Report')">报表</div>
+            <div id="TabPlato" class="tab_list bd " onclick="OverrideTabchange('Plato');">柏拉图</div>
+        </div>
+    </div>
+</div>
+
+
+<div class="ScrollBar topline" style="margin: 1px; overflow: hidden; border-bottom: none;">
+    <!--报表-->
+    <div id="Report" class="tabPanel" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    </div>
+    <!--柏拉图-->
+    <div id="Plato" class="tabPanel" style="margin: 1px; margin-top: -1px;display: none;">
+    <div id="container" style="min-width:600px;height:400px"></div>
+   </div>
+</div>

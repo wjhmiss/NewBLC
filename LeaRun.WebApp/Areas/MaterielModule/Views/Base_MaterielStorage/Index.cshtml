@@ -1,0 +1,152 @@
+@{
+    ViewBag.Title = "库存";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+        url: "@Url.Content("~/MaterielModule/Base_MaterielStorage/GridPageJson1")",
+        datatype: "json",
+        height: $(window).height() - 135,
+        autowidth: true,
+        colModel: [
+                { label: '物料id', name: 'MaterielStorageId', index: 'MaterielStorageId', hidden: true },
+                { label: '物料id', name: 'MaterielId', index: 'MaterielId', hidden: true },
+                { label: '物料号', name: 'MaterielCode', index: 'MaterielCode', width: 80, align: 'left', sortable: true },
+                { label: '物料名称', name: 'MaterielName', index: 'MaterielName', width: 100, align: 'left', sortable: true },
+                { label: '物料类型', name: 'MaterielType', index: 'MaterielType', width: 80, align: 'left',sortable: true  },
+                { label: '尺寸', name: 'MaterielSize', index: 'MaterielSize', width: 120, align: 'left',sortable: true  },
+                { label: '单位', name: 'Unit', index: 'Unit', width: 80, align: 'left',sortable: true  },
+                { label: '供应商ID', name: 'CustomerId', index: 'CustomerId', hidden: true },
+                { label: '供应商编号', name: 'CustomerCode', index: 'CustomerCode', width: 80, align: 'left', sortable: true },
+                { label: '供应商名称', name: 'CustomerName', index: 'CustomerName', width: 120, align: 'left', sortable: true },
+                { label: '最近入仓单价', name: 'PricePer', index: 'PricePer', width: 80, align: 'left',sortable: true  },
+                { label: '数量', name: 'Qty', index: 'Qty', width: 80, align: 'left',sortable: true  },
+                {
+                    label: '总金额', name: 'TotalAmount', index: 'TotalAmount'
+                },
+                { label: '报警库存', name: 'AlarmNumber', index: 'AlarmNumber', width: 80, align: 'left',sortable: true  },
+                {
+                    label: '备注', name: 'Remark', index: 'Remark', hidden: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                },
+                
+        ],
+        viewrecords: true,
+        rowNum: 30,
+        rowList: [30, 50, 100, 500, 5000],
+        pager: "#gridPager",
+        sortname: 'MaterielName',
+        sortorder: 'desc',
+        rownumbers: true,
+        shrinkToFit: false,
+        gridview: true,
+        footerrow: true,
+        gridComplete: function () {
+            //合计
+            $(this).footerData("set", {
+                "MaterielName": "合计",
+                "Qty": FormatCurrency($("#gridTable").getCol('Qty', false, 'sum')),
+                "TotalAmount": FormatCurrency($("#gridTable").getCol('TotalAmount', false, 'sum')),
+            });
+        }
+    });
+}
+    //新增
+    function btn_add() {
+        var url = "/MaterielModule/Base_MaterielStorage/Form"
+        openDialog(url, "Form", "新增库存", 770, 395, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielStorageId");
+        if (IsChecked(KeyValue)) {
+            var url = "/MaterielModule/Base_MaterielStorage/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑库存", 770, 395, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielStorageId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/MaterielModule/Base_MaterielStorage/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //明细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielStorageId");
+        if (IsChecked(KeyValue)) {
+            var url = "/MaterielModule/Base_MaterielStorage/Detail?KeyValue=" + KeyValue;
+            Dialog(url, "Detail", "库存明细", 820, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+        
+    }
+
+    //搜索
+    function btn_Search() {
+        var Condition = JSON.stringify(GetWebControls("#QueryParameter", true));
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/MaterielModule/Base_MaterielStorage/GridPageJson1")?Condition=" + escape(Condition), page: 1
+        }).trigger('reloadGrid');
+    }
+
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "库存报表");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+</script>
+<!--工具栏-->
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;" id="QueryParameter">
+        <tr>
+            <th>关键字：</th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 200px" />
+            </td>
+            <td >
+                    <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkbox" id="AlarmNumber" />
+                        <label for="AlarmNumber">报警物料</label>
+                    </span>
+
+                </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                <input id="btn_export" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

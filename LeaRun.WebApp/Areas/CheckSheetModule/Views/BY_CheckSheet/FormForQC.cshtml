@@ -1,0 +1,185 @@
+@{
+    ViewBag.Title = "对账单》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/Workday/kalendarjqueryyyyydd")
+@Styles.Render("~/Content/Scripts/Workday/kalendarcss")
+    @Scripts.Render("~/Content/Scripts/jqgrid/jqgridjquery")
+     @Styles.Render("~/Content/Scripts/jqgrid/css/jqgridcss")
+<script type="text/javascript">
+    var CheckSheetId = GetQuery('CheckSheetId'); 
+    $(function () {
+        //客户编码自动补全
+        CustomerAutocomplete();
+        InitControl();
+    })
+
+   
+    function InitControl() {
+        if (!!CheckSheetId) {
+            AjaxJson("/CheckSheetModule/BY_CheckSheet/SetForm", { KeyValue: CheckSheetId }, function (data) {
+                SetWebControls(data);
+            });
+            $("#s41").prop("checked", false);
+            $('input').customInput();
+
+            //jQuery("#list13").jqGrid('setSelection', "13");
+
+
+        }
+        else {
+            $("#CheckSheetCode").val("自动生成")
+        }
+    }
+    //搜索
+  
+
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        if (Number($("#month").find("select[name='year']").val()) + 1 == 13) {
+            tipDialog("请选择月份！！", 3, 0);
+            return false;
+
+        }
+
+        var postData = {
+            Year: $("#year").find("select[name='year']").val(),
+            Month: Number($("#month").find("select[name='year']").val()) + 1,
+            CustomerCode: $("#CustomerCode").val(),
+            deliverycodes: '',
+            CheckSheetId: CheckSheetId,
+            BeginDate: $("#BeginDate").val(),
+            EndDate: $("#EndDate").val(),
+            DTotalAmount: $("#DTotalAmount").val(),
+            DTotalAmountOri: $("#DTotalAmount").val(),
+            LType: $("#LType").val(),
+
+        };
+        Loading(true, "正在提交数据...");
+        AjaxJson("/CheckSheetModule/BY_CheckSheet/BuildCheckSheet", postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+
+
+    }
+
+
+
+    //客户编码自动补全
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.FullName);
+            $("#PaymentMode").val(data.PaymentMode);
+            btn_Search();
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Customer/GetAutoCompleJsonNXJ", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 70%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="ShortName" style="display: none;">' + DataJson[i].ShortName + '</td>';
+                    html += '<td id="Sellpeople" style="display: none;">' + DataJson[i].Sellpeople + '</td>';
+                    html += '<td id="SalesArea" style="display: none;">' + DataJson[i].Sellarea + '</td>';
+                    html += '<td id="DiscountRate" style="display: none;">' + DataJson[i].DiscountRate + '</td>';
+                    html += '<td id="TransitMode" style="display: none;">' + DataJson[i].TransitMode + '</td>';
+                    html += '<td id="PaymentMode" style="display: none;">' + DataJson[i].PaymentMode + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.FullName);
+                    $("#PaymentMode").val(data.PaymentMode);
+                });
+
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+
+
+    <div class="note-prompt" style="margin: 1px;">
+        提示:选择年月后点击生成对账单,如果对账单日期重叠,对账单金额会错误,请选择正确日期后重新生成重叠的前后两个对账单
+    </div>
+    <div class="border" style="margin: 1px;">
+    </div>
+    <div style="overflow: auto;">
+        <div id='wrap' style="float: inherit; width: 100%">
+        </div>
+    </div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>对账单号：</th>
+            <td class='formValue' colspan="3">
+                <input id="CheckSheetCode" maxlength="50" type="text" class="txt" readonly />
+                <input id="Enabled" type="hidden" value="1" />
+            </td>
+
+
+        </tr>
+    </table>
+    <div id="basic" class="tabPanel">
+        <table class="form">
+
+            <tr>
+                <th class='formTitle'>客户编号：</th>
+                <td class='formValue'>
+                    <input id="CustomerCode" maxlength="50" type="text" class="txt required" datacol="yes" err="客户编号" checkexpession="NotNull" />
+                </td>
+                <th class='formTitle'>对账金额：</th>
+                <td class='formValue'>
+                    <input id="DTotalAmount" maxlength="50" onfocus="IsMoney(this.id);" type="text" class="txt required" datacol="yes" err="对账金额" checkexpession="NotNull"  />
+                </td>
+                <th class='formTitle'>已选单金额：</th>
+                <td class='formValue'>
+                    <input id="DTotalAmountOri" maxlength="50" disabled type="text"  disabled />
+                </td>
+
+            </tr>
+            <tr>
+                <th class='formTitle'>开始日期：</th>
+                <td class='formValue'>
+                    <input id="BeginDate" type="text"   class="txt Wdate required" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00',onpicked:function(){btn_Search();}})" style="width: 95%" datacol="yes" err="开始日期" checkexpession="NotNull" />
+                </td>
+                <th class='formTitle'>结束日期：</th>
+                <td class='formValue'>
+                    <input id="EndDate" type="text"   class="txt Wdate required" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59',onpicked:function(){btn_Search();}})" style="width: 95%" datacol="yes" err="结束日期" checkexpession="NotNull" />
+
+                </td>
+                <th class='formTitle'>状态：</th>
+                <td class='formValue'>
+                    <select id="LType" type="text" class="txt" style="width:46%" onchange="btn_Search();">
+                        <option value="GC">钢材</option>
+                        <option value="LJ">配件</option>
+                        <option value="RCL">热处理</option>
+                    </select>
+                </td>
+            </tr>
+
+        </table>
+    </div>
+</form>

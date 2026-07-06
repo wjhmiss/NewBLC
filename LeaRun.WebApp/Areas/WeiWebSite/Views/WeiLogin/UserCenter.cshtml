@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "用户中心";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+
+<script>
+        //初始化
+    $(function () {
+
+        $("#main_footer a.user").addClass("pressed");
+
+            AjaxJsonNoMassge("/WeiWebSite/WeiLogin/GetCustomerInfo", "", function (data) {
+                if (data == "-1") {
+                    alert("联系管理员");
+                    window.location.href = "@Url.Content("~/WeiWebSite/WeiLogin/WeiIndex")";
+                    return false;
+                }
+                $("#amount").html("￥" + data.amountSql);
+                $("#amounta").html("￥" + data.amountaSql);
+                
+                $("#ordernum").html(data.orSql);
+                $("#ordernumC").html(data.orCSql);
+                $("#checknum").html(data.csSql);
+            });
+        })
+</script>
+
+	<div id="mainPanel" class="panel" data-footer="main_footer">
+      
+      <!--会员中心-->
+      <header>
+        <a href="javascript:;" onclick="history.back(-1);" class="backButton">返回</a>
+        <h1>会员中心</h1>
+        <a onclick="$.ui.toggleSideMenu()" class="menuButton"></a>
+      </header>
+      
+      <div class="head-box">
+        <div class="avatar-box">
+          
+          <img src="~/Content/Scripts/Mobile/templates/mobile/images/user_avatar.png" alt="求真像" />
+          
+          <h3>@DNS.Utilities.ManageProvider.Provider.Current().UserName-@ViewBag.isVip</h3>
+          
+            <p><span>公司：@DNS.Utilities.ManageProvider.Provider.Current().CompanyName</span></p>
+            <p><span>公司地址：@DNS.Utilities.ManageProvider.Provider.Current().IPAddressName</span></p>
+        </div>
+        <div class="tip-box">
+            @if (string.IsNullOrEmpty(DNS.Utilities.ManageProvider.Provider.Current().ObjectId) || DNS.Utilities.ManageProvider.Provider.Current().ObjectId.IndexOf("20178431-3604-46b6-a75b-f7ba13548aed") >= 0)
+            {
+           <dl>
+            <dt>本月营业额</dt>
+            <dd id="amounta">￥0.00</dd>
+          </dl>
+            }
+            else
+            {
+                <dl>
+            <dt>交易总金额</dt>
+            <dd id="amount">￥0.00</dd>
+          </dl>
+          
+            }
+          <dl>
+            <dt>生产中订单</dt>
+            <dd id="ordernum">0</dd>
+          </dl>
+          <dl>
+            <dt>历史订单</dt>
+            <dd  id="ordernumC">0</dd>
+          </dl>
+          <dl>
+            <dt>对账单</dt>
+            <dd  id="checknum">0</dd>
+          </dl>
+        </div>
+      </div>
+      
+      <div>
+        <ul class="list inset listview">
+          <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/InputQuot")" data-ignore="true">快速下单</a></li>
+          <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryOrder")" data-ignore="true">历史订单</a></li>
+            <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryCheckSheet")/user/amount/recharge.html" data-ignore="true">对账单</a></li>
+        </ul>
+        <ul class="list inset listview">
+          
+          <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/InstockIndex")" data-ignore="true">库存信息</a></li>
+            <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryReport")" data-ignore="true">统计报表</a></li>
+          <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/Contact")" data-ignore="true">联系方式</a></li>
+            
+        </ul>
+        <ul class="list inset listview">
+          @if (string.IsNullOrEmpty(DNS.Utilities.ManageProvider.Provider.Current().ObjectId) || DNS.Utilities.ManageProvider.Provider.Current().ObjectId.IndexOf("20178431-3604-46b6-a75b-f7ba13548aed") >= 0)
+          {
+
+          }
+          else
+          {
+              <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/Proinfo")" data-ignore="true">个人资料</a></li>
+          <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/Password")" data-ignore="true">修改密码</a></li>
+         
+          }
+           <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/Exit")" data-ignore="true">退出登录</a></li>
+        </ul>
+      </div>
+      <!--/会员中心-->
+      
+      
+      
+      <!--版权信息-->
+        @Html.Partial("_PartialMobileBottom")
+      <!--/版权信息-->
+    
+	</div>
+

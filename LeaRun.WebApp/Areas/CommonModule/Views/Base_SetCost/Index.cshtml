@@ -1,0 +1,129 @@
+@{
+    ViewBag.Title = "设置成本";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+        url: "@Url.Content("~/CommonModule/Base_SetCost/GridPageJson")",
+        datatype: "json",
+        height: $(window).height() - 149,
+        autowidth: true,
+        colModel: [
+                { label: 'id', name: 'SetCostId', index: 'SetCostId', width: 0, align: 'left',sortable: true  },
+                { label: '光硬价格', name: 'GYPrice', index: 'GYPrice', width: 0, align: 'left',sortable: true  },
+                { label: '光软价格', name: 'GRPrice', index: 'GRPrice', width: 0, align: 'left',sortable: true  },
+                { label: '精板价格', name: 'JBPrice', index: 'JBPrice', width: 0, align: 'left',sortable: true  },
+                { label: '热处理价格', name: 'RclPrice', index: 'RclPrice', width: 0, align: 'left',sortable: true  },
+                { label: '光硬保底面积', name: 'GYLimiteArea', index: 'GYLimiteArea', width: 0, align: 'left',sortable: true  },
+                { label: '光软保底面积', name: 'GRLimiteArea', index: 'GRLimiteArea', width: 0, align: 'left',sortable: true  },
+                { label: '精板保底面积', name: 'JBLimiteArea', index: 'JBLimiteArea', width: 0, align: 'left',sortable: true  },
+                { label: '热处理保底面积', name: 'RclLimiteArea', index: 'RclLimiteArea', width: 0, align: 'left',sortable: true  },
+                { label: '光硬保底面积', name: 'GYLimiteAreaPer', index: 'GYLimiteAreaPer', width: 0, align: 'left',sortable: true  },
+                { label: '光软保底面积', name: 'GRLimiteAreaPer', index: 'GRLimiteAreaPer', width: 0, align: 'left',sortable: true  },
+                { label: '精板保底面积', name: 'JBLimiteAreaPer', index: 'JBLimiteAreaPer', width: 0, align: 'left',sortable: true  },
+                { label: '热处理保底面积', name: 'RclLimiteAreaPer', index: 'RclLimiteAreaPer', width: 0, align: 'left',sortable: true  },
+                { label: '超长', name: 'GreatLong', index: 'GreatLong', width: 0, align: 'left',sortable: true  },
+                { label: '超宽', name: 'GreatWeigh', index: 'GreatWeigh', width: 0, align: 'left',sortable: true  },
+                { label: '超长宽后价格', name: 'GreatPrice', index: 'GreatPrice', width: 0, align: 'left',sortable: true  },
+                {
+                    label: '备注', name: 'Remark', index: 'Remark', width: 0, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                },
+                { label: '有效', name: 'Enabled', index: 'Enabled', width: 0, align: 'left',sortable: true  },
+                { label: '排序码', name: 'SortCode', index: 'SortCode', width: 0, align: 'left',sortable: true  },
+                { label: '删除标记', name: 'DeleteMark', index: 'DeleteMark', width: 0, align: 'left',sortable: true  },
+                { label: '创建时间', name: 'CreateDate', index: 'CreateDate', width: 0, align: 'left',sortable: true  },
+                { label: '创建用户主键', name: 'CreateUserId', index: 'CreateUserId', width: 0, align: 'left',sortable: true  },
+                { label: '创建用户', name: 'CreateUserName', index: 'CreateUserName', width: 0, align: 'left',sortable: true  },
+                { label: '修改时间', name: 'ModifyDate', index: 'ModifyDate', width: 0, align: 'left',sortable: true  },
+                { label: '修改用户主键', name: 'ModifyUserId', index: 'ModifyUserId', width: 0, align: 'left',sortable: true  },
+                { label: '修改用户', name: 'ModifyUserName', index: 'ModifyUserName', width: 0, align: 'left',sortable: true  },
+        ],
+        viewrecords: true,
+        rowNum: 30,
+        rowList: [30, 50, 100, 500, 5000],
+        pager: "#gridPager",
+        sortname: 'CreateDate',
+        sortorder: 'desc',
+        rownumbers: true,
+        shrinkToFit: false,
+        gridview: true,
+    });
+}
+    //新增
+    function btn_add() {
+        var url = "/CommonModule/Base_SetCost/Form"
+        openDialog(url, "Form", "新增设置成本", 770, 395, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "SetCostId");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/Base_SetCost/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑设置成本", 770, 395, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "SetCostId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/Base_SetCost/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //明细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "SetCostId");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/Base_SetCost/Detail?KeyValue=" + KeyValue;
+            Dialog(url, "Detail", "设置成本明细", 820, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+        
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>关键字：</th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 200px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

@@ -1,0 +1,281 @@
+@{
+    ViewBag.Title = "BY_OrderDetailBeOut》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/OrderModule/BY_OrderDetailBeOut/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <table class="form">
+        <tr>
+            <th class='formTitle'>订单明细ID：</th>
+            <td class='formValue'>
+                <label id="OrderDetailOutId" />
+            </td>
+            <th class='formTitle'>订单明细ID：</th>
+            <td class='formValue'>
+                <label id="OrderDetailId" />
+            </td>
+            <th class='formTitle'>订单ID：</th>
+            <td class='formValue'>
+                <label id="OrderId" />
+            </td>
+            <th class='formTitle'>订单号：</th>
+            <td class='formValue'>
+                <label id="OrderCode" />
+            </td>
+            <th class='formTitle'>行号：</th>
+            <td class='formValue'>
+                <label id="LineCode" />
+            </td>
+            <th class='formTitle'>板件编码：</th>
+            <td class='formValue'>
+                <label id="BoardId" />
+            </td>
+            <th class='formTitle'>板件描述：</th>
+            <td class='formValue'>
+                <label id="BoardDescription" />
+            </td>
+            <th class='formTitle'>数量：</th>
+            <td class='formValue'>
+                <label id="Qty" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>钢种：</th>
+            <td class='formValue'>
+                <label id="SteelId" />
+            </td>
+            <th class='formTitle'>钢种编号：</th>
+            <td class='formValue'>
+                <label id="SteelCode" />
+            </td>
+            <th class='formTitle'>钢种描述：</th>
+            <td class='formValue'>
+                <label id="SteelDescription" />
+            </td>
+            <th class='formTitle'>钢种其它描述：</th>
+            <td class='formValue'>
+                <label id="SteelOtherDescription" />
+            </td>
+            <th class='formTitle'>钢种状态：</th>
+            <td class='formValue'>
+                <label id="SteelState" />
+            </td>
+            <th class='formTitle'>模号：</th>
+            <td class='formValue'>
+                <label id="DieCode" />
+            </td>
+            <th class='formTitle'>厚度：</th>
+            <td class='formValue'>
+                <label id="Thick" />
+            </td>
+            <th class='formTitle'>宽：</th>
+            <td class='formValue'>
+                <label id="Weigh" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>长：</th>
+            <td class='formValue'>
+                <label id="Length" />
+            </td>
+            <th class='formTitle'>完工件数：</th>
+            <td class='formValue'>
+                <label id="CompleteQty" />
+            </td>
+            <th class='formTitle'>打单件数：</th>
+            <td class='formValue'>
+                <label id="PrintQty" />
+            </td>
+            <th class='formTitle'>执行备注信息：</th>
+            <td class='formValue'>
+                <label id="ExecRemark" />
+            </td>
+            <th class='formTitle'>单据状态：</th>
+            <td class='formValue'>
+                <label id="BillStatus" />
+            </td>
+            <th class='formTitle'>磨四角：</th>
+            <td class='formValue'>
+                <label id="IsGrindAngle" />
+            </td>
+            <th class='formTitle'>倒角：</th>
+            <td class='formValue'>
+                <label id="IsChamfer" />
+            </td>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <label id="Enabled" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>排序码：</th>
+            <td class='formValue'>
+                <label id="SortCode" />
+            </td>
+            <th class='formTitle'>删除标记：</th>
+            <td class='formValue'>
+                <label id="DeleteMark" />
+            </td>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <label id="CreateDate" />
+            </td>
+            <th class='formTitle'>创建用户主键：</th>
+            <td class='formValue'>
+                <label id="CreateUserId" />
+            </td>
+            <th class='formTitle'>创建用户：</th>
+            <td class='formValue'>
+                <label id="CreateUserName" />
+            </td>
+            <th class='formTitle'>修改时间：</th>
+            <td class='formValue'>
+                <label id="ModifyDate" />
+            </td>
+            <th class='formTitle'>修改用户主键：</th>
+            <td class='formValue'>
+                <label id="ModifyUserId" />
+            </td>
+            <th class='formTitle'>修改用户：</th>
+            <td class='formValue'>
+                <label id="ModifyUserName" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>理论重量：</th>
+            <td class='formValue'>
+                <label id="Weight" />
+            </td>
+            <th class='formTitle'>开料数量：</th>
+            <td class='formValue'>
+                <label id="OpenQty" />
+            </td>
+            <th class='formTitle'>QuotationDetailId：</th>
+            <td class='formValue'>
+                <label id="QuotationDetailId" />
+            </td>
+            <th class='formTitle'>磅重人：</th>
+            <td class='formValue'>
+                <label id="ScaleUser" />
+            </td>
+            <th class='formTitle'>磅重时间：</th>
+            <td class='formValue'>
+                <label id="ScaleDate" />
+            </td>
+            <th class='formTitle'>工序流程：</th>
+            <td class='formValue'>
+                <label id="ScaleProcess" />
+            </td>
+            <th class='formTitle'>加工类型：</th>
+            <td class='formValue'>
+                <label id="OrderType" />
+            </td>
+            <th class='formTitle'>模号：</th>
+            <td class='formValue'>
+                <label id="DieCode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>是否委外：</th>
+            <td class='formValue'>
+                <label id="IsBeOut" />
+            </td>
+            <th class='formTitle'>委外完成时间：</th>
+            <td class='formValue'>
+                <label id="BeOutCompleteDate" />
+            </td>
+            <th class='formTitle'>BeOutCompletePerson：</th>
+            <td class='formValue'>
+                <label id="BeOutCompletePerson" />
+            </td>
+            <th class='formTitle'>客户ID：</th>
+            <td class='formValue'>
+                <label id="CustomerId" />
+            </td>
+            <th class='formTitle'>客户编号：</th>
+            <td class='formValue'>
+                <label id="CustomerCode" />
+            </td>
+            <th class='formTitle'>客户名称：</th>
+            <td class='formValue'>
+                <label id="CustomerName" />
+            </td>
+            <th class='formTitle'>客户简称：</th>
+            <td class='formValue'>
+                <label id="ShortName" />
+            </td>
+            <th class='formTitle'>联系人：</th>
+            <td class='formValue'>
+                <label id="ContactName" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>联系电话：</th>
+            <td class='formValue'>
+                <label id="ContactTel" />
+            </td>
+            <th class='formTitle'>传真：</th>
+            <td class='formValue'>
+                <label id="ContactFax" />
+            </td>
+            <th class='formTitle'>邮箱：</th>
+            <td class='formValue'>
+                <label id="ContactMail" />
+            </td>
+            <th class='formTitle'>手机：</th>
+            <td class='formValue'>
+                <label id="MobileCode" />
+            </td>
+            <th class='formTitle'>客户地址：</th>
+            <td class='formValue'>
+                <label id="CustomerAddress" />
+            </td>
+            <th class='formTitle'>材料单价：</th>
+            <td class='formValue'>
+                <label id="MaterialPrice" />
+            </td>
+            <th class='formTitle'>金额（材料）：</th>
+            <td class='formValue'>
+                <label id="MaterialAmount" />
+            </td>
+            <th class='formTitle'>加工费单价：</th>
+            <td class='formValue'>
+                <label id="WorkPrice" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>金额（加工费）：</th>
+            <td class='formValue'>
+                <label id="WorkAmount" />
+            </td>
+            <th class='formTitle'>热处理单价：</th>
+            <td class='formValue'>
+                <label id="HeatPrice" />
+            </td>
+            <th class='formTitle'>金额（热处理）：</th>
+            <td class='formValue'>
+                <label id="HeatAmount" />
+            </td>
+            <th class='formTitle'>销售额：</th>
+            <td class='formValue'>
+                <label id="SalesAmount" />
+            </td>
+            <th class='formTitle'>过磅重量：</th>
+            <td class='formValue'>
+                <label id="WeightFact" />
+            </td>
+        </tr>
+    </table>
+</form>

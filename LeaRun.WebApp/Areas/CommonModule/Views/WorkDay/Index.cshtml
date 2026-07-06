@@ -1,0 +1,113 @@
+﻿@{
+    ViewBag.Title = "部门管理";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+@*<link href="~/Content/Scripts/Workday/kalendar.css" rel="stylesheet" />
+<script src="~/Content/Scripts/Workday/kalendar.js"></script>*@
+@Scripts.Render("~/Content/Scripts/Workday/kalendarjquery")
+@Styles.Render("~/Content/Scripts/Workday/kalendarcss")
+<script>
+    $(document).ready(function () {
+        GetTree();
+    });
+    var CompanyId, CompanyName = "";
+    //加载左边树
+    function GetTree() {
+        var itemtree = {
+            onnodeclick: function (item) {
+                CompanyId = item.id;            //ID
+                CompanyName = item.text;        //名称
+                GetDateChange()
+                $("#CenterTitle").html(CompanyName);
+            },
+            url: "@Url.Content("~/CommonModule/Company/TreeJson")"
+        };
+        $("#ItemsTree").treeview(itemtree);
+    }
+    function GetDateChange() {
+        var postData = {
+            CompanyId: CompanyId,
+            Year: $("#year").find("select[name='year']").val(),
+            Month: Number($("#month").find("select[name='year']").val()) + 1,
+        }
+        AjaxJson("/CommonModule/WorkDay/GetMonth", postData, function (data) {
+            var Day = data.Day;
+            for (i = 0; i < Day.length; i++) {
+                var value = Day.charAt(i);
+                if (value == "1") {
+                    var data = i + Number(1);
+                    $('#day ul li').each(function () {
+                        if ($(this).text() == data) {
+                            $(this).addClass('workday');
+                        }
+                    })
+                }
+            }
+        });
+        $('#day ul li').toggle(function () {
+            if (!$(this).hasClass('workday')) {
+                $(this).attr('title', '点击设置为休息日');
+                $(this).addClass('workday');
+            } else {
+                $(this).attr('title', '点击设置为休息日');
+                $(this).removeClass('workday');
+                $(this).removeClass('mouseFloat');
+            }
+        }, function () {
+            $(this).attr('title', '点击设置为休息日');
+            $(this).removeClass('workday');
+            $(this).removeClass('mouseFloat');
+        });
+    }
+    //确认事件
+    function btn_save() {
+        if (!CompanyId) {
+            alertDialog("请选择左边公司", 0);
+            return false;
+        }
+        confirmDialog("提示", "注：您确定要保存当前操作吗？", function (r) {
+            if (r) {
+                var Day = "";
+                $('#day ul li').each(function () {
+                    if ($(this).text() != "") { if ($(this).hasClass('workday')) { Day += 1; } else { Day += 0; } }
+                });
+                var postData = {
+                    CompanyId: CompanyId,
+                    Year: $("#year").find("select[name='year']").val(),
+                    Month: Number($("#month").find("select[name='year']").val()) + 1,
+                    Day: Day
+                };
+                AjaxJson("/CommonModule/WorkDay/SubmitWorkDateForm", postData, function (data) {
+                    tipDialog(data.Message, 3, data.Code);
+                    GetDateChange();
+                });
+            }
+        });
+    }
+</script>
+<div id="layout" class="layout">
+    <!--左边-->
+    <div class="layoutPanel layout-west">
+        <div class="btnbartitle">
+            <div>
+                公司目录
+            </div>
+        </div>
+        <div class="ScrollBar" id="ItemsTree"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                <span id="CenterTitle">请选择左边公司</span> (日历设置)
+            </div>
+        </div>
+        <div class="tools_bar" style="border-top: none; margin-bottom: 1px;">
+            <div class="PartialButton">
+                @Html.Partial("_PartialButton")
+            </div>
+        </div>
+        <div id='wrap' style="float: left;">
+        </div>
+    </div>
+</div>

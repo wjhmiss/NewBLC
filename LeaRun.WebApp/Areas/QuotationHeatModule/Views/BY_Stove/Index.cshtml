@@ -1,0 +1,351 @@
+@{
+    ViewBag.Title = "BY_Stove";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js?ver=@DateTime.Now.Ticks"></script>
+
+
+
+<link href="~/Content/Scripts/imgGreate/00540/kao/css/index.css" rel="stylesheet" />
+<script src="~/Content/Scripts/imgGreate/00540/kao/js/ToolTip.js"></script>
+<script type="text/javascript">
+    $(function () {
+        GetGrid();
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/QuotationHeatModule/BY_Stove/GridPageJson1")",
+            datatype: "json",
+            height: $(window).height() - 149,
+            autowidth: true,
+            colModel: [
+                    { label: 'StoveId', name: 'StoveId', index: 'StoveId', hidden: true },
+                    { label: '编码', name: 'StoveCode', index: 'StoveCode', width: 80, align: 'left', sortable: true },
+                    { label: '炉号', name: 'StoveNum', index: 'StoveNum', width: 50, align: 'left', sortable: true },
+                    {
+                        label: '计划开炉', name: 'StartDateTime', index: 'StartDateTime', width: 80, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                     {
+                         label: '送电', name: 'SDDateTime', index: 'SDDateTime', width: 100, align: 'left', sortable: true,
+                         formatter: function (cellvalue, options, rowObject) {
+                             return formatDate(cellvalue, 'yyyy-MM-dd hh:mm');
+                         }
+                     },
+                      {
+                          label: '出炉', name: 'CLDateTime', index: 'CLDateTime', width: 100, align: 'left', sortable: true,
+                          formatter: function (cellvalue, options, rowObject) {
+                              return formatDate(cellvalue, 'yyyy-MM-dd hh:mm');
+                          }
+                      },
+                    { label: '工艺制定人', name: 'MethodBuilder', index: 'MethodBuilder', width: 70, align: 'left', sortable: true },
+                    { label: '装炉人', name: 'OperatorName', index: 'OperatorName', width: 70, align: 'left', sortable: true },
+                    { label: '炉子类型', name: 'StoveType', index: 'StoveType', width: 60, align: 'left', sortable: true },
+                    { label: '生产工艺', name: 'BuildMethod', index: 'BuildMethod', width: 80, align: 'left', sortable: true },
+                    { label: '总数量', name: 'Qty', index: 'Qty', width: 50, align: 'left', sortable: true },
+                    { label: '总重量', name: 'Weight', index: 'Weight', width: 50, align: 'left', sortable: true },
+                    { label: '备注', name: 'Remark', index: 'Remark', width: 100, align: 'left', sortable: true },
+                    {
+                        label: '设定温度曲线', name: 'imgshow', index: 'imgshow', width: 100,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!rowObject.StoveId) {
+                                var nums = Math.random();
+                                return "<div  ><img style='width:30px;' src='/DownFile/" + rowObject.StoveId + ".jpg?" + nums + "'  onMouseOver='toolTip(\"<img style=width:600px src=/DownFile/" + rowObject.StoveId + ".jpg?" + nums + ">\")' onMouseOut='toolTip()' /></div> ";
+                            }
+                            return "";
+                        }
+                    },
+                    {
+                        label: '实际曲线', name: 'imgshow', index: 'imgshow', width: 100,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!rowObject.StoveId) {
+                                var nums = Math.random();
+                                return "<div  ><img style='width:30px;' src='../../Resource/Document/Stove/" + rowObject.StoveId + ".jpg?" + nums + "'  onMouseOver='toolTip(\"<img style=width:600px src=../../Resource/Document/Stove/" + rowObject.StoveId + ".jpg?" + nums + ">\")' onMouseOut='toolTip()' /></div> ";
+                            }
+                            return "";
+                        }
+                    },
+                     {
+                         label: '进炉情况', name: 'imgshow', index: 'imgshow', width: 100,
+                         formatter: function (cellvalue, options, rowObject) {
+                             if (!!rowObject.StoveId) {
+                                 var nums = Math.random();
+                                 return "<div  ><img style='width:30px;' src='../../Resource/Document/Stove/1" + rowObject.StoveId + ".jpg?" + nums + "'  onMouseOver='toolTip(\"<img style=width:600px src=../../Resource/Document/Stove/1" + rowObject.StoveId + ".jpg?" + nums + ">\")' onMouseOut='toolTip()' /></div> ";
+                             }
+                             return "";
+                         }
+                     },
+                            {
+                                label: '操作', name: 'asdf', index: 'asdf', width: 100,
+                                formatter: function (cellvalue, options, rowObject) {
+                                    if (!!rowObject.StoveId) {
+                                        return '<div style="display:inline"><input id="' + options.rowId + 'uploadify" name="uploadify"  type="file" /></div><div style="display:inline"><input id="' + options.rowId + 'uploadify1"   name="uploadify" type="file" /></div>';
+                                    }
+                                    return "";
+                                }
+                            },
+                    {
+                        label: '创建时间', name: 'CreateDate', index: 'CreateDate', width: 80, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    {
+                        label: '创建用户', name: 'CreateUserName', index: 'CreateUserName', width: 80, align: 'left', sortable: true
+                    },
+                    { label: '更新人', name: 'ModifyUserName', index: 'ModifyUserName', width: 70, align: 'left', sortable: true },
+                {
+                    label: '更新时间', name: 'ModifyDate', index: 'ModifyDate', width: 70, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+
+            ],
+            viewrecords: true,
+            rowNum: 15,
+            rowList: [15, 30, 50, 100, 500],
+            pager: "#gridPager",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                var BillStatus = GetJqGridRowValue("#gridTable", "BillStatus");
+                if (BillStatus == "已完工") {
+                    alertDialog("已完工，不能编辑", 0);
+                    return false;
+                }
+                btn_edit();
+            },
+            gridComplete: function () {
+                var data = $("#gridTable").jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    var item = i + 1;
+                    uploadify(item, data[i].StoveId);
+                    uploadify1(item, data[i].StoveId);
+                }
+            },
+            subGrid: true,
+            subGridOptions: {
+                "plusicon": "ui-icon-triangle-1-e",
+                "minusicon": "ui-icon-triangle-1-s",
+                "openicon": "ui-icon-arrowreturn-1-e"
+            },
+            subGridRowExpanded: function (subgrid_id, row_id) {
+                var rowData = $("#gridTable").jqGrid('getRowData', row_id);
+                var subgrid_table_id, pager_id;
+                subgrid_table_id = subgrid_id + "_t";
+                pager_id = "p_" + subgrid_table_id;
+                $("#" + subgrid_id).html("<table id='" + subgrid_table_id + "' class='scroll'></table><div id='" + pager_id + "' class='scroll'></div>");
+                jQuery("#" + subgrid_table_id).jqGrid({
+                    url: "@Url.Content("~/QuotationHeatModule/BY_StoveHeatList/GetListJson1")?StoveId=" + rowData["StoveId"],
+                    datatype: "json",
+                    height: $(window).height() - 150,
+                    autowidth: true,
+                    colModel: [
+                        { label: '报价单明细ID', name: 'QuotationHeatId', hidden: true },
+                        { label: '序号', name: 'SortCode', width: 40, align: 'center', hidden: true },
+                        { label: '生产编号', name: 'QuotationHeatCode', index: 'QuotationHeatCode', width: 60, align: 'left', sortable: true },
+                        { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 80, align: 'left', sortable: true },
+                        { label: '材质', name: 'SteelDescription', index: 'SteelDescription', width: 50, align: 'left', sortable: true },
+                        { label: '工件名称', name: 'ProductName', index: 'ProductName', width: 80, align: 'left', sortable: true },
+                        { label: '外形尺寸', name: 'Remark', index: 'Remark', width: 100, align: 'left', sortable: true },
+                        { label: '热处理类别', name: 'Technology', index: 'Technology', width: 60, align: 'left', sortable: true },
+                        { label: '技术要求', name: 'TechnologQuery', index: 'TechnologQuery', width: 60, align: 'left', sortable: true },
+                        { label: '实测硬度', name: 'TechnologQueryWrite', index: 'TechnologQueryWrite', width: 60, align: 'left', sortable: true, editable: true },
+                        { label: '件数', name: 'Qty', index: 'Qty', width: 40, align: 'left', sortable: true },
+                        { label: '重量', name: 'Weight', index: 'Weight', width: 40, align: 'left', sortable: true },
+                        { label: '当时', name: 'HeatStatus', index: 'HeatStatus', width: 60, align: 'left', sortable: true, editable: true },
+                    ],
+                    viewrecords: true,
+                    rowNum: 999,
+                    rowList: [999, 999, 999, 999, 999],
+                    pager: false,
+                    shrinkToFit: false,
+                    rownumbers: true,
+                    sortname: 'SortCode',
+                    sortorder: 'asc',
+                    gridview: true,
+
+                });
+            }
+        });
+    }
+        function uploadify(id, StoveId) {
+            // $("#" + id + "uploadify").uploadify('destroy');
+            try {
+                if ($("#" + id + "uploadify").length > 0) { //注意jquery下检查一个元素是否存在必须使用 .length >0 来判断
+                    $("#" + id + "uploadify").uploadify('destroy');
+                }
+                $("#" + id + "uploadify").uploadify({
+                    uploader: '/Utility/Upload?saveDocument=Stove&filenameid=' + StoveId,
+                    swf: '/Content/Scripts/uploadify/uploadify.swf',
+                    buttonText: "实际温度",
+                    height: 24,
+                    width: 70,
+                    onFallback: function () {
+                        alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+                    },
+                    onUploadSuccess: function (file, data, response) {
+                        //var DataJson = JSON.parse(data);
+                        windowload();
+                        //window.location.reload();
+                    }
+                });
+            } catch (e) {
+            }
+        }
+        function uploadify1(id, StoveId) {
+            // $("#" + id + "uploadify").uploadify('destroy');
+            try {
+                if ($("#" + id + "uploadify1").length > 0) { //注意jquery下检查一个元素是否存在必须使用 .length >0 来判断
+                    $("#" + id + "uploadify1").uploadify('destroy');
+                }
+                $("#" + id + "uploadify1").uploadify({
+                    uploader: '/Utility/Upload?saveDocument=Stove&filenameid=1' + StoveId,
+                    swf: '/Content/Scripts/uploadify/uploadify.swf',
+                    buttonText: "进炉情况",
+                    height: 24,
+                    width: 70,
+                    onFallback: function () {
+                        alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+                    },
+                    onUploadSuccess: function (file, data, response) {
+                        //var DataJson = JSON.parse(data);
+                        windowload();
+                        //window.location.reload();
+                    }
+                });
+            } catch (e) {
+            }
+        }
+        //刷新
+        function windowload() {
+            $("#gridTable").trigger("reloadGrid"); //重新载入
+
+        }
+
+        //新增
+        function btn_add() {
+            var url = "/QuotationHeatModule/BY_Stove/Form"
+            //openDialogFName(url, _id, _title, _width, _height,name1,name2, _callBack1, _callBack2) {
+            openDialogFName(url, "Form", "炉子新增", 1670, 700, "保存", "打印", function (iframe) {
+                top.frames[iframe].AcceptClick()
+            }, function (iframe) {
+                top.frames[iframe].Print();
+            });
+        }
+        //编辑
+        function btn_edit() {
+            var KeyValue = GetJqGridRowValue("#gridTable", "StoveId");
+            if (IsChecked(KeyValue)) {
+                var url = "/QuotationHeatModule/BY_Stove/Form?KeyValue=" + KeyValue;
+                openDialogFName(url, "Form", "炉子新增", 1670, 700, "保存", "打印", function (iframe) {
+                    top.frames[iframe].AcceptClick()
+                }, function (iframe) {
+                    top.frames[iframe].Print();
+                });
+            }
+        }
+        //删除
+        function btn_delete() {
+            var KeyValue = GetJqGridRowValue("#gridTable", "StoveId");
+            if (IsDelData(KeyValue)) {
+                var delparm = 'KeyValue=' + KeyValue;
+                delConfig('/QuotationHeatModule/BY_Stove/Delete1', delparm, KeyValue.split(",").length);
+            }
+        }
+        //刷新
+        function windowload() {
+            $("#gridTable").trigger("reloadGrid"); //重新载入
+
+        }
+        function btn_Print() {
+            var StoveId = GetJqGridRowValue("#gridTable", "StoveId");
+            if (IsChecked(StoveId)) {
+                var StoveType = GetJqGridRowValue("#gridTable", "StoveType");
+                if (StoveType == "真空炉") {
+                    PrintDialog("/QuotationHeatModule/BY_Stove/PrintZK?StoveId=" + StoveId, "PrintPage", "打印", 1070, 600, function (iframe) {
+                        top.frames[iframe].AcceptClick();
+                    });
+                }
+                else {
+                    PrintDialog("/QuotationHeatModule/BY_Stove/PrintCG?StoveId=" + StoveId, "PrintPage", "打印", 1070, 600, function (iframe) {
+                        top.frames[iframe].AcceptClick();
+                    });
+                }
+
+            }
+        }
+        function btn_Search() {
+            var Parameter = [{
+                paramName: "StoveCode",
+                paramValue: $("#StoveCode").val(),
+                Operation: "Like",
+                Logic: "OR",
+            }, {
+                paramName: "StoveNum",
+                paramValue: $("#StoveNum").val(),
+                Operation: "Like",
+                Logic: "OR"
+            }, {
+                paramName: "MethodBuilder",
+                paramValue: $("#MethodBuilder").val(),
+                Operation: "Like",
+                Logic: "OR"
+            }, {
+                paramName: "OperatorName",
+                paramValue: $("#OperatorName").val(),
+                Operation: "Like",
+                Logic: "OR"
+            }, {
+                paramName: "StoveType",
+                paramValue: $("#StoveType").val(),
+                Operation: "Like",
+                Logic: "OR"
+            }]
+
+            $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/QuotationHeatModule/BY_Stove/GridPageJson1")?QuotationHeatCode=" + $("#QuotationHeatCode").val() + "&ParameterJson=" + escape(JSON.stringify(Parameter)) + "&Size=" + escape($("#Size").val()), page: 1 }).trigger('reloadGrid');
+        }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <td>炉编号：
+                <input id="StoveCode" type="text" class="txt" style="width: 100px" />
+                炉号：
+                <input id="StoveNum" type="text" class="txt" style="width: 100px" />
+                工艺制定：
+                <input id="MethodBuilder" type="text" class="txt" style="width: 100px" />
+                装炉人：
+                <input id="OperatorName" type="text" class="txt" style="width: 100px" />
+                生产编号：
+                <input id="QuotationHeatCode" type="text" class="txt" style="width: 100px" />
+                类型：
+                <select id="StoveType" class="select">
+                    <option value="">全部</option>
+                    <option value="真空炉">真空炉</option>
+                    <option value="常规炉">常规炉</option>
+                </select>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

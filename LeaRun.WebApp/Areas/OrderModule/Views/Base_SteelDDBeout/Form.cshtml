@@ -1,0 +1,691 @@
+@{
+    ViewBag.Title = "钢材购买申请》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/jqgrid/jqgridjquery")
+@Styles.Render("~/Content/Scripts/jqgrid/css/jqgridcss")
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    var Num = 1;
+    $(function () {
+        //供应商编码自动补全
+        CustomerAutocomplete();
+        //账期
+        BindDropItem("#PayType", "PaymentMode", "==请选择==");
+
+        InitControl();
+        document.onkeydown = enterInput;
+
+        window.setTimeout(function () {
+            GetGrid();
+            if (GetQuery('view') == 1) {
+                $("#gridTable").setColProp("SteelCode", {
+                    editable: false
+                });
+                $("#gridTable").setColProp("OLength", {
+                    editable: false
+                });
+                $("#gridTable").setColProp("OWeigh", {
+                    editable: false
+                });
+                $("#gridTable").setColProp("OThick", {
+                    editable: false
+                });
+                $("#gridTable").setColProp("BoreSize", {
+                    editable: false
+                });
+                $("#gridTable").setColProp("Qty", {
+                    editable: false
+                });
+                $("#gridTable").setColProp("Price", {
+                    editable: false
+                });
+                $("#gridTable").setColProp("OWeight", {
+                    editable: false
+                });
+                $("#gridTable").setColProp("Weightcheng", {
+                    editable: false
+                });
+                $("#gridTable").setColProp("TypeName", {
+                    editable: false
+                });
+                $("#gridTable").setColProp("Remark", {
+                    editable: false
+                });
+                $("#gridTable").setColProp("PlaceOrigin", {
+                    editable: false
+                });
+                $("#gridTable").setColProp("SteelStatus", {
+                    editable: false
+                });
+            }
+        }, 200);
+        //window.setTimeout(function () {
+        //    $('#gridTable').setGridHeight(250);
+        //}, 300);
+    })
+
+    function enterInput() {
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+        //if ((event.keyCode == 37) || (event.keyCode  == 38) || (event.keyCode  == 39) || (event.keyCode  == 40)) {
+        //    window.event.keyCode = 9;
+        //    return;
+        //}
+        if (event.keyCode == 34) {
+            $("#lr-add-Row").click();
+            return;
+        }
+    }
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.FullName);
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Base_Supplier/GetAutoCompleJson", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].SupplierId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 40%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="PaymentMode" style="width: 30%;">' + DataJson[i].Remark + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.FullName);
+                });
+            });
+        }
+    }
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/OrderModule/Base_SteelDDBeout/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+        if (GetQuery('view')==1) {
+            $("#form1").find("input,select,label,textarea").attr('disabled', 'disabled');
+            $("#toolbar_a").hide();
+        }
+        else {
+            $("#view").hide();
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+
+        var RowData = {
+            OrderType: $("[name='OrderType']").val(),
+            XLsize: $("[name='XLsize']").val(),
+            MaterialPrice: $("[name='MaterialPrice']").val(),
+            Weight: $("[name='Weight']").val(),
+            Remark: $("[name='Remark']").val(),
+            SteelCode: $("[name='SteelCode']").val(),
+            Length: $("[name='Length']").val(),
+            AddLength: $("[name='AddLength']").val(),
+            Weigh: $("[name='Weigh']").val(),
+            AddWeigh: $("[name='AddWeigh']").val(),
+            Thick: $("[name='Thick']").val(),
+            AddThick: $("[name='AddThick']").val(),
+            Qty: $("[name='Qty']").val(),
+            MaterialAmount: $("[name='MaterialAmount']").val(),
+        }
+        $('#gridTable').jqGrid('setRowData', GetJqGridRowIndx('#gridTable'), RowData, '');
+        var data = $("#gridTable").jqGrid("getRowData");
+        for (var i = 0; i < data.length; i++) {
+            if ("" == data[i].SteelDescription) {
+                tipDialog("钢材编码错误，请检查", 3, -1);
+                return;
+            }
+        }
+        var TotalAmountall = 0;
+        for (var i = 0; i < data.length; i++) {
+           TotalAmountall = TotalAmountall + Number(data[i].TotalAmount);
+        }
+        $("#TotalAmount").val(TotalAmountall);
+
+        var postData = GetWebControls("#form1");
+        postData["SteelListJson"] = JSON.stringify($("#gridTable").jqGrid("getRowData"));
+        $(".ui_state_highlight").attr("disabled", true);
+
+        AjaxJson("/OrderModule/Base_SteelDDBeout/SubmitForm1?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+    var lastsel;
+
+    function GetGrid() {
+        var lastselpostdate;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/OrderModule/Base_SteelDDBeoutDetail/GetListJson1")?Base_SteelDDBeoutCode=" + $("#Base_SteelDDBeoutCode").val(),
+            datatype: "json",
+            height: $(window).height() - 150,
+            autowidth: true,
+            colModel: [
+                //{ label: '主键', name: 'InventoryId', hidden: true },
+                { label: 'Density', name: 'Density', hidden: true },
+                { label: '序号', name: 'SortCode', width: 40 },
+                { label: "钢种编码", name: "SteelCode", width: 60, editable: true },
+                { label: "钢种名称", name: "SteelDescription", width: 80, },
+                { label: "厚/直径", name: "Thick", width: 60, align: 'center', editable: true },
+                { label: "宽", name: "Weigh", width: 60, align: 'center', editable: true },
+                { label: "长", name: "Length", width: 60, align: 'center', editable: true },//收货地址:收货地址;
+                { label: "余量", name: "AddLength", width: 60, align: 'center', editable: true, hidden: true },//收货地址:收货地址;
+                { label: "余量", name: "AddWeigh", width: 60, align: 'center', editable: true, hidden: true },
+                { label: "余量", name: "AddThick", width: 60, align: 'center', editable: true, hidden: true },
+                { label: "数量", name: "Qty", width: 60, align: 'center', editable: true },
+                { label: '重量', name: 'Weight', width: 60, align: 'center', editable: true },
+                { label: '面积', name: 'XLsize', width: 120, editable: true, hidden: true },
+                { label: '面积', name: 'Area', width: 120, },
+                { label: '单价', name: 'MaterialPrice', width: 60, align: 'center', editable: true },
+                { label: '总价', name: 'MaterialAmount', width: 60, align: 'center', editable: true },
+                { label: '状态', name: 'OrderType', width: 120, editable: true },
+                {
+                    label: '备注', name: 'Remark', width: 120, editable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                },
+                { label: "单号", name: "QuotationCode", width: 120, align: 'center' },
+                { label: "QuotationDetailId", name: "QuotationDetailId", width: 120, align: 'center', hidden: true },
+
+            ],
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 999, 999, 999],
+            pager: false,
+            shrinkToFit: false,
+            rownumbers: true,
+            altRows: false,
+            sortname: 'SortCode',
+            sortorder: 'asc',
+            altclass: 'altclass',
+            gridview: true,
+            cellsubmit: 'clientArray',
+            onSelectRow: function (id) {
+                var postData = {
+                    //InventoryId: $("[name='InventoryId']").val(),
+                    MaterialPrice: $("[name='MaterialPrice']").val(),
+                    Remark: $("[name='Remark']").val(),
+                    XLsize: $("[name='XLsize']").val(),
+                    Weight: $("[name='Weight']").val(),
+                    SteelCode: $("[name='SteelCode']").val(),
+                    Length: $("[name='Length']").val(),
+                    AddLength: $("[name='AddLength']").val(),
+                    Weigh: $("[name='Weigh']").val(),
+                    AddWeigh: $("[name='AddWeigh']").val(),
+                    Thick: $("[name='Thick']").val(),
+                    AddThick: $("[name='AddThick']").val(),
+                    Qty: $("[name='Qty']").val(),
+                    MaterialAmount: $("[name='MaterialAmount']").val(),
+                    OrderType: $("[name='OrderType']").val(),
+                }
+                if (id && id !== lastsel) {
+                    $('#gridTable').jqGrid('restoreRow', lastsel);
+                    $('#gridTable').jqGrid('editRow', id, { keys: false });
+                    $('#gridTable').jqGrid('setRowData', lastsel, postData, '');
+                }
+                lastselpostdate = postData;
+                lastsel = id;
+
+
+                jQuery("#" + id + "_Length").keyup(function () {
+                    countU(id);
+                    self(id);
+
+                });
+                jQuery("#" + id + "_AddLength").keyup(function () {
+                    countU(id);
+                    self(id);
+
+                });
+                jQuery("#" + id + "_Weigh").keyup(function () {
+                    countU(id);
+                    self(id);
+
+                });
+                jQuery("#" + id + "_AddWeigh").keyup(function () {
+                    countU(id);
+                    self(id);
+
+                });
+                jQuery("#" + id + "_Thick").keyup(function () {
+                    countU(id);
+                    self(id);
+
+                });
+                jQuery("#" + id + "_AddThick").keyup(function () {
+                    countU(id);
+                    self(id);
+
+                });
+                jQuery("#" + id + "_Qty").keyup(function () {
+                    countU(id);
+                    self(id);
+
+                });
+
+
+
+                jQuery("#" + id + "_MaterialPrice").keyup(function () {
+                    self(id);
+                    countUAmount(id);
+                    //countU(id);
+                });
+                jQuery("#" + id + "_Weight").keyup(function () {
+                    self(id);
+                    countUAmount(id);
+                    //countU1(id);
+
+                });
+                jQuery("#" + id + "_XLsize").keyup(function () {
+                    self(id);
+
+                });
+                jQuery("#" + id + "_Remark").keyup(function () {
+                    self(id);
+
+                });
+                jQuery("#" + id + "_SteelCode").keyup(function () {
+                    AjaxJson("/CommonModule/Steel/GetAutoCompleJson", { keywords: $(this).val(), type: 1 }, function (DataJson) {
+                        var html = "";
+                        $.each(DataJson, function (i) {
+                            html += "<tr>";
+                            html += '<td id="SteelId" style="display: none;">' + DataJson[i].SteelId + '</td>';
+                            html += '<td id="SteelCode" style="width: 40%;">' + DataJson[i].SteelCode + '</td>';
+                            html += '<td id="SteelName" style="width: 60%;">' + DataJson[i].SteelName + '</td>';
+                            html += '<td id="Density" style="display: none;">' + DataJson[i].Density + '</td>';
+                            html += '<td id="SteelType" style="display: none;">' + DataJson[i].SteelType + '</td>';
+                            html += '<td id="RepalceMl" style="display: none;">' + DataJson[i].RepalceMl + '</td>';
+                            html += "</tr>";
+                        });
+                        //点击事件回调
+                        autocomplete(id + "_SteelCode", "150px", "250px", html, function (data) {
+                            $("#gridTable").jqGrid('setRowData', id, { SteelDescription: data.SteelName });
+                            $("#gridTable").jqGrid('setRowData', id, { Density: data.Density });
+                            $("[name='SteelCode']").val(data.SteelCode);
+                        });
+                    });
+                });
+            },
+            gridComplete: function () {
+                //合计
+                var data = $("#gridTable").jqGrid("getRowData");
+                var TotalAmountall = 0;
+                for (var i = 0; i < data.length; i++) {
+                    TotalAmountall = TotalAmountall + Number(data[i].MaterialAmount);
+                }
+                $("#TotalAmount").val(TotalAmountall);
+                $('#gridTable').setGridHeight(300);
+            }
+
+        });
+        function countUAmount(id) {
+
+            var MaterialPrice = $("#" + id + "_MaterialPrice").val();
+            var Weight = $("#" + id + "_Weight").val();
+            $("#" + id + "_MaterialAmount").val((MaterialPrice * Weight).toFixed(2))
+        }
+        function self(id) {
+           var id = Number(id);
+            var e = e || window.event || arguments.callee.caller.arguments[0];
+            var tar = e.srcElement || e.target;
+            if (event.keyCode == 37) {//左
+                if ($(tar).attr('id') == id + "_XLsize") {
+                }
+                else if ($(tar).attr('id') == id + "_MaterialPrice") {
+                    $("#" + id + "_XLsize").focus();
+                }
+                else if ($(tar).attr('id') == id + "_Remark") {
+                    $("#" + id + "_MaterialPrice").select();
+                }
+                else {
+                    $("#" + id + "_XLsize").select();
+                }
+                return true;
+            }
+            if (event.keyCode == 39) {//右
+                if ($(tar).attr('id') == id + "_XLsize") {
+                    $("#" + id + "_MaterialPrice").focus();
+                }
+                else if ($(tar).attr('id') == id + "_MaterialPrice") {
+                    $("#" + id + "_Remark").focus();
+                }
+                else if ($(tar).attr('id') == id + "_Remark") {
+                }
+                else {
+                    $("#" + id + "_Remark").select();
+                }
+                return true;
+            }
+            if (event.keyCode == 38) {//上
+                var aaa = $(tar).attr('id');
+                if (id ==1) {
+                    return true;
+                }
+                $("#gridTable").setSelection(id - 1);
+                var irow = id - 1;
+                aaa = irow + aaa.substr(1, aaa.length);
+                window.setTimeout(function () {
+                    $("#" + aaa).select();
+                }, 200);
+                return true;
+            }
+            if (event.keyCode == 40 || event.keyCode == 13) {//下
+
+                var aaa = $(tar).attr('id');
+                if (aaa.indexOf("TypeName") >= 0) {
+                    return true;
+                }
+                var mun = Number($("#gridTable").getGridParam("reccount"));
+                if (id >= 0 && id < mun) {
+                    $("#gridTable").setSelection(id + 1);
+                }
+                else {
+                    $("#lr-add-Row").click();
+                }
+                var irow = id + 1;
+                aaa = irow + aaa.substr(1, aaa.length);
+                window.setTimeout(function () {
+                    $("#" + aaa).select();
+                }, 200);
+                return true;
+            }
+            ////if (e && e.keyCode == 13) {//回车
+            ////    //alert($("#gridTable").getGridParam("reccount"));
+            ////    return false;
+            ////}
+            return false;
+        }
+
+        function countU(id) {
+
+
+
+            var Density = Number(GetJqGridValue("#gridTable", id, "Density"));
+
+            var Length = Number($("#" + id + "_Length").val());
+            var Weigh = Number($("#" + id + "_Weigh").val());
+            var Thick = Number($("#" + id + "_Thick").val());
+            var AddLength = Number($("#" + id + "_AddLength").val());
+            var AddWeigh = Number($("#" + id + "_AddWeigh").val());
+            var AddThick = Number($("#" + id + "_AddThick").val());
+            var AddThick = Number($("#" + id + "_AddThick").val());
+            var Qty = Number($("#" + id + "_Qty").val());
+            var weight = 0;
+
+            if (Weigh > 0) {
+                if (!!AddLength || !!AddWeigh || !!AddThick) {
+                    var newleng = Length + AddLength;
+                    var newweigh = Weigh + AddWeigh;
+                    var newthick = Thick + AddThick;
+                }
+                weight = (((Length + AddLength) * (Weigh + AddWeigh) * (Thick + AddThick) * Density * Qty) / 1000000).toFixed(2);
+            }
+            else {
+                if (!!AddLength || !!AddWeigh || !!AddThick) {
+                    var newleng = Length + AddLength;
+                    var newweigh = Weigh + AddWeigh;
+                    var newthick = Thick + AddThick;
+                }
+                weight = ((((Thick + AddThick)/2) * ((Thick + AddThick)/2) * (Length + AddLength) * Density * 3.14 * Qty) / 1000000).toFixed(2);
+                //weight = ((((Thick + AddThick)) * ((Thick + AddThick)) * (Length + AddLength) * Density * Qty) / 1000000).toFixed(2);
+            }
+            $("#" + id + "_Weight").val(weight)
+
+
+
+            //var MaterialPrice = $("#" + id + "_MaterialPrice").val();
+            //var Weight = $("#" + id + "_Weight").val();
+            //$("#gridTable").jqGrid('setRowData', id, { MaterialAmount: 0});
+
+            //var data = $("#gridTable").jqGrid("getRowData");
+            //var TotalAmountall = 0;
+            //for (var i = 0; i < data.length; i++) {
+            //    TotalAmountall = TotalAmountall + Number(data[i].MaterialAmount);
+            //}
+            //$("#TotalAmount").val(TotalAmountall);
+        }
+        function countU1(id) {
+
+            var MaterialPrice = $("#" + id + "_MaterialPrice").val();
+            var Weight = $("#" + id + "_Weight").val();
+            $("#gridTable").jqGrid('setRowData', id, { MaterialAmount: 0 });
+
+            var data = $("#gridTable").jqGrid("getRowData");
+            var TotalAmountall = 0;
+            for (var i = 0; i < data.length; i++) {
+                TotalAmountall = TotalAmountall + Number(data[i].MaterialAmount);
+            }
+            //$("#TotalAmount").val(TotalAmountall);
+        }
+        //删除
+        $("#lr-delete-Row").click(function () {
+            var Index = GetJqGridRowIndx("#gridTable");
+            $("#gridTable").jqGrid("delRowData", Index);
+        });
+    }
+
+    //查询
+    function btn_Quotationquery() {
+        openDialog("/QuotationModule/QuotationQuery/QueryQuotationForSteelP", "Query", "明细查询", 850, 560, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+
+    function addforQuo(s) {
+        var SortCode = 0;
+        if (!!Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode"))) {
+            SortCode = Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode")) + 1;
+        }
+        else {
+            SortCode = 1;
+        }
+        var index = 0;
+        if (!!$("#gridTable").getGridParam("reccount")) {
+            index = $("#gridTable").getGridParam("reccount") + 1;
+        }
+        else {
+            index = 1;
+        }
+        var entitys = s.split(';');
+        for (var i = 0; i < entitys.length; i++) {
+            var items = entitys[i].split(',');
+
+
+            // s1 = s1 + myrow.steelcode + "," + myrow.steeldescription + "," + myrow.length + ","                     1 2 3
+            //     + myrow.weigh + "," + myrow.thick + "," + myrow.quotationcode + "-"                                 4 5
+            //     + myrow.linecode + "," + myrow.qty + "," + myrow.addlength + ","                                    6 7 8
+            //     + myrow.addweigh + "," + myrow.addthick + "," + myrow.quotationdetailid + ","                       9 10 11
+            //     + myrow.weight + "," + myrow.density + "," + myrow.customerproduct + "," + myrow.ordertype + "," + myrow.shortname.replace(myrow.departname, "") + '、' + myrow.departname + "," + myrow.remark + "," + myrow.ljsize + ";"; 12 13 14 15 16  17
+
+
+
+            //   0     1    2  3  4      5          6 7 8 9                    10                 11   12  13     14    15     16
+            // 45#板,45#板,33,44,4,GC260603-0015-1,1,0,0,0,473df02f-3ef5-44c5-869a-9fd2a352a0f4,0.05,7.85,   ,光板加工,cs、, ,ljsize
+            var boresize = 0;
+
+            var RowData = {
+                SortCode: SortCode+i,
+                SteelCode: items[0],
+                SteelDescription: items[1],
+                Qty: items[6],
+                Price: "0",
+                Weight: items[11],
+                TotalAmount: "0",
+                Remark: items[13],
+                Length: items[2],
+                Weigh: items[3],
+                Thick: items[4],
+                QuotationCode: items[5],
+                AddLength: items[7],
+                AddWeigh: items[8],
+                AddThick: items[9],
+                QuotationDetailId: items[10],
+                XLsize: items[17],
+                Density: items[12],
+                OrderType: items[14],
+            }
+            $('#gridTable').jqGrid('addRowData', index, RowData, "last");
+            index += 1;
+        }
+
+    }
+
+    //新增一行
+    function addrow() {
+        var SortCode = 0;
+        if (!!Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode"))) {
+            SortCode = Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode")) + 1;
+        }
+        else {
+            SortCode = 1;
+        }
+        var index = 0;
+        if (!!$("#gridTable").getGridParam("reccount")) {
+            index = $("#gridTable").getGridParam("reccount") + 1;
+        }
+        else {
+            index = 1;
+        }
+
+        var RowData = {
+            SortCode: SortCode ,
+            SteelCode: "",
+            SteelDescription: "",
+            Qty: "0",
+            Price: "0",
+            Weight: "0",
+            TotalAmount: "0",
+            Remark: "",
+            Length: "0",
+            Weigh: "0",
+            Thick: "0",
+            QuotationCode: "",
+            AddLength: "0",
+            AddWeigh: "0",
+            AddThick: "0",
+            QuotationDetailId: "",
+            XLsize: "",
+            Density: "0",
+        }
+        $('#gridTable').jqGrid('restoreRow', index);
+        $('#gridTable').jqGrid('addRowData', index, RowData, "last");
+        $("#gridTable").setSelection(index);
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+                <div id="TabSteelInof" class="tab_list bd " onclick="Tabchange('SteelInof');">添加钢材</div>
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <div id="basic" class="tabPanel">
+            <table class="form">
+                <tr>
+                    <th class='formTitle'>供应商编号：</th>
+                    <td class='formValue'>
+                        <input id="MnemonicCode" type="hidden"  />
+
+                        <input id="Base_SteelDDBeoutId" type="hidden" />
+                        <input id="Base_SteelDDBeoutCode" type="hidden" />
+                        <input id="CustomerId" type="hidden" />
+                        <input id="CustomerCode" maxlength="50" type="text" class="txt" datacol="yes" err="供应商编号" checkexpession="NotNull" />
+                    </td>
+                    <th class='formTitle'>供应商名称：</th>
+                    <td class='formValue'>
+                        <input id="CustomerName" maxlength="50" type="text" class="txt" disabled />
+                    </td>
+                </tr>
+                <tr>
+                    
+                    <th class='formTitle'>交期：</th>
+                    <td class='formValue'>
+                        <input id="Delivery" value="@DNS.Utilities.DateTimeHelper.GetDate(1)" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})"  datacol="yes" err="采购时间" checkexpession="NotNull" />
+                    </td>
+                   <th class='formTitle'>采购时间：</th>
+                    <td class='formValue'>
+                        <input id="CreateDate" value="@DNS.Utilities.DateTimeHelper.GetTime()" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})"  datacol="yes" err="采购时间" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class='formTitle'>总金额：</th>
+                    <td class='formValue'  >
+                        <input id="TotalAmount" disabled maxlength="18" type="text" class="txt"/>
+                    </td>
+                     <th class='formTitle'>类型：</th>
+                        <td class='formValue' >
+                            <select id="TypeJC" class="txtselect">
+                                <option value="进仓">进仓</option>
+                                <option value="退货">退货</option>
+                            </select>
+                        </td>
+                </tr>
+
+                
+                <tr>
+                    <th class='formTitle'>备注：</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="Remark" class="txtArea" rows="5"></textarea>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+        <div id="SteelInof" class="tabPanel" style="width: 100%; height: 365px; display: none;">
+             <div class="nui-toolbar leftline rightline">
+                <div id="toolbar_a">
+                    <div id="lr-add-Row" class="nui-toolbar-item nui-btn-right" onclick="addrow();">
+                        <span class="nui-btn-text">新增</span>
+                    </div>
+                    <div id="lr-delete-Row" class="nui-toolbar-item nui-btn-left">
+                        <span class="nui-btn-text">删除</span>
+                    </div>
+                    <div id="lr-choose-Row" class="nui-toolbar-item nui-btn-left">
+                        <span class="nui-btn-text" onclick="btn_Quotationquery();">选择</span>
+                    </div>
+                </div>
+            </div>
+            <div class="rightline">
+                <table id="gridTable"></table>
+                <div id="gridPager"></div>
+            </div>
+        </div>
+    </div>
+     <span id="view" style="font-size: 14pt;font-family: Arial;font-weight: bold;color:red;">钢材已入仓，或已付款，或已开票不能修改</span>
+</form>

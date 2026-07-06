@@ -1,0 +1,82 @@
+﻿@{
+    ViewBag.Title = "仓库";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+<link href="~/Content/Scripts/Mobile/templates/mobile/css/mobiscroll.custom-2.6.2.min.css" rel="stylesheet" />
+<script src="~/Content/Scripts/Mobile/templates/mobile/js/mobiscroll.custom-2.6.2.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function (e) {
+       
+
+        $("#btnSubmit").click(function () {
+            var BeginDate = $("#BeginDate").val();
+            var CheckSheetCode = $("#CheckSheetCode").val();
+            var CustomerName = $("#CustomerName").val();
+            location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QueryCheckSheet")?BeginDate=" + escape(BeginDate) + "&CheckSheetCode=" + escape(CheckSheetCode) + "&CustomerName=" + escape(CustomerName);
+        });
+        //初始化日期选择控件
+        var opt = {
+            preset: 'date', //日期
+            display: 'modal', //显示方式 
+            mode: 'scroller', //日期选择模式
+            dateFormat: 'yy-mm', // 日期格式
+            setText: '确定', //确认按钮名称
+            cancelText: '取消',//取消按钮名籍我
+            dateOrder: 'yymm', //面板中日期排列格式
+             monthText: '月', yearText: '年'//面板中年月日文字
+            //endYear: new Date().getFullYear() //结束年份
+        };
+        $("#BeginDate").mobiscroll(opt).date(opt);
+
+    });
+
+    function locationInputQuot() {
+        location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QueryOrder")";
+    }
+
+
+
+</script>
+<!--分类筛选-->
+<div id="categoryPanel" class="panel" data-footer="none">
+    <header>
+        <a onclick="history.back(-1)" class="backButton">返回</a>
+        <h1>对账单条件筛选</h1>
+        <a onclick="$.ui.toggleSideMenu()" class="menuButton"></a>
+    </header>
+
+    <ul class="category-bar">
+        <!--大类-->
+
+        <li>
+            <h2><a href="javascript:;" data-ignore="true">时间</a></h2>
+            <p>
+                <!--小类-->
+                <div style="display: inline-block; float: left; width: 99%;">
+                    <input name="BeginDate" id="BeginDate" type="text" value="" readonly="" class="dwtd" disabled="" autocomplete="off">
+                </div>
+                <!--/小类-->
+            </p>
+        </li>
+        
+        <li>
+            <h2><a href="javascript:;" data-ignore="true">对账单号</a></h2>
+            <p>
+                <input name="CheckSheetCode" id="CheckSheetCode" type="text" maxlength="50" value="" style="width: 100%;" />
+                
+            </p>
+        </li>
+                <li>
+            <h2><a href="javascript:;" data-ignore="true">客户名称</a></h2>
+            <p>
+                <input name="CustomerName" id="CustomerName" type="text" maxlength="50" value="" style="width: 100%;" />
+                
+            </p>
+        </li>
+
+        <div >
+            <input id="btnSubmit" name="btnSubmit" type="submit" value="查  询" class="btn orange full" />
+        </div>
+        <!--/大类-->
+    </ul>
+</div>

@@ -1,0 +1,72 @@
+﻿@{
+    ViewBag.Title = "报价单查询";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 300);
+       
+    });
+    //查询
+    function btn_Search() {
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/OrderDetailProcessModule/BY_OrderDetailProcessDetail/ClassGridsummary")?StartTime=" + escape($("#StartTime").val()) + "&EndTime=" + $("#EndTime").val(), page: 1
+        }).trigger('reloadGrid');
+    }
+    //报价单列表
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/OrderDetailProcessModule/BY_OrderDetailProcessDetail/ClassGridsummary")?StartTime=" + escape($("#StartTime").val()) + "&EndTime=" + $("#EndTime").val(),
+            datatype: "json",
+            height: 457,
+            autowidth: true,
+            colModel: [
+                    { label: '主键', name: 'quotationdetailid', hidden: true },
+                    { label: '姓名', name: 'operatorname', index: 'operatorname', width: 120,  },
+                    { label: '作业面积', name: 'area', index: 'area', width: 100, align: 'left', sortable: true },
+                    { label: '作业重量', name: 'weight', index: 'weight', width: 100, align: 'left', sortable: true },
+                    { label: '绩效工资', name: 'workeramount', index: 'workeramount', width: 100, align: 'center', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'operatorname',
+            sortorder: 'ASC',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+        });
+    }
+    //确认事件
+    function AcceptClick() {
+        window.setTimeout(function () {closeDialog();}, 500);
+    }
+</script>
+<div class="leftline rightline topline QueryArea" style="margin: 1px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>日期 从：</th>
+                        <td>
+                            <input id="StartTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth() 00:00"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 80px" />
+                        </td>
+                        <th style="width:0px;">至：</th>
+                        <td>
+                            <input id="EndTime" type="text" class="txt Wdate"  value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth() 23:59"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 80px" />
+                        </td>
+                        <th style="width:0px;">工号/姓名：
+                        </th>
+                        <td>
+                            <input id="OperatorId" type="text" class="txt" style="width: 80px" />
+                        </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

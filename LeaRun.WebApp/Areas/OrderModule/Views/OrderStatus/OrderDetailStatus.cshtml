@@ -1,0 +1,68 @@
+﻿@{
+    ViewBag.Title = "修改状态";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        //$("#lbl_present").text(GetQuery('BillStatus'));
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('OrderDetailId')) {
+            AjaxJson("/OrderModule/OrderDetail/SetForm", { KeyValue: GetQuery('OrderDetailId') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        $(".ui_state_highlight").attr("disabled", true);
+        window.setTimeout(function () {
+            var postData = {
+                OrderId: GetQuery('OrderId'),
+                OrderDetailId: GetQuery('OrderDetailId'),
+                BillStatus: $("#BillStatus").val(),
+                Remark: $("#Remark").val(),
+            }
+            AjaxJson("/OrderModule/OrderStatus/SubmitOrderDetail", postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                window.setTimeout(function () {closeDialog();}, 500);
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        @*<tr>
+            <th class='formTitle'>当前状态：</th>
+            <td class='formValue'>
+                <label id="lbl_present">正常生产</label>
+            </td>
+        </tr>*@
+        <tr>
+            <th class='formTitle'>修改状态：</th>
+            <td class='formValue'>
+                <select id="BillStatus" class="txtselect" datacol="yes" err="修改状态" checkexpession="NotNull">
+                    <option></option>
+                    <option value="暂停">暂停</option>
+                    <option value="已取消">已取消</option>
+                    <option value="正常生产">正常生产</option>
+                </select>
+            </td>
+        </tr>
+         <tr>
+            <th class='formTitle'>备注：</th>
+            <td class="formValue" ">
+                        <textarea id="Remark" class="txtArea" rows="6"></textarea>
+                    </td>
+            
+        </tr>
+    </table>
+</form>

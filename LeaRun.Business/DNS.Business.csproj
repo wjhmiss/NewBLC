@@ -1,0 +1,201 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{644D58B9-1467-416C-B031-00B6F4B385D4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>LeaRun.Business</RootNamespace>
+    <AssemblyName>LeaRun.Business</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <WebGreaseLibPath>..\packages\WebGrease.1.5.2\lib</WebGreaseLibPath>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Antlr3.Runtime">
+      <HintPath>..\packages\Antlr.3.4.1.9004\lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.5.0.4\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Web.Optimization">
+      <HintPath>..\packages\Microsoft.AspNet.Web.Optimization.1.1.3\lib\net40\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WebGrease">
+      <HintPath>..\packages\WebGrease.1.5.2\lib\WebGrease.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="BaseModule\Base_CustomerManageBll.cs" />
+    <Compile Include="BaseModule\Base_CustomerMaterialsBll.cs" />
+    <Compile Include="BaseModule\Base_CustomerProcessBll.cs" />
+    <Compile Include="BaseModule\Base_SteelBll.cs" />
+    <Compile Include="BaseModule\Base_SteelStatusBll.cs" />
+    <Compile Include="BaseModule\Base_CustomerAddressBll.cs" />
+    <Compile Include="BaseModule\Base_CustomerBll.cs" />
+    <Compile Include="BaseModule\Base_WorkDayBll.cs" />
+    <Compile Include="BaseModule\Base_SteelPriceBll.cs" />
+    <Compile Include="CheckSheetModule\Base_SheetBll.cs" />
+    <Compile Include="CheckSheetModule\BY_CheckCompanyBll.cs" />
+    <Compile Include="CheckSheetModule\BY_CheckSheetBll.cs" />
+    <Compile Include="CheckSheetModule\By_InvoiceForDetailBll.cs" />
+    <Compile Include="CheckSheetModule\BY_ReimburseSheetBll.cs" />
+    <Compile Include="CommonModule\Base_CustomerRequeryBll.cs" />
+    <Compile Include="CommonModule\base_fileBll.cs" />
+    <Compile Include="CommonModule\Base_FormAttributeBll.cs" />
+    <Compile Include="CommonModule\Base_InterfaceManageBll.cs" />
+    <Compile Include="CommonModule\Base_ProcessListBll.cs" />
+    <Compile Include="CommonModule\Base_SetCostBll.cs" />
+    <Compile Include="CommonModule\Base_SetPerformanceBll.cs" />
+    <Compile Include="CommonModule\Base_SetPerformanceForAreaBll.cs" />
+    <Compile Include="CommonModule\Base_ShortcutsBll.cs" />
+    <Compile Include="CommonModule\Base_CodeRuleBll.cs" />
+    <Compile Include="CommonModule\Base_ButtonPermissionBll.cs" />
+    <Compile Include="CommonModule\Base_DataBaseBll.cs" />
+    <Compile Include="CommonModule\Base_DataScopePermissionBll.cs" />
+    <Compile Include="CommonModule\Base_ExcelImportBll.cs" />
+    <Compile Include="CommonModule\Base_ModulePermissionBll.cs" />
+    <Compile Include="CommonModule\Base_SupplierBll.cs" />
+    <Compile Include="CommonModule\Base_ViewPermissionBll.cs" />
+    <Compile Include="CommonModule\Base_DepartmentBll.cs" />
+    <Compile Include="CommonModule\Base_GroupUserBll.cs" />
+    <Compile Include="CommonModule\Base_ObjectUserRelationBll.cs" />
+    <Compile Include="CommonModule\Base_PostBll.cs" />
+    <Compile Include="CommonModule\Base_RolesBll.cs" />
+    <Compile Include="CommonModule\Base_UserBll.cs" />
+    <Compile Include="CommonModule\Base_CompanyBll.cs" />
+    <Compile Include="CommonModule\Base_ProvinceCityBll.cs" />
+    <Compile Include="CommonModule\Base_QueryRecordBll.cs" />
+    <Compile Include="CommonModule\Base_SysLogBll.cs" />
+    <Compile Include="CommonModule\Base_DataDictionaryBll.cs" />
+    <Compile Include="CommonModule\Base_ModuleBll.cs" />
+    <Compile Include="CommonModule\CodeMaticBll.cs" />
+    <Compile Include="CommonModule\Base_ButtonBll.cs" />
+    <Compile Include="CommonModule\Base_ViewBll.cs" />
+    <Compile Include="CommonModule\Base_ViewWhereBll.cs" />
+    <Compile Include="CommonModule\ExportExcelsBll.cs" />
+    <Compile Include="CommonModule\WorkerBll.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DeliveryModule\BY_DeliveryBll.cs" />
+    <Compile Include="DeliveryModule\BY_DeliveryDetailBll.cs" />
+    <Compile Include="MachineModule\BY_MachineBll.cs" />
+    <Compile Include="MaterielModule\Base_MaterielCheckBll.cs" />
+    <Compile Include="MaterielModule\Base_MaterielGetBll.cs" />
+    <Compile Include="MaterielModule\Base_MaterielReturnBll.cs" />
+    <Compile Include="MaterielModule\Base_MaterielStorageBll.cs" />
+    <Compile Include="MaterielModule\Base_MaterielTypeBll.cs" />
+    <Compile Include="OrderDetailProcessModule\BY_OrderDetailBll.cs" />
+    <Compile Include="OrderDetailProcessModule\BY_OrderDetailProcessBll.cs" />
+    <Compile Include="OrderDetailProcessModule\BY_OrderDetailProcessDetailBll.cs" />
+    <Compile Include="OrderModule\Base_SteelDDBeoutBll.cs" />
+    <Compile Include="OrderModule\Base_SteelDDBeoutDetailBll.cs" />
+    <Compile Include="OrderModule\Base_SteelDDPerchaseBll.cs" />
+    <Compile Include="OrderModule\Base_SteelDDPerchaseDetailBll.cs" />
+    <Compile Include="OrderModule\BY_CapacityBll.cs" />
+    <Compile Include="OrderModule\BY_OrderBll.cs" />
+    <Compile Include="OrderModule\BY_OrderCompleteBll.cs" />
+    <Compile Include="OrderModule\BY_OrderDetailBeOutBll.cs" />
+    <Compile Include="PaymentModule\Base_MaterielPurchaseBll.cs" />
+    <Compile Include="PaymentModule\Base_PayCompanyBll.cs" />
+    <Compile Include="PaymentModule\Base_PaySheetBll.cs" />
+    <Compile Include="PaymentModule\Base_SteelPurchaseBll.cs" />
+    <Compile Include="PaymentModule\BY_PayCheckSheelBll.cs" />
+    <Compile Include="PaymentModule\BY_PayReimburseSheetBll.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="QualityModule\BY_CJReportBll.cs" />
+    <Compile Include="QualityModule\BY_CSBReportBll.cs" />
+    <Compile Include="QualityModule\BY_FKReportBll.cs" />
+    <Compile Include="QualityModule\BY_FlawedNoticeBll.cs" />
+    <Compile Include="QualityModule\BY_InStockQualityBll.cs" />
+    <Compile Include="QualityModule\BY_JXReportBll.cs" />
+    <Compile Include="QualityModule\BY_SteelQualityreportBll.cs" />
+    <Compile Include="QualityModule\BY_SteelQualityreportListBll.cs" />
+    <Compile Include="QualityModule\BY_SteelQualityreportTBll.cs" />
+    <Compile Include="QuotationHeatModule\BY_QuotationHeatBeoutBll.cs" />
+    <Compile Include="QuotationHeatModule\BY_QuotationHeatBeoutDetailBll.cs" />
+    <Compile Include="QuotationHeatModule\BY_QuotationHeatBll.cs" />
+    <Compile Include="QuotationHeatModule\BY_StoveBll.cs" />
+    <Compile Include="QuotationHeatModule\BY_StoveHeatListBll.cs" />
+    <Compile Include="QuotationModule\BY_QuotationBll.cs" />
+    <Compile Include="QuotationModule\BY_QuotationDetailBll.cs" />
+    <Compile Include="StorageModule\BY_AdjustQueryBll.cs" />
+    <Compile Include="StorageModule\BY_InStockBll.cs" />
+    <Compile Include="StorageModule\BY_InventoryBll.cs" />
+    <Compile Include="StorageModule\BY_OutStockBll.cs" />
+    <Compile Include="Utility\BaseFactory.cs" />
+    <Compile Include="Utility\BaseManager.cs" />
+    <Compile Include="Utility\Enum\OrderBillStatus.cs" />
+    <Compile Include="Utility\Enum\QuotationBillStatus.cs" />
+    <Compile Include="Utility\IBaseManager.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\LeaRun.Cache\DNS.Cache.csproj">
+      <Project>{ce495c65-356d-453a-919e-329879fdf47c}</Project>
+      <Name>DNS.Cache</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LeaRun.DataAccess\DNS.DataAccess.csproj">
+      <Project>{7d1a96cf-9b89-443f-ab95-12343f52a1ac}</Project>
+      <Name>DNS.DataAccess</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LeaRun.Entity\DNS.Entity.csproj">
+      <Project>{fe90ed79-3221-4c96-9361-9019a17be9f7}</Project>
+      <Name>DNS.Entity</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LeaRun.Repository\DNS.Repository.csproj">
+      <Project>{1848efad-3f70-4e52-8bd8-e952dc127f4d}</Project>
+      <Name>DNS.Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\LeaRun.Utilities\DNS.Utilities.csproj">
+      <Project>{7a9e54b1-d54d-4af2-99e9-06e9baff4846}</Project>
+      <Name>DNS.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,1359 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Print</title>
+    @*    <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/barcode/jquery-barcode.min.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+ @*   @Styles.Render("~/Content/Styles/frameworkcss")*@
+    @Scripts.Render("~/Content/Scripts/barcode/barcodejquery")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+            <style>
+
+    .form-print th {
+        font-size: 10pt;
+        font-family: Arial;
+        font-weight: bold;
+        background-color: #fff;
+        height: 17.6px;
+        line-height:17.6px;
+        white-space: nowrap;
+        
+        text-align: right;
+        padding-right: 2px;
+    }
+
+    .form-print td {
+        font-size: 10pt;
+        font-family: Arial;
+        font-weight: bold;
+        height: 17.6px;
+        line-height:17.6px;
+        padding-right: 2px;
+       
+    }
+</style>
+    <script>
+        var perType = GetQuery('perType');
+        //初始化
+        $(function () {
+            AjaxJson("/DeliveryModule/BY_Delivery/PrintDataJson", { DeliveryIds: GetQuery('DeliveryIds'), QuotationId: GetQuery('QuotationId') }, function (data) {
+
+                var Delivery = data.Delivery;
+                var DeliveryDetail = data.DeliveryDetail;
+
+
+                $("#CreateUserName").text(Delivery.CreateUserName);
+
+
+                var num = 0;
+                var Height = 0;
+                if (perType == "A4") {
+                    num = 37;
+                    Height = 200;
+                }
+                if (perType == "A5") {
+                    num = 11;
+                    Height = 75;
+                }
+                if (!!Delivery.ShipRoute) {
+                    $("#ShipRoute").text($.trim(Delivery.ShipRoute).replace("&nbsp;", ""));
+                }
+                if (!!Delivery.MnemonicCode) {
+                    $("#MnemonicCode").text($.trim(Delivery.MnemonicCode).replace("&nbsp;", ""));
+
+                }
+                if (!!Delivery.CustomerCode) {
+                    $("#CustomerCode").text(Delivery.CustomerCode.replace("&nbsp;", ""));
+
+                }
+                if (!!Delivery.CustomerPO) {
+                    $("#CustomerPO").text($.trim(Delivery.CustomerPO).replace("&nbsp;", ""));
+
+                }
+                if (!!Delivery.ShipMode) {
+                    $("#ShipMode").text(Delivery.ShipMode.replace("&nbsp;", ""));
+
+                }
+                if (!!Delivery.CustomerName) {
+                    $("#CustomerName").text(Delivery.CustomerName.replace("&nbsp;", "").split('-')[Delivery.CustomerName.split('-').length - 1]);
+                }
+                if (!!Delivery.ShipAddress) {
+                    $("#ShipAddress").text(Delivery.ShipAddress.replace("&nbsp;", ""));
+                }
+                if (!!Delivery.ContactTel) {
+                    $("#ContactTel").text(Delivery.ContactTel.replace("&nbsp;", ""));
+
+                }
+                if (!!data.DeliveryCodes) {
+                    $("#DeliveryCode").text(data.DeliveryCodes.replace("&nbsp;", ""));
+
+                }
+                if (!!Delivery.PrintDate) {
+                    $("#CreateDate").text(formatDate(Delivery.PrintDate.replace("&nbsp;", ""), 'yyyy-MM-dd'));
+
+                }
+                else {
+                    $("#CreateDate").text(formatDate('@DNS.Utilities.DateTimeHelper.GetDate(0)', 'yyyy-MM-dd'));
+                }
+                if (!!Delivery.PaymentMode) {
+                    $("#PaymentMode").text(Delivery.PaymentMode);
+
+                }
+                if (!!data.UpperMaterialAmountSum) {
+                    $("#UpperMaterialAmountSum").text(data.UpperMaterialAmountSum);
+
+                }
+                if (!!Delivery.CompanyName) {
+                    $("#CompanyName").text(Delivery.CompanyName.replace("&nbsp;", ""));
+                }
+
+
+                var temphtml1 = $("body").html().replace("51828", Height);
+                var hhspinted = "<div id='isreprint' style='float:right;position: absolute;font-size:18pt; right:5px;'><span style='font-size: 12px; font-weight: bold;'>重印人：@DNS.Utilities.ManageProvider.Provider.Current().UserName</span></div>"
+                if (Delivery.PrintType != null && Delivery.PrintType != "null") {
+                    var temphtml1 = temphtml1.replace("reprintedd", hhspinted);
+                }
+                else {
+                    var temphtml1 = temphtml1.replace("reprintedd", "");
+                }
+
+                var temphtml2 = temphtml1;
+                var temphtml3 = temphtml1;
+                var temphtml4 = temphtml1;
+                var temphtml5 = temphtml1;
+                var temphtml6 = temphtml1;
+                var temphtml7 = temphtml1;
+                var temphtml8 = temphtml1;
+                var temphtml9 = temphtml1;
+                var temphtml10 = temphtml1;
+                var temphtml11 = temphtml1;
+                var temphtml12 = temphtml1;
+                var temphtml13 = temphtml1;
+                var temphtml14 = temphtml1;
+                var temphtml15 = temphtml1;
+                var temphtml16 = temphtml1;
+                var temphtml17 = temphtml1;
+                var temphtml18 = temphtml1;
+                var temphtml19 = temphtml1;
+                var temphtml20 = temphtml1;
+                $("body").html("");
+                var Detailhtml1 = "";
+                var Detailhtml2 = "";
+                var Detailhtml3 = "";
+                var Detailhtml4 = "";
+                var Detailhtml5 = "";
+                var Detailhtml6 = "";
+                var Detailhtml7 = "";
+                var Detailhtml8 = "";
+                var Detailhtml9 = "";
+                var Detailhtml10 = "";
+                var Detailhtml11 = "";
+                var Detailhtml12 = "";
+                var Detailhtml13 = "";
+                var Detailhtml14 = "";
+                var Detailhtml15 = "";
+                var Detailhtml16 = "";
+                var Detailhtml17 = "";
+                var Detailhtml18 = "";
+                var Detailhtml19 = "";
+                var Detailhtml20 = "";
+                var pagenum = "";
+
+               @* var hhspinted = "<div id='isreprint' style='float:right;position: absolute;font-size:18pt; right:5px;'><span style='font-size: 12px; font-weight: bold;'>重印人：@DNS.Utilities.ManageProvider.Provider.Current().UserName</span></div>"
+                if (Delivery.PrintType != null && Delivery.PrintType != "null") {
+                    var temphtml1 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml2 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml3 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml4 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml5 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml6 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml7 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml8 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml9 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml10 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml11 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml12 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml13 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml14 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml15 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml16 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml17 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml18 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml19 = temphtml1.replace("reprintedd", hhspinted);
+                    var temphtml20 = temphtml1.replace("reprintedd", hhspinted);
+                }
+                else {
+                    var temphtml1 = temphtml1.replace("reprintedd", "");
+                    var temphtml2 = temphtml1.replace("reprintedd", "");
+                    var temphtml3 = temphtml1.replace("reprintedd", "");
+                    var temphtml4 = temphtml1.replace("reprintedd", "");
+                    var temphtml5 = temphtml1.replace("reprintedd", "");
+                    var temphtml6 = temphtml1.replace("reprintedd", "");
+                    var temphtml7 = temphtml1.replace("reprintedd", "");
+                    var temphtml8 = temphtml1.replace("reprintedd", "");
+                    var temphtml9 = temphtml1.replace("reprintedd", "");
+                    var temphtml10 = temphtml1.replace("reprintedd", "");
+                    var temphtml11 = temphtml1.replace("reprintedd", "");
+                    var temphtml12 = temphtml1.replace("reprintedd", "");
+                    var temphtml13 = temphtml1.replace("reprintedd", "");
+                    var temphtml14 = temphtml1.replace("reprintedd", "");
+                    var temphtml15 = temphtml1.replace("reprintedd", "");
+                    var temphtml16 = temphtml1.replace("reprintedd", "");
+                    var temphtml17 = temphtml1.replace("reprintedd", "");
+                    var temphtml18 = temphtml1.replace("reprintedd", "");
+                    var temphtml19 = temphtml1.replace("reprintedd", "");
+                    var temphtml20 = temphtml1.replace("reprintedd", "");
+                }*@
+               
+                var cancelCount = 0;
+                $.each(DeliveryDetail, function (i) {
+                    if (DeliveryDetail[i].SalesAmount == 0 && DeliveryDetail[i].Remark.indexOf("取消") >= 0) {
+                        cancelCount = cancelCount + DeliveryDetail[i].Qty;
+                        return true;
+                    }
+                    var size = "";
+                    if (DeliveryDetail[i].Length > 0) {
+                        if (parseFloat(DeliveryDetail[i].Weigh) <= 0) {
+                            var BoreSize = "";
+                            if (!!DeliveryDetail[i].BoreSize) {
+                                BoreSize = "xΦ" + DeliveryDetail[i].BoreSize;
+                            }
+                            size = "Φ" + parseFloat(DeliveryDetail[i].Thick) + BoreSize + '*' + parseFloat(DeliveryDetail[i].Length);
+                        }
+                        else {
+                            size = parseFloat(DeliveryDetail[i].Thick) + '*' + parseFloat(DeliveryDetail[i].Weigh) + '*' + parseFloat(DeliveryDetail[i].Length);
+                        }
+                        if (DeliveryDetail[i].SteelCode == "DK" || DeliveryDetail[i].SteelCode == "QG") {
+                            size = "";
+                        }
+                    }
+                    
+                    var WorkPriceWeight = "";
+                    //加工
+                    if (DeliveryDetail[i].WorkUnit == "1") {
+                        WorkPriceWeight = DeliveryDetail[i].Qty + "件";
+                    }
+                    else {
+                        WorkPriceWeight = DeliveryDetail[i].TheoryWeight ;
+                    }
+                    
+                   
+                    
+                  
+
+                    if (DeliveryDetail[i].WorkPrice == 0) {
+                        WorkPriceWeight = ""
+                        DeliveryDetail[i].WorkPrice = "";
+                    }
+                    if (DeliveryDetail[i].MaterialPrice == 0) {
+                        DeliveryDetail[i].MaterialPrice = "";
+                    }
+                    var unitEntity = ""
+                    if (DeliveryDetail[i].JJtype != "按公斤") {
+                        unitEntity = "件";
+                        DeliveryDetail[i].Weight = "";
+                    }
+                    else {
+                        unitEntity = "KG"
+                    }
+                    if (DeliveryDetail[i].HeatPrice == 0) {
+                        DeliveryDetail[i].HeatPrice = "";
+                    }
+                    if (DeliveryDetail[i].JKCost == 0) {
+                        DeliveryDetail[i].JKCost = "";
+                    }
+                    if (i < num) {
+
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml1 += Detailhtml;
+                        pagenum = "1";
+                    }
+                    if (i < 2 * num && i >= num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml2 += Detailhtml;
+                        pagenum = "2";
+                    }
+                    if (i < 3 * num && i >= 2 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml3 += Detailhtml;
+                        pagenum = "3";
+                    }
+                    if (i < 4 * num && i >= 3 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml4 += Detailhtml;
+                        pagenum = "4";
+                    }
+                    if (i < 5 * num && i >= 4 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml5 += Detailhtml;
+                        pagenum = "5";
+                    }
+                    if (i < 6 * num && i >= 5 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml6 += Detailhtml;
+                        pagenum = "6";
+                    }
+                    if (i < 7 * num && i >= 6 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml7 += Detailhtml;
+                        pagenum = "7";
+                    }
+                    if (i < 8 * num && i >= 7 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml8 += Detailhtml;
+                        pagenum = "8";
+                    }
+                    if (i < 9 * num && i >= 8 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml9 += Detailhtml;
+                        pagenum = "9";
+                    }
+                    if (i < 10 * num && i >= 9 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml10 += Detailhtml;
+                        pagenum = "10";
+                    }
+                    if (i < 11 * num && i >= 10 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml11 += Detailhtml;
+                        pagenum = "11";
+                    }
+                    if (i < 12 * num && i >= 11 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml12 += Detailhtml;
+                        pagenum = "12";
+                    }
+                    if (i < 13 * num && i >= 12 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml13 += Detailhtml;
+                        pagenum = "13";
+                    }
+                    if (i < 14 * num && i >= 13 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml14 += Detailhtml;
+                        pagenum = "14";
+                    }
+                    if (i < 15 * num && i >= 14 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml15 += Detailhtml;
+                        pagenum = "15";
+                    }
+                    if (i < 16 * num && i >= 15 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml16 += Detailhtml;
+                        pagenum = "16";
+                    }
+                    if (i < 17 * num && i >= 16 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml17 += Detailhtml;
+                        pagenum = "17";
+                    }
+                    if (i < 18 * num && i >= 17 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml18 += Detailhtml;
+                        pagenum = "18";
+                    }
+                    if (i < 19 * num && i >= 18 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml19 += Detailhtml;
+                        pagenum = "19";
+                    }
+                    if (i < 20 * num && i >= 19 * num) {
+                        var Detailhtml = "";
+                        Detailhtml += '<tr>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].LineCode + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(DeliveryDetail[i].ProductName) + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].CustomerProduct + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Qty + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + unitEntity + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].Weight + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].MaterialPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].WorkPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].HeatPrice + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].JKCost + '</td>';
+                        Detailhtml += '    <td style="border: 1px solid #000; text-align: center;">' + DeliveryDetail[i].SalesAmount + '</td>';
+                        Detailhtml += '</tr>';
+                        //$('#tb_Detail').append(Detailhtml);
+                        Detailhtml20 += Detailhtml;
+                        pagenum = "20";
+                    }
+                });
+                temphtml1 = temphtml1.replace("tb_Detailstr", Detailhtml1);
+                temphtml1 = temphtml1.replace("sheetPage", "(1/" + pagenum + ")");
+                temphtml2 = temphtml2.replace("tb_Detailstr", Detailhtml2);
+                temphtml2 = temphtml2.replace("sheetPage", "(2/" + pagenum + ")");
+                temphtml3 = temphtml3.replace("tb_Detailstr", Detailhtml3);
+                temphtml3 = temphtml3.replace("sheetPage", "(3/" + pagenum + ")");
+                temphtml4 = temphtml4.replace("tb_Detailstr", Detailhtml4);
+                temphtml4 = temphtml4.replace("sheetPage", "(4/" + pagenum + ")");
+                temphtml5 = temphtml5.replace("tb_Detailstr", Detailhtml5);
+                temphtml5 = temphtml5.replace("sheetPage", "(5/" + pagenum + ")");
+                temphtml6 = temphtml6.replace("tb_Detailstr", Detailhtml6);
+                temphtml6 = temphtml6.replace("sheetPage", "(6/" + pagenum + ")");
+                temphtml7 = temphtml7.replace("tb_Detailstr", Detailhtml7);
+                temphtml7 = temphtml7.replace("sheetPage", "(7/" + pagenum + ")");
+                temphtml8 = temphtml8.replace("tb_Detailstr", Detailhtml8);
+                temphtml8 = temphtml8.replace("sheetPage", "(8/" + pagenum + ")");
+                temphtml9 = temphtml9.replace("tb_Detailstr", Detailhtml9);
+                temphtml9 = temphtml9.replace("sheetPage", "(9/" + pagenum + ")");
+                temphtml10 = temphtml10.replace("tb_Detailstr", Detailhtml10);
+                temphtml10 = temphtml10.replace("sheetPage", "(10/" + pagenum + ")");
+                temphtml11 = temphtml11.replace("tb_Detailstr", Detailhtml11);
+                temphtml11 = temphtml11.replace("sheetPage", "(11/" + pagenum + ")");
+                temphtml12 = temphtml12.replace("tb_Detailstr", Detailhtml12);
+                temphtml12 = temphtml12.replace("sheetPage", "(12/" + pagenum + ")");
+                temphtml13 = temphtml13.replace("tb_Detailstr", Detailhtml13);
+                temphtml13 = temphtml13.replace("sheetPage", "(13/" + pagenum + ")");
+                temphtml14 = temphtml14.replace("tb_Detailstr", Detailhtml14);
+                temphtml14 = temphtml14.replace("sheetPage", "(14/" + pagenum + ")");
+                temphtml15 = temphtml15.replace("tb_Detailstr", Detailhtml15);
+                temphtml15 = temphtml15.replace("sheetPage", "(15/" + pagenum + ")");
+                temphtml16 = temphtml16.replace("tb_Detailstr", Detailhtml16);
+                temphtml16 = temphtml16.replace("sheetPage", "(16/" + pagenum + ")");
+                temphtml17 = temphtml17.replace("tb_Detailstr", Detailhtml17);
+                temphtml17 = temphtml17.replace("sheetPage", "(17/" + pagenum + ")");
+                temphtml18 = temphtml18.replace("tb_Detailstr", Detailhtml18);
+                temphtml18 = temphtml18.replace("sheetPage", "(18/" + pagenum + ")");
+                temphtml19 = temphtml19.replace("tb_Detailstr", Detailhtml19);
+                temphtml19 = temphtml19.replace("sheetPage", "(19/" + pagenum + ")");
+                temphtml20 = temphtml20.replace("tb_Detailstr", Detailhtml20);
+                temphtml20 = temphtml20.replace("sheetPage", "(20/" + pagenum + ")");
+
+                var Detailhtml = "";
+                Detailhtml += '<tr>';
+                var totalc = Number(data.QtySum) - cancelCount;
+                Detailhtml += '    <td  style="width: 40%;border-bottom: 2px dashed #000;" colspan="4">合计:&nbsp;&nbsp;&nbsp;&nbsp;总件数(' + totalc + 'ps) </td>';
+                Detailhtml += '    <td  style="width: 30%;border-bottom: 2px dashed #000;" colspan="3">总金额￥:' + data.MaterialAmountSum + '(￥)</td>';
+
+                Detailhtml += '</tr>';
+                //$('#tb_Detail1').append(Detailhtml);
+
+                //var Detailhtmltr = '<th style="border-bottom: 2px dashed #000;text-align: left;" >合计金额：' + data.UpperMaterialAmountSum + '</th><td style="border-bottom: 2px dashed #000;" colspan="8">';
+                //Detailhtmltr += '</td><th style="border-bottom: 2px dashed #000;" align="right"></th><td style="border-bottom: 2px dashed #000;">';
+                //Detailhtmltr += '<label id="PaymentMode"></label></td>';
+                var Detailhtmltr = "";
+
+                var Detailhtmlxia = "";
+                Detailhtmlxia += '<tr>';
+                Detailhtmlxia += '    <td  colspan="9" align="center" style="font-size: 8pt;height: 12.6px;line-height:12.6px;">接下页</td>';
+                Detailhtmlxia += '</tr>';
+                $('#tb_Detail1').append(Detailhtmlxia);
+
+                //var Detailhtmltrxia = '<th style="border-bottom: 1px dashed #000;text-align: left;" ></th><td style="border-bottom: 1px dashed #000;" colspan="8">';
+                //Detailhtmltrxia += '</td><th style="border-bottom: 1px dashed #000;" align="right"></th><td style="border-bottom: 1px dashed #000;">';
+                //Detailhtmltrxia += '<label id="PaymentMode"></label></td>';
+                var Detailhtmltrxia = "";
+                $('#totalupperTR').append(Detailhtmltrxia);
+
+
+                if (DeliveryDetail.length <= num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml2 = "";
+                    temphtml3 = "";
+                    temphtml4 = "";
+                    temphtml5 = "";
+                    temphtml6 = "";
+                    temphtml7 = "";
+                    temphtml8 = "";
+                    temphtml9 = "";
+                    temphtml10 = "";
+                    temphtml11 = "";
+                    temphtml12 = "";
+                    temphtml13 = "";
+                    temphtml14 = "";
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > num && DeliveryDetail.length <= 2 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml3 = "";
+                    temphtml4 = "";
+                    temphtml5 = "";
+                    temphtml6 = "";
+                    temphtml7 = "";
+                    temphtml8 = "";
+                    temphtml9 = "";
+                    temphtml10 = "";
+                    temphtml11 = "";
+                    temphtml12 = "";
+                    temphtml13 = "";
+                    temphtml14 = "";
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 2 * num && DeliveryDetail.length <= 3 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml4 = "";
+                    temphtml5 = "";
+                    temphtml6 = "";
+                    temphtml7 = "";
+                    temphtml8 = "";
+                    temphtml9 = "";
+                    temphtml10 = "";
+                    temphtml11 = "";
+                    temphtml12 = "";
+                    temphtml13 = "";
+                    temphtml14 = "";
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 3 * num && DeliveryDetail.length <= 4 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml5 = "";
+                    temphtml6 = "";
+                    temphtml7 = "";
+                    temphtml8 = "";
+                    temphtml9 = "";
+                    temphtml10 = "";
+                    temphtml11 = "";
+                    temphtml12 = "";
+                    temphtml13 = "";
+                    temphtml14 = "";
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 4 * num && DeliveryDetail.length <= 5 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml6 = "";
+                    temphtml7 = "";
+                    temphtml8 = "";
+                    temphtml9 = "";
+                    temphtml10 = "";
+                    temphtml11 = "";
+                    temphtml12 = "";
+                    temphtml13 = "";
+                    temphtml14 = "";
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 5 * num && DeliveryDetail.length <= 6 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml7 = "";
+                    temphtml8 = "";
+                    temphtml9 = "";
+                    temphtml10 = "";
+                    temphtml11 = "";
+                    temphtml12 = "";
+                    temphtml13 = "";
+                    temphtml14 = "";
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 6 * num && DeliveryDetail.length <= 7 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml8 = "";
+                    temphtml9 = "";
+                    temphtml10 = "";
+                    temphtml11 = "";
+                    temphtml12 = "";
+                    temphtml13 = "";
+                    temphtml14 = "";
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 7 * num && DeliveryDetail.length <= 8 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml8 = temphtml8.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml9 = "";
+                    temphtml10 = "";
+                    temphtml11 = "";
+                    temphtml12 = "";
+                    temphtml13 = "";
+                    temphtml14 = "";
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 8 * num && DeliveryDetail.length <= 9 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml8 = temphtml8.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml9 = temphtml9.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml10 = "";
+                    temphtml11 = "";
+                    temphtml12 = "";
+                    temphtml13 = "";
+                    temphtml14 = "";
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 9 * num && DeliveryDetail.length <= 10 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml8 = temphtml8.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml9 = temphtml9.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml10 = temphtml10.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml11 = "";
+                    temphtml12 = "";
+                    temphtml13 = "";
+                    temphtml14 = "";
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 10 * num && DeliveryDetail.length <= 11 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml8 = temphtml8.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml9 = temphtml9.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml10 = temphtml10.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml11 = temphtml11.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml12 = "";
+                    temphtml13 = "";
+                    temphtml14 = "";
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 11 * num && DeliveryDetail.length <= 12 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml8 = temphtml8.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml9 = temphtml9.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml10 = temphtml10.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml11 = temphtml11.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml12 = temphtml12.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml13 = "";
+                    temphtml14 = "";
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 12 * num && DeliveryDetail.length <= 13 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml8 = temphtml8.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml9 = temphtml9.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml10 = temphtml10.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml11 = temphtml11.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml12 = temphtml12.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml13 = temphtml13.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml14 = "";
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 13 * num && DeliveryDetail.length <= 14 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml8 = temphtml8.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml9 = temphtml9.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml10 = temphtml10.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml11 = temphtml11.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml12 = temphtml12.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml13 = temphtml13.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml14 = temphtml14.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml15 = "";
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 14 * num && DeliveryDetail.length <= 15 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml8 = temphtml8.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml9 = temphtml9.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml10 = temphtml10.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml11 = temphtml11.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml12 = temphtml12.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml13 = temphtml13.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml14 = temphtml14.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml15 = temphtml15.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml16 = "";
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 15 * num && DeliveryDetail.length <= 16 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml8 = temphtml8.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml9 = temphtml9.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml10 = temphtml10.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml11 = temphtml11.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml12 = temphtml12.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml13 = temphtml13.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml14 = temphtml14.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml15 = temphtml15.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml16 = temphtml16.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml17 = "";
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 16 * num && DeliveryDetail.length <= 17 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml8 = temphtml8.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml9 = temphtml9.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml10 = temphtml10.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml11 = temphtml11.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml12 = temphtml12.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml13 = temphtml13.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml14 = temphtml14.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml15 = temphtml15.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml16 = temphtml16.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml17 = temphtml17.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml18 = "";
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 17 * num && DeliveryDetail.length <= 18 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml8 = temphtml8.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml9 = temphtml9.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml10 = temphtml10.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml11 = temphtml11.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml12 = temphtml12.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml13 = temphtml13.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml14 = temphtml14.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml15 = temphtml15.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml16 = temphtml16.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml17 = temphtml17.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml18 = temphtml18.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml19 = "";
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 18 * num && DeliveryDetail.length <= 19 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml8 = temphtml8.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml9 = temphtml9.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml10 = temphtml10.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml11 = temphtml11.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml12 = temphtml12.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml13 = temphtml13.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml14 = temphtml14.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml15 = temphtml15.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml16 = temphtml16.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml17 = temphtml17.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml18 = temphtml18.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml19 = temphtml19.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                    temphtml20 = "";
+                }
+                if (DeliveryDetail.length > 19 * num && DeliveryDetail.length <= 20 * num) {
+                    temphtml1 = temphtml1.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml2 = temphtml2.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml3 = temphtml3.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml4 = temphtml4.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml5 = temphtml5.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml6 = temphtml6.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml7 = temphtml7.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml8 = temphtml8.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml9 = temphtml9.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml10 = temphtml10.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml11 = temphtml11.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml12 = temphtml12.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml13 = temphtml13.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml14 = temphtml14.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml15 = temphtml15.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml16 = temphtml16.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml17 = temphtml17.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml18 = temphtml18.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml19 = temphtml19.replace("tb_Detail1str", Detailhtmlxia).replace("totalupperTRstr", Detailhtmltrxia);
+                    temphtml20 = temphtml20.replace("tb_Detail1str", Detailhtml).replace("totalupperTRstr", Detailhtmltr);
+                }
+
+                $("body").html(temphtml1 + temphtml2 + temphtml3 + temphtml4 + temphtml5 + temphtml6 + temphtml7 + temphtml8 + temphtml9 + temphtml10 + temphtml11 + temphtml12 + temphtml13 + temphtml14 + temphtml15 + temphtml16 + temphtml17 + temphtml18 + temphtml19 + temphtml20);
+            });
+        });
+                @*        //确认打印
+        function AcceptClick() {
+            var postData = {
+                KeyValue: GetQuery('DeliveryId'),
+                DeliveryId: GetQuery('DeliveryId'),
+                PrintDate: '@DNS.Utilities.DateTimeHelper.GetTime()',
+                PrintUserId: '@DNS.Utilities.ManageProvider.Provider.Current().UserName',
+                LastPrintDate: '@DNS.Utilities.DateTimeHelper.GetTime()',
+                LastPrintUserId: '@DNS.Utilities.ManageProvider.Provider.Current().UserName',
+                QuotationId: GetQuery('QuotationId')
+            }
+            AjaxJson("/DeliveryModule/BY_Delivery/SubmitForm", postData, function (data) {
+                MyPreview();
+
+            });
+        }*@
+        function AcceptClick() {
+            window.setTimeout(function () {
+                AjaxJson("/DeliveryModule/BY_Delivery/UpdatePrint", { DeliveryIds: GetQuery('DeliveryIds'), PrintUserId: "1" }, function (data) {
+                    MyPreview();
+                });
+            }, 200);
+        }
+    </script>
+</head>
+<body>
+
+    <div class="my_area" style="background: #fff;">
+        <div style="float: left; position: absolute;">
+            @*<img style="width: 40px;padding: 5px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@
+        </div>
+        reprintedd
+        <table class="form-print" style="width: 100%;">
+            <tr>
+                <td colspan="11" align="center" style="padding: 5px; padding-top: 8px;"><span style="font-size: 25px; font-weight: bold;"><label id="CompanyName"></label>送货单sheetPage</span></td>
+            </tr>
+
+            <tr>
+                <td colspan="11" align="center" style=""><span style="font-size: 12px; font-weight: bold;">地址：宁波市北仑区大矸龙潭山三路15号&nbsp;电话：18892600521&nbsp;邮箱：124176905@qq.com&nbsp;</span></td>
+            </tr>
+
+
+
+            <tr>
+
+                <td align="left" colspan="12" style="height: 14px; line-height: 14px; width:100%">名称：<label id="CustomerName"></label>&nbsp;地址：<label id="ShipAddress"></label>&nbsp;电话：<label id="ContactTel"></label></td>
+                </tr> <tr>
+                <td align="left" colspan="12" style=" height: 14px; line-height: 14px; width:100%">日期：<label id="CreateDate"></label>&nbsp;单号：<label id="DeliveryCode"></label></td>
+                
+
+
+            </tr>
+           
+            <tr>
+                <td colspan="11" valign="top">
+                    <div style="height: 51828mm;">
+                        <table id="tb_Detail" border="0" class="form-print" style="width: 100%; border-collapse:collapse">
+                            <tr>
+                                <th style="border: 1px solid #000;  text-align: left;text-align: center;" >序号</th>
+                                <th style="border: 1px solid #000;  text-align: left;text-align: center;" >钢材名称</th>
+                                <th style="border: 1px solid #000;  text-align: left;text-align: center;" >模号</th>
+                                <th style="border: 1px solid #000;  text-align: left;text-align: center;" >订购规格</th>
+                                <th style="border: 1px solid #000;  text-align: left;text-align: center;" >数量</th>
+                                <th style="border: 1px solid #000;  text-align: left;text-align: center;" >单位</th>
+                                <th style="border: 1px solid #000;  text-align: left;text-align: center;" >重量</th>
+                                <th style="border: 1px solid #000;  text-align: left;text-align: center;" >材料单价</th>
+                                <th style="border: 1px solid #000;  text-align: left;text-align: center;" >加工费/件</th>
+                                <th style="border: 1px solid #000;  text-align: left;text-align: center;" >热处理费/KG</th>
+                                <th style="border: 1px solid #000;  text-align: left;text-align: center;" >锯工费</th>
+                                <th style="border: 1px solid #000;  text-align: left;text-align: center;" >总金额</th>
+                            </tr>
+                            
+                            tb_Detailstr
+                        </table>
+                        
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="11" valign="top">
+                    <table id="tb_Detail1" border="0" class="form-print" style="width: 100%;">
+                        tb_Detail1str
+                    </table>
+                </td>
+            </tr>
+            <tr id="totalupperTR">
+                totalupperTRstr
+                @*<th style="border-bottom: 1px dashed #000;" align="right">合计金额：</th>
+                <td style="border-bottom: 1px dashed #000;" colspan="8">
+                    <label id="UpperMaterialAmountSum"></label>
+                </td>
+                <th style="border-bottom: 1px dashed #000;" align="right">结算方式：</th>
+                <td style="border-bottom: 1px dashed #000;">
+                    <label id="PaymentMode"></label>
+                </td>*@
+            </tr>
+            <tr>
+                <td colspan="11">
+                    <table border="0" class="form-print" style="width: 100%;">
+                        <tr>
+                            <th style="width:50px;font-size: 8pt;height: 14.6px;line-height:14.6px;">备&nbsp;注：</th>
+                            <td colspan="3" style="font-size: 8pt;height: 14.6px;line-height:14.6px;">一，收到本公司提供的产品如发现质量问题，应在七天内以书面形式反馈给本公司，逾期视为验收合格。</td>
+                        </tr>
+                        <tr>
+                            <th style="width:50px;font-size: 8pt;height: 14.6px;line-height:14.6px;">&nbsp;&nbsp;&nbsp;&nbsp;</th>
+                            <td colspan="3" style="font-size: 8pt;height: 14.6px;line-height:14.6px;">二，本公司保留一切未付款货物全部所有权。</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="11">
+                    <table border="0" class="form-print" style="width: 100%;">
+                        <tr>
+                            <td style="font-size: 8pt;height: 14.6px;line-height:14.6px;">&nbsp;</td>
+                            <th style="text-align: left;font-size: 8pt;height: 14.6px;line-height:14.6px;">收货单位及经手人(盖章)：(签名作未付依据)</th>
+                            <td style="width: 100px;height: 14.6px;line-height:14.6px;"></td>
+                            <th style="text-align: center;font-size: 8pt;height: 14.6px;line-height:14.6px;">制单：</th>
+                            <td style="width: 100px;font-size: 8pt;height: 14.6px;line-height:14.6px;">@DNS.Utilities.ManageProvider.Provider.Current().UserName</td>
+                            <th style="text-align: right;font-size: 8pt;height: 14.6px;line-height:14.6px;">送货单位及经手人(盖章)：</th>
+                            <td style="width: 100px;height: 14.6px;line-height:14.6px;">&nbsp;</td>
+                        </tr>
+                        
+                        <tr >
+                            <td style="font-size: 8pt;height: 14.6px;line-height:14.6px;">&nbsp;</td>
+                            <th style="font-size: 8pt;height: 14.6px;line-height:14.6px;">第一联：存根(白)  第二联：回单(红)  第三联：客户(蓝)   第四联：财务(黄)</th>
+                            <td style="width: 100px;height: 14.6px;line-height:14.6px;"></td>
+                            <th style="font-size: 6pt;height: 14.6px;line-height:14.6px;"></th>
+                            <td style="width: 100px;height: 14.6px;line-height:14.6px;"></td>
+                            <th style="font-size: 6pt;height: 14.6px;line-height:14.6px;"></th>
+                            <td style="width: 100px;height: 14.6px;line-height:14.6px;">&nbsp;</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>
+    </div>
+    <script language="javascript" type="text/javascript">
+        function MyPreview() {
+            ////var LODOP = getLodop();
+            LODOP.PRINT_INIT("打印初始化");
+            LODOP.SET_PRINT_COPIES(1);
+            if (perType == "A4") {
+                LODOP.SET_PRINT_PAGESIZE(1, "", "", perType)
+            }
+            if (perType == "A5") {
+                //LODOP.SET_PRINT_PAGESIZE(2, "", "", perType)
+                //LODOP.SET_SHOW_MODE("LANDSCAPE_DEFROTATED", 1);//横向时的正向显示
+                LODOP.SET_PRINT_PAGESIZE(1, "217mm", "140mm", "")
+            }
+            var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+            LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+            if (GetQuery('edit') == "PRINT_DESIGN") {
+                LODOP.PRINT_DESIGN();
+            }
+            else {
+                LODOP.PREVIEW();
+                //LODOP.PRINTA();
+            }
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+            //if (LODOP.PRINTA()) {
+            //    LODOP.PRINT();
+            //    tipDialog("打印成功", 3, 1);
+            //    top.frames[tabiframeId()].windowload();
+            //    window.setTimeout(function () {closeDialog();}, 500);
+
+            //}
+            //else
+            //    //alert("");
+            //    tipDialog("放弃打印！", 3, 1);
+
+        };
+    </script>
+</body>
+</html>

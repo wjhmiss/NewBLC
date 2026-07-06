@@ -1,0 +1,88 @@
+@{
+    ViewBag.Title = "对账单》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/Workday/kalendarjqueryyyyydd")
+@Styles.Render("~/Content/Scripts/Workday/kalendarcss")
+<script type="text/javascript">
+
+    //保存事件
+    function AcceptClick() {
+        
+        var postData = {
+            StartTime: $("#StartTime").val(),
+            EndTime: $("#EndTime").val(),
+        };
+        AjaxJson("/PaymentModule/Base_MaterielPurchase/BuildSummary", postData, function (data) {
+            SetWebControls(data);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+
+
+    <div class="note-prompt" style="margin: 1px;">
+        温馨提示：选择年月后点击生成对账单，由于数据量大，可能需要等待。
+    </div>
+    <div class="border" style="margin: 1px;">
+    </div>
+
+    <div id="basic" class="tabPanel">
+        <table class="form">
+            <tr>
+                <th class='formTitle' colspan="2" style="width:150px;">开始日期：</th>
+                <td class='formValue'>
+                    <input id="StartTime" type="text" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()"  class="txt Wdate required" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 95%" datacol="yes" err="开始时间" checkexpession="NotNull" />
+                </td>
+                <th class='formTitle' colspan="2" style="width:150px;">结束日期：</th>
+                <td class='formValue'>
+                    <input id="EndTime" type="text" class="txt Wdate required" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 95%"  datacol="yes" err="结束时间" checkexpession="NotNull"/>
+                </td>
+            </tr>
+            <tr>
+                <th class='formTitle' rowspan="5" >收入</th>
+                <th class='formTitle' >其他费用：</th>
+                <td class='formValue' colspan="4">
+                    <label id="ListData1"></label>
+                </td>
+                
+            </tr>
+            <tr>
+                <th class='formTitle'>费用申请：</th>
+                <td class='formValue' colspan="4">
+                    <label id="ListData2"></label>
+                </td>
+                
+            </tr>
+            <tr>
+                <th class='formTitle'>物料购买：</th>
+                <td class='formValue' colspan="4">
+                    <label id="ListData3"></label>
+                </td>
+                
+            </tr>
+            <tr>
+                <th class='formTitle'>钢材购买：</th>
+                <td class='formValue' colspan="4">
+                     <label id="ListData4"></label>
+                </td>
+                
+            </tr>
+            <tr>
+                <th class='formTitle'>委外加工：</th>
+                <td class='formValue' colspan="4">
+                     <label id="ListData5"></label>
+                </td>
+                
+            </tr>
+            
+             <tr>
+                <th class='formTitle' >总支出：</th>
+                <td class='formValue' colspan="5">
+                    <label id="ListData6"></label>
+                </td>
+                
+            </tr>
+        </table>
+    </div>
+</form>

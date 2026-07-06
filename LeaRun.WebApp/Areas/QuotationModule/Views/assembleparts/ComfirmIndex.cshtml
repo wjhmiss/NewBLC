@@ -1,0 +1,368 @@
+﻿@{
+    ViewBag.Title = "发运确认";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        //绑定键盘按下事件
+        $(document).keypress(function (e) {
+            //回车键事件
+            if (e.which == 13) {
+                $("#keywords").focus();
+                $("#keywords").select();
+                $("#btnSearch").click();
+            }
+        });
+
+
+        window.setTimeout(function () {
+            GetGrid();
+            OnClickOrderToshowDelivery();
+            OnClickOrderToNoComplete();
+            Loadlayout2();
+        }, 400);
+
+        window.setInterval(function () {
+            if ($("#Refresh").attr("checked")) {
+                btn_Search();
+            }
+        }, 10000);
+
+    });
+
+    function Loadlayout2() {
+        if ($('.layout2').length > 0) {
+            $("#layout2").splitter({
+                type: "v",
+                outline: true,
+                sizeLeft: 350,
+                minLeft: 200,
+                minRight: 200,
+                anchorToWindow: true,
+                accessKey: "L",
+            });
+        }
+    }
+
+
+
+    //加载表格
+    function GetGrid() {
+        var Param = {
+            LType : "LJ",
+        };
+        var Condition = JSON.stringify(Param);
+        var SelectRowIndx = 1;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/DeliveryModule/InventoryComfirm/OrderGridPageJson")?Condition=" + escape(Condition),
+            datatype: "json",
+            height: $(window).height() - 190,
+            width: ($(window).width()) / 2,
+            colModel: [
+                { label: '订单ID', name: 'orderid', index: 'orderid', width: 50, align: 'left', hidden: true },
+                { label: '助记编码', name: 'mnemoniccode', index: 'mnemoniccode', width: 100, align: 'left' },
+                { label: '订单号', name: 'ordercode', index: 'ordercode', width: 100, align: 'left', hidden: true },
+                { label: '客户名称', name: 'customername', index: 'customername', width: 100, align: 'left' },
+                { label: '状态', name: 'orderstatus', index: 'orderstatus', width: 50, align: 'left' },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'mnemoniccode',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            onSelectRow: function () {
+                var KeyValue = GetJqGridRowValue("#gridTable", "orderid");
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                $("#DeliverygridTable").jqGrid('setGridParam', {
+                    url: "@Url.Content("~/DeliveryModule/InventoryComfirm/DeliveryGridPageJson")?OrderId=" + KeyValue, page: 1
+                }).trigger('reloadGrid');
+                $("#DetailgridTable").jqGrid('setGridParam', {
+                    url: "@Url.Content("~/DeliveryModule/InventoryComfirm/NoCompleteGridPageJson")?OrderId=" + KeyValue, page: 1
+                }).trigger('reloadGrid');
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            },
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                btn_confirm();
+            }
+        });
+    }
+    function deleteComplete() {
+        var Orderid = GetJqGridRowValue("#gridTable", "orderid");
+        if (IsChecked(Orderid)) {
+            var selr = jQuery('#DeliverygridTable').jqGrid('getGridParam', 'selarrrow');
+            var s = "";
+            if (selr.length) {
+                for (var i = 0; i < selr.length; i++) {
+                    var myrow = jQuery('#DeliverygridTable').jqGrid('getRowData', selr[i]);
+                    s = s + myrow.ordercompleteid + ",";
+                }
+                confirmDialog("提示", "确定删除吗？", function (r) {
+                    if (r) {
+                        Loading(true, "正在提交数据...");
+                        window.setTimeout(function () {
+                            AjaxJson("/DeliveryModule/InventoryComfirm/DeteletComplete", { Orderid: Orderid, ordercompleteids: s }, function (data) {
+                                tipDialog(data.Message, 3, data.Code);
+                                windowload();
+                            });
+                        }, 200);
+                    }
+                });
+            }
+
+
+
+        }
+    }
+    function btn_confirm() {
+        var Orderid = GetJqGridRowValue("#gridTable", "orderid");
+        //var data = $("#DetailgridTable").jqGrid("getRowData");
+        //if (data.length >0) {
+        //    tipDialog("操作失败：此工单还未完成，不能发运！", 3, data.Code);
+        //    return;
+        //}
+        if (IsChecked(Orderid)) {
+            var selr = jQuery('#DeliverygridTable').jqGrid('getGridParam', 'selarrrow');
+            var s = "";
+            if (selr.length) {
+                for (var i = 0; i < selr.length; i++) {
+                    var myrow = jQuery('#DeliverygridTable').jqGrid('getRowData', selr[i]);
+                    s = s + myrow.ordercompleteid + ",";
+                }
+                confirmDialog("提示", "确定要发运吗？", function (r) {
+                    if (r) {
+                        Loading(true, "正在提交数据...");
+                        window.setTimeout(function () {
+                            AjaxJson("/DeliveryModule/InventoryComfirm/SureConfirm", { Orderid: Orderid,ordercompleteids:s }, function (data) {
+                                tipDialog(data.Message, 3, data.Code);
+                                top.frames[tabiframeId()].windowload();
+                                windowload();
+                            });
+                        }, 200);
+                    }
+                });
+            }
+
+        }
+
+    }
+
+    function AcceptClick() {
+        top.frames[tabiframeId()].windowload();
+    }
+
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+        $("#DeliverygridTable").trigger("reloadGrid"); //重新载入
+        $("#DetailgridTable").trigger("reloadGrid"); //重新载入
+    }
+    //搜索
+    function btn_Search() {
+        var Condition = JSON.stringify(GetWebControls("#QueryParameter", true));
+        var keywords = $("#keywords").val();
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/DeliveryModule/InventoryComfirm/OrderGridPageJson")?Condition=" + escape(Condition), page: 1
+        }).trigger('reloadGrid');
+    }
+
+
+        function OnClickOrderToshowDelivery() {
+            var SelectRowIndx;
+
+            $("#DeliverygridTable").jqGrid({
+                url: "@Url.Content("~/DeliveryModule/InventoryComfirm/DeliveryGridPageJson")?OrderId=",
+                datatype: "json",
+                height: ($(window).height() - 200) / 2,
+                width: ($(window).width() / 2) + 250,
+                colModel: [
+                    { label: 'ordercompleteid', name: 'ordercompleteid', index: 'ordercompleteid', width: 60, align: 'left', hidden: true },
+                    { label: '行号', name: 'linecode', index: 'linecode', width: 40, align: 'left' },
+                    { label: '客户品名', name: 'productname', index: 'productname', width: 80, align: 'left' },
+                    { label: '尺寸', name: 'size', index: 'size', width: 100, align: 'left' },
+                    { label: '订单数量', name: 'qty', index: 'qty', width: 50, align: 'left', hidden: true },
+                    { label: '完成数量', name: 'completeqty', index: 'completeqty', width: 50, align: 'left' },
+                    { label: '模号', name: 'customerproduct', index: 'customerproduct', width: 80, align: 'left' },
+                    { label: '理论重量', name: 'theoryweight', index: 'theoryweight', width: 50, align: 'left', hidden: true },
+                    { label: '重量', name: 'weight', index: 'weight', width: 50, align: 'left' },
+                    { label: '备注', name: 'customerproduct', index: 'customerproduct', width: 80, align: 'left' },
+                    { label: 'steelcode', name: 'steelcode', index: 'steelcode', width: 80, align: 'left', hidden: true  }
+                ],
+                viewrecords: true,
+                rowNum: 999,
+                rowList: [999, 999, 999, 999, 999],
+                //pager: "#DeliverygridPager",
+                pager: false,
+                sortname: 'linecode',
+                sortorder: 'asc',
+                rownumbers: true,
+                shrinkToFit: false,
+                altRows: true,
+                altclass: 'altclass',
+                gridview: true,
+                multiselect: true,
+                onSelectRow: function () {
+                    SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                },
+                gridComplete: function () {
+                    $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                }
+            });
+
+            //自应高度
+            $(window).resize(function () {
+                $("#DeliverygridTable").setGridHeight(($(window).height() - 178) / 2);
+            });
+        }
+
+
+        function OnClickOrderToNoComplete() {
+            var SelectRowIndx;
+            $("#DetailgridTable").jqGrid({
+                url: "@Url.Content("~/DeliveryModule/InventoryComfirm/NoCompleteGridPageJson")?OrderId=",
+                datatype: "json",
+                height: ($(window).height() - 200) / 2,
+                width: ($(window).width()) / 2 +100,
+                colModel: [
+                    { label: '加工类型', name: 'ordertype', index: 'ordertype', width: 80, align: 'left' },
+                    { label: '客户品名', name: 'productname', index: 'productname', width: 50, align: 'left' },
+                    { label: '尺寸', name: 'size', index: 'size', width: 150, align: 'left' },
+                    { label: '订单数量', name: 'qty', index: 'qty', width: 70, align: 'left' },
+                    { label: '未完成数量', name: 'nocompleteqty', index: 'nocompleteqty', width: 70, align: 'left' },
+
+                ],
+                viewrecords: true,
+                rowNum: 999,
+                rowList: [999, 999, 999, 999, 999],
+                pager: false,
+                sortname: 'linecode',
+                sortorder: 'asc',
+                rownumbers: true,
+                shrinkToFit: false,
+                altRows: true,
+                altclass: 'altclass',
+                gridview: true,
+                multiselect: false,
+                onSelectRow: function () {
+                    SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                },
+                gridComplete: function () {
+                    $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                }
+            });
+
+            //自应高度
+            $(window).resize(function () {
+                $("#DetailgridTable").setGridHeight(($(window).height() - 178) / 2);
+            });
+        }
+
+</script>
+
+<!--工具栏-->
+@*<div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+
+    </div>*@
+<!--列表-->
+<div id="grid_List">
+    <div class="bottomline QueryArea" id="QueryParameter" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+        <table border="0" class="form-find" style="height: 45px;">
+            <tr>
+                <td>
+                    <fieldset style="padding: 5px; padding-bottom: 0px; width: 350px; display: inline;">
+                        <legend>货期</legend>
+                        <table border="0" class="form-find" style="margin-top: -10px;">
+                            <tr>
+                                <th style="width: 30px">从：</th>
+                                <td>
+                                    <input id="LType" type="hidden" value="LJ" />
+                                    <input id="CreateDate_StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 120px" />
+                                </td>
+                                <th style="width: 30px">至：</th>
+                                <td>
+                                    <input id="CreateDate_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 120px" />
+                                </td>
+                            </tr>
+
+                        </table>
+                    </fieldset>
+                </td>
+                <th style="width: 30px; padding-top: 20px;">编码</th>
+                <td style="padding-top: 20px;">
+                    <input id="MnemonicCode" type="text" class="txt" style="width: 100px" />
+                </td>
+                @* <th style="width: 30px; padding-top: 20px;">订单</th>
+                    <td style="padding-top: 20px;">
+                        <input id="OrderCode" type="text" class="txt" style="width: 100px" />
+                    </td>*@
+
+                <td style="padding-top: 20px;">
+                    <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkbox" id="CheckBoxComplete" />
+                        <label for="CheckBoxComplete">隐藏未完工</label>
+                    </span>
+                </td>
+                <td style="padding-top: 20px;">
+                    <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkbox" id="Refresh" />
+                        <label for="Refresh">每30秒自动刷新</label>
+                    </span>
+
+                </td>
+                <td style="padding-top: 20px;">
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                    <input id="btnSearch1" type="button" class="btnSearch" value="生成" onclick="btn_confirm()()" />
+                    <input id="btnSearch2" type="button" class="btnSearch" value="回退" onclick="deleteComplete()" />
+                </td>
+            </tr>
+
+
+        </table>
+
+    </div>
+</div>
+
+<div id="layout2" class="layout2">
+    <!--左边-->
+    <div class="layoutPanel layout-west" style=" ">
+        <div class="btnbartitle">
+            <div>
+                订单信息
+            </div>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                完工未发送确认信息
+            </div>
+        </div>
+        <!--视图-->
+        <table id="DeliverygridTable"></table>
+        <div id="DeliverygridPager"></div>
+
+        <div class="btnbartitle">
+            <div>
+                订单未完工信息
+            </div>
+        </div>
+        <!--视图-->
+        <table id="DetailgridTable"></table>
+        <div id="DetailgridPager"></div>
+    </div>
+</div>

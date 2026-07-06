@@ -1,0 +1,366 @@
+﻿select name,OBJECT_NAME(id) as tablename from syscolumns where name='fa'
+
+string[] MnemonicCodes = by_machine.OrderCodeLine.Split(',');
+                string temps = "";
+                for (int i = 0; i < MnemonicCodes.Length; i++)
+                {
+                    temps += "'" + MnemonicCodes[i] + "',";
+                }
+                temps = temps.Trim(',');
+                if (temps == "")
+                {
+                    temps = "''";
+                }
+                strSql.AppendFormat(" AND o.MnemonicCode in ({0})  ", temps);
+
+删除某个单据
+DELETE FROM dbo.BY_Quotation WHERE CustomerCode='cs001'
+DELETE FROM dbo.BY_Order WHERE CustomerCode='cs001'
+DELETE FROM dbo.BY_Delivery WHERE CustomerCode='cs001'
+DELETE FROM dbo.BY_QuotationDetail WHERE QuotationId NOT IN (SELECT QuotationId FROM dbo.BY_Quotation)
+DELETE FROM dbo.BY_OrderDetail WHERE OrderId NOT IN (SELECT OrderId FROM dbo.BY_Order)
+DELETE FROM dbo.BY_DeliveryDetail WHERE Deliveryid NOT IN (SELECT Deliveryid FROM dbo.BY_Delivery)
+DELETE FROM dbo.BY_OrderComplete WHERE OrderId NOT IN (SELECT OrderId FROM dbo.BY_Order)
+DELETE FROM dbo.BY_OrderDetailProcess WHERE OrderCode NOT IN (SELECT OrderCode FROM dbo.BY_Order)
+DELETE FROM dbo.BY_OrderDetailProcessDetail WHERE OrderCode NOT IN (SELECT OrderCode FROM dbo.BY_Order)
+
+
+
+
+修改客户编号-注意名称也要改
+SELECT  *
+FROM    dbo.Base_Customer
+WHERE   FullName like '%润骏%'
+
+
+
+UPDATE  BY_Quotation
+SET     CustomerId = '158743d4-d9e6-4e28-8bdb-3ad7c463b9db' ,
+        CustomerCode = 'RJTZXJ' ,
+        CustomerName = '宁波润骏特种橡胶有限公司'
+WHERE   CustomerName like '%润骏%'
+UPDATE  BY_Order
+SET     CustomerId = '158743d4-d9e6-4e28-8bdb-3ad7c463b9db' ,
+        CustomerCode = 'RJTZXJ' ,
+        CustomerName = '宁波润骏特种橡胶有限公司'
+WHERE   CustomerName like '%润骏%'
+UPDATE  dbo.BY_Delivery
+SET     CustomerId = '158743d4-d9e6-4e28-8bdb-3ad7c463b9db' ,
+        CustomerCode = 'RJTZXJ' ,
+        CustomerName = '宁波润骏特种橡胶有限公司'
+WHERE   CustomerName like '%润骏%'
+UPDATE  dbo.BY_CheckSheet
+SET     CustomerId = '158743d4-d9e6-4e28-8bdb-3ad7c463b9db' ,
+        CustomerCode = 'RJTZXJ' ,
+        CustomerName = '宁波润骏特种橡胶有限公司'
+WHERE   CustomerName like '%润骏%'
+UPDATE  BY_ReimburseSheet
+SET     CustomerId = '158743d4-d9e6-4e28-8bdb-3ad7c463b9db' ,
+        CustomerCode = 'RJTZXJ' ,
+        CustomerName = '宁波润骏特种橡胶有限公司'
+WHERE   CustomerName like '%润骏%'
+UPDATE  BY_CheckCompany
+SET     CustomerId = '158743d4-d9e6-4e28-8bdb-3ad7c463b9db' ,
+        CustomerCode = 'RJTZXJ' ,
+        CustomerName = '宁波润骏特种橡胶有限公司'
+WHERE   CustomerName like '%润骏%'
+UPDATE  BY_OrderDetailBeOut
+SET     CustomerId = '158743d4-d9e6-4e28-8bdb-3ad7c463b9db' ,
+        CustomerCode = 'RJTZXJ' ,
+        CustomerName = '宁波润骏特种橡胶有限公司'
+WHERE   CustomerName like '%润骏%'
+UPDATE  BY_OutStock
+SET     CustomerId = '158743d4-d9e6-4e28-8bdb-3ad7c463b9db' ,
+        CustomerCode = 'RJTZXJ' ,
+        CustomerName = '宁波润骏特种橡胶有限公司'
+WHERE   CustomerName like '%润骏%'
+
+
+sql
+CONVERT(FLOAT,Length)
+Convert(decimal(10,2), a/b )  
+js:parseFloat
+
+
+
+js取整函数
+1.丢弃小数部分,保留整数部分
+parseInt(5/2)
+2.向上取整,有小数就整数部分加1
+ Math.ceil(5/2)
+3,四舍五入.
+Math.round(5/2)
+4,向下取整
+ Math.floor(5/2)
+
+vs 不能看试图  google的解决办法，你试试
+1、 找到C:\Program Files (x86)\Microsoft Visual Studio 10.0\Common7\IDE\devenv.exe.config
+2、去掉 <NetFx40_LegacySecurityPolicy enabled="true"/>配置
+
+  if ("@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "超级管理员" && "@DNS.Utilities.ManageProvider.Provider.Current().ObjectId".indexOf("9d04b362-c9fe-4c67-95a5-d24d6ad9177d") < 0) {
+            if (noedit == 1) {
+                tipDialog("操作失败：不可修改!", 3, 0);
+                return;
+            }
+        }
+
+js修改，网上搜索发现，这是因为加入DOCTYPE申明后，js里是不能使用document.body的，一定要改成document.documentElement，还有就是加"px"。
+
+蓝红绿黄  003C9D   AA0000  008800   BBBB00
+蓝红绿黄  CCBBFF   FFCCCC  99FF99   FFFFBB
+
+				 var data = $("#gridTable").jqGrid("getRowData");
+            for (var i = 0; i < data.length; i++) {
+                var item = i + 1;
+				//审核
+                if (data[i].Status == "是") {
+                    $("#" + item).find('td').css("background-color", "#99FF99");
+                }
+				//付费
+                if (data[i].IsPay == "是") {
+                    $("#" + item).find('td').css("background-color", "#CCBBFF");
+                }
+				//开收据
+                if (data[i].IsInvoice == "是") {
+                    $("#" + item).find('td').css("background-color", "#FFFFBB");
+                }
+
+
+            }
+
+
+dashed和dotted的区别solid
+
+formatDate(QuotationEntiy.PlaceOrderDate, 'yyyy-MM-dd hh:mm')
+
+tipDialog("已审核", 3, 0);
+alertDialog("当前报价单已付款", 0);
+function Dialog(url, _id, _title, _width, _height) {}
+
+admin:20178431-3604-46b6-a75b-f7ba13548aed
+Common:955c51de-89c6-45ed-8652-9e9439466b6d   密码：d13bc5b68b2bd9e18f29777db17cc563
+
+class="txt required" 
+
+JSON对象和字符串之间的相互转换JSON.stringify(obj)和JSON.parse(string)
+
+BY_AdjustQuery by_adjustquery = CommonHelper.CopySameFieldsObject<BY_AdjustQuery>(by_inventory);
+CommonHelper.CopySameFieldsObject<BY_OrderDetail, BY_OrderDetailBeOut>(by_orderdetail, ref by_orderdetailbeout);
+
+slq 时间转换
+Select CONVERT(varchar(100), GETDATE(), 20): 2006-05-16 10:57:47
+CONVERT(DATETIME, '2015-01-01 00:00:00.00') 
+
+ alter table dbo.Base_SetPerformance
+  add constraint df_profession12 UNIQUE(TechnologyName,SteelType,OrderType) 
+
+//工序生成  查找即可
+//工序计算
+
+手机权限判断
+if (DNS.Utilities.ManageProvider.Provider.Current().IsMobileUser && DNS.Utilities.ManageProvider.Provider.Current().ObjectId.IndexOf("20178431-3604-46b6-a75b-f7ba13548aed") < 0)
+            {
+                strSql.Append(" AND 1=2 ");
+            }
+
+Hashtable传递
+Hashtable HashtableData = base_steelpricebll.GetSteelPrice(OrderType, CustomerId, SteelCode, Thick, Weigh, Length, Technology);
+return Content(HashtableData.ToJson());
+前台
+data.MaterialPrice
+
+
+参数
+List<DbParameter> parameter = new List<DbParameter>();
+parameter.Add(DbFactory.CreateDbParameter("@OrderCode", entity.OrderCode));
+
+
+sql 父查子:
+select @CETParentID=PID FROM tb where ID=@ChildID  
+with CTEGetParent as  
+(  
+select * from tb where ID=@CETParentID  
+UNION ALL  
+ (SELECT a.* from tb as a inner join  
+  CTEGetParent as b on a.ID=b.PID  
+ )  
+)  
+SELECT * FROM CTEGetParent  
+
+union和union all的区别是,union会自动压缩多个结果集合中的重复结果效率低。而union all则将所有的结果全部显示出来，不管是不是重复效率高
+
+1.json
+jQuery.parseJSON('{' + reVal + '}');
+JSON.stringify(GetWebControls("#QueryParameter",true));
+
+1，前后台交互
+value="@DNS.Utilities.DateTimeHelper.GetDate(-7)"
+var Condition = JSON.stringify(GetWebControls("#QueryParameter",true));
+2, 编号获取业务编码规则
+return base_coderulebll.GetBillCode(UserId, "BYD");  --获取编号
+base_coderulebll.OccupyBillCode(ManageProvider.Provider.Current().UserId, "BYD", isOpenTrans);--获取后必须占用
+
+$("#someID").length > 0
+
+一，数据操作
+1：
+wjhtestBll wjhtestbll = new wjhtestBll();
+wjhtestbll.Repository().FindList();
+2:
+DataFactory.Database().FindList<wjhtest>();
+3:
+new RepositoryFactory<wjhtest>().Repository().FindList<wjhtest>();
+
+二，缓存
+object ActionAuthorize_List = DataCache.Get("ActionAuthorizeList_" + UserId);
+ if (ActionAuthorize_List == null)
+ {
+ DataCache.Insert("ActionAuthorizeList_" + UserId, ListData);
+ }
+ 三，实体扩展
+Base_CodeRuleSerious base_coderuleserious = new Base_CodeRuleSerious();
+base_coderuleserious.Create();
+
+四，弹出框
+http://www.sfan20.cn/demo/dialog/lhgdialog/content.html 实例
+
+五，Microsoft.AspNet.Web.Optimization加载优化JS，CSS
+
+六，智能开发-系统试图（列表权限显示），系统表单（扩展字段）
+
+
+七，
+1.jqgrid使用
+var Parameter = [{
+            paramName: "CheckStatus",
+            paramValue: 0,
+            Operation: "Equal",
+            Logic: "AND"
+        }, {
+            paramName: "QuotationCode",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+			Logic: "AND"    
+        }, {
+            paramName: "PrintUserId",
+            paramValue: "is",
+            Operation: "Null",
+			LeftBrace:"("
+        }]
+		RightBrace:")"
+					<option value="Equal">等于</option>
+                    <option value="NotEqual">不等于</option>
+                    <option value="Greater">大于</option>
+                    <option value="GreaterThan">大于等于</option>
+                    <option value="Less">小于</option>
+                    <option value="LessThan">小于等于</option>
+                    <option value="Null">为空</option>
+                    <option value="NotNull">不为空</option>
+                    <option value="Like">包含</option>
+
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/QuotationModule/QuotationAudit/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+七
+2.
+var Condition = JSON.stringify(GetWebControls("#QueryParameter", true));
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/OrderDetailProcessModule/BY_OrderDetailProcessDetail/GridPageJson")?Condition=" + escape(Condition), page: 1
+        }).trigger('reloadGrid');
+        }
+
+
+八，加载菜单页面 
+function AddTabMenu(tabid, url, name, img, Isclose, IsReplace, IsVisitorModule) {
+
+九，返回
+ActionResult -- Content(""),View(),Content(new JsonMessage { Success = true, Code = IsOk.ToString(), Message = Message }.ToString())
+JsonResult -- Json(JsonData, JsonRequestBehavior.AllowGet);
+
+十，grid列
+{ label: '主键', name: 'userid', index: 'userid', width: 80, align: 'left', hidden: true },
+                        { label: '工号', name: 'code', index: 'code', width: 80, align: 'left' },
+                        {
+                            label: '有效', name: 'enabled', index: 'enabled', width: 45, align: 'center',
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                                if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                            }
+                        },
+                        { label: '登录次数', name: 'logoncount', index: 'logoncount', width: 70, align: 'center' },
+                        {
+                            label: '最后登录时间', name: 'lastvisit', index: 'lastvisit', width: 120, align: 'left',
+                            formatter: function (cellvalue, options, rowObject) {
+                                return formatDate(cellvalue, 'yyyy-MM-dd HH:mm:ss');
+                            }
+                        },
+
+十一，DataTable 返回json用jqgrid列用小写
+var JsonData = new
+            {
+                total = jqgridparam.total,
+                page = jqgridparam.page,
+                records = jqgridparam.records,
+                costtime = CommonHelper.TimerEnd(watch),
+                rows = by_orderdetail,
+            };
+            return Content(JsonData.ToJson());
+
+十二，常用
+当前登陆人
+ManageProvider.Provider.Current().UserId;
+@DNS.Utilities.ManageProvider.Provider.Current().UserName
+DNS.Utilities.ManageProvider.Provider.Current().ObjectId  --权限
+@DNS.Utilities.DateTimeHelper.GetDate(-7)
+获取当前moduleID
+string ModuleId = DESEncrypt.Decrypt(CookieHelper.GetCookie("ModuleId"));
+
+checkbox
+<span class="item" style="cursor:pointer;">
+                    <input type="checkbox" class="checkbox" name="checkbox" id="CheckBoxComplete" />
+                    <label for="CheckBoxComplete">仅显示已完工</label></span>
+$("#CustMaterial").prop("checked") == true?"1":"0";
+radio
+<span class="item" style="cursor: pointer;">
+                    <input type="radio" name="boardType" value="0" id="BJboard" />
+                    <label for="BJboard">精料单</label></span>
+radio获取
+取值：$("input[name=MaterialType]:checked").val()
+赋值：$("input[name='radioName'][value=2]").attr("checked",true); 
+$("#CustMaterial").prop("checked") == true?"1":"0";
+..................$('input').customInput();
+
+时间控件，纯日期
+<input id="StartTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetDate(-7)" style="width: 120px" onfocus="var endDate=$dp.$('EndTime');WdatePicker({onpicked:function(){EndTime.focus();},maxDate:'#F{$dp.$D(\'EndTime\')}'})" />
+<input id="EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetToday()" style="width: 120px" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'StartTime\')}'})" />
+带分秒
+<input id="CreateDate_StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 120px" />
+<input id="CreateDate_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 120px" />
+
+
+jqgrid 获取列值
+var data = $("#gridTable").jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].sured == "已确认") {
+                        tipDialog("此记录已确认,不能确认记录", 3, 0);
+                        return false;
+                    } else {
+                        OrderComplete.push({
+                            OrderDetailId: data[i].orderdetailid,
+                            OrderId: data[i].orderid,
+                            Qty: data[i].qty,
+                            TheoryWeight: data[i].theoryweight,
+                            Weight: data[i].weigh
+                        })
+                    }
+                }
+
+
+text-align: center;
+ style="vertical-align:top;"
+ style="TEXT-ALIGN: center;"
+
+ parseFloat  parseInt
+
+
+alter table Base_Steel alter column SteelCode varchar(50) collate Chinese_PRC_CI_AS  --不区分
+alter table Base_Steel alter column SteelCode varchar(50) collate Chinese_PRC_CS_AS  --区分
+alter   database  testgrass   collate   Chinese_PRC_CS_AI 

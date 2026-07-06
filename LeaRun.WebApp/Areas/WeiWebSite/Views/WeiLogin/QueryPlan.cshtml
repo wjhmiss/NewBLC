@@ -1,0 +1,189 @@
+﻿@*@{
+    ViewBag.Title = "用户中心";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}*@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta content="width=device-width, height=device-height, initial-scale=1.0" name="viewport" />
+    <link rel="stylesheet" type="text/css" href="~/Content/Scripts/metronic/media/css/style.css" />
+    <link rel="stylesheet" type="text/css" href="~/Content/Scripts/Mobile/templates/mobile/css/style.css" />
+    <link href="~/Content/Scripts/metronic/media/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="~/Content/Scripts/metronic/media/css/bootstrap-responsive.min.css" rel="stylesheet" />
+    <script type="text/javascript" charset="utf-8" src="~/Content/Scripts/Mobile/scripts/jquery/jquery-1.11.2.min.js"></script>
+    <script src="~/Content/Scripts/Mobile/templates/mobile/js/base.js"></script>
+        <script type="text/javascript" charset="utf-8" src="~/Content/Scripts/Mobile/scripts/artdialog/dialog-plus-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="~/Content/Scripts/Mobile/scripts/artdialog/ui-dialog.css" />
+    <script type="text/javascript">
+        $(document).ready(function (e) {
+            if ("@DNS.Utilities.ManageProvider.Provider.Current().ObjectId".indexOf("20178431-3604-46b6-a75b-f7ba13548aed") < 0) {
+                tipDialog("错误：无权限！", -1,"return");
+                return false;
+            }
+
+            var Condition = '{"OrderCode":"","SalesArea":"","CreateDate_StartTime":"","CreateDate_EndTime":"","WorkTypeA":"1","WorkTypeB":"1","WorkTypeC":"","CustomerCode":"","ShortName":"","OrderStatusA":"1","OrderStatusB":"1","OrderStatusC":"1","CancelState":"1","btnSearch":"搜 索","btn_export":"导 出","btn_showcusmerName":"显示客户简称"}';
+        $.ajax({
+            url: "@Url.Content("~/ReportModule/Production/GridPageListJson")?rows=30&page=1&Condition=" + escape(Condition),
+            type: "post",
+            dataType: "json",
+            async: true,
+            success: function (data) {
+                $("#list").append("");
+                $.each(data.rows, function (i) {
+                    var html = ' <tr>';
+                    html += '                                <td>' + data.rows[i].ordercode + '</td>';
+                    html += '                       <td>' + data.rows[i].linecode + '</td>';
+                    html += '                       <td class="numeric">' + data.rows[i].shortname + '</td>';
+                    html += '                       <td class="numeric">' + data.rows[i].size + '</td>';
+                    html += '                       <td class="numeric">' + data.rows[i].unopenqty + '</td>';
+                    html += '                       <td class="numeric">' + data.rows[i].uncompleteqty + '</td>';
+                    html += '                       <td class="numeric">' + data.rows[i].billstatus + '</td>';
+                    html += '                       <td class="numeric">' + data.rows[i].createdate + '</td>';
+                    html += '                       <td class="numeric">' + data.rows[i].delivery + '</td>';
+                    html += '                       <td class="numeric">' + data.rows[i].overday + '</td>';
+                    html += '                       <td class="numeric">' + data.rows[i].weight + '</td>';
+                    html += '                   </tr>';
+                    $("#list").append(html);
+                });
+
+            },
+            error: function (data) {
+                alert(data.responseText);
+            }
+
+        });
+
+    });
+
+    function locationInputQuot() {
+        location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QueryOrder")";
+    }
+
+
+
+</script>
+    <style>
+        #header {
+            	position:absolute;
+	overflow: hidden;
+	display:block;
+	z-index:250;
+	-webkit-box-sizing:border-box; box-sizing:border-box;
+	height:44px;
+    left:0; right:0;
+                background:#0088D1;
+    border:none;
+    border-bottom:1px solid #0088D1;
+    color:white;
+        }
+	#header h1 {
+    text-shadow:none;
+    width:45%;
+    position:absolute;
+	width:45%;
+    z-index:1;
+    text-align:center;
+	height:44px;
+	font-size:18px;
+	font-weight:bold;
+	left:27.5%;
+	color:inherit;
+	padding:0 0;
+	text-shadow:rgba(0,0,0,0.8) 0 -1px 0;
+	text-align:center;
+	white-space:nowrap;
+    margin-top:0px;
+}
+        h2{ margin:0 0 10px; padding-bottom:10px; color:#0088D1; font-size:15px; line-height:1em; font-weight:normal; border-bottom:1px solid #efefef; }
+    </style>
+</head>
+
+<body>
+    <div id="afui">
+
+        <div id="header" class="hasMenu" style="-webkit-backface-visibility: hidden; -webkit-transform-origin: 0% 0%;">
+            <header style="-webkit-transform: translate3d(0px, 0px, 0px) scale(1) rotate(0deg) rotateY(0deg) skew(0deg, 0deg); -webkit-backface-visibility: hidden; opacity: 1; -webkit-transition: all 230ms linear; transition: all 230ms linear; -webkit-transform-origin: 0% 0%;">
+                <a onclick="history.back(-1)" class="backButton">返回</a>
+                <h1>生产计划</h1>
+                <a onclick="$.ui.toggleSideMenu()" class="menuButton"></a>
+            </header>
+            <div class="afui_panel_mask" style="display: none;"></div>
+        </div>
+        
+
+        <div id="mainPanel" class="panel" style="overflow:hidden;display:block;">
+
+            <div class="page-container row-fluid">
+                <!-- BEGIN PAGE -->
+                <div class="page-content">
+                    <!-- BEGIN PAGE CONTAINER-->
+                    <div class="container-fluid">
+                        <!-- BEGIN PAGE HEADER-->
+                        <!-- END PAGE HEADER-->
+                        <!-- BEGIN PAGE CONTENT-->
+                        <div class="row-fluid">
+                            <div class="span12">
+
+                                <!-- BEGIN SAMPLE TABLE PORTLET-->
+                                <div class="portlet box green">
+                                    <div class="portlet-body flip-scroll" style="margin-top:50px;" >
+                                        <table class="table-bordered table-striped table-condensed flip-content">
+                                            <thead class="flip-content">
+                                                <tr>
+                                                    <th>订单单号</th>
+                                                    <th>行号</th>
+                                                    <th class="numeric">客户名称</th>
+                                                    <th class="numeric">尺寸</th>
+                                                    <th class="numeric">未开料数</th>
+                                                    <th class="numeric">未完工数</th>
+                                                    <th class="numeric">当前状态</th>
+                                                    <th class="numeric">落单日期</th>
+                                                    <th class="numeric">要求完工日期</th>
+                                                    <th class="numeric">过期天数</th>
+                                                    <th class="numeric">重量</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="list">
+                                                @*<tr>
+                                                    <td>AAC</td>
+                                                    <td>AUSTRALIAN AGRICULTURAL COMPANY LIMITED.</td>
+                                                    <td class="numeric">$1.38</td>
+                                                    <td class="numeric">-0.01</td>
+                                                    <td class="numeric">-0.36%</td>
+                                                    <td class="numeric">$1.39</td>
+                                                    <td class="numeric">$1.39</td>
+                                                    <td class="numeric">$1.38</td>
+                                                    <td class="numeric">9,395</td>
+                                                    <td class="numeric">$1.38</td>
+                                                    <td class="numeric">9,395</td>
+                                                </tr>*@
+                                                
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                <!-- END SAMPLE TABLE PORTLET-->
+
+                            </div>
+                        </div>
+                        <!-- END PAGE CONTENT-->
+                    </div>
+                    <!-- END PAGE CONTAINER-->
+                </div>
+                <!-- END PAGE -->
+            </div>
+            <!--版权信息-->
+            @Html.Partial("_PartialMobileBottom")
+            <!--/版权信息-->
+
+        </div>
+
+    </div>
+</body>
+</html>
+
+
+

@@ -1,0 +1,657 @@
+@{
+    ViewBag.Title = "BY_QuotationHeat》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/jqgrid/jqgridjquery")
+@Styles.Render("~/Content/Scripts/jqgrid/css/jqgridcss")
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+
+    function orderAutocomplete(objectname, id, nextobject, isn) {
+        if (!objectname) {
+            return;
+        }
+        var $CustomerCode = $("#" + objectname);
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown(objectname, function (data) {
+            if (!!data.OrderCode) {
+                $CustomerCode.val(data.OrderCode);
+                $("#gridTable").jqGrid('setRowData', id, { SteelDescription: data.SteelDescription });
+                $("#gridTable").jqGrid('setRowData', id, { SteelId: data.SteelId });
+                $("[name='SteelCode']").val(data.SteelCode);
+                $("[name='Qty']").val(data.Qty);
+                $("[name='Weight']").val(data.Weight);
+                $("[name='ShipDescription']").val(data.ShipDescription);
+            }
+            $("#" + nextobject).select();
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson('/OrderModule/OrderQuery/AutocompleteJson', { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="OrderCode" style="width: 20%;">' + DataJson[i].OrderCode + '</td>';
+                    html += '<td id="SteelCode" style="width: 10%;">' + DataJson[i].SteelCode + '</td>';
+                    html += '<td id="siez" style="width: 15%;">' + DataJson[i].Thick + "*" + DataJson[i].Weigh + "*" + DataJson[i].Length + '</td>';
+
+                    html += '<td id="SteelDescription" style="display: none;">' + DataJson[i].SteelDescription + '</td>';
+                    html += '<td id="SteelId" style="display: none;">' + DataJson[i].SteelId + '</td>';
+                    html += '<td id="Qty" style="display: none;">' + DataJson[i].Qty + '</td>';
+                    html += '<td id="Weight" style="display: none;">' + DataJson[i].Weight + '</td>';
+
+                    var sat = "*";
+                    if (!DataJson[i].ShipDescription || DataJson[i].ShipDescription == "" || DataJson[i].ShipDescription == "null" || DataJson[i].ShipDescription == "&nbsp;") {
+                        sat = "*";
+                    }
+                    else {
+                        sat = DataJson[i].ShipDescription;
+
+                    }
+                    console.log(sat)
+                    html += '<td id="ShipDescription" style="display: none;">' + sat + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete(objectname, "300px", "300px", html, function (data) {
+                    $CustomerCode.val(data.OrderCode);
+                    $("#gridTable").jqGrid('setRowData', id, { SteelDescription: data.SteelDescription });
+                    $("#gridTable").jqGrid('setRowData', id, { SteelId: data.SteelId });
+                    $("[name='SteelCode']").val(data.SteelCode);
+                    $("[name='Qty']").val(data.Qty);
+                    $("[name='Weight']").val(data.Weight);
+                    $("[name='ShipDescription']").val(data.ShipDescription);
+
+                    $("#" + nextobject).select();
+                }, isn);
+            });
+        }
+    }
+
+
+    function GJAutocomplete(objectname, id, typee, nextobject, isn) {
+        if (!objectname) {
+            return;
+        }
+        var $CustomerCode = $("#" + objectname);
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown(objectname, function (data) {
+            if (!!data.FullName) {
+                $CustomerCode.val(data.FullName);
+            }
+            $("#" + nextobject).select();
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson('/CommonModule/DataDictionary/AutocompleteJson', { keywords: $CustomerCode.val(), Code: typee }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="FullName" style="width: 100%;">' + DataJson[i].FullName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete(objectname, "300px", "300px", html, function (data) {
+                    $CustomerCode.val(data.FullName);
+                    $("#" + nextobject).select();
+                }, isn);
+            });
+        }
+    }
+    function GJAutocomplete1(objectname, id, typee, nextobject, isn) {
+        if (!objectname) {
+            return;
+        }
+        var $CustomerCode = $("#" + objectname);
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown(objectname, function (data) {
+            if (!!data.FullName) {
+                $CustomerCode.val(data.FullName);
+            }
+            $("#" + nextobject).select();
+        });
+        //获取数据源
+        function DataSource() {
+            var strarr = $CustomerCode.val().split(',');
+            var lastSTRs;
+            if (strarr.length > 0) {
+                lastSTRs = strarr[strarr.length - 1].replace(/[^a-z]/ig, "");
+            }
+
+            AjaxJson('/CommonModule/DataDictionary/AutocompleteJson', { keywords: lastSTRs, Code: typee }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="FullName" style="width: 100%;">' + DataJson[i].FullName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete(objectname, "300px", "300px", html, function (data) {
+                    if (lastSTRs != "") {
+                        $CustomerCode.val(($CustomerCode.val() + data.FullName).replace(/[a-z]/ig, "").replace(",", "").replace("，", ""));
+
+                    }
+                    //$("#" + nextobject).select();
+                }, isn);
+            });
+        }
+    }
+    //客户编码自动补全
+    function CustomerAutocomplete(objectname, id) {
+        if (!objectname) {
+            return;
+        }
+        var $CustomerCode = $("#" + objectname);
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown(objectname, function (data) {
+            $("#gridTable").jqGrid('setRowData', id, { CustomerId: data.CustomerId });
+            $("#gridTable").jqGrid('setRowData', id, { CustomerName: data.CustomerName });
+            $("[name='CustomerCode']").val(data.CustomerCode);
+            $("[name='Oldorder']").select();
+        });
+        //获取数据源
+        function DataSource() {
+            $("#gridTable").jqGrid('setRowData', id, { CustomerId: "" });
+            AjaxJson("/CommonModule/Customer/GetAutoCompleJson", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="CustomerName" style="width: 70%;">' + DataJson[i].ShortName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete(objectname, "300px", "300px", html, function (data) {
+                    $("#gridTable").jqGrid('setRowData', id, { CustomerId: data.CustomerId });
+                    $("#gridTable").jqGrid('setRowData', id, { CustomerName: data.CustomerName });
+                    $("[name='CustomerCode']").val(data.CustomerCode);
+                    $("[name='Oldorder']").select();
+                });
+            });
+        }
+    }
+
+
+    //客户编码自动补全
+    function SteelAutocomplete(objectname, id) {
+        if (!objectname) {
+            return;
+        }
+        var $SteelCode = $("#" + objectname);
+        $SteelCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown(objectname, function (data) {
+            $("#gridTable").jqGrid('setRowData', id, { SteelDescription: data.SteelName });
+            $("#gridTable").jqGrid('setRowData', id, { SteelId: data.SteelId });
+            $("[name='SteelCode']").val(data.SteelCode);
+            $("[name='ProductName']").select();
+        });
+        //获取数据源
+        function DataSource() {
+            $("#gridTable").jqGrid('setRowData', id, { SteelId: "" });
+            AjaxJson("/CommonModule/Steel/GetAutoCompleJson", { keywords: $SteelCode.val(), type: 1 }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="SteelId" style="display: none;">' + DataJson[i].SteelId + '</td>';
+                    html += '<td id="SteelCode" style="width: 40%;">' + DataJson[i].SteelCode + '</td>';
+                    html += '<td id="SteelName" style="width: 60%;">' + DataJson[i].SteelName + '</td>';
+                    html += '<td id="Density" style="display: none;">' + DataJson[i].Density + '</td>';
+                    html += '<td id="SteelType" style="display: none;">' + DataJson[i].SteelType + '</td>';
+                    html += '<td id="RepalceMl" style="display: none;">' + DataJson[i].RepalceMl + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete(id + "_SteelCode", "150px", "250px", html, function (data) {
+
+                    $("#gridTable").jqGrid('setRowData', id, { SteelDescription: data.SteelName });
+                    $("#gridTable").jqGrid('setRowData', id, { SteelId: data.SteelId });
+                    $("[name='SteelCode']").val(data.SteelCode);
+                    $("[name='ProductName']").select();
+                });
+            });
+        }
+    }
+
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = {
+            SortCode: $("[name='SortCode']").val(),
+            CustomerCode: $("[name='CustomerCode']").val(),
+            CustomerName: $("[name='CustomerName']").val(),
+            SteelCode: $("[name='SteelCode']").val(),
+            SteelDescription: $("[name='SteelDescription']").val(),
+            ProductName: $("[name='ProductName']").val(),
+            Remark: $("[name='Remark']").val(),
+            Technology: $("[name='Technology']").val(),
+            TechnologQuery: $("[name='TechnologQuery']").val(),
+            Qty: $("[name='Qty']").val(),
+            Weight: $("[name='Weight']").val(),
+            ShipDescription: $("[name='ShipDescription']").val(),
+            Oldorder: $("[name='Oldorder']").val(),
+            
+        }
+        $('#gridTable').jqGrid('setRowData', GetJqGridRowIndx('#gridTable'), postData, '');
+        var data = $("#gridTable").jqGrid("getRowData");
+        for (var i = 0; i < data.length; i++) {
+            if (!data[i].SteelCode) {
+                tipDialog("第" + data[i].SortCode + "行钢材为空，请检查", 3, -1);
+                return;
+            }
+            if (!data[i].CustomerCode) {
+                tipDialog("第" + data[i].SortCode + "行客户为空，请检查", 3, -1);
+                return;
+            }
+            if (!data[i].ProductName) {
+                tipDialog("第" + data[i].SortCode + "行请输入工件名称，请检查", 3, -1);
+                return;
+            }
+            if (!Number(data[i].Qty)) {
+                tipDialog("第" + data[i].SortCode + "行件数为0，请检查", 3, -1);
+                return;
+            }
+            //if (!Number(data[i].Weight)) {
+            //    tipDialog("第" + data[i].SortCode + "行重量为0，请检查", 3, -1);
+            //    return;
+            //}
+        }
+
+        var postData = GetWebControls("#form1");
+        $(".ui_state_highlight").attr("disabled", true);
+        postData["QuotationHeatList"] = JSON.stringify($("#gridTable").jqGrid("getRowData"));
+        AjaxJson("/QuotationHeatModule/BY_QuotationHeat/SubmitForm1", postData, function (data) {
+            //tipDialog(data.Message, 3, data.Code);
+            alertDialog(data.Message, 0);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+    //加载表格
+    var lastsel;
+    function GetGrid() {
+        var lastselpostdate;
+        $("#gridTable").jqGrid({
+            datatype: "json",
+            height: $(window).height() - 149,
+            autowidth: true,
+            colModel: [
+                { label: '序号', name: 'SortCode', width: 40 },
+                { label: 'CustomerId', name: 'CustomerId', hidden: true },
+                { label: 'SteelId', name: 'SteelId', hidden: true },
+                { label: '客户编号', name: 'CustomerCode', index: 'CustomerCode', width: 70, align: 'center', sortable: true, editable: true },
+                { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 100, align: 'center', sortable: true },
+                { label: '原单号', name: 'Oldorder', index: 'Oldorder', width: 120, align: 'left', sortable: true, editable: true },
+                { label: '钢种编号', name: 'SteelCode', index: 'SteelCode', width: 60, align: 'center', sortable: true, editable: true },
+                { label: '钢种描述', name: 'SteelDescription', index: 'SteelDescription', width: 80, align: 'center', sortable: true },
+                { label: '工件名称', name: 'ProductName', index: 'ProductName', width: 150, align: 'center', sortable: true, editable: true },
+                { label: '外形尺寸', name: 'Remark', index: 'Remark', width: 160, align: 'center', sortable: true, editable: true },
+                { label: '热处理', name: 'Technology', index: 'Technology', width: 80, sortable: true, editable: true, align: 'center', },
+                //{ label: '热处理', name: 'Technology', index: 'Technology', width: 80, sortable: true, editable: true, align: 'center', edittype: 'select', editoptions: { value: "真空淬火:真空淬火;退火:退火;真空氮化:真空氮化;离子氮化:离子氮化;常规淬火:常规淬火;软氮化:软氮化;调制:调制;去应力:去应力;TD:TD;硬氮化:硬氮化;发黑:发黑" }, },
+                { label: '技术要求', name: 'TechnologQuery', index: 'TechnologQuery', width: 80, align: 'center', sortable: true, editable: true },
+                { label: '件数', name: 'Qty', index: 'Qty', width: 60, align: 'left', sortable: true, editable: true },
+                { label: '重量(KG)', name: 'Weight', index: 'Weight', width: 60, align: 'left', sortable: true, editable: true },
+                { label: '备注/模号', name: 'ShipDescription', index: 'ShipDescription', width: 120, align: 'left', sortable: true, editable: true },
+
+
+            ],
+            viewrecords: true,
+            rowNum: 1000,
+            rowList: [1000, 1000, 1000, 1000, 1000],
+            shrinkToFit: false,
+            gridview: true,
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 999, 999, 999],
+            pager: false,
+            shrinkToFit: false,
+            rownumbers: true,
+            altRows: false,
+            sortname: 'SortCode',
+            sortorder: 'asc',
+            altclass: 'altclass',
+            gridview: true,
+            cellsubmit: 'clientArray',
+            onSelectRow: function (id) {
+                var postData = {
+                    SortCode: $("[name='SortCode']").val(),
+                    CustomerCode: $("[name='CustomerCode']").val(),
+                    CustomerName: $("[name='CustomerName']").val(),
+                    SteelCode: $("[name='SteelCode']").val(),
+                    SteelDescription: $("[name='SteelDescription']").val(),
+                    ProductName: $("[name='ProductName']").val(),
+                    Remark: $("[name='Remark']").val(),
+                    Technology: $("[name='Technology']").val(),
+                    TechnologQuery: $("[name='TechnologQuery']").val(),
+                    Qty: $("[name='Qty']").val(),
+                    Weight: $("[name='Weight']").val(),
+                    ShipDescription: $("[name='ShipDescription']").val(),
+                    Oldorder: $("[name='Oldorder']").val(),
+                    
+                }
+                if (id && id !== lastsel) {
+                    $('#gridTable').jqGrid('restoreRow', lastsel);
+                    $('#gridTable').jqGrid('editRow', id, { keys: false });
+                    $('#gridTable').jqGrid('setRowData', lastsel, postData, '');
+                }
+
+                lastselpostdate = postData;
+                lastsel = id;
+
+                CustomerAutocomplete(id + "_CustomerCode", id);
+
+                SteelAutocomplete(id + "_SteelCode", id)
+
+                GJAutocomplete1(id + "_ProductName", id, "工件名称", id + "_Remark", true);
+                GJAutocomplete(id + "_TechnologQuery", id, "硬度", id + "_Qty", true);
+
+                GJAutocomplete(id + "_Technology", id, "CraftType", id + "_TechnologQuery", false);
+
+                orderAutocomplete(id + "_Oldorder", id, id + "_SteelCode", false);
+
+
+                jQuery("#" + id + "_CustomerCode").keyup(function () {
+                    self(id);
+                });
+                jQuery("#" + id + "_SteelCode").keyup(function () {
+                    self(id);
+                });
+                jQuery("#" + id + "_ProductName").keyup(function () {
+                    self(id);
+                });
+                jQuery("#" + id + "_Remark").keyup(function () {
+                    self(id);
+                });
+                jQuery("#" + id + "_Technology").keyup(function () {
+                    self(id);
+                });
+                jQuery("#" + id + "_TechnologQuery").keyup(function () {
+                    self(id);
+                });
+                jQuery("#" + id + "_Qty").keyup(function () {
+                    self(id);
+                });
+                jQuery("#" + id + "_Weight").keyup(function () {
+                    self(id);
+                });
+                jQuery("#" + id + "_ShipDescription").keyup(function () {
+                    self(id);
+                });
+                jQuery("#" + id + "_Oldorder").keyup(function () {
+                    self(id);
+                });
+
+                
+                jQuery("#" + id + "_Qty").focus(function () {
+                    IsMoney(id + "_Qty");
+                });
+                jQuery("#" + id + "_Weight").focus(function () {
+                    IsMoney(id + "_Weight");
+                });
+            },
+            gridComplete: function () {
+
+            }
+
+        });
+
+        function self(id) {
+            var id = Number(id);
+            var e = e || window.event || arguments.callee.caller.arguments[0];
+            var tar = e.srcElement || e.target;
+            if (event.keyCode == 37) {//左
+                if ($(tar).attr('id') == id + "_CustomerCode") {
+                }
+
+                else if ($(tar).attr('id') == id + "_Oldorder") {
+                    $("#" + id + "_CustomerCode").select();
+                }
+
+                else if ($(tar).attr('id') == id + "_SteelCode") {
+                    $("#" + id + "_Oldorder").select();
+                }
+                else if ($(tar).attr('id') == id + "_ProductName") {
+                    $("#" + id + "_SteelCode").select();
+                }
+                else if ($(tar).attr('id') == id + "_Remark") {
+                    $("#" + id + "_ProductName").select();
+                }
+                else if ($(tar).attr('id') == id + "_Technology") {
+                    $("#" + id + "_Remark").select();
+                }
+                else if ($(tar).attr('id') == id + "_TechnologQuery") {
+                    $("#" + id + "_Technology").focus();
+                }
+                else if ($(tar).attr('id') == id + "_Qty") {
+                    $("#" + id + "_TechnologQuery").select();
+                }
+                else if ($(tar).attr('id') == id + "_Weight") {
+                    $("#" + id + "_Qty").select();
+                }
+                
+                else if ($(tar).attr('id') == id + "_ShipDescription") {
+                    $("#" + id + "_Weight").select();
+                }
+                return false;
+            }
+            if (event.keyCode == 39 || event.keyCode == 13) {//右
+
+                if ($(tar).attr('id') == id + "_Oldorder") {
+                    if (!!$(tar).val()) {
+                        $("#" + id + "_SteelCode").focus();
+                    }
+                }
+
+
+                if ($(tar).attr('id') == id + "_Remark") {
+                    if (!!$(tar).val()) {
+                        $("#" + id + "_Technology").focus();
+                    }
+                }
+                else if ($(tar).attr('id') == id + "_Technology") {
+                    if (!!$(tar).val()) {
+                        $("#" + id + "_TechnologQuery").select();
+                    }
+                }
+                else if ($(tar).attr('id') == id + "_Qty") {
+                    if (Number($(tar).val()) > 0) {
+                        $("#" + id + "_Weight").select();
+                    }
+                }
+                else if ($(tar).attr('id') == id + "_Weight") {
+                    if (!!$(tar).val()) {
+                        $("#" + id + "_ShipDescription").select();
+                    }
+                }
+                else if ($(tar).attr('id') == id + "_ShipDescription") {
+                    if (!!$(tar).val()) {
+                        var mun = Number($("#gridTable").getGridParam("reccount"));
+                        if (id >= 0 && id < mun) {
+                            $("#gridTable").setSelection(id + 1);
+                        }
+                        else {
+                            $("#lr-add-Row").click();
+                        }
+                    }
+                }
+                return false;
+            }
+            //if (event.keyCode == 38) {//上
+            //    var aaa = $(tar).attr('id');
+            //    if (id == 1) {
+            //        return false;
+            //    }
+            //    $("#gridTable").setSelection(id - 1);
+            //    //var irow = id - 1;
+            //    //aaa = irow + aaa.substr(1, aaa.length);
+            //    //window.setTimeout(function () {
+            //    //    $("#" + aaa).select();
+            //    //}, 200);
+            //    return false;
+            //}
+            //if (event.keyCode == 34) {//下
+
+            //    var aaa = $(tar).attr('id');
+
+            //    var mun = Number($("#gridTable").getGridParam("reccount"));
+            //    if (id >= 0 && id < mun) {
+            //        $("#gridTable").setSelection(id + 1);
+            //    }
+            //    else {
+            //        $("#lr-add-Row").click();
+            //    }
+            //    //var irow = id + 1;
+            //    //aaa = irow + aaa.substr(1, aaa.length);
+            //    //window.setTimeout(function () {
+            //    //    $("#" + aaa).select();
+            //    //}, 200);
+            //    return false;
+            //}
+            ////if (e && e.keyCode == 13) {//回车
+            ////    //alert($("#gridTable").getGridParam("reccount"));
+            ////    return false;
+            ////}
+            return false;
+        }
+        //新增一行
+        $("#lr-add-Row").click(function () {
+            var index = 0;
+            if (!!$("#gridTable").getGridParam("reccount")) {
+                index = $("#gridTable").getGridParam("reccount") + 1;
+            }
+            else {
+                index = 1;
+            }
+            var CustomerId = "";
+            var CustomerName = "";
+            var CustomerCode = "";
+
+            var SteelId = "";
+            var SteelCode = "";
+            var SteelDescription = "";
+
+            var SortCode = 0;
+            if (!!Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode"))) {
+                SortCode = Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode")) + 1;
+            }
+            else {
+                SortCode = 1;
+            }
+            if (Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode"))) {
+
+                CustomerId = $("[name='CustomerId']").val();
+                CustomerName = $("[name='CustomerName']").val();
+                CustomerCode = $("[name='CustomerCode']").val();
+
+                SteelId = $("[name='SteelId']").val();
+                SteelCode = $("[name='SteelCode']").val();
+                SteelDescription = $("[name='SteelDescription']").val();
+            }
+
+            var rowdata = {
+                SortCode: SortCode,
+                CustomerId: CustomerId,
+                SteelId: SteelId,
+                CustomerCode: CustomerCode,
+                CustomerName: CustomerName,
+                SteelCode: SteelCode,
+                SteelDescription: SteelDescription,
+                ProductName: '',
+                Remark: '',
+                Technology: '',
+                TechnologQuery: '',
+                Qty: '0',
+                Weight: '0',
+                ShipDescription: '*',
+                Oldorder: '*',
+                
+            }
+            $('#gridTable').jqGrid('restoreRow', index);
+            $('#gridTable').jqGrid('addRowData', index, rowdata, "last");
+            $("#gridTable").setSelection(index);
+        });
+        //删除
+        $("#lr-delete-Row").click(function () {
+            var Index = GetJqGridRowIndx("#gridTable");
+            $("#gridTable").jqGrid("delRowData", Index);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+     <div>
+            <div style="font-family: 华文楷体; font-size: x-large; height: 40px; line-height: 40px; text-align: center;">
+                热处理录入
+            </div>
+            <div style="position: absolute; top: 60px; right: 5px;width:400px;">
+                <span style="color: red;"></span>
+            </div>
+        </div>
+
+             <div class="nui-toolbar leftline rightline">
+                <div id="toolbar_a">
+                    <div id="lr-add-Row" class="nui-toolbar-item nui-btn-right">
+                        <span class="nui-btn-text">新增</span>
+                    </div>
+                    <div id="lr-delete-Row" class="nui-toolbar-item nui-btn-left">
+                        <span class="nui-btn-text">删除</span>
+                    </div>
+                    @*<div id="lr-choose-Row" class="nui-toolbar-item nui-btn-left">
+                        <span class="nui-btn-text" onclick="btn_Quotationquery();">选择</span>
+                    </div>*@
+                </div>
+            </div>
+            <div class="rightline">
+                <table id="gridTable"></table>
+                <div id="gridPager"></div>
+            </div>
+</form>

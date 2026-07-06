@@ -1,0 +1,157 @@
+﻿@{
+    ViewBag.Title = "仓库";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+<link href="~/Content/Scripts/Mobile/templates/mobile/css/mobiscroll.custom-2.6.2.min.css" rel="stylesheet" />
+<script src="~/Content/Scripts/Mobile/templates/mobile/js/mobiscroll.custom-2.6.2.min.js"></script>
+<script type="text/javascript">
+    var CheckSheetCode = GetQuery('CheckSheetCode');
+    $(document).ready(function (e) {
+        if (CheckSheetCode == "") {
+            tipDialog("错误：未能获取对账单信息", -1);
+            location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QueryOrder")";
+            return;
+        }
+        AjaxJsonNoMassge("/CheckSheetModule/BY_CheckSheet/PrintDataJson", { CheckSheetCode: CheckSheetCode }, function (data) {
+            var CheckData = data.CheckEntity;
+            var CheckDataList = data.CheckEntityList;
+            $("#CheckSheetCode").html(CheckData.CheckSheetCode);
+            $("#BeginDate").html(CheckData.BeginDate.substr(0,7));
+            $("#CustomerName").html(CheckData.CustomerName);
+            $("#Qty").html(CheckData.Qty);
+            $("#TotalAmount").html(CheckData.TotalAmount);
+            $("#GetedAmount").html(CheckData.GetedAmount);
+            $("#InvoiceAmount").html(CheckData.InvoiceAmount);
+            $("#ContactName").html(CheckData.ContactName);
+            $("#MobileCodeContactTel").html(CheckData.MobileCode+"/"+CheckData.ContactTel);
+            $("#CustomerAddress").html(CheckData.CustomerAddress);
+            $("#SalesArea").html(CheckData.SalesArea);
+            $.each(CheckDataList, function (i) {
+                var html = ' <div class="wrap-box"><h2>' + CheckDataList[i].DeliveryCode + '</h2><dl>';
+                html += '<dt>报价单号</dt><dd>' + CheckDataList[i].QuotationCode + '</dd></dl><dl>';
+                html += '<dt>总数量</dt><dd>' + CheckDataList[i].Qty + '</dd></dl><dl>';
+                html += '<dt>总重量</dt><dd>' + CheckDataList[i].Weight + '</dd></dl><dl>';
+                html += '<dt>总金额</dt><dd>' + CheckDataList[i].TotalAmount + '</dd></dl><dl>';
+                html += '<dt>送货时间</dt><dd>' + CheckDataList[i].PrintDate.replace("T"," ") + '</dd></dl></div>';
+                $("#listdetail").append(html);
+            });
+
+        });
+
+
+
+    });
+
+    function locationInputQuot() {
+        location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QueryOrder")";
+    }
+
+
+
+</script>
+<!--分类筛选-->
+<div id="categoryPanel" class="panel" data-footer="none">
+    <header>
+        <a onclick="history.back(-1)" class="backButton">返回</a>
+        <h1>对账单明细</h1>
+        <a onclick="$.ui.toggleSideMenu()" class="menuButton"></a>
+    </header>
+    <ul class="category-bar">
+        <li>
+            <h2><a href="javascript:;" data-ignore="true">对账单信息</a></h2>
+        </li>
+    </ul>
+    <div class="wrap-box">
+        <dl>
+            <dt>对账单号</dt>
+            <dd><span id="CheckSheetCode"></span></dd>
+        </dl>
+        <dl>
+            <dt>对账单时间</dt>
+            <dd><span id="BeginDate"></span></dd>
+        </dl>
+        <dl>
+            <dt>客户名称</dt>
+            <dd><span id="CustomerName"></span></dd>
+        </dl>
+        <dl>
+            <dt>总数量</dt>
+            <dd><span id="Qty"></span></dd>
+        </dl>
+        <dl>
+            <dt>总金额</dt>
+            <dd><span id="TotalAmount"></span></dd>
+        </dl>
+        <dl>
+            <dt>已收款</dt>
+            <dd><span id="GetedAmount"></span></dd>
+        </dl>
+        <dl>
+            <dt>已开发票额</dt>
+            <dd><span id="InvoiceAmount"></span></dd>
+        </dl>
+        <dl>
+            <dt>联系人</dt>
+            <dd><span id="ContactName"></span></dd>
+        </dl>
+        <dl>
+            <dt>联系人电话</dt>
+            <dd><span id="MobileCodeContactTel"></span></dd>
+        </dl>
+        <dl>
+            <dt>客户地址</dt>
+            <dd><span id="CustomerAddress"></span></dd>
+        </dl>
+        <dl>
+            <dt>区域</dt>
+            <dd><span id="SalesArea"></span></dd>
+        </dl>
+    </div>
+    <ul class="category-bar">
+        <li>
+            <h2><a href="javascript:;" data-ignore="true">明细</a></h2>
+        </li>
+    </ul>
+    <div id="listdetail">
+@*        <div class="wrap-box">
+            <h2></h2>
+            <dl>
+                <dt>报价单号</dt>
+                <dd></dd>
+            </dl>
+            <dl>
+                <dt>总数量</dt>
+                <dd></dd>
+            </dl>
+            <dl>
+                <dt>总重量</dt>
+                <dd></dd>
+            </dl>
+            <dl>
+                <dt>总金额</dt>
+                <dd></dd>
+            </dl>
+            <dl>
+                <dt>送货时间</dt>
+                <dd></dd>
+            </dl>
+        </div>*@
+
+    </div>
+
+    @*    <div class="wrap-box">
+        <h2>应付总金额：<b class="red">￥7322.00</b></h2>
+        <p>运费：￥24.00&nbsp;&nbsp;手续费：￥0.00&nbsp;&nbsp;税费：0.00</p>
+        <p>商品：￥7298.00&nbsp;&nbsp;总积分：500分</p>
+    </div>
+    <div>*@
+
+    <a href="javascript:;" onclick="locationInputQuot();" class="btn full">返 回</a>
+
+</div>
+</div>
+
+
+
+
+

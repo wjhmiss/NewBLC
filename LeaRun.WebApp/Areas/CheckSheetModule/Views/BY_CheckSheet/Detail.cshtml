@@ -1,0 +1,203 @@
+@{
+    ViewBag.Title = "对账单》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CheckSheetModule/BY_CheckSheet/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <table class="form">
+        <tr>
+            <th class='formTitle'>对账单ID：</th>
+            <td class='formValue'>
+                <label id="CheckSheetId" />
+            </td>
+            <th class='formTitle'>对账单单号：</th>
+            <td class='formValue'>
+                <label id="CheckSheetCode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>开始时间：</th>
+            <td class='formValue'>
+                <label id="BeginDate" />
+            </td>
+            <th class='formTitle'>结束时间：</th>
+            <td class='formValue'>
+                <label id="EndDate" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>客户ID：</th>
+            <td class='formValue'>
+                <label id="CustomerId" />
+            </td>
+            <th class='formTitle'>客户编号：</th>
+            <td class='formValue'>
+                <label id="CustomerCode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>客户名称：</th>
+            <td class='formValue'>
+                <label id="CustomerName" />
+            </td>
+            <th class='formTitle'>客户简称：</th>
+            <td class='formValue'>
+                <label id="ShortName" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>联系人：</th>
+            <td class='formValue'>
+                <label id="ContactName" />
+            </td>
+            <th class='formTitle'>联系电话：</th>
+            <td class='formValue'>
+                <label id="ContactTel" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>传真：</th>
+            <td class='formValue'>
+                <label id="ContactFax" />
+            </td>
+            <th class='formTitle'>邮箱：</th>
+            <td class='formValue'>
+                <label id="ContactMail" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>手机：</th>
+            <td class='formValue'>
+                <label id="MobileCode" />
+            </td>
+            <th class='formTitle'>客户地址：</th>
+            <td class='formValue'>
+                <label id="CustomerAddress" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>数量：</th>
+            <td class='formValue'>
+                <label id="Qty" />
+            </td>
+            <th class='formTitle'>总金额：</th>
+            <td class='formValue'>
+                <label id="TotalAmount" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>已获金额：</th>
+            <td class='formValue'>
+                <label id="GetedAmount" />
+            </td>
+            <th class='formTitle'>是否已还清，1还清，0未还清：</th>
+            <td class='formValue'>
+                <label id="IsOver" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>折扣：</th>
+            <td class='formValue'>
+                <label id="LessRate" />
+            </td>
+            <th class='formTitle'>折扣后总额：</th>
+            <td class='formValue'>
+                <label id="LessedAmount" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>账期：</th>
+            <td class='formValue'>
+                <label id="PaymentMode" />
+            </td>
+            <th class='formTitle'>送货方式：</th>
+            <td class='formValue'>
+                <label id="ShipMode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>出货组织：</th>
+            <td class='formValue'>
+                <label id="ShipGroup" />
+            </td>
+            <th class='formTitle'>销售方式：</th>
+            <td class='formValue'>
+                <label id="SalesMode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>销售员：</th>
+            <td class='formValue'>
+                <label id="SalesMan" />
+            </td>
+            <th class='formTitle'>销售区域：</th>
+            <td class='formValue'>
+                <label id="SalesArea" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue'>
+                <label id="Remark" />
+            </td>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <label id="Enabled" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>排序码：</th>
+            <td class='formValue'>
+                <label id="SortCode" />
+            </td>
+            <th class='formTitle'>删除标记：</th>
+            <td class='formValue'>
+                <label id="DeleteMark" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <label id="CreateDate" />
+            </td>
+            <th class='formTitle'>创建用户主键：</th>
+            <td class='formValue'>
+                <label id="CreateUserId" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>创建用户：</th>
+            <td class='formValue'>
+                <label id="CreateUserName" />
+            </td>
+            <th class='formTitle'>修改时间：</th>
+            <td class='formValue'>
+                <label id="ModifyDate" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>修改用户主键：</th>
+            <td class='formValue'>
+                <label id="ModifyUserId" />
+            </td>
+            <th class='formTitle'>修改用户：</th>
+            <td class='formValue'>
+                <label id="ModifyUserName" />
+            </td>
+        </tr>
+        <tr>
+        </tr>
+    </table>
+</form>

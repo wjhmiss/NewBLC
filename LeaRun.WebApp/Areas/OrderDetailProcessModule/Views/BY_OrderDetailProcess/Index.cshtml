@@ -1,0 +1,363 @@
+@{
+    ViewBag.Title = "工单工序表";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+        ProcessAutocomplete();
+    })
+    function btn_Search() {
+        var strtemp = $.trim($("#OrderCode1").val()).split('-');
+        var str0 = "";
+        var str1 = "";
+        var str2 = "";
+        if (!!strtemp[0] && !!strtemp[1]) {
+            str1 = strtemp[0] + "-" + strtemp[1];
+        }
+        if (!!strtemp[2]) {
+            str2 = " AND od.LineCode= " + strtemp[2];
+        }
+
+        var OrderCode = "";
+        if (!!str1) {
+            OrderCode = " and  O.OrderCode = '" + str1 + "'";
+        }
+
+        var StartTime = "";
+        if (!!$("#StartTime").val()) {
+            StartTime = " AND O.CreateDate >= '" + $("#StartTime").val() + "'";
+        }
+
+        var EndTime = "";
+        if (!!$("#EndTime").val()) {
+            EndTime = " AND O.CreateDate <= '" + $("#EndTime").val() + "'";
+        }
+        var CustomerName = "";
+        if (!!$("#CustomerName").val()) {
+            CustomerName = " AND O.CustomerName ='" + $("#CustomerName").val() + "'";
+        }
+
+        var Parameter = [{
+            paramName: "SQL",
+            paramValue: OrderCode + str2 + StartTime + EndTime + CustomerName,
+            Operation: "SQL",
+        }]
+
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/OrderDetailProcessModule/BY_OrderDetailProcess/GridPageJson3")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1
+        }).trigger('reloadGrid');
+
+        }
+        //保存事件
+        function AcceptClick() {
+            if (!CheckDataValid('#leftPane')) {
+                return false;
+            }
+
+            var postData = GetWebControls("#leftPane");
+            AjaxJsonNoMassge("/OrderDetailProcessModule/BY_OrderDetailProcess/SubmitScanForm", postData, function (data) {
+                btn_Search();
+                if (data.Code > 0) {
+                    $("#OrderCode").val("");
+                    $("#LineCode").val("");
+                    $("#TechnologyId").val("");
+                    $("#TechnologyName").val("");
+                    $("#Qty").val("1");
+                }
+
+                //$('#message1').hide();
+                $("#OrderCode").select();
+                tipDialog(data.Message, 3, data.Code);
+            });
+        }
+        function TabtoStar() {
+
+            AcceptClick();
+        }
+        //客户编码自动补全
+        function ProcessAutocomplete() {
+            var $TechnologyId = $("#TechnologyId");
+            $TechnologyId.bind("keyup", function (e) {
+                if (e.which != 13 && e.which != 40 && e.which != 38) {
+                    DataSource();
+                }
+            }).focus(function () {
+                $(this).select();
+                DataSource();
+            });
+            //上，下键盘回调
+            autocompletekeydown("TechnologyId", function (data) {
+                $("#TechnologyId").val(data.Code);
+                $("#TechnologyName").val(data.FullName);
+            });
+            //获取数据源
+            function DataSource() {
+                AjaxJson("/CommonModule/DataDictionary/GetAutoCompleJson", { keywords: $("#TechnologyId").val(), parentCode: "Operation" }, function (DataJson) {
+                    var html = "";
+                    $.each(DataJson, function (i) {
+                        html += "<tr>";
+                        //html += '<td id="TechnologyId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                        html += '<td id="Code" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                        html += '<td id="FullName" style="width: 70%;">' + DataJson[i].FullName + '</td>';
+
+                        html += "</tr>";
+                    });
+                    //点击事件回调
+                    autocomplete("TechnologyId", "300px", "200px", html, function (data) {
+                        $("#TechnologyId").val(data.Code);
+                        $("#TechnologyName").val(data.FullName);
+
+                    });
+
+                });
+            }
+
+        }
+
+        var rowScrod = 0;
+        //加载表格
+        function GetGrid() {
+
+            $("#gridTable").jqGrid({
+                url: "@Url.Content("~/OrderDetailProcessModule/BY_OrderDetailProcess/GridPageJson3")",
+                datatype: "json",
+                height: $(window).height() - 175,
+                autowidth: true,
+                colModel: [
+                        { label: '工单工序ID', name: 'orderdetailprocessid', index: 'orderdetailprocessid', width: 0, align: 'left', sortable: true, hidden: true },
+                    { label: 'enabled', name: 'enabled', index: 'enabled', hidden: true },
+
+                        { label: '工单编号', name: 'ordercode', index: 'ordercode', width: 120, align: 'left', sortable: true },
+                        { label: '行号', name: 'linecode', index: 'linecode', width: 40, align: 'left', sortable: true },
+                         { label: '客户', name: 'customername', index: 'customername', width: 60, align: 'left', sortable: true },
+                         {
+                             label: '客来料', name: 'custmaterial', index: 'custmaterial', width: 50, align: 'left', sortable: true,
+                             formatter: function (cellvalue, options, rowObject) {
+                                 if (!!cellvalue) {
+                                     return "是";
+                                 }
+                                 return "否";
+                             }
+                         },
+                       { label: '客户品名', name: 'productname', index: 'productname', width: 80, align: 'left', sortable: true },
+                        { label: '备注', name: 'remark1', index: 'remark1', width: 80, align: 'left', sortable: true },
+                            { label: '厚度', name: 'thick', index: 'thick', hidden: true },
+                            { label: '宽度', name: 'weigh', index: 'weigh', hidden: true },
+                            { label: '长度', name: 'length', index: 'length', hidden: true },
+                             {
+                                 label: '尺寸', name: 'length', index: 'length', width: 120, align: 'left', sortable: true,
+                                 formatter: function (cellvalue, options, rowObject) {
+                                     if (!!rowObject.weigh) {
+                                         return parseFloat(rowObject.length) + "*" + parseFloat(rowObject.weigh) + "*" + parseFloat(rowObject.thick);
+                                     }
+                                     else {
+                                         return "Φ" + parseFloat(rowObject.thick) + "*" + parseFloat(rowObject.length);
+                                     }
+                                 }
+                             },
+                        { label: '总数量', name: 'qty', index: 'qty', width: 60, align: 'left', sortable: true },
+                         { label: '公式', name: 'countshow', index: 'countshow', width: 120, align: 'left', sortable: true, hidden: true },
+                            { label: '工序', name: 'technologyid', index: 'technologyid', width: 80, align: 'left', sortable: true },
+                            { label: '工序名称', name: 'technologyname', index: 'technologyname', width: 80, align: 'left', sortable: true },
+                            {
+                                label: '状态', name: 'deletemark', index: 'deletemark', width: 80, align: 'left', sortable: true,
+                                formatter: function (cellvalue, options, rowObject) {
+                                    if (cellvalue == "1") {
+                                        return "不可扫描";
+                                    }
+                                    return "正常";
+                                }
+                            },
+                            { label: '比例', name: 'workerper', index: 'workerper', width: 60, align: 'left', sortable: true, hidden: true },
+                            { label: '加工费总额', name: 'workertotal', index: 'workertotal', width: 60, align: 'left', sortable: true, hidden: true },
+                            { label: '修改人', name: 'modifyusername', index: 'modifyusername', width: 60, align: 'left', sortable: true },
+
+                ],
+                viewrecords: true,
+                rowNum: 30,
+                rowList: [30, 50, 100, 500, 5000],
+                pager: "#gridPager",
+                sortname: 'CreateDate',
+                sortorder: 'desc',
+                rownumbers: true,
+                shrinkToFit: false,
+                altRows: true,
+                altclass: 'altclass',
+                gridview: true,
+                ondblClickRow: function (id) {
+                    btn_edit();
+                },
+                gridComplete: function () {
+
+                    var data = $("#gridTable").jqGrid("getRowData");
+                    for (var i = 0; i < data.length; i++) {
+                        var item = i + 1;
+                        if (data[i].enabled == "1") {
+                            $("#" + item).find('td').css("background-color", "#00AA00");
+                        }
+
+                    }
+                    $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
+                },
+                onSelectRow: function (rowid, status) {
+                    rowScrod = $("#" + rowid).position().top;
+                },
+            });
+            }
+            //新增
+            function btn_add() {
+                var url = "/OrderDetailProcessModule/BY_OrderDetailProcess/Form"
+                openDialog(url, "Form", "新增工单工序表", 770, 395, function (iframe) {
+                    top.frames[iframe].AcceptClick()
+                });
+            }
+            //编辑
+            function btn_edit() {
+                var KeyValue = GetJqGridRowValue("#gridTable", "orderdetailprocessid");
+                if (IsChecked(KeyValue)) {
+                    var url = "/OrderDetailProcessModule/BY_OrderDetailProcess/Form?KeyValue=" + KeyValue;
+                    openDialog(url, "Form", "编辑工单工序表", 600, 200, function (iframe) {
+                        top.frames[iframe].AcceptClick();
+                    });
+                }
+            }
+            function btn_add() {
+                var ordercode = GetJqGridRowValue("#gridTable", "ordercode");
+                var linecode = GetJqGridRowValue("#gridTable", "linecode");
+                if (IsChecked(ordercode)) {
+                    var url = "/OrderDetailProcessModule/BY_OrderDetailProcess/Form?ordercode=" + ordercode + "&linecode=" + linecode;
+                    openDialog(url, "Form", "编辑工单工序表", 600, 200, function (iframe) {
+                        top.frames[iframe].AcceptClick();
+                    });
+                }
+            }
+            //删除
+            function btn_delete() {
+                var KeyValue = GetJqGridRowValue("#gridTable", "orderdetailprocessid");
+                if (IsDelData(KeyValue)) {
+                    var delparm = 'KeyValue=' + KeyValue;
+                    delConfig('/OrderDetailProcessModule/BY_OrderDetailProcess/Delete1', delparm, KeyValue.split(",").length);
+                }
+            }
+            //明细
+            function btn_detail() {
+                var KeyValue = GetJqGridRowValue("#gridTable", "orderdetailprocessid");
+                if (IsChecked(KeyValue)) {
+                    var url = "/OrderDetailProcessModule/BY_OrderDetailProcess/Detail?KeyValue=" + KeyValue;
+                    Dialog(url, "Detail", "工单工序表明细", 820, 500, function (iframe) {
+                        top.frames[iframe].AcceptClick();
+                    });
+                }
+            }
+            //刷新
+            function windowload() {
+                $("#gridTable").trigger("reloadGrid"); //重新载入
+
+            }
+            function TabtoOrderCode(object) {
+                if (!!$(object).val()) {
+                    $("#OrderCode1").val($(object).val());
+                    btn_Search();
+                    AjaxJsonNoMassge("/OrderDetailProcessModule/BY_OrderDetailProcessDetail/GetQty", { ordercodeline: $("#OrderCode").val(), processid: "K001" }, function (data) {
+                        //var data = eval("(" + data + ")");
+                        if (data.Message) {
+                            if (Number(data.Code) > 0) {
+                                $("#Qty").val(Number(data.Code));
+                            }
+                            else {
+
+                                $("#OrderCode").val("");
+                                $("#OrderCode").select();
+                                tipDialog(data.Message, 3, data.Code);
+                            }
+                        }
+
+                    });
+                }
+
+            }
+            //function TabtoLineCode(object) {
+            //    if (!!$(object).val()) {
+            //        $("#LineCode1").val($(object).val());
+            //        btn_Search();
+            //    }
+            //}
+            function btn_audit() {
+
+
+
+                var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+                var s1 = "";
+                if (selr.length) {
+                    for (var i = 0; i < selr.length; i++) {
+                        var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                        s1 = s1 + myrow.orderdetailprocessid + ",";
+                    }
+                    s1 = s1.trim(',');
+                    //confirmDialog("提示", "确定审核通过？", function (r) {
+                    //    if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/OrderDetailProcessModule/BY_OrderDetailProcess/Update?Enabled=1" + "&orderdetailprocessids=" + s1, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                    //}
+                    //});
+                }
+            }
+</script>
+
+<!--中间-->
+<div class="layoutPanel layout-center">
+    <div class="btnbartitle">
+        <div>
+            工序列表 <span id="CenterTitle"></span>
+        </div>
+    </div>
+    <!--工具栏-->
+    <div class="tools_bar" style="border-top: none; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+    </div>
+    <!--列表-->
+    <div id="grid_List">
+        <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+            <table border="0" class="form-find" style="height: 45px;">
+                <tr>
+                    <th>创建日期 从：</th>
+                    <td>
+                        <input id="StartTime" type="text" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()"  class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />
+                        <input id="EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />
+                    </td>
+                    <th>供应商名称：</th>
+                    <td>
+                        <input id="CustomerName" type="text" class="txt" style="width: 100px" />
+                    </td>
+
+                    <th>工单号(+行号)：
+                    </th>
+                    <td>
+                        <input id="OrderCode1" type="text" class="txt" style="width: 120px" />
+                    </td>
+                    @*<th>行号：
+                        </th>
+                        <td>
+                            <input id="LineCode1" type="text" class="txt" style="width: 120px" />
+                        </td>*@
+                    <td>
+                        <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                        <input id="btn_audit" type="button" class="btnSearch" value="审 核" onclick="btn_audit()" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>

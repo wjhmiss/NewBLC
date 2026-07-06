@@ -1,0 +1,1455 @@
+﻿@{
+    ViewBag.Title = "报价单录入";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js?ver=@DateTime.Now.Ticks"></script>
+
+
+
+<link href="~/Content/Scripts/imgGreate/00540/kao/css/index.css" rel="stylesheet" />
+<script src="~/Content/Scripts/imgGreate/00540/kao/js/ToolTip.js"></script>
+
+<script type="text/javascript">
+    var KeyValue = "";
+    $(function () {
+        $("body").unbind("onkeydown");
+        uploadify2();
+        document.onkeydown = enterInput;
+
+        $("#Detail_button").css({ top: $(".bd").offset().top + 2 });
+        //加工类型
+        //BindDropItem("#OrderType", "ProcessType", "==请选择==");
+        //账期
+        BindDropItem("#PaymentMode", "PaymentMode", "==请选择==");
+        //送货方式
+        BindDropItem("#ShipMode", "TransitMode", "==请选择==");
+        //客户编码自动补全
+        CustomerAutocomplete();
+
+        getAjax('/CommonModule/Company/ListJson', { ParentId: "1" }, function (data) {
+            $("#CompanyName").append($("<option></option>").val("").html("请选择！"));
+            var itemjson = eval("(" + data + ")");
+            $.each(itemjson, function (i) {
+                $("#CompanyName").append($("<option></option>").val(itemjson[i].FullName).html(itemjson[i].FullName));
+            });
+            Loading(false);
+        });
+
+        //出货组织
+        $("#ShipGroup").focus(function () {
+            var objId = this.id;
+            SelectTree(objId, "150px");
+            var itemtree = {
+                onnodeclick: function (item) {
+                    $('#ShipGroup').val(item.text);
+                },
+                url: "@Url.Content("~/CommonModule/Company/TreeJson")"
+            };
+            $("#comboBoxTree" + objId).treeview(itemtree);
+        });
+        //明细表格
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    function uploadify2() {
+
+        try {
+            if ($("#wokkkka").length > 0) { //注意jquery下检查一个元素是否存在必须使用 .length >0 来判断
+                $("#wokkkka").uploadify('destroy');
+            }
+            $("#wokkkka").uploadify({
+                uploader: '/Utility/Upload?saveDocument=LJ/' + $("#QuotationCode").val().substring(2, 6) + $("#QuotationCode").val().substring(8) + '&filenameid=' + $("#QuotationCode").val(),
+                swf: '/Content/Scripts/uploadify/uploadify.swf',
+                buttonText: "上传",
+                height: 24,
+                width: 70,
+                onFallback: function () {
+                    alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+                },
+                onUploadSuccess: function (file, data, response) {
+                    //var DataJson = JSON.parse(data);
+                    //windowload();
+                    //window.location.reload();
+                    if (data == "-1" || !data) {
+                        alert("请先保存报价单，之后再上传文件！");
+                    }
+                    else {
+                        InitControl(KeyValue);
+
+                    }
+
+                }
+            });
+        } catch (e) {
+        }
+    }
+    var SelectRowIndx = 0;
+    function enterInput() {
+
+
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+        if (event.keyCode == 38) {//上
+            if (SelectRowIndx == 0) {
+                $("#gridTable").jqGrid('setSelection', 1);
+            }
+            else {
+                $("#gridTable").jqGrid('setSelection', Number(SelectRowIndx) - 1);
+            }
+            //$(".ui-jqgrid-bdiv").first().scrollTop(rowScrod+50);
+        }
+        if (event.keyCode == 40) {//下
+            if (SelectRowIndx == 0) {
+                $("#gridTable").jqGrid('setSelection', 1);
+            }
+            else {
+                $("#gridTable").jqGrid('setSelection', Number(SelectRowIndx) + 1);
+            }
+            $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod - 30);
+        }
+        //if (event.keyCode == 13) {//下
+        //    $("#lr-edit-Row").click();
+        //}
+    }
+
+    //客户编码自动补全
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.FullName);
+            $("#ShortName").val(data.ShortName);
+            $("#SalesMan").val(data.Sellpeople);
+            $("#SalesArea").val(data.SalesArea);
+            if (data.DiscountRate && data.DiscountRate != "null") {
+                $("#LessRate").val(data.DiscountRate);
+            }
+            else {
+                $("#LessRate").val(0);
+            }
+            if (data.IsInvoice == 1) {
+                $("#IsInvoice").prop("checked", true);
+            }
+            else {
+                $("#IsInvoice").prop("checked", false);
+            }
+            $("#ShipMode").val(data.TransitMode);
+            $("#PaymentMode").val(data.PaymentMode);
+            $("#Category").val(data.Category);
+            LoadContactName(data.CustomerId);
+            $('input').customInput();
+            $("#CompanyName").val(data.CompanyName);
+
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Customer/GetAutoCompleJson", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 70%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="ShortName" style="display: none;">' + DataJson[i].ShortName + '</td>';
+                    html += '<td id="Sellpeople" style="display: none;">' + DataJson[i].Sellpeople + '</td>';
+                    html += '<td id="SalesArea" style="display: none;">' + DataJson[i].Sellarea + '</td>';
+                    html += '<td id="DiscountRate" style="display: none;">' + DataJson[i].DiscountRate + '</td>';
+                    html += '<td id="TransitMode" style="display: none;">' + DataJson[i].TransitMode + '</td>';
+                    html += '<td id="PaymentMode" style="display: none;">' + DataJson[i].PaymentMode + '</td>';
+                    html += '<td id="Category" style="display: none;">' + DataJson[i].Category + '</td>';
+                    html += '<td id="IsInvoice" style="display: none;">' + DataJson[i].IsInvoice + '</td>';
+                    html += '<td id="CompanyName" style="display: none;">' + DataJson[i].CompanyName + '</td>';
+
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.FullName);
+                    $("#ShortName").val(data.ShortName);
+                    $("#SalesMan").val(data.Sellpeople);
+                    $("#SalesArea").val(data.SalesArea);
+                    if (data.DiscountRate && data.DiscountRate != "null") {
+                        $("#LessRate").val(data.DiscountRate);
+                    }
+                    else {
+                        $("#LessRate").val(0);
+                    }
+                    if (data.IsInvoice == 1) {
+                        $("#IsInvoice").prop("checked", true);
+                    }
+                    else {
+                        $("#IsInvoice").prop("checked", false);
+                    }
+
+                    $("#ShipMode").val(data.TransitMode);
+                    $("#PaymentMode").val(data.PaymentMode);
+                    $("#Category").val(data.Category);
+                    LoadContactName(data.CustomerId);
+                    $('input').customInput();
+                    $("#CompanyName").val(data.CompanyName);
+                });
+                //任意键关闭
+                document.onclick = function (e) {
+                    var e = e ? e : window.event;
+                    var tar = e.srcElement || e.target;
+                    if (tar.id != 'div_gridshow') {
+                        if ($(tar).attr("id") == 'div_gridshow' || $(tar).attr("id") == "CustomerCode") {
+                            if (!$("#div_gridshow").is(":hidden")) {
+                                $("#div_gridshow").show();
+                            }
+                        } else {
+                            if (!$("#CustomerId").val()) {
+                                $("#CustomerId").val("");
+                                $("#CustomerCode").val("");
+                                $("#CustomerName").val("");
+                                $("#ShortName").val("");
+                                $("#SalesMan").val("");
+                                $("#SalesArea").val("");
+                                $("#LessRate").val("");
+                                $("#ShipMode").val("");
+                                $("#PaymentMode").val("");
+                                $("#ShipAddress").html('');
+                                $("#ShipGroup").html('');
+                                $("#ContactTel").val("");
+                                $("#ContactFax").val("");
+                                $("#ContactMail").val("");
+                                $("#MobileCode").val("");
+                                $("#CustomerAddress").val("");
+                                $("#CollectAddress").val("");
+                                $("#ContactName").val("");
+                                $("#Category").val("");
+                                $("#div_gridshow").hide();
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        //联系人
+        function LoadContactName(CustomerId) {
+            if (!!CustomerId) {
+                AjaxJson("/CommonModule/Customer/CustomerAddressListJson", { CustomerId: CustomerId }, function (data) {
+                    $("#ShipAddress").html('');
+                    $("#CollectAddress").html('');
+                    var datajson = data.rows;
+                    $.each(datajson, function (i) {
+                        $("#ShipAddress").append($("<option data='" + JSON.stringify(datajson[i]) + "'></option>").val(datajson[i].DetailAddress).html(datajson[i].DetailAddress));
+
+
+                        $("#ContactTel").val(datajson[i].Telephone);
+                        $("#ContactFax").val(datajson[i].Fax);
+                        $("#ContactMail").val(datajson[i].EmailAddress);
+                        $("#MobileCode").val(datajson[i].Mobile);
+                        $("#CustomerAddress").val(datajson[i].DetailAddress);
+                        $("#ShipRoute").val(datajson[i].SendPath);
+                        $("#ContactName").val(datajson[i].Contact);
+                        $("#ShipAddress").val(datajson[i].DetailAddress);
+
+                    });
+                })
+            }
+        }
+        //发货地址下拉框选择
+        $("#ShipAddress").change(function () {
+            var data = JSON.parse($(this).find("option:selected").attr('data'));
+            $("#ContactTel").val(data.Telephone);
+            $("#ContactFax").val(data.Fax);
+            $("#ContactMail").val(data.EmailAddress);
+            $("#MobileCode").val(data.Mobile);
+            $("#CustomerAddress").val(data.DetailAddress);
+            $("#ShipRoute").val(data.SendPath);
+            $("#ContactName").val(data.Contact);
+            $("#ShipAddress").val( data.DetailAddress);
+        })
+    }
+    //查询
+    function btn_query() {
+        openDialog("/QuotationModule/QuotationInput/QueryQuotation?LType=LJ", "QueryQuotation", "报价单查询", 650, 260, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //新增
+    function btn_add() {
+        KeyValue = "";
+        windowload();
+        $("#tb_rderFrom").find("input,select,label").removeAttr('disabled').val('');
+        $("#lr-add,#lr-edit,#lr-delete").addClass('disabled');
+        $("#lr-save,#lr-cancel,#lr-submit,#lr-Delivery").removeClass('disabled');
+        if ("@ViewBag.BillNo".trim() != "") {
+            var QuotationCode = '@ViewBag.BillNo';
+            $("#QuotationCode").val(QuotationCode);
+        }
+        else {
+            $("#QuotationCode").val("保存后自动生成");
+            $("#MnemonicCode").val("默认为报价单号");
+        }
+
+        $("#CheckStatusName").html("").attr('CheckStatus', "");
+        $("#CustMaterial").removeAttr("checked");
+        $("#FreeBill").removeAttr("checked");
+        $("#IsEmergency").removeAttr("checked");
+        $('input').customInput();
+        $("#ShipGroup").val('@DNS.Utilities.ManageProvider.Provider.Current().CompanyName');
+        $("#LType").val("LJ");
+        uploadify2();
+    }
+    //编辑
+    function btn_edit() {
+        if ($("#lr-edit").hasClass('disabled') && "@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "超级管理员") { return false; }
+        $("#tb_rderFrom").find("input,select,label").removeAttr('disabled');
+        $("#lr-add,#lr-edit,#lr-delete").addClass('disabled');
+        $("#lr-save,#lr-cancel").removeClass('disabled');
+        $('#OrderType').attr("disabled", "disabled");
+        uploadify2();
+    }
+    //删除
+    function btn_delete() {
+        if ($("#lr-delete").hasClass('disabled') && "@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "超级管理员") { return false; }
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            confirmDialog("提示", "确认要删除报价单吗？", function (r) {
+                if (r) {
+                    Loading(true, "正在删除数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/QuotationModule/QuotationInput/Delete1", { KeyValue: KeyValue }, function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            if (data.Code > 0) {
+                                location.reload();
+                            }
+                        });
+                    }, 200);
+                }
+            });
+        }
+        uploadify2();
+    }
+
+    function btn_Delivery() {
+        if ($("#lr-Delivery").hasClass('disabled')) { return false; }
+        @*if ("@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "超级管理员") { return false; }*@
+        if (IsDelData(KeyValue)) {
+            confirmDialog("提示", "确认要直接发运吗？", function (r) {
+                if (r) {
+                    Loading(true, "正在发运...");
+                    window.setTimeout(function () {
+
+                        //提交
+                        if ($("#lr-submit").hasClass('disabled')) { return false; }
+                        if (!KeyValue) {
+                            alertDialog("请先保存报价单信息", 0);
+                            return false;
+                        }
+                        if ($("#gridTable").getGridParam("reccount") == 0) {
+                            alertDialog("请输入报价单行明细", 0);
+                            return false;
+                        }
+                        //AjaxJson("/QuotationModule/QuotationInput/SubmitAuditRun", { KeyValue: KeyValue, CheckStatus: 0 }, function (data) {
+                        //    if (data.Code > 0) {
+                        //        InitControl(KeyValue);
+                        //    }
+                        //    else {
+                        //        tipDialog(data.Message, 3, data.Code);
+                        //        return;
+                        //    }
+                        //});
+
+                        AjaxJson("/QuotationModule/QuotationInput/ToDelivery", { KeyValue: KeyValue }, function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            if (data.Code > 0) {
+                                InitControl(KeyValue);
+                            }
+                            else {
+                                tipDialog(data.Message, 3, data.Code);
+                                return;
+                            }
+                        });
+                    }, 200);
+                }
+            });
+        }
+        uploadify2();
+    }
+
+
+    //保存
+    function btn_save() {
+        if ($("#lr-save").hasClass('disabled')) { return false; }
+
+
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在保存数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            AjaxJson("/QuotationModule/QuotationInput/SubmitQuotationInputForm?KeyValue=" + KeyValue, postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                KeyValue = data.Attribute;
+                InitControl(KeyValue);
+                uploadify2();
+            });
+        }, 200);
+    }
+    //取消
+    function btn_cancel() {
+        if ($("#lr-cancel").hasClass('disabled')) { return false; }
+        if (!KeyValue) {
+            $("#lr-add").removeClass('disabled');
+            $("#lr-save,#lr-cancel").addClass('disabled');
+            $("#tb_rderFrom").find("input,select,label").attr('disabled', 'disabled').val("");
+            if ("@ViewBag.BillNo" != "") {
+                var QuotationCode = '@ViewBag.BillNo';
+                $("#QuotationCode").val(QuotationCode);
+            }
+            else {
+                $("#QuotationCode").val("保存后自动生成");
+            }
+
+        } else {
+            $("#lr-add,#lr-edit,#lr-delete").removeClass('disabled');
+            $("#tb_rderFrom").find("input,select,label").attr('disabled', 'disabled');
+            $("#lr-save,#lr-cancel").addClass('disabled');
+        }
+        uploadify2();
+    }
+    //提交
+    function btn_submit() {
+        if ($("#lr-submit").hasClass('disabled')) { return false; }
+        if (!KeyValue) {
+            alertDialog("请先保存报价单信息", 0);
+            return false;
+        }
+        if ($("#gridTable").getGridParam("reccount") == 0) {
+            alertDialog("请输入报价单行明细", 0);
+            return false;
+        }
+        confirmDialog("提示", "行是否需要拆分？确认后提交报价单！", function (r) {
+            if (r) {
+                Loading(true, "正在提交数据...");
+                window.setTimeout(function () {
+                    AjaxJson("/QuotationModule/QuotationInput/SubmitAuditRun", { KeyValue: KeyValue, CheckStatus: 0 }, function (data) {
+                        tipDialog(data.Message, 3, data.Code);
+                        if (data.Code > 0) {
+                            InitControl(KeyValue);
+                        }
+                    });
+                }, 200);
+            }
+        });
+    }
+
+    //获取报价单对象
+    function InitControl(_KeyValue) {
+        KeyValue = _KeyValue;
+        AjaxJson("/QuotationModule/QuotationInput/SetFormForImg", { KeyValue: _KeyValue }, function (data) {
+            SetWebControls(data);
+            $("#CheckStatusName").attr('CheckStatus', data.CheckStatus);
+            if (data.CheckStatus == 0) {
+                $("#CheckStatusName").html("(待审核)")
+                $("#CheckStatusName").attr("title", "");
+            } else if (data.CheckStatus == 1) {
+                $("#CheckStatusName").html("(已审核)")
+                $("#CheckStatusName").attr("title", "");
+            } else {
+                $("#CheckStatusName").html("(未提交)")
+                $("#CheckStatusName").attr("title", "");
+            }
+            if (data.CheckStatus != null) {
+                $("input,select,label").attr('disabled', 'disabled');
+                $("#lr-edit,#lr-delete,#lr-save,#lr-cancel,#lr-submit,#lr-Delivery").addClass('disabled');
+            } else {
+                $("#lr-save,#lr-cancel").addClass('disabled');
+                $("#lr-add,#lr-edit,#lr-delete,#lr-submit,#lr-Delivery").removeClass('disabled');
+                $("input,select,label").attr('disabled', 'disabled');
+            }
+            if (data.CheckStatus == '-1') {
+                $("#CheckStatusName").html("(已驳回)")
+                $("#CheckStatusName").attr("title", data.CheckRemark);
+                $("#lr-add,#lr-edit,#lr-delete,#lr-submit,#lr-Delivery").removeClass('disabled');
+            }
+            AjaxJson("/CommonModule/Customer/CustomerAddressListJson", { CustomerId: data.CustomerId }, function (data) {
+                var datajson = data.rows;
+                $.each(datajson, function (i) {
+                    if (datajson[i].Application == "发货地址") {
+                        $("#ShipAddress").append($("<option data='" + JSON.stringify(datajson[i]) + "'></option>").val( datajson[i].DetailAddress).html( datajson[i].DetailAddress));
+                    } else {
+                        $("#CollectAddress").append($("<option data='" + JSON.stringify(datajson[i]) + "'></option>").val( datajson[i].DetailAddress).html( datajson[i].DetailAddress));
+                    }
+                });
+            })
+
+            $("#imgOrA").html(HtmlUtil.htmlDecode(data.ShipDescription));
+
+            $("#ShipAddress").val(data.ShipAddress);
+            $("#CollectAddress").val(data.CollectAddress);
+            windowload();
+            uploadify2();
+        });
+    }
+    /*明细begin=======================================*/
+    //分录
+    var rowScrod = 0;
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/QuotationModule/QuotationInput/GridDetail")",
+            datatype: "json",
+            height: $(window).height() - 360,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'QuotationDetailId', hidden: true },
+                { label: "行号", name: "LineCode", index: "LineCode", width: 40 },
+                { label: '加工类型', name: "OrderType", width: 70, hidden: true },
+                { label: '一级类型', name: "LJtype1", width: 70 },
+                { label: '二级类型', name: "LJtype2", width: 70 },
+                { label: '配件规格', name: "LJsize", width: 70 },
+                { label: '钢材编码', name: 'SteelCode', width: 50, hidden: true },
+                { label: '钢材名称', name: 'SteelDescription', width: 90, hidden: true },
+                { label: '名称', name: 'ProductName', width: 90 },
+                { label: '长度', name: 'Length', width: 50 },
+                { label: '宽度', name: 'Weigh', width: 50 },
+
+                { label: '厚/直径', name: 'Thick', width: 50 },
+
+                { label: '孔径', name: 'BoreSize', width: 50 },
+                { label: '数量', name: "Qty", width: 50 },
+                { label: '发运备注', name: "CustomerProduct", width: 80  },
+                { label: '公差备注', name: 'Remark', width: 100 },
+
+                { label: '钢材状态', name: 'SteelState', width: 50, hidden: true },
+                { label: '模号', name: 'DieCode', width: 80, hidden: true },
+                {
+                    label: '特殊工艺', name: '特殊工艺', width: 80, hidden: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = "";
+                        if (rowObject.IsChamfer) {
+                            str += "倒角,";
+                        }
+                        if (rowObject.LiftingHole) {
+                            str += "吊孔,";
+                        }
+                        if (rowObject.CNC) {
+                            str += "CNC,";
+                        }
+                        if (rowObject.YM) {
+                            str += "退火后研磨,";
+                        }
+                        if (rowObject.JQ) {
+                            str += "锯切";
+                        }
+                        if (!!str) {
+                            return "<a  style='color:red' >" + str + "</a>";
+                        }
+                        else return "无";
+                    }
+                },
+                {
+                    label: '余量(长宽厚)', name: '余量', width: 80,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return rowObject.AddLength+"*"+rowObject.AddWeigh+"*"+rowObject.AddThick;
+                    }, hidden: true
+                },
+                { label: '倒角', name: 'IsChamfer', width: 100, hidden: true },
+                { label: '吊孔', name: 'LiftingHole', width: 100, hidden: true },
+                { label: 'CNC', name: 'CNC', width: 100, hidden: true },
+                { label: '退火后研磨', name: 'YM', width: 100, hidden: true },
+                { label: '锯切', name: 'JQ', width: 100, hidden: true },
+
+                { label: '计价余量(长)', name: 'AddLength', width: 50, hidden: true },
+                { label: '计价余量(宽)', name: 'AddWeigh', width: 50, hidden: true },
+                { label: '计价余量(厚)', name: 'AddThick', width: 50, hidden: true },
+
+                { label: '重量', name: 'Weight', width: 50 },
+                { label: '材料单价', name: 'MaterialPrice', width: 50 },
+                { label: '材料金额', name: 'MaterialAmount', width: 50 },
+                { label: '加工单价', name: 'SmallCost', width: 50, hidden: true},
+                { label: '加工金额', name: 'SmallAmount', width: 50, hidden: true},
+                { label: '小件单价', name: 'WorkPrice', width: 50, hidden: true},
+                { label: '加工费金额', name: 'WorkAmount', width: 50 },
+                { label: '锻打/调制单价', name: 'DDCostPer', width: 50, hidden: true},
+                { label: '锻打/调制金额', name: 'DDCost', width: 50, hidden: true},
+
+                { label: '加工费折扣率', name: 'WorkLess', width: 50, hidden: true },
+                { label: '热处理工艺', name: 'Technology', width: 50, hidden: true },
+                { label: '热处理单价', name: 'HeatPrice', width: 50, hidden: true },
+                { label: '锯切几刀', name: 'JKCostQty', width: 50, hidden: true },
+                { label: '锯切单价/件', name: 'JKCostPer', width: 50, hidden: true},
+                { label: '锯切金额', name: 'JKCost', width: 50, hidden: true},
+
+                { label: '总销售金额', name: 'SalesAmount', width: 60 },
+                { label: '成本', name: 'CostAmount', width: 60, hidden: true },
+                { label: '送货说明', name: 'ShipDescription', width: 100, hidden: true },
+                { label: '交期', name: 'Delivery', width: 80 },
+
+                { label: '磨四侧', name: 'IsGrindAngle', width: 50, hidden: true },
+                {
+                    label: '操作', name: '', index: '', width: 80, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!rowObject.QuotationDetailId) {
+                            var nums = Math.random();
+                            return '<input style="display: inline;"  id="' + options.rowId + 'uploadifyQuodetail" name="uploadify"  type="file" /></div>';
+                        }
+                        return "";
+                    }
+                },
+                {
+                    label: '相关文件', name: 'Fang', index: 'Fang', width: 300, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!rowObject.QuotationDetailId) {
+                            return HtmlUtil.htmlDecode(cellvalue);
+                        }
+                        return "";
+                    }
+                },
+            ],
+            pager: "#gridPager",
+            shrinkToFit: false,
+            sortname: 'LineCode',
+            sortorder: 'asc',
+            rowNum: 1000,
+            altRows: false,
+            altclass: 'altclass',
+            rownumbers: true,
+            viewrecords: true,
+            rowList: [1000, 1000, 1000, 1000, 1000],
+            footerrow: true,
+            gridview: true,
+
+            gridComplete: function () {
+                var SalesAmount = $("#gridTable").getCol('SalesAmount', false, 'sum');
+                var TotalQty = $("#gridTable").getCol('Qty', false, 'sum');
+                var LessRate = $("#LessRate").val();
+                var LessedAmount = Number(SalesAmount) * (100 - Number(LessRate)) / 100;
+                $("#Qty").val(TotalQty);
+                $("#LessedAmount").val(LessedAmount.toFixed(2));
+                $("#TotalAmount").val(SalesAmount.toFixed(2));
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
+
+                $(this).footerData("set", {
+                    "LineCode": "合计",
+                    "Weight": FormatCurrency($("#gridTable").getCol('Weight', false, 'sum')),
+                    "MaterialAmount": FormatCurrency($("#gridTable").getCol('MaterialAmount', false, 'sum')),
+                    "SmallAmount": FormatCurrency($("#gridTable").getCol('SmallAmount', false, 'sum')),
+                    "SalesAmount": FormatCurrency($("#gridTable").getCol('SalesAmount', false, 'sum')),
+                    "WorkAmount": FormatCurrency($("#gridTable").getCol('WorkAmount', false, 'sum')),
+                    "DDCost": FormatCurrency($("#gridTable").getCol('DDCost', false, 'sum')),
+                    "JKCost": FormatCurrency($("#gridTable").getCol('JKCost', false, 'sum')),
+                    "Qty": FormatCurrency($("#gridTable").getCol('Qty', false, 'sum')),
+
+                });
+
+                var data = $("#gridTable").jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    var item = i + 1;
+                    uploadifyQuodetail(item, data[i].QuotationDetailId);
+                }
+            },
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                rowScrod = $("#" + rowid).position().top;
+
+                var Weigh = GetJqGridRowValue("#gridTable", "Weigh");
+                var SteelCode = GetJqGridRowValue("#gridTable", "SteelCode");
+                var SteelDescription = GetJqGridRowValue("#gridTable", "SteelDescription");
+
+                if (SteelCode == "FY") {
+                    $("#lr-edit-RowQ").click();
+                }
+                //else if (SteelCode != "FY" && SteelDescription.indexOf("圆")>=0) {
+                //    $("#lr-edit-RowY").click();
+                //}
+                else {
+                    $("#lr-edit-Row").click();
+                }
+            },
+            onSelectRow: function (rowid, status) {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                rowScrod = $("#" + rowid).position().top;
+            },
+            subGrid: true,
+            subGridOptions: {
+                "plusicon": "ui-icon-triangle-1-e",
+                "minusicon": "ui-icon-triangle-1-s",
+                "openicon": "ui-icon-arrowreturn-1-e"
+            },
+            subGridRowExpanded: function (subgrid_id, row_id) {
+                var rowData = $("#gridTable").jqGrid('getRowData', row_id);
+                var subgrid_table_id, pager_id;
+                subgrid_table_id = subgrid_id + "_t";
+                pager_id = "p_" + subgrid_table_id;
+                $("#" + subgrid_id).html("<table id='" + subgrid_table_id + "' class='scroll'></table><div id='" + pager_id + "' class='scroll'></div>");
+                var Parameter = [{
+                    paramName: "QuotationDetailId",
+                    paramValue: rowData["QuotationDetailId"],
+                    Operation: "Equal",
+                }]
+                jQuery("#" + subgrid_table_id).jqGrid({
+                    url: "@Url.Content("~/OrderDetailProcessModule/BY_OrderDetailProcess/GridPageJsonForIMG")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+                    datatype: "json",
+                    height: $(window).height() - 400,
+                    width: 189,
+                    autowidth: true,
+                    colModel: [
+                        { label: '工单工序ID', name: 'OrderDetailProcessId', index: 'OrderDetailProcessId', width: 0, align: 'left', sortable: true, hidden: true },
+                        { label: '工序', name: 'TechnologyId', index: 'TechnologyId', width: 80, align: 'left', sortable: true },
+                        { label: '工序名称', name: 'TechnologyName', index: 'TechnologyName', width: 80, align: 'left', sortable: true },
+                        { label: '重量/长度/体积', name: 'SaleMc', index: 'SaleMc', width: 100, align: 'left', sortable: true },
+                        { label: '单价', name: 'SalePer', index: 'SalePer', width: 60, align: 'left', sortable: true },
+                        { label: '加工费', name: 'SaleTotal', index: 'SaleTotal', width: 60, align: 'left', sortable: true },
+                        { label: '备注', name: 'Remark', index: 'Remark', width: 180, align: 'left', sortable: true },
+                        {
+                            label: '操作', name: '', index: '', width: 80, align: 'left', sortable: true,
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (!!rowObject.OrderDetailProcessId) {
+                                    var nums = Math.random();
+                                    return '<input style="display: inline;"  id="' + options.rowId + 'uploadify" name="uploadify"  type="file" />';
+                                }
+                                return "";
+                            }
+                        },
+                        {
+                            label: '相关文件', name: 'SteelOtherDescription', index: 'SteelOtherDescription', width: 300, align: 'left', sortable: true,
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (!!rowObject.OrderDetailProcessId) {
+                                    return HtmlUtil.htmlDecode(cellvalue);
+                                }
+                                return "";
+                            }
+                        },
+
+                    ],
+                    viewrecords: true,
+                    rowNum: 999,
+                    rowList: [999, 999, 999, 999, 999],
+                    pager: false,
+                    shrinkToFit: false,
+                    rownumbers: true,
+                    sortname: 'SortCode',
+                    sortorder: 'asc',
+                    gridview: true,
+                    gridComplete: function () {
+                        var data = $("#" + subgrid_table_id).jqGrid("getRowData");
+                        for (var i = 0; i < data.length; i++) {
+                            var item = i + 1;
+                            uploadify(item, data[i].OrderDetailProcessId);
+                        }
+                    },
+
+                });
+            }
+        });
+
+        function uploadify(id, OrderDetailProcessId) {
+            try {
+                if ($("#" + id + "uploadify").length > 0) { //注意jquery下检查一个元素是否存在必须使用 .length >0 来判断
+                    $("#" + id + "uploadify").uploadify('destroy');
+                }
+                $("#" + id + "uploadify").uploadify({
+                    uploader: '/Utility/Upload?saveDocument=LJ/' + $("#QuotationCode").val().substring(2, 6) + $("#QuotationCode").val().substring(8)+ '/' + OrderDetailProcessId + '&filenameid=' + OrderDetailProcessId,
+                    swf: '/Content/Scripts/uploadify/uploadify.swf',
+                    buttonText: "上传",
+                    height: 24,
+                    width: 70,
+                    onFallback: function () {
+                        alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+                    },
+                    onUploadSuccess: function (file, data, response) {
+                        //var DataJson = JSON.parse(data);
+                        windowload();
+                        //window.location.reload();
+                    }
+                });
+            } catch (e) {
+            }
+        }
+        function uploadifyQuodetail(id, QuotationDetailId) {
+            try {
+                if ($("#" + id + "uploadifyQuodetail").length > 0) { //注意jquery下检查一个元素是否存在必须使用 .length >0 来判断
+                    $("#" + id + "uploadifyQuodetail").uploadify('destroy');
+                }
+                $("#" + id + "uploadifyQuodetail").uploadify({
+                    uploader: '/Utility/Upload?saveDocument=LJ/' + $("#QuotationCode").val().substring(2, 6) + $("#QuotationCode").val().substring(8) + '/' + QuotationDetailId + '&filenameid=' + QuotationDetailId,
+                    swf: '/Content/Scripts/uploadify/uploadify.swf',
+                    buttonText: "上传",
+                    height: 24,
+                    width: 70,
+                    onFallback: function () {
+                        alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+                    },
+                    onUploadSuccess: function (file, data, response) {
+                        //var DataJson = JSON.parse(data);
+                        windowload();
+                        //window.location.reload();
+                    }
+                });
+            } catch (e) {
+            }
+        }
+
+
+        //新增明细一行
+        $("#lr-add-Row").click(function () {
+            if (!KeyValue) {
+                alertDialog("请先保存报价单信息", 0);
+                return false;
+            }
+            var checkstatus = $("#CheckStatusName").attr('checkstatus');
+            //if (checkstatus == "") {
+            //    alertDialog("报价单已经提交了,不能操作", 0);
+            //    return false;
+            //}
+            //if (checkstatus == 1) {
+            //    alertDialog("报价单已经审核了,不能操作", 0);
+            //    return false;
+            //}
+            var LineCode = 1;
+            //var LineCode = $("#gridTable").getGridParam("reccount") + 1;
+            var data = $("#gridTable").jqGrid("getRowData");
+            for (var i = 0; i < data.length; i++) {
+                if (Number(data[i].LineCode) >= LineCode) {
+                    LineCode = Number(data[i].LineCode) + 1;
+                }
+            }
+
+            var CustMaterial = $("#CustMaterial").prop("checked") == true ? "1" : "0";
+            var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
+            var CustomerId = $("#CustomerId").val();
+            var url = "/QuotationModule/AssembleParts/DetailForm?QuotationId=" + KeyValue + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill;
+            openDialog(url, "DetailForm", "报价单行输入【" + $("#ShortName").val() + "】", 1400,820, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        })
+        //新增明细一行
+        $("#lr-add-RowY").click(function () {
+            if (!KeyValue) {
+                alertDialog("请先保存报价单信息", 0);
+                return false;
+            }
+            var checkstatus = $("#CheckStatusName").attr('checkstatus');
+            //if (checkstatus == "") {
+            //    alertDialog("报价单已经提交了,不能操作", 0);
+            //    return false;
+            //}
+            //if (checkstatus == 1) {
+            //    alertDialog("报价单已经审核了,不能操作", 0);
+            //    return false;
+            //}
+            var LineCode = 1;
+            //var LineCode = $("#gridTable").getGridParam("reccount") + 1;
+            var data = $("#gridTable").jqGrid("getRowData");
+            for (var i = 0; i < data.length; i++) {
+                if (Number(data[i].LineCode) >= LineCode) {
+                    LineCode = Number(data[i].LineCode) + 1;
+                }
+            }
+
+            var CustMaterial = $("#CustMaterial").prop("checked") == true ? "1" : "0";
+            var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
+            var CustomerId = $("#CustomerId").val();
+            var url = "/QuotationModule/QuotationInput/DetailFormForY?QuotationId=" + KeyValue + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill;
+            openDialog(url, "DetailFormForY", "报价单行输入【" + $("#ShortName").val() + "】", 700, 520, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        })
+        //新增明细一行
+        $("#lr-add-RowQ").click(function () {
+            if (!KeyValue) {
+                alertDialog("请先保存报价单信息", 0);
+                return false;
+            }
+            var checkstatus = $("#CheckStatusName").attr('checkstatus');
+            //if (checkstatus == "") {
+            //    alertDialog("报价单已经提交了,不能操作", 0);
+            //    return false;
+            //}
+            //if (checkstatus == 1) {
+            //    alertDialog("报价单已经审核了,不能操作", 0);
+            //    return false;
+            //}
+            var LineCode = 1;
+            //var LineCode = $("#gridTable").getGridParam("reccount") + 1;
+            var data = $("#gridTable").jqGrid("getRowData");
+            for (var i = 0; i < data.length; i++) {
+                if (Number(data[i].LineCode) >= LineCode) {
+                    LineCode = Number(data[i].LineCode) + 1;
+                }
+            }
+
+            var CustMaterial = $("#CustMaterial").prop("checked") == true ? "1" : "0";
+            var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
+            var CustomerId = $("#CustomerId").val();
+            var url = "/QuotationModule/QuotationInput/DetailFormForQ?QuotationId=" + KeyValue + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill;
+            openDialog(url, "DetailFormForQ", "报价单行输入【" + $("#ShortName").val() + "】", 700, 520, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        })
+        //编辑明细一行
+        $("#lr-edit-Row").click(function () {
+            var QuotationDetailId = GetJqGridRowValue("#gridTable", "QuotationDetailId");
+            if (!QuotationDetailId) {
+                alertDialog("请选择要编辑一行", 0);
+                return false;
+            }
+            var checkstatus = $("#CheckStatusName").attr('checkstatus');
+            //if (checkstatus == "") {
+            //    alertDialog("报价单已经提交了,不能操作", 0);
+            //    return false;
+            //}
+            //if (checkstatus == 1) {
+            //    alertDialog("报价单已经审核了,不能操作", 0);
+            //    return false;
+            //}
+           @* var user = $("#CreateUserName").val();
+            if (user != "@DNS.Utilities.ManageProvider.Provider.Current().UserName") {
+                alertDialog("你不是创建人，无权操作!", 0);
+                return false;
+            }*@
+            var LineCode = GetJqGridRowValue("#gridTable", "LineCode");
+            if (!LineCode) {
+                alertDialog("请选择一行!", 0);
+                return false;
+            }
+            var CustMaterial = $("#CustMaterial").prop("checked") == true ? "1" : "0";
+            var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
+            var CustomerId = $("#CustomerId").val();
+            var url = "/QuotationModule/AssembleParts/DetailForm?KeyValue=" + QuotationDetailId + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill + "&checkstatus=" + checkstatus + "&QuotationId=" + KeyValue;
+            openDialog(url, "DetailForm", "报价单行编辑【" + $("#ShortName").val() + "】", 1400, 820, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        });
+        $("#lr-edit-RowQ").click(function () {
+            var QuotationDetailId = GetJqGridRowValue("#gridTable", "QuotationDetailId");
+            if (!QuotationDetailId) {
+                alertDialog("请选择要编辑一行", 0);
+                return false;
+            }
+            var checkstatus = $("#CheckStatusName").attr('checkstatus');
+            //if (checkstatus == "") {
+            //    alertDialog("报价单已经提交了,不能操作", 0);
+            //    return false;
+            //}
+            //if (checkstatus == 1) {
+            //    alertDialog("报价单已经审核了,不能操作", 0);
+            //    return false;
+            //}
+           @* var user = $("#CreateUserName").val();
+            if (user != "@DNS.Utilities.ManageProvider.Provider.Current().UserName") {
+                alertDialog("你不是创建人，无权操作!", 0);
+                return false;
+            }*@
+            var LineCode = GetJqGridRowValue("#gridTable", "LineCode");
+            if (!LineCode) {
+                alertDialog("请选择一行!", 0);
+                return false;
+            }
+            var CustMaterial = $("#CustMaterial").prop("checked") == true ? "1" : "0";
+            var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
+            var CustomerId = $("#CustomerId").val();
+            var url = "/QuotationModule/QuotationInput/DetailFormForQ?KeyValue=" + QuotationDetailId + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill + "&checkstatus=" + checkstatus + "&QuotationId=" + KeyValue;
+            openDialog(url, "DetailForm", "报价单行编辑【" + $("#ShortName").val() + "】", 700, 520, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        });
+        $("#lr-edit-RowY").click(function () {
+            var QuotationDetailId = GetJqGridRowValue("#gridTable", "QuotationDetailId");
+            if (!QuotationDetailId) {
+                alertDialog("请选择要编辑一行", 0);
+                return false;
+            }
+            var checkstatus = $("#CheckStatusName").attr('checkstatus');
+            //if (checkstatus == "") {
+            //    alertDialog("报价单已经提交了,不能操作", 0);
+            //    return false;
+            //}
+            //if (checkstatus == 1) {
+            //    alertDialog("报价单已经审核了,不能操作", 0);
+            //    return false;
+            //}
+           @* var user = $("#CreateUserName").val();
+            if (user != "@DNS.Utilities.ManageProvider.Provider.Current().UserName") {
+                alertDialog("你不是创建人，无权操作!", 0);
+                return false;
+            }*@
+            var LineCode = GetJqGridRowValue("#gridTable", "LineCode");
+            if (!LineCode) {
+                alertDialog("请选择一行!", 0);
+                return false;
+            }
+            var CustMaterial = $("#CustMaterial").prop("checked") == true ? "1" : "0";
+            var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
+            var CustomerId = $("#CustomerId").val();
+            var url = "/QuotationModule/QuotationInput/DetailFormForY?KeyValue=" + QuotationDetailId + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill + "&checkstatus=" + checkstatus + "&QuotationId=" + KeyValue;
+            openDialog(url, "DetailForm", "报价单行编辑【" + $("#ShortName").val() + "】", 700, 520, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        });
+        ////插入明细一行
+        //$("#lr-insert-Row").click(function () {
+        //    if (!KeyValue) {
+        //        alertDialog("请先保存报价单信息", 0);
+        //        return false;
+        //    }
+        //    var LineCode = GetJqGridRowValue("#gridTable", "LineCode");
+        //    if (!LineCode) {
+        //        alertDialog("请选择一行!", 0);
+        //        return false;
+        //    }
+        //    var checkstatus = $("#CheckStatusName").attr('checkstatus');
+        //    if (checkstatus == "") {
+        //        alertDialog("报价单已经提交了,不能操作", 0);
+        //        return false;
+        //    }
+        //    if (checkstatus == 1) {
+        //        alertDialog("报价单已经审核了,不能操作", 0);
+        //        return false;
+        //    }
+
+        //    var CustMaterial = $("#CustMaterial").prop("checked") == true ? "1" : "0";
+        //    var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
+        //    var CustomerId = $("#CustomerId").val();
+        //    var url = "/QuotationModule/QuotationInput/DetailForm?QuotationId=" + KeyValue + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill + "&Insert=1";
+        //    openDialog(url, "DetailForm", "报价单行输入【" + $("#ShortName").val() + "】", 700,520, function (iframe) {
+        //        top.frames[iframe].AcceptClick()
+        //    });
+        //});
+        //复制明细一行
+        $("#lr-copy-Row").click(function () {
+            var QuotationDetailId = GetJqGridRowValue("#gridTable", "QuotationDetailId");
+            if (!QuotationDetailId) {
+                alertDialog("请选择要复制一行", 0);
+                return false;
+            }
+            //var checkstatus = $("#CheckStatusName").attr('checkstatus');
+            //if (checkstatus == "") {
+            //    alertDialog("报价单已经提交了,不能操作", 0);
+            //    return false;
+            //}
+            //if (checkstatus == 1) {
+            //    alertDialog("报价单已经审核了,不能操作", 0);
+            //    return false;
+            //}
+            var LineCode = 1;
+            //var LineCode = $("#gridTable").getGridParam("reccount") + 1;
+            var data = $("#gridTable").jqGrid("getRowData");
+            for (var i = 0; i < data.length; i++) {
+                if (Number(data[i].LineCode) >= LineCode) {
+                    LineCode = Number(data[i].LineCode) + 1;
+                }
+            }
+            var CustMaterial = $("#CustMaterial").prop("checked") == true ? "1" : "0";
+            var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
+            var CustomerId = $("#CustomerId").val();
+            // var url = "/QuotationModule/QuotationInput/DetailForm?CopyKeyValue=" + QuotationDetailId + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill;
+
+            var url = "/QuotationModule/AssembleParts/DetailForm?CopyKeyValue=" + QuotationDetailId + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill  + "&QuotationId=" + KeyValue;
+            openDialog(url, "DetailForm", "报价单行编辑【" + $("#ShortName").val() + "】", 1400, 820, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+
+
+        });
+        //删除明细一行
+        $("#lr-delete-Row").click(function () {
+            var QuotationDetailId = GetJqGridRowValue("#gridTable", "QuotationDetailId");
+            if (!QuotationDetailId) {
+                alertDialog("请选择要删除一行", 0);
+                return false;
+            }
+            var checkstatus = $("#CheckStatusName").attr('checkstatus');
+            //if (checkstatus == "") {
+            //    alertDialog("报价单已经提交了,不能操作", 0);
+            //    return false;
+            //}
+            //if (checkstatus == 1) {
+            //    alertDialog("报价单已经审核了,不能操作", 0);
+            //    return false;
+            //}
+            @*var user = $("#CreateUserName").val();
+            if (user != "@DNS.Utilities.ManageProvider.Provider.Current().UserName") {
+                alertDialog("你不是创建人，无权操作!", 0);
+                return false;
+            }*@
+            var delparm = 'KeyValue=' + QuotationDetailId;
+            delConfig('/QuotationModule/QuotationInput/DeleteDetail', delparm);
+        })
+        $("#lr-chai-Row").click(function () {
+            var QuotationDetailId = GetJqGridRowValue("#gridTable", "QuotationDetailId");
+            if (!QuotationDetailId) {
+                alertDialog("请选择一行", 0);
+                return false;
+            }
+            var checkstatus = $("#CheckStatusName").attr('checkstatus');
+            var delparm = 'KeyValue=' + QuotationDetailId;
+            AjaxJsonNoMassge("/QuotationModule/QuotationInput/chai", { QuotationDetailId: QuotationDetailId }, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                windowload();
+                
+            });
+        })
+
+        
+        $("#lr-Import-Row").click(function () {
+            if (!KeyValue) {
+                alertDialog("请先保存报价单信息", 0);
+                return false;
+            }
+            var LineCode = 1;
+            //var LineCode = $("#gridTable").getGridParam("reccount") + 1;
+            var data = $("#gridTable").jqGrid("getRowData");
+            for (var i = 0; i < data.length; i++) {
+                if (Number(data[i].LineCode) >= LineCode) {
+                    LineCode = Number(data[i].LineCode) + 1;
+                }
+            }
+
+            var CustMaterial = $("#CustMaterial").prop("checked") == true ? "1" : "0";
+            var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
+            var CustomerId = $("#CustomerId").val();
+            var url = "/QuotationModule/QuotationInput/ExcelImportDialog?QuotationId=" + KeyValue + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill;
+            openDialog(url, "DetailForm", "报价单行输入【" + $("#ShortName").val() + "】", 700, 450, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        })
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/QuotationModule/QuotationInput/GridDetail")?QuotationId=" + KeyValue
+        }).trigger('reloadGrid');
+    }
+    /*明细end=======================================*/
+    //精料单打印预览
+    //function btn_Print(){
+    //    if (IsChecked(KeyValue)) {
+    //        PrintDialog("/OrderModule/OrderPrint/BCPrintPreviewLJ?KeyValueQ=" + KeyValue, "PrintPage123", "打印", 850, 500, function (iframe) {
+    //            top.frames[iframe].AcceptClick();
+    //        });
+    //    }
+    //}
+
+    function btn_Print() {
+        if (IsChecked(KeyValue)) {
+            var url = "/OrderModule/OrderPrint/ChoosePrint?LType=LJ&QuotationId=" + KeyValue + "&customercode=" + $("#CustomerCode").val();
+            openDialogFName(url, "DeriveDialog", "打印", 800, 550, "直接打印", "编辑打印",
+                function (iframe) {
+                    top.frames[iframe].AcceptClick();
+                },
+                function (iframe) {
+                    top.frames[iframe].AcceptClick2();
+                });
+        }
+    }
+    //粗料单打印预览
+    function BCPrintPreview() {
+        if (IsChecked(KeyValue)) {
+            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreviewLJ?QuotationId=" + KeyValue, "PrintPage12", "报价单打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    function BCPrintPreview4() {
+        if (IsChecked(KeyValue)) {
+            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreviewLJ4?QuotationId=" + KeyValue, "PrintPage12", "报价单打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    function BCPrintPreview2() {
+        if (IsChecked(KeyValue)) {
+            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreviewLJ2?QuotationId=" + KeyValue, "PrintPage12", "报价单打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+
+    function BCPrintPreview3() {
+        if (IsChecked(KeyValue)) {
+            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreviewLJ3?QuotationId=" + KeyValue, "PrintPage12", "报价单打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+
+    function DeliveryPrint(perType, printType, OrderId, OrderDetailIds, QuotationId, customercode, LType) {
+        PrintDialog("/OrderModule/OrderPrint/" + printType + "?perType=" + perType + "&OrderId=" + OrderId + "&OrderDetailIds=" + OrderDetailIds + "&KeyValueQ=" + QuotationId + "&QuotationId=" + QuotationId + "&CustomerCode=" + customercode + "&LType=" + LType, "PrintPage", "PrintPagess", 1024, 650, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+
+</script>
+<form id="form1">
+    <div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+        <div class="tools_bar" style="margin-top: 1px; margin-bottom: 0px;">
+            <div class="PartialButton">
+                @Html.Partial("_PartialButton")
+            </div>
+            <script>
+                $(function () {
+                    $("#lr-edit,#lr-delete,#lr-save,#lr-cancel").addClass('disabled');
+                    $("#tb_rderFrom").find("input,select,label").attr('disabled', 'disabled');
+                })
+            </script>
+        </div>
+        <div>
+            <div style="font-family: 华文楷体; font-size: x-large; height: 40px; line-height: 40px; text-align: center;">
+                报价单录入&nbsp;<span id="CheckStatusName" checkstatus="" style="color: red; font-family: 华文楷体; font-size: x-large;cursor:pointer;"></span>
+            </div>
+            <div style="position: absolute; top: 60px; right: 5px;width:400px;">
+                <span style="color: red;"></span>
+            </div>
+        </div>
+        <table class="form-bill" id="tb_rderFrom" style="border-top: none;">
+            <tr>
+
+
+                <th class="form-bill-th">客户编码：</th>
+                <td class="form-bill-td">
+                    <input id="LType" type="hidden" value="LJ" />
+                    <input id="CustomerId" type="hidden" />
+                    <input id="IsMobileInput" type="hidden" />
+                    <input id="CustomerCode" type="text" class="txt" style="width: 95%" datacol="yes" err="客户编码" checkexpession="NotNull" />
+                </td>
+                <th class="form-bill-th">客户名称：</th>
+                <td class="form-bill-td">
+                    <input id="CustomerName" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">报价单号：</th>
+                <td class="form-bill-td">
+                    <input id="QuotationCode" readonly type="text" class="txt" style="width: 95%" value="保存后自动生成" />
+                </td>
+
+                <th class="form-bill-th">联系人：</th>
+                <td class="form-bill-td">
+                    <input id="ContactName" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">账期：</th>
+                <td class="form-bill-td">
+                    <select id="PaymentMode" class="select" style="width: 96%" datacol="yes" err="账期" checkexpession="NotNull"></select>
+                </td>
+
+                
+                
+
+            </tr>
+            <tr>
+                <th class="form-bill-th">原单号/客户单号：</th>
+                <td class="form-bill-td">
+                    <input id="CustomerPO" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">制造号：</th>
+                <td class="form-bill-td">
+                    <input id="BuildNum" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">产品型号：</th>
+                <td class="form-bill-td">
+                    <input id="CreateUserName" type="hidden" />
+                    <input id="ShortName" type="hidden" />
+                    <input id="ProductCode" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">配件名称：</th>
+                <td class="form-bill-td">
+                    <input id="BuildName" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">模具名称：</th>
+                <td class="form-bill-td">
+                    <input id="DieName" type="text" class="txt" style="width: 95%" />
+
+                </td>
+
+
+
+
+            </tr>
+            <tr>
+
+                <th class="form-bill-th">公司</th>
+                <td class="form-bill-td">
+                    <select id="CompanyName" class="select" style="width: 96%" datacol="yes" err="公司" checkexpession="NotNull"></select>
+                </td>
+                <th class="form-bill-th">模具图号：</th>
+                <td class="form-bill-td">
+                    <input id="PicCode" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">模具编号：</th>
+                <td class="form-bill-td">
+                    <input id="DieCode" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">送货地址：</th>
+                <td class="form-bill-td">
+                    <input id="ContactTel" type="hidden" />
+                    <input id="MobileCode" type="hidden" />
+                    <input id="ContactMail" type="hidden" />
+                    <input id="ShipMode" type="hidden" />
+                    <select id="ShipAddress" class="select" style="width: 97.8%">
+                    </select>
+                </td>
+
+
+            </tr>
+            @*<tr>
+                    <th class="form-bill-th">出货单位：</th>
+                    <td class="form-bill-td">
+                        <input id="ShipGroup" type="text" class="txt Autotree" style="width: 95%" value="@DNS.Utilities.ManageProvider.Provider.Current().CompanyName" />
+                    </td>
+
+
+                </tr>*@
+            @*<tr>
+
+                    <th class="form-bill-th">总折扣率：</th>
+                    <td class="form-bill-td">
+                        <input id="LessRate" readonly type="text" class="txt readonly" style="width: 70%" value="0" />
+                        <span style="color: red; font-weight: bold;">%</span>                </td>
+                    <th class="form-bill-th">折扣后总额：</th>
+                    <td class="form-bill-td">
+                        <input id="LessedAmount" readonly type="text" class="txt readonly" style="width: 95%" value="0.00" />
+                    </td>
+
+
+
+                </tr>*@
+        <tr>
+
+            <th class="form-bill-th">助记编号：</th>
+            <td class="form-bill-td">
+                <input id="MnemonicCode" type="text" class="txt" style="width: 95%" value="默认为报价单号" disabled />
+            </td>
+
+
+            <th class="form-bill-th">选项：</th>
+            <td class="form-bill-td">
+                <div style="border-bottom: 1px solid #A8A8A8; padding-bottom: 4px; ">
+                    <span class="item">
+                        <input id="CustMaterial" name="CustMaterial" type="checkbox" style="vertical-align: middle;" />
+                        <label for="CustMaterial" style="vertical-align: middle;">客来料</label>
+                    </span>
+                    <span class="item">
+                        <input id="FreeBill" name="FreeBill" type="checkbox" style="vertical-align: middle;" />
+                        <label for="FreeBill" style="vertical-align: middle;">补料单</label>
+                    </span>
+                    <span class="item">
+                        <input id="IsInvoice" name="IsEmergency" type="checkbox" style="vertical-align: middle;" checked />
+                        <label for="IsInvoice" style="vertical-align: middle;">加税</label>
+                    </span>
+                    <span class="item">
+                        <input id="IsReturn" name="IsEmergency" type="checkbox" style="vertical-align: middle;" />
+                        <label for="IsReturn" style="vertical-align: middle;">退货单</label>
+                    </span>&nbsp;
+                </div>
+
+            </td>
+            <th class="form-bill-th">总金额：</th>
+            <td class="form-bill-td">
+                <input id="TotalAmount" type="text" onfocus="IsMoney(this.id);" class="txt" style="width: 95%" value="0.00" readonly />
+            </td>
+            <th class="form-bill-th">总数量：</th>
+            <td class="form-bill-td">
+                <input id="Qty" readonly type="text" class="txt readonly" style="width: 95%;" value="0" />
+            </td>
+            <th class="form-bill-th">销售人员：</th>
+            <td class="form-bill-td">
+                <input id="SalesMan" type="text" class="txt" style="width: 95%" />
+                <input id="ShipRoute" type="hidden" />
+                <input id="Category" type="hidden" />
+                <input id="ShipClause" type="hidden" />
+                <input id="SalesArea" type="hidden" />
+            </td>
+
+        </tr>
+        <tr>
+
+            <th class="form-bill-th">备注：</th>
+            <td class="form-bill-td" colspan="3">
+                <input id="Remark" type="text" class="txt" style="width: 98.9%" />
+            </td>
+            <th class="form-bill-th" rowspan="2" style="text-align: center; vertical-align: middle;">维修方案：</th>
+            <td class="form-bill-td" rowspan="2" colspan="5">
+                <textarea style="height:40px;width: 100%;" id="LJPlan"></textarea>
+            </td>
+        </tr>
+            <tr>
+                <th class="form-bill-th">相关文件：</th>
+                <td class="form-bill-td" colspan="3">
+                    <table style="width: 100%">
+                        <tr style="width:100%">
+                            <td style="width:5%;">
+                                <input style="display: inline;" id="wokkkka" name="wokkkka" type="file" onclick="uploadify2();" />
+                            </td>
+                            <td style="width:95%">
+                                <div id="imgOrA" style="display: inline;"></div>
+
+                            </td>
+                        </tr>
+                    </table>
+
+                </td>
+
+                
+            </tr>
+        </table>
+        <div class="bd" style="border-bottom: none; border-left: none; border-right: none; margin: 1px; margin-left: 0px; margin-right: 0px;">
+            <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                <div class="tab_list_top" style="position: absolute">
+                    <div id="TabProcessDiscount" class="tab_list bd actived">报价单明细</div>
+                    <input type="button" id="lr-edit-Row" style="display:none;" />
+                    <input type="button" id="lr-edit-RowQ" style="display:none;" />
+                    <input type="button" id="lr-edit-RowY" style="display:none;" />
+                </div>
+            </div>
+        </div>
+        <div id="Detail_button" style="height: 32px; padding-top: 0px; position: absolute; right: 3px;">
+            <div id="lr-add-Row" class="nui-toolbar-item nui-btn-right">
+                <span class="nui-btn-text">新增</span>
+            </div>
+            @*<div id="lr-add-RowY" class="nui-toolbar-item nui-btn-right nui-btn-left">
+            <span class="nui-btn-text">圆新增</span>
+        </div>*@
+            <div id="lr-add-RowQ" class="nui-toolbar-item nui-btn-right nui-btn-left">
+                <span class="nui-btn-text">其他</span>
+
+            </div>
+            <div id="lr-copy-Row" class="nui-toolbar-item nui-btn-right nui-btn-left">
+                <span class="nui-btn-text">复制</span>
+            </div>
+            @*<div id="lr-edit-Row" class="nui-toolbar-item nui-btn-right nui-btn-left">
+            <span class="nui-btn-text">编辑</span>
+        </div>*@
+            @*  <div id="lr-insert-Row" class="nui-toolbar-item nui-btn-right nui-btn-left">
+            <span class="nui-btn-text">插入</span>
+        </div>*@
+            <div id="lr-delete-Row" class="nui-toolbar-item nui-btn-left">
+                <span class="nui-btn-text">删除</span>
+            </div>
+            <div id="lr-chai-Row" class="nui-toolbar-item nui-btn-left">
+                <span class="nui-btn-text">拆分</span>
+            </div>
+            @*<div id="lr-Import-Row" class="nui-toolbar-item nui-btn-left">
+            <span class="nui-btn-text">导入</span>
+        </div>*@
+        </div>
+        <div class="topline" id="grid_List">
+            <table id="gridTable"></table>
+            <style>
+                .ui-widget-content {
+                    border-left: none;
+                }
+            </style>
+        </div>
+    </div>
+</form>

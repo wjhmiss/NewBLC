@@ -1,0 +1,579 @@
+@{
+    ViewBag.Title = "钢材购买申请";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        BindDropDepartmentName("#DepartmentName");
+
+        BindDropItem("#PayType", "PaymentMode", "==请选择==");
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //加载表格
+    function GetGrid() {
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable").jqGrid({
+        url: "@Url.Content("~/PaymentModule/Base_SteelPurchase/GridPageJson1")",
+        datatype: "json",
+        height: $(window).height() - 200,
+        autowidth: true,
+        colModel: [
+                { label: '申请单号', name: 'SteelPurchaseCode', index: 'SteelPurchaseCode', width: 100, align: 'left', sortable: true },
+
+                { label: '物料id', name: 'SteelPurchaseId', index: 'SteelPurchaseId', hidden: true },
+                { label: '助记码', name: 'MnemonicCode', index: 'MnemonicCode', width: 100, align: 'left', sortable: true, hidden: true },
+                { label: '对账单号', name: 'PayCheckSheetCode', index: 'PayCheckSheetCode', width: 100, align: 'left', sortable: true },
+
+                { label: '供应商名称', name: 'CustomerName', index: 'CustomerName', width: 100, align: 'left', sortable: true },
+                { label: '总金额', name: 'TotalAmount', index: 'TotalAmount', width: 80, align: 'left', sortable: true },
+                { label: '已付金额', name: 'GetedAmount', index: 'PayedAmount', width: 80, align: 'left', sortable: true },
+
+                { label: '支付方式', name: 'PayType', index: 'PayType', width: 80, align: 'left',sortable: true  },
+                { label: '申请人姓名', name: 'WorkerName', index: 'WorkerName', width: 80, align: 'left', sortable: true },
+                { label: '申报部门', name: 'DepartmentName', index: 'DepartmentName', width: 120, align: 'left', sortable: true },
+
+                {
+                    label: '备注', name: 'Remark', index: 'Remark', width: 120, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                },
+                {
+                    label: '申请时间', name: 'CreateDate', index: 'CreateDate', width: 100, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+
+               {
+                   label: '确认入仓', name: 'Status', index: 'Status', width: 60, align: 'left', sortable: true,
+                   formatter: function (cellvalue, options, rowObject) {
+                       return cellvalue == "0" ? "否" : "是";
+                   }
+               },
+               {
+                   label: '入仓时间', name: 'ComfirmDate', index: 'ComfirmDate', width: 60, align: 'left', sortable: true,
+                   formatter: function (cellvalue, options, rowObject) {
+                       return formatDate(cellvalue, 'yyyy-MM-dd');
+                   }
+               },
+
+        ],
+        viewrecords: true,
+        rowNum: 30,
+        rowList: [30, 50, 100, 500, 5000],
+        pager: "#gridPager",
+        sortname: 'SteelPurchaseCode',
+        sortorder: 'desc',
+        rownumbers: true,
+        shrinkToFit: false,
+        gridview: true,
+        ondblClickRow: function (rowid, iRow, iCol, e) {
+            btn_edit();
+        },
+        footerrow: true,
+        gridComplete: function () {
+            $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            //合计
+            $(this).footerData("set", {
+                "CustomerName": "合计",
+                "TotalAmount": FormatCurrency($("#gridTable").getCol('TotalAmount', false, 'sum')),
+                "GetedAmount": FormatCurrency($("#gridTable").getCol('GetedAmount', false, 'sum')),
+            });
+
+            var data = $("#gridTable").jqGrid("getRowData");
+            for (var i = 0; i < data.length; i++) {
+                var item = i + 1;
+                if (data[i].Status == "是") {
+                    $("#" + item).find('td').css("background-color", "#00AA00");
+                }
+                if (data[i].PayType == "签单") {
+                    $("#" + item).find('td').css("background-color", "#CC0000");
+                }
+                if (data[i].Status1 == "是") {
+                    $("#" + item).find('td').css("background-color", "#008800");
+                }
+                if (data[i].IsPay == "是") {
+                    $("#" + item).find('td').css("background-color", "#00AA88");
+                }
+                if (data[i].IsInvoice == "是") {
+                    $("#" + item).find('td').css("background-color", "#2200AA");
+                }
+                if (data[i].TotalAmount == data[i].GetedAmount && data[i].TotalAmount != 0) {
+                    $("#" + item).find('td').css("background-color", "#C0C0C0");
+                }
+            }
+            $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
+        },
+        onSelectRow: function (rowid, status) {
+            SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            rowScrod = $("#" + rowid).position().top;
+        },
+        subGrid: true,
+        subGridOptions: {
+            "plusicon": "ui-icon-triangle-1-e",
+            "minusicon": "ui-icon-triangle-1-s",
+            "openicon": "ui-icon-arrowreturn-1-e"
+        },
+        subGridRowExpanded: function (subgrid_id, row_id) {
+            var rowData = $("#gridTable").jqGrid('getRowData', row_id);
+            var subgrid_table_id, pager_id;
+            subgrid_table_id = subgrid_id + "_t";
+            pager_id = "p_" + subgrid_table_id;
+            $("#" + subgrid_id).html("<table id='" + subgrid_table_id + "' class='scroll'></table><div id='" + pager_id + "' class='scroll'></div>");
+            jQuery("#" + subgrid_table_id).jqGrid({
+                url: "@Url.Content("~/StorageModule/BY_Inventory/GetListJson1")?SteelPurchaseCode=" + rowData["SteelPurchaseCode"],
+                datatype: "json",
+                height: $(window).height() - 250,
+                width: 189,
+                autowidth: true,
+                colModel: [
+                    //{ label: '主键', name: 'InventoryId', hidden: true },
+                    { label: '序号', name: 'SortCode', width: 50 },
+                    { label: 'Density', name: 'Density', hidden: true },
+                    { label: "钢种编码", name: "SteelCode", width: 50, editable: true },
+                    { label: "钢种名称", name: "SteelDescription", width: 50, },
+                    { label: "厚/直径", name: "OThick", width: 50, editable: true },
+                    { label: "宽", name: "OWeigh", width: 50, align: 'center', editable: true },
+                    { label: "长", name: "OLength", width: 50, align: 'center', editable: true },//收货地址:收货地址;
+                    { label: "孔径", name: "BoreSize", width: 50, editable: true },
+                    { label: "数量", name: "Qty", width: 50, editable: true },
+                    { label: '单价/KG', name: 'Price', width: 50, align: 'center', editable: true },
+                    { label: '比重KG', name: 'TheoryWeight', width: 50, align: 'center', },
+                    { label: '实际重量', name: 'OWeight', width: 50, align: 'center', editable: true },
+                    { label: '称重重量', name: 'Weightcheng', width: 50, align: 'center', editable: true },
+                    { label: '总价', name: 'TotalAmount', width: 60, align: 'center' },
+                    //{ label: '公差倒角', name: 'Remark', width: 120, editable: true },
+                    // { label: '产地', name: 'PlaceOrigin', width: 80, editable: true },
+                    { label: '编号', name: 'QuotationCodeLine', width: 80, editable: true },
+                    { label: "仓位", name: "position", width: 120, align: 'center', editable: true, },
+
+                ],
+                viewrecords: true,
+                rowNum: 999,
+                rowList: [999, 999, 999, 999, 999],
+                pager: false,
+                shrinkToFit: false,
+                rownumbers: true,
+                sortname: 'SortCode',
+                sortorder: 'asc',
+                gridview: true,
+
+            });
+        }
+    });
+}
+    //新增
+    function btn_add() {
+        var url = "/PaymentModule/Base_SteelPurchase/Form"
+        openDialog(url, "Form", "新增钢材购买申请", 1600, 550, function (iframe) {
+            top.frames[iframe].AcceptClick();
+            windowload();
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var Status = GetJqGridRowValue("#gridTable", "Status");
+        var view = 0;
+        if (Status == "是") {
+            view = 1;
+        }
+        var IsPay = GetJqGridRowValue("#gridTable", "IsPay");
+        if (IsPay == "是") {
+            view = 1;
+        }
+        var IsInvoice = GetJqGridRowValue("#gridTable", "IsInvoice");
+        if (IsInvoice == "是") {
+            view = 1;
+        }
+
+        var GetedAmount = GetJqGridRowValue("#gridTable", "GetedAmount");
+        if (GetedAmount > 0) {
+            alertDialog("当前申请单已收款", 0);
+            return false;
+        }
+
+        var PayCheckSheetCode = GetJqGridRowValue("#gridTable", "PayCheckSheetCode");
+        if (!!PayCheckSheetCode) {
+            alertDialog("当前申请单已对账", 0);
+            return false;
+        }
+
+       @* if ("@DNS.Utilities.ManageProvider.Provider.Current().UserName" == "超级管理员") {
+            view = 0;
+        }*@
+
+        var KeyValue = GetJqGridRowValue("#gridTable", "SteelPurchaseId");
+        if (IsChecked(KeyValue)) {
+            var url = "/PaymentModule/Base_SteelPurchase/Form?KeyValue=" + KeyValue + "&view=" + view;
+            if (view==0) {
+                openDialog(url, "Form", "编辑钢材购买申请", 1600, 550, function (iframe) {
+                    top.frames[iframe].AcceptClick();
+                });
+            }
+            else {
+                Dialog(url, "Form", "编辑钢材购买申请", 1600, 550, function (iframe) {
+                });
+            }
+
+        }
+    }
+
+    //删除
+    function btn_delete() {
+
+       // if ("@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "超级管理员") {
+            var Status = GetJqGridRowValue("#gridTable", "Status");
+            if (Status == "是") {
+                alertDialog("当前报价单已审核", 0);
+                return false;
+            }
+            var IsPay = GetJqGridRowValue("#gridTable", "IsPay");
+            if (IsPay == "是") {
+                alertDialog("当前报价单已付款", 0);
+                return false;
+            }
+
+            var GetedAmount = GetJqGridRowValue("#gridTable", "GetedAmount");
+            if (GetedAmount > 0) {
+                alertDialog("当前申请单已收款", 0);
+                return false;
+            }
+
+            var IsInvoice = GetJqGridRowValue("#gridTable", "IsInvoice");
+            if (IsInvoice == "是") {
+                alertDialog("当前报价单已开票", 0);
+                return false;
+            }
+
+            var PayCheckSheetCode = GetJqGridRowValue("#gridTable", "PayCheckSheetCode");
+            if (!!PayCheckSheetCode) {
+                alertDialog("当前申请单已对账", 0);
+                return false;
+            }
+
+        var KeyValue = GetJqGridRowValue("#gridTable", "SteelPurchaseId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/PaymentModule/Base_SteelPurchase/Delete1', delparm, KeyValue.split(",").length);
+        }
+    }
+    //明细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "SteelPurchaseId");
+        if (IsChecked(KeyValue)) {
+            var url = "/PaymentModule/Base_SteelPurchase/Detail?KeyValue=" + KeyValue;
+            Dialog(url, "Detail", "钢材购买申请明细", 820, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+
+    function btn_Invoice() {
+        var IsInvoice = GetJqGridRowValue("#gridTable", "IsInvoice");
+        if (IsInvoice == "是") {
+            alertDialog("当前报价单已开票", 0);
+            return false;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "SteelPurchaseId");
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要开票？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/Base_SteelPurchase/Update?IsInvoice=1&SteelPurchaseId=" + KeyValue, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    function btn_audit() {
+        var Status = GetJqGridRowValue("#gridTable", "Status");
+        if (Status == "是" && "@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "超级管理员" ) {
+            alertDialog("当前报价单已审核", 0);
+            return false;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "SteelPurchaseId");
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要审核通过？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/Base_SteelPurchase/Update?Status=1&SteelPurchaseId=" + KeyValue, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    function btn_payed() {
+        var IsPay = GetJqGridRowValue("#gridTable", "IsPay");
+        if (IsPay == "是") {
+            alertDialog("当前报价单已付款", 0);
+            return false;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "SteelPurchaseId");
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要付费？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/Base_SteelPurchase/Update?IsPay=1&Status1=1&SteelPurchaseId=" + KeyValue, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    //查询
+    function btn_Search() {
+        var tempstatus1 = "";
+        if ($("#Status2").prop("checked") && !$("#Status3").prop("checked")) {
+            tempstatus1 = 0;
+        }
+
+        if (!$("#Status2").prop("checked") && $("#Status3").prop("checked")) {
+            tempstatus1 = 1;
+        }
+
+
+        var tempstatus = "";
+        if ($("#Status").prop("checked")) {
+            tempstatus = 0;
+        }
+        if ($("#Status1").prop("checked")) {
+            tempstatus = 1;
+        }
+        if ($("#Status1").prop("checked") && $("#Status").prop("checked")) {
+            tempstatus = "";
+        }
+        var Parameter = [{
+            paramName: "SteelPurchaseCode",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+            Logic: "OR",
+            LeftBrace: "("
+        }, {
+            paramName: "MnemonicCode",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+            Logic: "AND",
+            RightBrace: ")"
+        }
+        , {
+            paramName: "CustomerName",
+            paramValue: $("#CustomerName").val(),
+            Operation: "Like",
+            Logic: "OR",
+            LeftBrace: "("
+        }, {
+            paramName: "CustomerCode",
+            paramValue: $("#CustomerName").val(),
+            Operation: "Like",
+            Logic: "AND",
+            RightBrace: ")"
+        }
+        , {
+            paramName: "WorkerName",
+            paramValue: $("#WorkerName").val(),
+            Operation: "Equal",
+            Logic: "AND"
+        }, {
+            paramName: "DepartmentName",
+            paramValue: $("#DepartmentName").val(),
+            Operation: "Equal",
+            Logic: "AND"
+        }
+         , {
+             paramName: "Status",
+             paramValue: tempstatus1,
+             Operation: "Equal",
+             Logic: "AND"
+         }
+        , {
+            paramName: "Status1",
+            paramValue: tempstatus,
+            Operation: "Equal",
+            Logic: "AND"
+        }, {
+            paramName: "CreateDate",
+            paramValue: !!$("#CreateDate_StartTime").val() ? $("#CreateDate_StartTime").val() + " 00:00:00" : "",
+            Operation: "GreaterThan",
+            Logic: "AND"
+        }, {
+            paramName: "CreateDate",
+            paramValue: !!$("#CreateDate_EndTime").val() ? $("#CreateDate_EndTime").val() + " 23:59:59" : "",
+            Operation: "LessThan",
+            Logic: "AND"
+        }, {
+            paramName: "PayType",
+            paramValue: $("#PayType").val(),
+            Operation: "Equal",
+            Logic: "AND"
+        }, {
+            paramName: "ComfirmDate",
+            paramValue: !!$("#R_StartTime").val() ? $("#R_StartTime").val() + " 00:00:00" : "",
+            Operation: "GreaterThan",
+            Logic: "AND"
+        }, {
+            paramName: "ComfirmDate",
+            paramValue: !!$("#R_EndTime").val() ? $("#R_EndTime").val() + " 23:59:59" : "",
+            Operation: "LessThan",
+            Logic: "AND"
+        }
+        ]
+
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/Base_SteelPurchase/GridPageJson1")?ParameterJson=" + escape(JSON.stringify(Parameter)) + "&SteelCode=" + escape($("#SteelCode").val()) + "&Size=" + escape($("#Size").val()), page: 1 }).trigger('reloadGrid');
+    }
+
+    function btn_printall() {
+        var SteelPurchaseId = GetJqGridRowValue("#gridTable", "SteelPurchaseId");
+        if (IsChecked(SteelPurchaseId)) {
+            PrintDialog("/PaymentModule/Base_SteelPurchase/Print?YH=0&SteelPurchaseId=" + SteelPurchaseId, "PrintPage", "打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+
+    function btn_printall1() {
+        var SteelPurchaseId = GetJqGridRowValue("#gridTable", "SteelPurchaseId");
+        if (IsChecked(SteelPurchaseId)) {
+            PrintDialog("/PaymentModule/Base_SteelPurchase/Print?YH=1&SteelPurchaseId=" + SteelPurchaseId, "PrintPage", "打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "钢材购买报表");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+
+    function btn_audit1() {
+        var Status1 = GetJqGridRowValue("#gridTable", "Status1");
+        if (Status1 == "是") {
+            alertDialog("当前报价单已审核", 0);
+            return false;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "SteelPurchaseId");
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要审核？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/Base_SteelPurchase/Update?Status1=1&SteelPurchaseId=" + KeyValue, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+     <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>关键字：</th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 80px" />
+            </td>
+            <th>供应商：</th>
+            <td>
+                <input id="CustomerName" type="text" class="txt" style="width: 80px" />
+            </td>
+            <th style="width:40px;">钢种：</th>
+            <td>
+                <input id="SteelCode" type="text" class="txt" style="width: 80px" />
+            </td>
+            
+            <th >入仓从：</th>
+            <td>
+                <input id="R_StartTime" type="text"   class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 80px" />
+                <input id="R_EndTime" type="text" class="txt Wdate"   onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 80px" />
+            </td>
+           
+            <td >
+                    <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkbox" id="Status" />
+                        <label for="Status">未审核</label>
+                    </span>
+                 <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkbox" id="Status1"  />
+                        <label for="Status1">已审核</label>
+                    </span>
+                <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkbox" id="Status2"  />
+                        <label for="Status2">未入库</label>
+                    </span>
+                <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkbox" id="Status3"  />
+                        <label for="Status3">已入库</label>
+                    </span>
+                </td>
+            
+            
+        </tr>
+        <tr>
+            <th style="width:40px;">规格：</th>
+            <td>
+                <input id="Size" type="text" class="txt" style="width: 80px" />
+            </td>
+            <th style="width:40px;">支付：</th>
+                    <td >
+                        <select id="PayType" class="select" style="width: 80px" >
+                        <option value="">全部</option></select>
+                    </td>
+            <th style="width:40px;">部门：</th>
+            <td >
+                <select id="DepartmentName" class="select" style="width: 80px" >
+                    <option value="">全部</option>
+                </select>
+            </td>
+            <th >日期从：</th>
+            <td>
+                <input id="CreateDate_StartTime" type="text" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()"  class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 80px" />
+                <input id="CreateDate_EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 80px" />
+            </td>
+            <td colspan="3">
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                 <input id="btn_export" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
+            </td>
+            </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

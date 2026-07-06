@@ -1,0 +1,182 @@
+@{
+    ViewBag.Title = "BY_AdjustQuery》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/StorageModule/BY_AdjustQuery/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/StorageModule/BY_AdjustQuery/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>库存ID：</th>
+            <td class='formValue'>
+                <input id="InventoryId" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>ParentInventoryId：</th>
+            <td class='formValue'>
+                <input id="ParentInventoryId" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>钢种：</th>
+            <td class='formValue'>
+                <input id="SteelId" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>钢种编号：</th>
+            <td class='formValue' >
+                <input id="SteelCode" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>钢种描述：</th>
+            <td class='formValue'>
+                <input id="SteelDescription" maxlength=200 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>钢种其它描述：</th>
+            <td class='formValue'>
+                <input id="SteelOtherDescription" maxlength=200 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>产地：</th>
+            <td class='formValue'>
+                <input id="PlaceOrigin" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>材质（0-条料，1-碎料）：</th>
+            <td class='formValue'>
+                <input id="MaterialType" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>类型：</th>
+            <td class='formValue'>
+                <input id="SteelType" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>钢板状态：</th>
+            <td class='formValue'>
+                <input id="SteelStatus" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>批次号：</th>
+            <td class='formValue'>
+                <input id="BatchCode" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>子批次（厚*宽*长）：</th>
+            <td class='formValue'>
+                <input id="ChildBatch" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>件数：</th>
+            <td class='formValue'>
+                <input id="Qty" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>炉号：</th>
+            <td class='formValue'>
+                <input id="StoveCode" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>钢厂单号：</th>
+            <td class='formValue'>
+                <input id="FactoryCode" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>厚度：</th>
+            <td class='formValue'>
+                <input id="Thick" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>宽：</th>
+            <td class='formValue'>
+                <input id="Weigh" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>长：</th>
+            <td class='formValue'>
+                <input id="Length" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>理论重量：</th>
+            <td class='formValue'>
+                <input id="TheoryWeight" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>实际重量：</th>
+            <td class='formValue'>
+                <input id="Weight" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>单价：</th>
+            <td class='formValue'>
+                <input id="Price" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue'>
+                <input id="Remark" maxlength=2000 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>进仓时间：</th>
+            <td class='formValue'>
+                <input id="InStockDate" maxlength=23 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <input id="Enabled" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>排序码：</th>
+            <td class='formValue'>
+                <input id="SortCode" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>删除标记：</th>
+            <td class='formValue'>
+                <input id="DeleteMark" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <input id="CreateDate" maxlength=23 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>创建用户主键：</th>
+            <td class='formValue'>
+                <input id="CreateUserId" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>创建用户：</th>
+            <td class='formValue'>
+                <input id="CreateUserName" maxlength=200 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>修改时间：</th>
+            <td class='formValue'>
+                <input id="ModifyDate" maxlength=23 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>修改用户主键：</th>
+            <td class='formValue'>
+                <input id="ModifyUserId" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>修改用户：</th>
+            <td class='formValue'>
+                <input id="ModifyUserName" maxlength=200 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+        </tr>
+    </table>
+</form>

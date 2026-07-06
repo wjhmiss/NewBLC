@@ -1,0 +1,58 @@
+@{
+    ViewBag.Title = "ExportExcels";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+        url: "@Url.Content("~/CommonModule/ExportExcels/GridPageJson")",
+        datatype: "json",
+        height: $(window).height() - 149,
+        autowidth: true,
+        colModel: [
+                { label: 'GUID', name: 'GUID', index: 'GUID', width: 0, align: 'left',sortable: true  },
+                { label: 'JsonColumn', name: 'JsonColumn', index: 'JsonColumn', width: 0, align: 'left',sortable: true  },
+                { label: 'JsonData', name: 'JsonData', index: 'JsonData', width: 0, align: 'left',sortable: true  },
+                { label: 'ExportField', name: 'ExportField', index: 'ExportField', width: 0, align: 'left',sortable: true  },
+                { label: 'fileName', name: 'fileName', index: 'fileName', width: 0, align: 'left',sortable: true  },
+        ],
+        viewrecords: true,
+        rowNum: 30,
+        rowList: [30, 50, 100, 500, 5000],
+        pager: "#gridPager",
+        sortname: '',
+        sortorder: 'desc',
+        rownumbers: true,
+        shrinkToFit: false,
+        gridview: true,
+    });
+}
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+        
+    }
+</script>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>关键字：</th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 200px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

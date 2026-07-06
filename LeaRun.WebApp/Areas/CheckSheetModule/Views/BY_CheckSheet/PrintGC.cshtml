@@ -1,0 +1,308 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>粗料单打印预览</title>
+    @*    <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+    <style>
+            .form-print th {
+        font-size: 10pt;
+        font-family: Arial;
+        font-weight: bold;
+        background-color: #fff;
+        height: 24.6px;
+        line-height:14.6px;
+        white-space: nowrap;
+        
+        text-align: right;
+        padding-right: 2px;
+    }
+
+    .form-print td {
+        font-size: 10pt;
+        font-family: Arial;
+        font-weight: bold;
+        height: 24.6px;
+        line-height:14.6px;
+        padding-right: 2px;
+       
+    }
+    </style>
+    <script>
+
+        var SmallCost = 0;
+        var WorkPrice = 0;
+        var HeatPrice = 0;
+        var JKCost = 0;
+        var DDCostPer = 0;
+        var CustomerPO = 0;
+        //初始化
+        $(function () {
+            AjaxJson("/CheckSheetModule/BY_CheckSheet/PrintDataGC", { CheckSheetCode: GetQuery('CheckSheetCode') }, function (data) {
+                 
+                //var Name = "北仑机械锻造厂";
+
+                var Name = data.CheckEntity.CompanyName;
+
+                var CheckData = data.CheckEntity;
+                var CheckDataList = data.CheckEntityList;
+                var base_customer = data.base_customer;
+                $("#CheckCode").html(CheckData.CheckSheetCode);
+                $("#CustomerName").html(CheckData.CustomerName);
+                $("#ContactTel").html(base_customer.CheckFax);
+                $("#ContactFax").html(base_customer.CheckTel);
+                $("#ContactName").html(base_customer.CheckMan);
+                $("#CustomerAddress").html(CheckData.CustomerAddress);
+                $("#CheckName").html(CheckData.YearMonth + "月对账单");
+
+                var index = 0;
+                var pageindex = 0;
+                var total = 0
+                var pageNum = 30;
+                var Orderhtml = '';
+                if (CheckDataList.length % pageNum == 0) {
+                    total = CheckDataList.length / pageNum;
+                }
+                else {
+                    total = Math.floor(CheckDataList.length / pageNum) + 1
+                }
+                var pagepertem = 0;
+                var QuotationCode = "";
+                $.each(CheckDataList, function (i) {
+                    var size = "";
+                    if (parseFloat(CheckDataList[i].by_deliverydetail.Weigh) <= 0) {
+                        var BoreSize = "";
+                        if (!!CheckDataList[i].by_deliverydetail.BoreSize) {
+                            BoreSize = "xΦ" + CheckDataList[i].by_deliverydetail.BoreSize;
+                        }
+                        size = "Φ" + parseFloat(CheckDataList[i].by_deliverydetail.Thick) + BoreSize + '*' + parseFloat(CheckDataList[i].by_deliverydetail.Length);
+                    }
+                    else {
+                        size = parseFloat(CheckDataList[i].by_deliverydetail.Thick) + '*' + parseFloat(CheckDataList[i].by_deliverydetail.Weigh) + '*' + parseFloat(CheckDataList[i].by_deliverydetail.Length);
+                    }
+                    if (CheckDataList[i].by_deliverydetail.Length  == 0) {
+                        size = "";
+                    }
+                    var WorkPriceWeight = "";
+                    //加工
+                    if (CheckDataList[i].by_deliverydetail.WorkUnit == "1") {
+                        WorkPriceWeight = CheckDataList[i].by_deliverydetail.Qty + "件";
+                    }
+                    else {
+                        WorkPriceWeight = CheckDataList[i].by_deliverydetail.TheoryWeight;
+                    }
+                    //面加工
+                    if (CheckDataList[i].by_deliverydetail.MianCostUnit == "1") {
+                        CheckDataList[i].by_deliverydetail.MianCostArea = CheckDataList[i].by_deliverydetail.Qty + "件";
+                    }
+                    else {
+
+                    }
+                    //边加工
+                    if (CheckDataList[i].by_deliverydetail.BianCostUnit == "1") {
+                        CheckDataList[i].by_deliverydetail.BianCostLong = CheckDataList[i].by_deliverydetail.Qty + "件";
+                    }
+                    else {
+
+                    }
+
+                    if (CheckDataList[i].by_deliverydetail.SmallCost == 0) {
+                        CheckDataList[i].by_deliverydetail.SmallCost = "";
+                    }
+
+                    if (CheckDataList[i].by_deliverydetail.MianCostPer == 0) {
+                        CheckDataList[i].by_deliverydetail.MianCostArea = "";
+                        CheckDataList[i].by_deliverydetail.MianCostPer = "";
+                    }
+                    if (CheckDataList[i].by_deliverydetail.BianCostPer == 0) {
+                        CheckDataList[i].by_deliverydetail.BianCostLong = "";
+                        CheckDataList[i].by_deliverydetail.BianCostPer = "";
+                    }
+                    if (CheckDataList[i].by_deliverydetail.JKCost == 0) {
+                        CheckDataList[i].by_deliverydetail.JKCost = "";
+                    }
+                    if (CheckDataList[i].by_deliverydetail.SmallCost == 0) {
+                        CheckDataList[i].by_deliverydetail.SmallCost = "";
+                    }
+                    if (CheckDataList[i].by_deliverydetail.WorkPrice == 0) {
+                        WorkPriceWeight = ""
+                        CheckDataList[i].by_deliverydetail.WorkPrice = "";
+                    }
+                    if (CheckDataList[i].by_deliverydetail.MaterialPrice == 0) {
+                        CheckDataList[i].by_deliverydetail.Weight = ""
+                        CheckDataList[i].by_deliverydetail.MaterialPrice = "";
+                    }
+                    if (CheckDataList[i].by_deliverydetail.DDCost == 0) {
+                        CheckDataList[i].by_deliverydetail.DDCost = ""
+                        CheckDataList[i].by_deliverydetail.DDCostPer = "";
+                    }
+                    //var unitEntity = ""
+                    //if (CheckDataList[i].by_deliverydetail.JJtype != "按公斤") {
+                    //    unitEntity = "件";
+                    //    CheckDataList[i].by_deliverydetail.Weight = "";
+                    //}
+                    //else {
+                    //    unitEntity = "KG"
+                    //}
+                    if (CheckDataList[i].by_deliverydetail.HeatPrice == 0) {
+                        CheckDataList[i].by_deliverydetail.HeatPrice = ""
+                    }
+                    if (!CheckDataList[i].by_deliverydetail.MaterialAmount) {
+                        CheckDataList[i].by_deliverydetail.MaterialAmount = ""
+                    }
+                    if (!CheckDataList[i].by_deliverydetail.WorkPrice) {
+                        CheckDataList[i].by_deliverydetail.WorkPrice = "";
+                    }
+                    if (!CheckDataList[i].by_deliverydetail.WorkAmount) {
+                        CheckDataList[i].by_deliverydetail.WorkAmount = "";
+                    }
+                    if (index % pageNum == 0) {
+                        pageindex++;
+                        Orderhtml += '<div style="float:left;position: absolute; ">@*<img style="width: 60px;padding: 5px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@</div><table id="tb_Order" border="0" class="form-print" style="width: 100%;page-break-after:always;">';
+                        Orderhtml += '<tr><td colspan="4" align="center" style="padding: 2px;"><span style="font-size: 25px; font-weight: bold;">' + data.company.FullName + '（' + pageindex + '/' + total + '）</span></td></tr>';
+                        //Orderhtml += '<tr><td colspan="4" align="center" style="height: 18.6px;line-height:18.6px;">HUNAN CHAOGUAN  MOULD STEEL CO.，LTD （' + pageindex + '/' + total + '）</td></tr>';
+                        Orderhtml += '<tr><th style="height: 18.6px;line-height:18.6px;">地址：</th><td style="height: 18.6px;line-height:18.6px;">' + data.company.Address + '</td><th style="height: 18.6px;line-height:18.6px;">电话：</th><td style="height: 18.6px;line-height:18.6px;">18892600521</td></tr><tr><th style="height: 18.6px;line-height:18.6px;">邮箱：</th><td style="height: 18.6px;line-height:18.6px;">' + data.company.Email +'</td><th style="height: 18.6px;line-height:18.6px;">对账单：</th><td style="height: 18.6px;line-height:18.6px;">' + CheckData.CheckSheetCode + '</td></tr>';
+                        Orderhtml += ' <tr><td colspan="4" align="center" style="border-top: 1px solid #000;padding-top:10px;height: 18.6px;line-height:18.6px;"><span style="font-size: 25px; font-weight: bold;" id="CheckName">' + CheckData.YearMonth + '(' + formatDate(CheckData.BeginDate, 'yyyy-MM-dd') + '至' + formatDate(CheckData.EndDate, 'yyyy-MM-dd') + ')月对账单</span></td></tr><tr><th style="height: 18.6px;line-height:18.6px;">客户名称：</th><td>' + CheckData.CustomerName + '</td><th style="height: 18.6px;line-height:18.6px;">电话:</th><td>' + base_customer.CheckFaxs + '</td></tr><tr><th style="height: 18.6px;line-height:18.6px;">传真:</th><td style="height: 18.6px;line-height:18.6px;">' + base_customer.CheckTele + '</td><th style="height: 18.6px;line-height:18.6px;">联系人：</th><td style="height: 18.6px;line-height:18.6px;">' + base_customer.Checker + '</td></tr>';
+                        Orderhtml += '<tr><td colspan="4" valign="top"><div ><table id="tb_QuotationDetail"  class="form-print" style="width: 100%; border-collapse:collapse;"> <tr>';
+                        Orderhtml += '<th style="border: 1px solid #000;  text-align: left;text-align: center;" >日期</th>';
+                        Orderhtml += '<th style="border: 1px solid #000;  text-align: left;text-align: center;" >材料名称</th>';
+                        Orderhtml += '<th style="border: 1px solid #000;  text-align: left;text-align: center;" >送货单号</th>';
+                        Orderhtml += '<th name="CustomerPO" style="border: 1px solid #000;  text-align: left;text-align: center;" >客户订单</th>';
+                        Orderhtml += '<th style="border: 1px solid #000;  text-align: left;text-align: center;" >重量</th>';
+                        Orderhtml += '<th style="border: 1px solid #000;  text-align: left;text-align: center;" >材料价格</th>';
+                        Orderhtml += '<th style="border: 1px solid #000;  text-align: left;text-align: center;" >材料金额</th>';
+                        Orderhtml += '<th name="WorkPrice" style="border: 1px solid #000;  text-align: left;text-align: center;" >加工单价</th>';
+                        Orderhtml += '<th name="WorkPrice" style="border: 1px solid #000;  text-align: left;text-align: center;" >加工金额</th>';
+                        Orderhtml += '<th style="border: 1px solid #000;  text-align: left;text-align: center;" >合计金额</th>';
+                        Orderhtml += ' </tr>';
+                    }
+               
+                    Orderhtml += '<tr>';
+                    Orderhtml += '    <td style="border: 1px solid #000; text-align: center;">' + formatDate(CheckDataList[i].dt, 'yyyy-MM-dd') + '</td>';
+                    Orderhtml += '    <td style="border: 1px solid #000; text-align: center;">' + ReturnEmpty(CheckDataList[i].by_deliverydetail.ProductName) + '</td>';
+                    Orderhtml += '    <td style="border: 1px solid #000; text-align: center;">' + CheckDataList[i].by_deliverydetail.DeliveryCode + '</td>';
+                    Orderhtml += '    <td name="CustomerPO" style="border: 1px solid #000; text-align: center;">' + CheckDataList[i].CustomerPO + '</td>';
+                    Orderhtml += '    <td style="border: 1px solid #000; text-align: center;">' + CheckDataList[i].by_deliverydetail.Weight + '</td>';
+                    Orderhtml += '    <td style="border: 1px solid #000; text-align: center;">' + CheckDataList[i].by_deliverydetail.MaterialPrice + '</td>';
+                    Orderhtml += '    <td style="border: 1px solid #000; text-align: center;">' + CheckDataList[i].by_deliverydetail.MaterialAmount + '</td>';
+                    Orderhtml += '    <td name="WorkPrice" style="border: 1px solid #000; text-align: center;">' + CheckDataList[i].by_deliverydetail.WorkPrice + '</td>';
+                    Orderhtml += '    <td name="WorkPrice" style="border: 1px solid #000; text-align: center;">' + CheckDataList[i].by_deliverydetail.WorkAmount + '</td>';
+                    Orderhtml += '    <td style="border: 1px solid #000; text-align: center;">' + CheckDataList[i].by_deliverydetail.SalesAmount + '</td>';
+                    Orderhtml += '</tr>';
+
+                    if (CheckDataList[i].by_deliverydetail.SmallCost > 0) {
+                        SmallCost = 1;
+                    }
+                    if (CheckDataList[i].by_deliverydetail.WorkAmount > 0) {
+                        WorkPrice = 1;
+                    }
+                    if (CheckDataList[i].by_deliverydetail.HeatPrice > 0) {
+                        HeatPrice = 1;
+                    }
+                    if (CheckDataList[i].by_deliverydetail.JKCost > 0) {
+                        JKCost = 1;
+                    }
+                    if (CheckDataList[i].by_deliverydetail.DDCostPer > 0) {
+                        DDCostPer = 1;
+                    }
+                    if (CheckDataList[i].CustomerPO && CheckDataList[i].CustomerPO != "&nbsp;") {
+                        CustomerPO = 1;
+                    }
+
+                    pagepertem += Number(CheckDataList[i].by_deliverydetail.SalesAmount);
+                    if ((index + 1) % pageNum == 0) {
+                        Orderhtml += '<tr><td colspan="4" style="height:10mm;">本页小计：' + pagepertem.toFixed(2) + '</td></tr>';
+                        Orderhtml += '</table></div></td></tr></table>';
+                        pagepertem = 0;
+                    }
+                    index++;
+                });
+                Orderhtml += '<tr>';
+                Orderhtml += '     <td colspan="3" align="center" >合   计</td>';
+                Orderhtml += '     <td style="font-size: 14pt;">' + CheckData.DTotalAmount + '</td>';
+                Orderhtml += '     <td></td>';
+                Orderhtml += '</tr></table></div></td></tr>';
+
+                
+                Orderhtml += '<tr><td colspan="4">金额合计：' + data.UpperMaterialAmountSum + '</td></tr>';
+                Orderhtml += '<tr><td colspan="4">备注：以上账目敬请财务核对且在3个工作日内务必回传，超时视为默认。</td></tr><tr><td colspan="4" valign="top"><table  style="width: 100%; border-collapse:collapse;"><tr><td >制表人：@DNS.Utilities.ManageProvider.Provider.Current().UserName </td><td >审核人：</td><td >客户确认：</td><td >确认日期：</td></tr></table></td></tr></table>';
+                $("#my_area").append(Orderhtml);
+
+
+                if (SmallCost == 0) {
+                    $("td[name='SmallCost']").hide();
+                    $("th[name='SmallCost']").hide();
+                }
+                if (WorkPrice == 0) {
+                    $("td[name='WorkPrice']").hide();
+                    $("th[name='WorkPrice']").hide();
+                }
+                if (HeatPrice == 0) {
+                    $("td[name='HeatPrice']").hide();
+                    $("th[name='HeatPrice']").hide();
+                }
+                if (JKCost == 0) {
+                    $("td[name='JKCost']").hide();
+                    $("th[name='JKCost']").hide();
+                }
+                if (DDCostPer == 0) {
+                    $("td[name='DDCostPer']").hide();
+                    $("th[name='DDCostPer']").hide();
+                }
+                if (CustomerPO == 0) {
+                    $("td[name='CustomerPO']").hide();
+                    $("th[name='CustomerPO']").hide();
+                }
+                
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+
+
+            AjaxJson("/QuotationModule/QuotationPrint/StateModify", { KeyValue: GetQuery('QuotationId') }, function (data) {
+                MyPreview();
+
+            });
+        }
+    </script>
+</head>
+<body style="overflow-x: hidden;">
+    <div id="my_area" style="background: #fff;">
+        
+    </div>
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_PAGESIZE(1, "210mm", "297mm", "A4")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        LODOP.PREVIEW();
+        //LODOP.PRINTA();
+        //window.setTimeout(function () {closeDialog();}, 500);
+
+
+        //if (LODOP.PRINTA()) {
+        //    LODOP.PRINT();
+        //    tipDialog("打印成功", 3, 1);
+        //    top.frames[tabiframeId()].windowload();
+        //    window.setTimeout(function () {closeDialog();}, 500);
+
+        //}
+        //else
+        //    //alert("");
+        //    tipDialog("放弃打印！", 3, 1);
+
+    };
+</script>
+</html>

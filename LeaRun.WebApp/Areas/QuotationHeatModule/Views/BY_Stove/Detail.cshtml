@@ -1,0 +1,103 @@
+@{
+    ViewBag.Title = "BY_Stove》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/QuotationHeatModule/BY_Stove/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <table class="form">
+        <tr>
+            <th class='formTitle'>StoveId：</th>
+            <td class='formValue'>
+                <label id="StoveId" />
+            </td>
+            <th class='formTitle'>StoveCode：</th>
+            <td class='formValue'>
+                <label id="StoveCode" />
+            </td>
+            <th class='formTitle'>StoveNum：</th>
+            <td class='formValue'>
+                <label id="StoveNum" />
+            </td>
+            <th class='formTitle'>StartDateTime：</th>
+            <td class='formValue'>
+                <label id="StartDateTime" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>MethodBuilder：</th>
+            <td class='formValue'>
+                <label id="MethodBuilder" />
+            </td>
+            <th class='formTitle'>OperatorName：</th>
+            <td class='formValue'>
+                <label id="OperatorName" />
+            </td>
+            <th class='formTitle'>StoveType：</th>
+            <td class='formValue'>
+                <label id="StoveType" />
+            </td>
+            <th class='formTitle'>BuildMethod：</th>
+            <td class='formValue'>
+                <label id="BuildMethod" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue'>
+                <label id="Remark" />
+            </td>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <label id="Enabled" />
+            </td>
+            <th class='formTitle'>排序码：</th>
+            <td class='formValue'>
+                <label id="SortCode" />
+            </td>
+            <th class='formTitle'>删除标记：</th>
+            <td class='formValue'>
+                <label id="DeleteMark" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <label id="CreateDate" />
+            </td>
+            <th class='formTitle'>创建用户主键：</th>
+            <td class='formValue'>
+                <label id="CreateUserId" />
+            </td>
+            <th class='formTitle'>创建用户：</th>
+            <td class='formValue'>
+                <label id="CreateUserName" />
+            </td>
+            <th class='formTitle'>修改时间：</th>
+            <td class='formValue'>
+                <label id="ModifyDate" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>修改用户主键：</th>
+            <td class='formValue'>
+                <label id="ModifyUserId" />
+            </td>
+            <th class='formTitle'>修改用户：</th>
+            <td class='formValue'>
+                <label id="ModifyUserName" />
+            </td>
+        </tr>
+    </table>
+</form>

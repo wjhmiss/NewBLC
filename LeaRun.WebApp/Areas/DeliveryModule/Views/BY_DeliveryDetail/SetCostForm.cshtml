@@ -1,0 +1,115 @@
+@{
+    ViewBag.Title = "发运单明细》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = "";//主键
+    var deliveryid = GetQuery('deliveryid');
+    var linecode = GetQuery('linecode');
+    var Qty = 0;
+    $(function () {
+        document.onkeydown = enterInput;
+        $("#WriteDate").val('@DateTime.Now.ToString("yyyy-MM-dd")');
+        InitControl();
+        $("#Setself").val(1);
+    })
+    function enterInput() {
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+        if (e && e.keyCode == 13) {//回车
+            AcceptClick();
+            return;
+        }
+    }
+
+    //得到一个对象实体
+    function InitControl() {
+        
+        if (!!deliveryid) {
+            AjaxJson("/DeliveryModule/BY_DeliveryDetail/SetForm1", { deliveryid: deliveryid, linecode: linecode }, function (data) {
+
+                Qty = data.Qty;
+                KeyValue = data.DeliveryDetailId;
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJsonNoMassge("/DeliveryModule/BY_DeliveryDetail/SubmitDeliveryCostFormPer?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>行号：</th>
+            <td class='formValue' colspan="3">
+                <input id="Setself"  type="hidden" />
+                <input id="LineCode" maxlength="10" type="text" class="txt" disabled />
+            </td>
+            
+        </tr>
+        <tr>
+            <th class='formTitle'>过磅重量：</th>
+            <td class='formValue' >
+                <input id="GWeight" maxlength="18" type="text" class="txt" datacol="yes" err="过磅重量" checkexpession="Double" />
+            </td>
+             <th class='formTitle'>材料成本：</th>
+            <td class='formValue' >
+                <input id="MaterialCostPer" maxlength="18" type="text" class="txt" datacol="yes" err="材料成本" checkexpession="Double" />
+            </td>
+            
+        </tr>
+         <tr>
+            <th class='formTitle'>加工单价：</th>
+            <td class='formValue' >
+                <input id="WorkCostPer" maxlength="18" type="text" class="txt" datacol="yes" err="加工单价" checkexpession="Double" />
+            </td>
+            <th class='formTitle'>热处理单价：</th>
+            <td class='formValue' >
+                <input id="HeatCostPer" maxlength="18" type="text" class="txt" datacol="yes" err="热处理单价" checkexpession="Double" />
+            </td>
+            
+        </tr>
+        <tr>
+            <th class='formTitle'>保底价格：</th>
+            <td class='formValue' >
+                <input id="LimiteCost" maxlength="18" type="text" class="txt" datacol="yes" err="保底价格" checkexpession="Double" />
+            </td>
+             <th class='formTitle'>成本面积：</th>
+            <td class='formValue' >
+                <input id="MianCostArea" maxlength="18" type="text" class="txt" datacol="yes" err="保底价格" checkexpession="Double" />
+            </td>
+            
+        </tr>
+
+          <tr>
+            <th class='formTitle'>内部加工费：</th>
+            <td class='formValue' >
+                <input id="NBworkcost" maxlength="18" type="text" class="txt" datacol="yes" err="内部加工费" checkexpession="Double" />
+            </td>
+             <th class='formTitle'>委外加工费：</th>
+            <td class='formValue' >
+                <input id="BeOutWorkCost" maxlength="18" type="text" class="txt" datacol="yes" err="委外加工费" checkexpession="Double" />
+            </td>
+        </tr>
+         <tr>
+            <th class='formTitle'>热处理：</th>
+            <td class='formValue' >
+                <input id="HeatWorkCost" maxlength="18" type="text" class="txt" datacol="yes" err="热处理" checkexpession="Double" />
+            </td>
+            
+        </tr>
+    </table>
+</form>

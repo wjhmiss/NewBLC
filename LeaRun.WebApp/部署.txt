@@ -1,0 +1,155 @@
+﻿//可以为空，不能重复
+CREATE UNIQUE NONCLUSTERED INDEX un_BY_Inventory_tb 
+ON BY_Inventory(BatchCode) 
+WHERE BatchCode IS NOT NULL AND BatchCode != ''
+GO 
+
+1，CMD C:\Windows\Microsoft.NET\Framework\v4.0.30319\aspnet_regiis.exe -i
+2，程序集启用32
+3，权限
+
+动态sql
+declare @count DECIMAL(18, 4)= 0
+declare @Thick DECIMAL(18, 4)= 10 
+declare @Weigh DECIMAL(18, 4)= 200 
+declare @Length DECIMAL(18, 4)= 250 
+declare @prr nvarchar(500)
+declare @areaset nvarchar(500) 
+declare @area DECIMAL(18, 4)= 0 ;
+set @prr = 'G004'
+SELECT @areaset = Remark from Base_DataDictionaryDetail where Code=@prr;
+print @areaset-- 调试信息输出
+SET @areaset = REPLACE(@areaset,'长',@Length) 
+SET @areaset = REPLACE(@areaset,'宽',@Weigh) 
+SET @areaset = REPLACE(@areaset,'厚',@Thick) 
+SET @areaset = REPLACE(@areaset,'（','(') 
+SET @areaset = REPLACE(@areaset,'）',')') 
+SET @areaset = 'select @area1='+@areaset 
+print @areaset-- 调试信息输出
+select @area
+--注意:执行 sp_executesql 存储过程不需要加 小括号 ,加了就报错! 
+EXECUTE sp_executesql
+ @areaset,
+ N'@area1 DECIMAL(18, 4) output',
+ @area1 = @area output
+select @area --查看统计数
+
+
+sql:数据库不同
+RESTORE DATABASE pcd
+FROM DISK = 'E:\pcd\DB\PCD888_backup_2013_11_22_190003_5117274.bak'   --bak文件路径
+with replace,
+MOVE 'pcd' TO 'C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL\DATA\pcd.mdf',   --mdf文件路径
+MOVE 'pcd_log' TO 'C:\Program Files\Microsoft SQL Server\MSSQL10_50.MSSQLSERVER\MSSQL\DATA\pcd_LOG.ldf'   --ldf文件路径
+
+DECLARE @MAGEDD VARCHAR(50) ;
+exec StoredPBYERP '1701-0734-3',2,40,'K001','','CS', @MAGEDD
+
+
+过磅
+DECLARE @MAGEDD VARCHAR(50) ;
+exec StoredPBYERP 'A04','M151015-1507-1',1,1.24,'K001','','011',1.24,1.24, @MAGEDD
+
+
+数据库调试
+exec sp_addsrvrolemember 'XULBSFTKC1S334G\Administrator', 'sysadmin'
+GetOrderInfo '5',2,2,'o'
+
+--显示所有活动进程：
+use master 
+go 
+exec sp_who 'active'
+go
+
+--显示会话ID标识的特定进程
+
+use master 
+go 
+exec sp_who '10'
+go
+
+--删除阻塞的进程
+use master 
+go 
+kill 00 
+go
+
+
+--每秒死锁数量
+
+SELECT  *
+FROM    sys.dm_os_performance_counters
+WHERE   counter_name LIKE 'Number of Deadlocksc%';
+
+--查询当前阻塞
+
+WITH    CTE_SID ( BSID, SID, sql_handle )
+          AS ( SELECT   blocking_session_id ,
+                        session_id ,
+                        sql_handle
+               FROM     sys.dm_exec_requests
+               WHERE    blocking_session_id <> 0
+               UNION ALL
+               SELECT   A.blocking_session_id ,
+                        A.session_id ,
+                        A.sql_handle
+               FROM     sys.dm_exec_requests A
+                        JOIN CTE_SID B ON A.SESSION_ID = B.BSID
+             )
+    SELECT  C.BSID ,
+            C.SID ,
+            S.login_name ,
+            S.host_name ,
+            S.status ,
+            S.cpu_time ,
+            S.memory_usage ,
+            S.last_request_start_time ,
+            S.last_request_end_time ,
+            S.logical_reads ,
+            S.row_count ,
+            q.text
+    FROM    CTE_SID C 
+            JOIN sys.dm_exec_sessions S ON C.sid = s.session_id
+            CROSS APPLY sys.dm_exec_sql_text(C.sql_handle) Q
+    ORDER BY sid
+
+当前连接数
+sp_who2 
+
+
+数据库防火墙
+http://blog.csdn.net/yanjiaye520/article/details/8233771
+
+
+一，IIS7.0升级IIS7.5
+
+二，IIS7.5优化（http://www.cnblogs.com/wangjingblogs/archive/2013/02/27/2934706.html）
+
+1,页面缓存（http://www.cnblogs.com/chenxizhang/archive/2011/12/14/2288062.html）
+1.1webconfig增加
+<caching>
+      <outputCacheSettings>
+    <outputCacheProfiles>
+        <add name="Cache6Hour" duration="21600" varyByParam="none" enabled="true" />//发布时修改为true，debug为false
+    </outputCacheProfiles>
+</outputCacheSettings>
+    </caching>
+1.2第二部在所有return view 上加上，有参数的不同
+[OutputCache(CacheProfile = "Cache6Hour")]
+
+2启用内容过期
+2.1只需要在IIS中设置图片文件夹的HTTP的响应标头。启动即可
+
+3，启用压缩
+安装IIS需要勾选启用静态压缩和动态压缩
+
+4，应用程序池设置队列 从1000改为65535
+
+
+
+三，程序预编译发布
+
+四，System.Web.Optimization
+//发布时修改为true，debug为false
+BundleTable.EnableOptimizations = true;
+webconfig:debug="false"

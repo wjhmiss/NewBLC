@@ -1,0 +1,207 @@
+@{
+    ViewBag.Title = "材料进仓查询";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+            btn_Search();
+        }, 200);
+        BindDropItem("#SteelStatus", "SteelStatus", "==请选择==");
+        SteelAutocomplete();
+        //客户编码自动补全
+        //CustomerAutocomplete();
+    })
+
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerCode").val(data.CustomerCode);
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Customer/GetAutoCompleJson", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 70%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="ShortName" style="display: none;">' + DataJson[i].ShortName + '</td>';
+                    html += '<td id="Sellpeople" style="display: none;">' + DataJson[i].Sellpeople + '</td>';
+                    html += '<td id="SalesArea" style="display: none;">' + DataJson[i].Sellarea + '</td>';
+                    html += '<td id="DiscountRate" style="display: none;">' + DataJson[i].DiscountRate + '</td>';
+                    html += '<td id="TransitMode" style="display: none;">' + DataJson[i].TransitMode + '</td>';
+                    html += '<td id="PaymentMode" style="display: none;">' + DataJson[i].PaymentMode + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerCode").val(data.CustomerCode);
+                });
+            });
+        }
+    }
+
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/StorageModule/BY_InStock/GridPageListJson?")",
+            datatype: "json",
+            height: $(window).height() - 125,
+            autowidth: true,
+            colModel: [
+                { label: '入库单ID', name: 'instockid', index: 'instockid', width: 0, align: 'left', sortable: true, hidden: true },
+                { label: '入库类型', name: 'instocktype', index: 'instocktype', width: 80, align: 'left', sortable: true },
+                { label: '采购订单号', name: 'steelpurchasecode', index: 'steelpurchasecode', width: 90, align: 'left', sortable: true },
+                { label: '钢种名称', name: 'steeldescription', index: 'steeldescription', width: 80, align: 'left', sortable: true },
+                { label: '批次号', name: 'billcode', index: 'billcode', width: 60, align: 'left', sortable: true },
+                { label: '供应商', name: 'customername', index: 'customername', width: 120, align: 'left', sortable: true },
+
+                { label: '厚度', name: 'thick', index: 'thick', width: 50, align: 'left', sortable: true },
+                { label: '宽度', name: 'weigh', index: 'weigh', width: 50, align: 'left', sortable: true },
+                { label: '长度', name: 'length', index: 'length', width: 50, align: 'left', sortable: true },
+
+                { label: '孔径', name: 'boresize', index: 'boresize', width: 50, align: 'left', sortable: true },
+                { label: '数量', name: 'qty', index: 'qty', width: 60, align: 'left', sortable: true },
+                { label: '重量', name: 'weight', index: 'weight', width: 60, align: 'left', sortable: true },
+                { label: '单价', name: 'price', index: 'price', width: 60, align: 'left', sortable: true },
+                {
+                    label: '总额', name: 'totmal', index: 'totmal', width: 60, align: 'left', sortable: true
+                },
+                { label: '原始尺寸', name: 'originalsize', index: 'originalsize', width: 120, align: 'left', sortable: true },
+                { label: '炉号', name: 'stovecode', index: 'stovecode', width: 120, align: 'left', sortable: true },
+
+                {
+                    label: '创建时间', name: 'createdate', index: 'createdate', width: 100, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'createdate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            altRows: true,
+            altclass: 'altclass',
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "billcode": "合计",
+                    "weight": $("#gridTable").getCol('weight', false, 'sum'),
+                    "qty": $("#gridTable").getCol('qty', false, 'sum'),
+                    "totmal": $("#gridTable").getCol('totmal', false, 'sum'),
+                });
+            }
+        });
+    }
+    //查询
+    function btn_Search() {
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/StorageModule/BY_InStock/GridPageListJson?")StartTime=" + $("#StartTime").val() + "&EndTime=" + $("#EndTime").val() + "&SteelCode=" + escape($("#SteelCode").val()) + "&CustomerCode=" + $("#CustomerCode").val() + "&BatchCode=" + $("#BatchCode").val(), page: 1 }).trigger('reloadGrid');
+    }
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "材料入仓信息");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+    //钢材编码自动补全
+    function SteelAutocomplete() {
+        var $SteelCode = $("#SteelCode");
+        $SteelCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("SteelCode", function (data) {
+            $("#SteelCode").val(data.SteelCode);
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/CommonModule/Steel/GetAutoCompleJson", { keywords: $SteelCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="SteelId" style="display: none;">' + DataJson[i].SteelId + '</td>';
+                    html += '<td id="SteelCode" style="width: 50%;">' + DataJson[i].SteelCode + '</td>';
+                    html += '<td id="SteelName" style="width: 100%;">' + DataJson[i].SteelName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("SteelCode", $SteelCode.width() + "px", "200px", html, function (data) {
+                    $("#SteelCode").val(data.SteelCode);
+                });
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+</script>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>入仓日期：</th>
+            <td>
+                <input id="StartTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetDate(-7)" style="width: 120px" onfocus="var endDate=$dp.$('EndTime');WdatePicker({onpicked:function(){EndTime.focus();},maxDate:'#F{$dp.$D(\'EndTime\')}',dateFmt: 'yyyy-MM-dd'})" />
+            </td>
+            <td>-</td>
+            <td>
+                <input id="EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetToday()" style="width: 120px" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'StartTime\')}',dateFmt: 'yyyy-MM-dd'})" />
+            </td>
+            <th>钢种：</th>
+            <td>
+                <input id="SteelCode" maxlength="50" type="text" class="txt" />
+            </td>
+            <th>供应商：</th>
+            <td>
+                <input id="CustomerCode" maxlength="50" type="text" class="txt" />
+            </td>
+            <th>钢材编号：</th>
+            <td>
+                <input id="BatchCode" maxlength="50" type="text" class="txt" style="width:100px;" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+            <td>
+                <input id="btnExport" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+    <div id="grid_List" class="topline" style="margin-top: 1px;">
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>

@@ -1,0 +1,110 @@
+@{
+    ViewBag.Title = "员工表》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    var CompanyId = GetQuery('CompanyId');
+    $(function () {
+        BindDepartment();
+        $("#DepartId").val(GetQuery('DepartmentId'));
+        //职务
+        BindDegree("#Degree", "Duty", "==请选择==");
+        InitControl();
+
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CommonModule/Worker/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //部门下拉框
+    function BindDepartment() {
+        $("#DepartId").html("");
+        $("#DepartId").append("<option value=''>==请选择==</option>");
+        AjaxJson("/CommonModule/Department/ListJson", { CompanyId: CompanyId }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#DepartId").append($("<option></option>").val(DataJson[i].departmentid).html(DataJson[i].fullname));
+            });
+        })
+    }
+    function BindDegree(ControlId, Code, Memo) {
+        $(ControlId).html("");
+        if (IsNullOrEmpty(Memo)) {
+            $(ControlId).append("<option value=''>" + Memo + "</option>");
+        }
+        getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: Code }, function (data) {
+            var itemjson = eval("(" + data + ")");
+            $.each(itemjson, function (i) {
+                $(ControlId).append($("<option></option>").val(itemjson[i].FullName).html(itemjson[i].FullName));
+            });
+            Loading(false);
+        });
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/CommonModule/Worker/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>姓名：</th>
+            <td class='formValue'>
+                <input id="WorkerName" maxlength="50" type="text" class="txt" datacol="yes" err="员工姓名" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>工号：</th>
+            <td class='formValue'>
+                <input id="WorkerCode" maxlength="50" type="text" class="txt" datacol="yes" err="工号" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>手机（登录账号）：</th>
+            <td class='formValue'>
+                <input id="mobile" maxlength="50" type="text" class="txt" datacol="yes" err="工号" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>密码(登录密码)：</th>
+            <td class='formValue'>
+                <input id="password" maxlength="50" type="text" class="txt" datacol="yes" err="工号" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>职务：</th>
+            <td class='formValue'>
+                <select id="Degree" class="txtselect">
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>部门：</th>
+            <td class='formValue'>
+                <select id="DepartId" class="txtselect" datacol="yes" err="所在部门" checkexpession="NotNull">
+                </select>
+            </td>
+        </tr>
+        <th class='formTitle'>有效：</th>
+        <td class='formValue'>
+            <span class="item">
+                <input type="checkbox" name="checkbox" checked="checked" id="Enabled" />
+                <label for="Enabled">有效</label>
+            </span>
+        </td>
+    </table>
+</form>

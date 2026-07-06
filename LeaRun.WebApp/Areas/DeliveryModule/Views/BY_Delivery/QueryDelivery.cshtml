@@ -1,0 +1,115 @@
+﻿@{
+    ViewBag.Title = "报价单查询";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    var LType = GetQuery('LType');
+    $(function () {
+        $("#CustomerCode").val(GetQuery('customercode'));
+        $("#LType").val(LType);
+        window.setTimeout(function () {
+            GetGrid();
+            $('#gridTable').setGridWidth(830);
+        }, 300);
+        //if (GetQuery('steelPurchase') == "1") {
+        //    $("#gridTable").jqGrid('setGridParam', {
+        //        multiselect: true
+        //    }).trigger('reloadGrid');
+        //} 
+        
+    });
+    //查询
+    function btn_Search() {
+        var Condition = JSON.stringify(GetWebControls("#QueryParameter", true));
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/DeliveryModule/BY_Delivery/GetGridPageJson")?Condition=" + escape(Condition), page: 1
+            }).trigger('reloadGrid');
+    }
+    //报价单列表
+    function GetGrid() {
+        var Condition = JSON.stringify(GetWebControls("#QueryParameter", true));
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/DeliveryModule/BY_Delivery/GetGridPageJson")?Condition=" + escape(Condition),
+            datatype: "json",
+            height: 357,
+            autowidth: true,
+            colModel: [
+                    { label: '发运单id', name: 'deliveryid', hidden: true },
+                    { label: 'csgetedamount', name: 'csgetedamount', hidden: true },
+                    { label: '助记编码', name: 'mnemoniccode', index: 'mnemoniccode', width: 120, align: 'left', sortable: true },
+                    { label: '送货单号', name: 'deliverycode', index: 'deliverycode', width: 120, align: 'left', sortable: true },
+                    { label: '客户名称', name: 'customername', index: 'customername', width: 120, align: 'left', sortable: true },
+                    { label: '客户名称', name: 'customername', index: 'customername', width: 120, align: 'left', sortable: true },
+                    {
+                        label: '打印日期', name: 'printdate', index: 'printdate', width: 120, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowobject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    {
+                        label: '打印人', name: 'printuserid', index: 'printuserid', width: 80, align: 'center', sortable: true
+                    },
+                    { label: '创建时间', name: 'createdate', index: 'createdate', width: 100, align: 'left', sortable: true },
+            ],
+            rowNum: 999,
+            rowList: [999, 999, 999, 999, 999],
+            sortname: 'deliverycode',
+            sortorder: 'desc',
+            shrinkToFit: false,
+            gridview: true,
+            multiselect: true,
+            gridComplete: function () {
+                var data = $("#gridTable").jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    var item = i + 1;
+                        //绿色
+                    if (!!data[i].printdate) {
+                        $("#" + item).find('td').css("background-color", "#008800");
+                    }
+                    if (data[i].enabled == "-1") {
+                        $("#" + item).find('td').css("background-color", "#CC0000");
+                    }
+                }
+            },
+        });
+    }
+    //确认事件
+    function AcceptClick() {
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s1 = "";
+        if (selr.length) {
+            $(".ui_state_highlight").attr("disabled", true);
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                s1 = s1 + myrow.deliverycode + ",";
+            }
+            s1 = s1.trim(',');
+            top.DeriveDialog.addDelive1(s1);
+            s1 = "";
+            window.setTimeout(function () {closeDialog();}, 500);
+        }
+    }
+</script>
+<div class="leftline rightline topline QueryArea" id="QueryParameter" style="margin: 1px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th style="width: 30px;">助记编码</th>
+            <td>
+                <input id="LType" type="hidden" />
+
+                <input id="MnemonicCode" type="text" class="txt" style="width: 100px" />
+            </td>
+                                <th>客户编号：</th>
+                            <td>
+                                <input id="CustomerCode" type="text" class="txt" style="width: 80px" disabled />
+                            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="查 询" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

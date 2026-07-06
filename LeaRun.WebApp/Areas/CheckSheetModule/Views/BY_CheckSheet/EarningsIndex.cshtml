@@ -1,0 +1,627 @@
+﻿@{
+    ViewBag.Title = "EarningsChart";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/highcharts/highchartsjquery")
+
+
+@Scripts.Render("~/Content/Scripts/Workday/kalendarjqueryyyyydd")
+@Styles.Render("~/Content/Scripts/Workday/kalendarcss")
+<script type="text/javascript">
+    $(function () {
+        var myDate = new Date();
+        $("#monthsl").val(myDate.getMonth());
+
+        CustomerAutocomplete();
+        //$("#month").hide();
+        getAjax("/CheckSheetModule/BY_ReimburseSheet/GetSZ", { }, function (data) {
+            var data1 = eval("(" + data + ")");
+            var base_datadictionarydetailsS1 = data1.base_datadictionarydetailsS1;
+            var base_datadictionarydetailsJ2 = data1.base_datadictionarydetailsJ2;
+            $.each(base_datadictionarydetailsS1, function (i) {
+                var Key = base_datadictionarydetailsS1[i].FullName;
+                var Value = base_datadictionarydetailsS1[i].FullName;
+                if (!!Key) {
+                    if (i == 0) {
+                        //$("#AccessView").append("<li class='selected' title='" + Key + "'><a id='" + Key + "'><img src=\"../../Content/Images/Icon16/tag_blue.png\">" + Value + "</a><i></i></li>");
+                        $("#AccessView").append("<li class='selected'  title='" + Key + "'><a id='" + Key + "'><img src=\"../../Content/Images/Icon16/tag_blue.png\">" + Value + "</a><i></i></li>");
+                    }
+                    else {
+                        $("#AccessView").append("<li class='selected'  title='" + Key + "'><a id='" + Key + "'><img src=\"../../Content/Images/Icon16/tag_blue.png\">" + Value + "</a><i></i></li>");
+
+                    }
+                }
+            });
+            $.each(base_datadictionarydetailsJ2, function (i) {
+                var Key = base_datadictionarydetailsJ2[i].FullName;
+                var Value = base_datadictionarydetailsJ2[i].FullName;
+                if (!!Key) {
+                    if (i == 0) {
+                        //$("#AccessView1").append("<li class='selected' title='" + Key + "'><a id='" + Key + "'><img src=\"../../Content/Images/Icon16/tag_blue.png\">" + Value + "</a><i></i></li>");
+                        $("#AccessView1").append("<li class='selected'  title='" + Key + "'><a id='" + Key + "'><img src=\"../../Content/Images/Icon16/tag_blue.png\">" + Value + "</a><i></i></li>");
+                    }
+                    else {
+                        $("#AccessView1").append("<li class='selected'  title='" + Key + "'><a id='" + Key + "'><img src=\"../../Content/Images/Icon16/tag_blue.png\">" + Value + "</a><i></i></li>");
+                    }
+                }
+            });
+        });
+
+        //$("#AccessView li").click(function () {
+        //    if (!$(this).find('a').hasClass('disabled')) {
+        //        //$('#AccessView li').removeClass("selected");
+        //        if (!!$(this).hasClass("selected")) {
+        //            $(this).removeClass("selected");
+        //        } else {
+        //            $(this).addClass("selected");
+        //        }
+        //    }
+        //});
+        //$("#AccessView1 li").click(function () {
+        //    if (!$(this).find('a').hasClass('disabled')) {
+        //        //$('#AccessView1 li').removeClass("selected");
+        //        if (!!$(this).hasClass("selected")) {
+        //            $(this).removeClass("selected");
+        //        } else {
+        //            $(this).addClass("selected");
+        //        }
+        //    }
+        //});
+        window.setTimeout(function () {
+            //Getchart();
+            GetGrid();
+            GetGrid2();
+        }, 200);
+    })
+
+    function Getchart() {
+        var type = "";
+        var type1 = "";
+        $('#AccessView .selected a').each(function () { type += $(this).attr('id') + ","; });
+        $('#AccessView1 .selected a').each(function () { type1 += $(this).attr('id') + ","; });
+        AjaxJson("/CheckSheetModule/BY_CheckSheet/Getchart", { Year: $("#year").find("select[name='year']").val(), type: type,type1:type1 }, function (data) {
+            $('#container').highcharts({
+                chart: {
+                },
+                title: {
+                    text: '企业营收总账'
+                },
+                xAxis: {
+                    categories: data.names //['2015年1月', '2015年2月', '2015年3月', '2015年4月', '2015年5月', '2015年6月', '2015年7月', '2015年8月', '2015年9月', '2015年10月', '2015年11月', '2015年12月']
+                },
+                tooltip: {
+                    formatter: function () {
+                        var s;
+                        if (this.point.name) { // the pie chart
+                            s = '' +
+                                this.point.name + ': ' + this.y + ' fruits';
+                        } else {
+                            s = '' +
+                                this.x + ': ' + this.y;
+                        }
+                        return s;
+                    }
+                },
+                series: [{
+                    type: 'column',
+                    name: '总收入',
+                    data: data.EarningsR//[101204, 81204, 121204, 110204, 120204]
+                }, {
+                    type: 'column',
+                    name: '总支出',
+                    data: data.EarningsC//[31136, 31586, 41769, 31867, 35775]
+                }, {
+                    type: 'spline',
+                    name: '盈利',
+                    data: data.EarningsChartDataTotal,//[70068, 49618, 79435, 78337, 84429],
+                    marker: {
+                        lineWidth: 2,
+                        lineColor: Highcharts.getOptions().colors[3],
+                        fillColor: 'white'
+                    }
+                }]
+            });
+        });
+    }
+    Highcharts.theme = {
+        colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+        chart: {
+            backgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                stops: [
+                    [0, 'rgb(255, 255, 255)'],
+                    [1, 'rgb(240, 240, 255)']
+                ]
+            },
+            borderWidth: 2,
+            plotBackgroundColor: 'rgba(255, 255, 255, .9)',
+            plotShadow: true,
+            plotBorderWidth: 1
+        },
+        title: {
+            style: {
+                color: '#000',
+                font: 'bold 16px "Trebuchet MS", Verdana, sans-serif'
+            }
+        },
+        subtitle: {
+            style: {
+                color: '#666666',
+                font: 'bold 12px "Trebuchet MS", Verdana, sans-serif'
+            }
+        },
+        xAxis: {
+            gridLineWidth: 1,
+            lineColor: '#000',
+            tickColor: '#000',
+            labels: {
+                style: {
+                    color: '#000',
+                    font: '11px Trebuchet MS, Verdana, sans-serif'
+                }
+            },
+            title: {
+                style: {
+                    color: '#333',
+                    fontWeight: 'bold',
+                    fontSize: '12px',
+                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+
+                }
+            }
+        },
+        yAxis: {
+            minorTickInterval: 'auto',
+            lineColor: '#000',
+            lineWidth: 1,
+            tickWidth: 1,
+            tickColor: '#000',
+            labels: {
+                style: {
+                    color: '#000',
+                    font: '11px Trebuchet MS, Verdana, sans-serif'
+                }
+            },
+            title: {
+                style: {
+                    color: '#333',
+                    fontWeight: 'bold',
+                    fontSize: '12px',
+                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+                }
+            }
+        },
+        legend: {
+            itemStyle: {
+                font: '9pt Trebuchet MS, Verdana, sans-serif',
+                color: 'black'
+
+            },
+            itemHoverStyle: {
+                color: '#039'
+            },
+            itemHiddenStyle: {
+                color: 'gray'
+            }
+        },
+        labels: {
+            style: {
+                color: '#99b'
+            }
+        },
+
+        navigation: {
+            buttonOptions: {
+                theme: {
+                    stroke: '#CCCCCC'
+                }
+            }
+        }
+    };
+
+    // Apply the theme
+    var highchartsOptions = Highcharts.setOptions(Highcharts.theme);
+
+    function btn_Search() {
+        var type = "";
+        var type1 = "";
+        $('#AccessView .selected a').each(function () { type += $(this).attr('id') + ","; });
+        $('#AccessView1 .selected a').each(function () { type1 += $(this).attr('id') + ","; });
+
+        var StartTime = "";
+        if ($("#month").find("select[name='year']").val() == "12") {
+            StartTime = "2000-01-01";
+        }
+        else {
+            StartTime = $("#year").find("select[name='year']").val() + "-" + (Number($("#month").find("select[name='year']").val()) + 1) + "-1";
+        }
+
+        var EndTime = "";
+        if ($("#month").find("select[name='year']").val() == "12") {
+            EndTime = "";
+        }
+        else {
+            EndTime = $("#year").find("select[name='year']").val() + "-" + (Number($("#month").find("select[name='year']").val()) + 2) + "-1";
+        }
+
+
+        //Getchart();
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CheckSheetModule/BY_ReimburseSheet/GridPageJsonBankforto")?StartTime=" + StartTime + "&EndTime=" + EndTime + "&type=" + escape(type) + "&type1=" + escape(type1), page: 1 }).trigger('reloadGrid');
+
+    }
+
+
+    //加载表格
+    function GetGrid2() {
+        var year = "";
+
+        year = $("#year").find("select[name='year']").val();
+        var type = "";
+        var type1 = "";
+        $('#AccessView .selected a').each(function () { type += $(this).attr('id') + ","; });
+        $('#AccessView1 .selected a').each(function () { type1 += $(this).attr('id') + ","; });
+
+
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable2").jqGrid({
+            url: "@Url.Content("~/CheckSheetModule/BY_ReimburseSheet/GridPageJsonBankforto2")?year=" + year + "&type=" + escape(type) + "&type1=" + escape(type1),
+            datatype: "json",
+            height: $(window).height()/2 - 50,
+            autowidth: true,
+            colModel: [
+                { label: '年月', name: 'yearmonth', index: 'yearmonth', width: 80, align: 'right', sortable: true, frozen: true },
+                {
+                    label: '总收入', name: 'getmoney', index: 'getmoney', width: 120, align: 'right', sortable: true },
+                {
+                    label: '总支出', name: 'paymoney', index: 'paymoney', width: 120, align: 'right', sortable: true},
+                {
+                    label: '盈利', name: '盈利', index: '盈利', width: 120, align: 'right', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+
+                        return (rowObject.getmoney - rowObject.paymoney).toFixed(2);
+                    }},
+            ],
+            viewrecords: true,
+            rowNum: 999999,
+            rowList: [999999, 999999, 999999, 999999, 999999],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                //$(this).footerData("set", {
+                //    "yearmonth": "合计",
+                //    "总收入": FormatCurrency($("#gridTable2").getCol('总收入', false, 'sum')),
+                //    "总支出": FormatCurrency($("#gridTable2").getCol('总支出', false, 'sum')),
+                //        "盈利": $("#gridTable2").getCol('盈利', false, 'sum'),
+                //});
+
+            },
+            onSelectRow: function (rowid, status) {
+
+
+            },
+        });
+        //$("#gridTable2").jqGrid('setGroupHeaders', {
+        //    useColSpanStyle: true,
+        //    groupHeaders: [
+        //        { startColumnName: '材料销售利润', numberOfColumns: 5, titleText: '收入明细' },
+        //        { startColumnName: '固定资产损益', numberOfColumns: 20, titleText: '支出明细' },
+
+        //    ]
+        //});
+        jQuery("#gridTable2").jqGrid('setFrozenColumns');
+    }
+
+
+
+    //加载表格
+    function GetGrid() {
+        var StartTime = "";
+        if ($("#month").find("select[name='year']").val() == "12") {
+            StartTime = "2000-01-01";
+        }
+        else {
+            StartTime = $("#year").find("select[name='year']").val() + "-" + (Number($("#month").find("select[name='year']").val()) + 1) + "-1";
+        }
+
+        var EndTime = "";
+        if ($("#month").find("select[name='year']").val() == "12") {
+            EndTime = "";
+        }
+        else {
+            EndTime = $("#year").find("select[name='year']").val() + "-" + (Number($("#month").find("select[name='year']").val()) + 2) + "-1";
+        }
+        var type = "";
+        var type1 = "";
+        $('#AccessView .selected a').each(function () { type += $(this).attr('id') + ","; });
+        $('#AccessView1 .selected a').each(function () { type1 += $(this).attr('id') + ","; });
+
+
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CheckSheetModule/BY_ReimburseSheet/GridPageJsonBankforto")?StartTime=" + StartTime + "&EndTime=" + EndTime + "&type=" + escape(type) + "&type1=" + escape(type1),
+            datatype: "json",
+            height: $(window).height() - 100,
+            autowidth: true,
+            colModel: [
+
+                     {
+                         label: '收款项1', name: 'Type1', index: 'Type1', width: 120, align: 'right', sortable: true
+                     },
+                    { label: '类型', name: 'Banktype', index: 'Banktype', width: 120, align: 'right', sortable: true },
+                    { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 120, align: 'right', sortable: true },
+                          { label: '人员', name: 'WorkerName', index: 'WorkerName', width: 100, align: 'right', sortable: true },
+                    {
+                        label: '摘要', name: 'Remark', index: 'Remark', width: 150, align: 'right', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");
+
+                            }
+                            return "";
+                        }
+                    },
+                    { label: '单号', name: 'Code', index: 'Code', width: 120, align: 'right', sortable: true },
+                    { label: '收款类型', name: 'GetType', index: 'GetType', width: 100, align: 'right', sortable: true },
+                    { label: '收款金额', name: 'GetMoney', index: 'GetMoney', width: 100, align: 'right', sortable: true },
+                    { label: '付款金额', name: 'paymoney', index: 'paymoney', width: 100, align: 'right', sortable: true },
+                    { label: '剩余金额', name: 'NowMoney', index: 'NowMoney', width: 120, align: 'right', sortable: true },
+                    { label: '账户', name: 'BankNum', index: 'BankNum', width: 120, align: 'right', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 999999,
+            rowList: [999999, 999999, 999999, 999999, 999999],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            footerrow: false,
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+
+                $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
+            },
+            onSelectRow: function (rowid, status) {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                rowScrod = $("#" + rowid).position().top;
+
+            },
+            subGrid: true,
+            subGridOptions: {
+                "plusicon": "ui-icon-triangle-1-e",
+                "minusicon": "ui-icon-triangle-1-s",
+                "openicon": "ui-icon-arrowreturn-1-e"
+            },
+            subGridRowExpanded: function (subgrid_id, row_id) {
+                var rowData = $("#gridTable").jqGrid('getRowData', row_id);
+                var subgrid_table_id, pager_id;
+                subgrid_table_id = subgrid_id + "_t";
+                pager_id = "p_" + subgrid_table_id;
+                $("#" + subgrid_id).html("<table id='" + subgrid_table_id + "' class='scroll'></table><div id='" + pager_id + "' class='scroll'></div>");
+                var Type1 = escape(rowData["Type1"]);
+                if (Type1 == "") {
+                    Type1 = "sdfs";
+                }
+
+
+                if ($("#month").find("select[name='year']").val() == "12") {
+                    StartTime = "2000-01-01";
+                }
+                else {
+                    StartTime = $("#year").find("select[name='year']").val() + "-" + (Number($("#month").find("select[name='year']").val()) + 1) + "-1";
+                }
+
+                if ($("#month").find("select[name='year']").val() == "12") {
+                    EndTime = "";
+                }
+                else {
+                    EndTime = $("#year").find("select[name='year']").val() + "-" + (Number($("#month").find("select[name='year']").val()) + 2) + "-1";
+                }
+
+
+                jQuery("#" + subgrid_table_id).jqGrid({
+                    url: "@Url.Content("~/CheckSheetModule/BY_ReimburseSheet/GridPageJsonBank1")?CreateDate_StartTime=" + StartTime + "&CreateDate_EndTime=" + EndTime + "&Type1=" + Type1,
+                    datatype: "json",
+                    height: $(window).height() / 2 - 115,
+                    autowidth: true,
+                    colModel: [
+                            {
+                                label: '日期', name: 'BuildDate', index: 'BuildDate', width: 80, align: 'right', sortable: true,
+                                formatter: function (cellvalue, options, rowObject) {
+                                    if (rowObject.Remark == "合计") {
+                                        return "";
+                                    }
+                                    else {
+                                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                                    }
+                                }
+                            },
+                     {
+                         label: '收款项1', name: 'Type1', index: 'Type1', width: 80, align: 'right', sortable: true
+                     },
+                    {
+                        label: '收款项2', name: 'Type2', index: 'Type2', width: 80, align: 'right', sortable: true
+                    },
+                        { label: '类型', name: 'Banktype', index: 'Banktype', width: 80, align: 'right', sortable: true },
+                        { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 80, align: 'right', sortable: true },
+                        { label: '人员', name: 'WorkerName', index: 'WorkerName', width: 80, align: 'right', sortable: true },
+                    {
+                        label: '摘要', name: 'Remark', index: 'Remark', width: 80, align: 'right', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");;
+
+                            }
+                            return "";
+                        }
+                    },
+                        { label: '单号', name: 'Code', index: 'Code', width: 80, align: 'right', sortable: true },
+                        { label: '收款类型', name: 'GetType', index: 'GetType', width: 80, align: 'right', sortable: true },
+                        { label: '收款金额', name: 'GetMoney', index: 'GetMoney', width: 80, align: 'right', sortable: true },
+                        { label: '总金额', name: 'totalamount', index: 'totalamount', width: 80, align: 'right', sortable: true },
+                        { label: '已付金额', name: 'paymoney', index: 'paymoney', width: 80, align: 'right', sortable: true },
+                        { label: '账户', name: 'BankNum', index: 'BankNum', width: 80, align: 'right', sortable: true },
+                    ],
+                    viewrecords: true,
+                    rowNum: 30,
+                    rowList: [30, 50, 100, 500, 5000],
+                    pager: "#" + pager_id,
+                    sortname: 'BuildDate',
+                    sortorder: 'desc',
+                    rownumbers: true,
+                    shrinkToFit: false,
+                    altRows: false,
+                    altclass: 'altclass',
+                    gridview: true,
+                });
+            }
+
+        });
+    }
+
+
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.FullName);
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Base_Supplier/GetAutoForSupAndCus", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].SupplierId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 40%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="PaymentMode" style="width: 30%;">' + DataJson[i].Remark + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.FullName);
+                });
+            });
+        }
+    }
+    function OverrideTabchange(id) {
+        Tabchange(id);
+        //if (id == "Report") {
+        //}
+        //else if (id == "Plato") {
+        //    CreatePlato();
+        //}
+    }
+
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "生产报表");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+</script>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+
+        <tr>
+            <th>收入项：</th>
+            <td colspan="3">
+                <div style="overflow: auto;">
+                    <ul id="AccessView" class="sys_spec_text">
+                        <li class='selected' title='材料销售'><a id='材料销售'><img src="../../Content/Images/Icon16/tag_blue.png">材料销售</a><i></i></li>
+                        <li class='selected' title='热处理销售'><a id='固定资产损益'><img src="../../Content/Images/Icon16/tag_blue.png">固定资产损益</a><i></i></li>
+                    </ul>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <th>支出项：</th>
+            <td colspan="3">
+                <div style="overflow: auto;">
+                    <ul id="AccessView1" class="sys_spec_text">
+                    </ul>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+<table>
+    <tr>
+        <td>
+            <div id='wrap' style="float: inherit; width: 100%">
+            </div>
+        </td>
+        <td><input id="btnSeassrch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" /></td>
+    </tr>
+</table>
+
+
+
+<div class="bd" style="border-bottom: none; margin: 1px;">
+    <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+        <div class="tab_list_top" style="position: absolute">
+            <div id="TabReport" class="tab_list bd actived" onclick="OverrideTabchange('Report');btn_Search();">每月统计</div>
+            <div id="TabPlato" class="tab_list bd " onclick="OverrideTabchange('Plato');btn_Search();">明细统计</div>
+        </div>
+    </div>
+</div>
+<div class="ScrollBar topline" style="margin: 1px; overflow: hidden; border-bottom: none;">
+    <!--报表-->
+    <div id="Report" class="tabPanel" style="margin: 1px; margin-top: -1px;">
+        @*<div id="container"></div>*@
+        <div>
+            <div style="font-family: 华文楷体; font-size: x-large; height: 40px; line-height: 40px; text-align: center;">
+                每月收入支出统计&nbsp;<span id="CheckStatusName" checkstatus="" style="color: red; font-family: 华文楷体; font-size: x-large;cursor:pointer;"></span>
+            </div>
+            <div style="position: absolute; top: 60px; right: 5px;width:400px;">
+                <span style="color: red;"></span>
+            </div>
+        </div>
+        <table id="gridTable2"></table>
+
+    </div>
+    <!--柏拉图-->
+    <div id="Plato" class="tabPanel" style="margin: 1px; margin-top: -1px; display: none;">
+        <div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+            <table border="0" class="form-find" style="height: 45px;">
+                <tr>
+                    @*<th>日期 从：</th>
+                        <td>
+                            <input id="StartTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth() 00:00:00" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 120px" />
+                        </td>
+                        <th>日期 至：</th><td>
+                                        <input id="EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth() 23:59:00" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 120px" />
+                                    </td>*@
+                    <td>
+                        <input id="btn_Export" type="button" class="btnSearch" value="导出" onclick="btn_Export()" />
+                    </td>
+
+                </tr>
+            </table>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>

@@ -1,0 +1,181 @@
+@{
+    ViewBag.Title = "钢材信息表》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        //钢材类型
+        BindDropItem("#SteelType", "SteelType", "==请选择==");
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CommonModule/Steel/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+                $("#ModifyDate").val(formatDate(data.ModifyDate, 'yyyy-MM-dd'));
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        if (!$("#RemenberCode").val()) {
+            $("#RemenberCode").val($("#SteelCode").val())
+        }
+        var postData = GetWebControls("#form1");
+        $(".ui_state_highlight").attr("disabled", true);
+        AjaxJson("/CommonModule/Steel/SubmitForm1?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+    function UpA(object) {
+        //$(object).val($(object).val().toUpperCase());
+    }
+
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>内部编码：</th>
+            <td class='formValue'>
+                <input id="SteelCode" maxlength="50" type="text" onkeyup="UpA(this);" class="txt required" datacol="yes" err="钢材编码" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle'>钢材名称：</th>
+            <td class='formValue'>
+                <input id="SteelName" maxlength="200" type="text" class="txt required" datacol="yes" err="钢材名称" checkexpession="NotNull" />
+            </td>
+        </tr>
+       
+        <tr>
+            <th class='formTitle'>钢材类型：</th>
+            <td class='formValue'>
+                <select id="SteelType" class="txtselect"></select>
+            </td>
+            <th class='formTitle'>出质保书：</th>
+            <td class='formValue'>
+                <span class="item">
+                    <input type="checkbox" name="checkbox" checked="checked" id="Warranty" />
+                    <label for="Warranty">出质保书</label>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>密度：</th>
+            <td class='formValue'>
+                 <input id="Density" maxlength="23" type="text" class="txt" datacol="yes" err="密度" checkexpession="NotNull"/>
+            </td>
+            <th class='formTitle'>成本单价：</th>
+            <td class='formValue'>
+                <input id="Price" maxlength="18" type="text" class="txt" datacol="yes" value="0" err="成本单价" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>产地：</th>
+            <td class='formValue' >
+                <span class="item">
+                    <input id="Place" maxlength="18" type="text" class="txt" />
+                </span>
+            </td>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue' >
+                <span class="item">
+                    <input type="checkbox" name="checkbox" checked="checked" id="Enabled" />
+                    <label for="Enabled">有效</label>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>其它描述：</th>
+            <td class='formValue' >
+                <input id="OtherDescription" maxlength="50" type="text"  class="txt"  />
+            </td>
+            <th class='formTitle'>助记码：</th>
+            <td class='formValue' >
+                <input id="RemenberCode" maxlength="50" type="text"  class="txt"   />
+            </td>
+        </tr>
+         <tr>
+            <th class='formTitle'>比较标准</th>
+            <td class='formValue' colspan="3">
+                <input id="RepalceMl" maxlength="200" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>硬度：</th>
+            <td class='formValue'>
+                <input id="Hardness" maxlength="50" type="text"  class="txt"  />
+            </td>
+            <th class='formTitle'>C：</th>
+            <td class='formValue'>
+                <input id="C" maxlength="50" type="text"  class="txt"  />
+            </td>
+        </tr>
+         <tr>
+            <th class='formTitle'>Si：</th>
+            <td class='formValue'>
+                <input id="Si" maxlength="50" type="text"  class="txt"  />
+            </td>
+            <th class='formTitle'>Mn：</th>
+            <td class='formValue'>
+                <input id="Mn" maxlength="50" type="text"  class="txt"  />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>Cr：</th>
+            <td class='formValue'>
+                <input id="Cr" maxlength="50" type="text"  class="txt"  />
+            </td>
+            <th class='formTitle'>Ni：</th>
+            <td class='formValue'>
+                <input id="Ni" maxlength="50" type="text"  class="txt"  />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>Mo：</th>
+            <td class='formValue'>
+                <input id="Mo" maxlength="50" type="text"  class="txt"  />
+            </td>
+            <th class='formTitle'>V：</th>
+            <td class='formValue'>
+                <input id="V" maxlength="50" type="text"  class="txt"  />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>S：</th>
+            <td class='formValue'>
+                <input id="S" maxlength="50" type="text"  class="txt"  />
+            </td>
+            <th class='formTitle'>P：</th>
+            <td class='formValue'>
+                <input id="P" maxlength="50" type="text"  class="txt"  />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>Al：</th>
+            <td class='formValue'>
+                <input id="Al" maxlength="50" type="text"  class="txt"  />
+            </td>
+            <th class='formTitle'>Ti：</th>
+            <td class='formValue'>
+                <input id="Ti" maxlength="50" type="text"  class="txt"  />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>Cu：</th>
+            <td class='formValue'>
+                <input id="Cu" maxlength="50" type="text"  class="txt"  />
+            </td>
+            <th class='formTitle'>W：</th>
+            <td class='formValue'>
+                <input id="W" maxlength="50" type="text"  class="txt"  />
+            </td>
+        </tr>
+    </table>
+</form>

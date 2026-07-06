@@ -1,0 +1,423 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>精料单打印预览</title>
+    @* <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+        <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>
+        @Scripts.Render("~/Content/Scripts/frameworkjquery")*@
+    @Scripts.Render("~/Content/Scripts/lodop/lodopjquery")
+        <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js?n=123"></script>
+    <style>
+
+        .form-print th {
+            font-size: 10pt;
+            font-family: Arial;
+            height: 18.6px;
+            white-space: nowrap;
+            text-align: right;
+            padding-right: 2px;
+        }
+
+        .form-print td {
+            font-size: 10pt;
+            font-family: Arial;
+            height: 18.6px;
+            padding-right: 2px;
+        }
+    </style>
+    <script>
+         function returnbase64(dataURL) {
+             return dataURL;
+         }
+         //初始化
+         //将图片转换为Base64
+         //url 图片链接或者是blob对象
+         //callback 回调函数
+         function getImgToBase64(url, callback) {
+             var canvas = document.createElement('canvas');
+             var ctx = canvas.getContext('2d');
+             var img = new Image;//通过构造函数来创建的 img 实例，在赋予 src 值后就会立刻下载图片，相比 createElement() 创建 <img> 省去了 append()，也就避免了文档冗余和污染
+             img.crossOrigin = 'Anonymous';
+             //要先确保图片完整获取到，这是个异步事件
+             img.onload = function () {
+                 canvas.height = img.height;//确保canvas的尺寸和图片一样
+                 canvas.width = img.width;
+                 ctx.drawImage(img, 0, 0);//将图片绘制到canvas中
+                 var dataURL = canvas.toDataURL('image/png');//转换图片为dataURL,传第二个参数可压缩图片,前提是图片格式jpeg或者webp格式的
+                 callback(dataURL);//调用回调函数
+                 canvas = null;
+             };
+             img.src = url;
+         }
+         //将base64转换为文件对象
+         function dataURLtoFile(dataurl, filename) {
+             var arr = dataurl.split(',');
+             var mime = arr[0].match(/:(.*?);/)[1];
+             var bstr = atob(arr[1]);
+             var n = bstr.length;
+             var u8arr = new Uint8Array(n);
+             while (n--) {
+                 u8arr[n] = bstr.charCodeAt(n);
+             }
+             //转换成file对象
+             return new File([u8arr], filename, { type: mime });
+             //转换成成blob对象
+             //return new Blob([u8arr],{type:mime});
+         }
+         //将图片转换为base64,再将base64转换成file对象
+         getImgToBase64('images/ruoshui.png', function (data) {
+             var myFile = dataURLtoFile(data, 'testimgtestimgtestimg');
+             console.log(myFile);
+         });
+
+        $(function () {
+            AjaxJson("/QuotationHeatModule/BY_QuotationHeat/PrintDataJsonData", { Condition: GetQuery('Condition')}, function (data) {
+
+
+
+                //~~~~~~~~~~~~~~
+                var BY_QuotationHeats = data.BY_QuotationHeats;
+                var RowNum = 8;
+                var index = 0;
+                var pageindex = 0;
+                var BY_QuotationHeatshtml = '';
+                var total = 0
+                if (BY_QuotationHeats.length % RowNum == 0) {
+                    total = BY_QuotationHeats.length / RowNum;
+                }
+                else {
+                    total = Math.floor(BY_QuotationHeats.length / RowNum) + 1
+                }
+
+                var img1 = "";
+                var img2 = "";
+                var img3 = "";
+                var img4 = "";
+                var img5 = "";
+                var img6 = "";
+                var img7 = "";
+                var img8 = "";
+
+
+                $.each(BY_QuotationHeats, function (i) {
+
+                    var upnum = (i + 1) % RowNum;
+
+                    if (!BY_QuotationHeats[i].QuotationHeatCode) {
+                        BY_QuotationHeats[i].QuotationHeatCode = "";
+                    }
+                    else {
+                        if (BY_QuotationHeats[i].QuotationHeatCode.length > 15) {
+                            BY_QuotationHeats[i].QuotationHeatCode = BY_QuotationHeats[i].QuotationHeatCode.substr(0, 15) + "...";
+                        }
+                    }
+                    if (!BY_QuotationHeats[i].CustomerName) {
+                        BY_QuotationHeats[i].CustomerName = "";
+                    }
+                    if (!BY_QuotationHeats[i].SteelDescription) {
+                        BY_QuotationHeats[i].SteelDescription = "";
+                    }
+                    if (!BY_QuotationHeats[i].ProductName) {
+                        BY_QuotationHeats[i].ProductName = "";
+                    }
+                    else {
+                        if (BY_QuotationHeats[i].ProductName.length > 15) {
+                            BY_QuotationHeats[i].ProductName = BY_QuotationHeats[i].ProductName.substr(0, 15) + "...";
+                        }
+                    }
+                    if (!BY_QuotationHeats[i].Remark) {
+                        BY_QuotationHeats[i].Remark = "";
+                    }
+                    else {
+                        if (BY_QuotationHeats[i].Remark.length > 15) {
+                            BY_QuotationHeats[i].Remark = BY_QuotationHeats[i].Remark.substr(0, 15) + "...";
+                        }
+                    }
+                    if (!BY_QuotationHeats[i].Technology) {
+                        BY_QuotationHeats[i].Technology = "";
+                    }
+                    if (!BY_QuotationHeats[i].TechnologQuery) {
+                        BY_QuotationHeats[i].TechnologQuery = "";
+                    }
+                    if (!BY_QuotationHeats[i].Qty) {
+                        BY_QuotationHeats[i].Qty = "";
+                    }
+                    if (!BY_QuotationHeats[i].Weight) {
+                        BY_QuotationHeats[i].Weight = "";
+                    }
+                    if (!BY_QuotationHeats[i].BillStatus) {
+                        BY_QuotationHeats[i].BillStatus = "";
+                    }
+                    if (!BY_QuotationHeats[i].HeatStatus) {
+                        BY_QuotationHeats[i].HeatStatus = "";
+                    }
+
+                    if (index % RowNum == 0) {
+                        pageindex++;
+
+                        BY_QuotationHeatshtml += '        <table id="tb_Order" border="0" class="form-print" style="width: 100%;page-break-after:always;">';
+                        BY_QuotationHeatshtml += '            <tr>';
+                        //BY_QuotationHeatshtml += '        <div style="float: left; position: absolute;">';
+                        //BY_QuotationHeatshtml += '         <img id="logo1" style="width: 60px;padding: 5px; padding-left:20px;" src="@Url.Content("~/Content/Images/111.jpg")" />';
+                        //BY_QuotationHeatshtml += '        </div>';
+                        BY_QuotationHeatshtml += '                <td colspan="4" align="center" ><span style="font-size: 20px; font-weight: bold;">东莞市鑫泽钢材有限公司' + GetQuery('starttime').substr(0, 10) + '至' + GetQuery('endtime').substr(0, 10) + '收货明细表' + pageindex + '/' + (Math.floor((BY_QuotationHeats.length / RowNum) + 1)) + '</span></td>';
+                        BY_QuotationHeatshtml += '           </tr>';
+                        //BY_QuotationHeatshtml += '           <tr>';
+                        //BY_QuotationHeatshtml += '               <td colspan="4" align="center">DONGGUAN Xinze Steel Co.,Ltd.</td>';
+                        //BY_QuotationHeatshtml += '            </tr>';
+                        //BY_QuotationHeatshtml += '            <tr>';
+                        //BY_QuotationHeatshtml += '                <td colspan="4" align="center"  style="padding: 2px;border-top: 2px solid #000;font-size: 12pt;">'+GetQuery('starttime').substr(0, 10)+'至'+GetQuery('endtime').substr(0, 10)+'收货明细表</td>';
+                        //BY_QuotationHeatshtml += '           </tr>';
+                        BY_QuotationHeatshtml += '            <tr>';
+                        BY_QuotationHeatshtml += '               <td colspan="4" valign="top">';
+                        BY_QuotationHeatshtml += '                   <div>';
+                        BY_QuotationHeatshtml += '                     <table id="tb_BY_QuotationHeats" border="0" class="form-print" style="width: 100%; border-collapse: collapse">';
+                        BY_QuotationHeatshtml += '                         <tr>';
+                        BY_QuotationHeatshtml += '                                  <td style="border: 1px solid #000; text-align: center;">客户名称</td>';
+                        BY_QuotationHeatshtml += '                                <td align="center" style="border: 1px solid #000;  text-align: center;">日期</td>';
+                        BY_QuotationHeatshtml += '                                 <td style="border: 1px solid #000; text-align: center;">生产编号</td>';
+                        BY_QuotationHeatshtml += '                               <td style="border: 1px solid #000; text-align: center;">材质</td>';
+                        BY_QuotationHeatshtml += '                                 <td style="border: 1px solid #000; text-align: center;">工件名称</td>';
+                        BY_QuotationHeatshtml += '                               <td style="border: 1px solid #000; text-align: center;">件数</td>';
+                        BY_QuotationHeatshtml += '                               <td style="border: 1px solid #000; text-align: center;">重量</td>';
+                        BY_QuotationHeatshtml += '                                  <td style="border: 1px solid #000; text-align: center;">外形尺寸</td>';
+                        BY_QuotationHeatshtml += '                                   <td style="border: 1px solid #000; text-align: center;">类别</td>';
+                        BY_QuotationHeatshtml += '                               <td style="border: 1px solid #000; text-align: center;">技术要求</td>';
+                        BY_QuotationHeatshtml += '                               <td style="border: 1px solid #000; text-align: center;">备注/模号</td>';
+                        BY_QuotationHeatshtml += '                               <td style="border: 1px solid #000; text-align: center;">入货人</td>';
+                        BY_QuotationHeatshtml += '                               <td style="border: 1px solid #000; text-align: center;">出货人</td>';
+                        BY_QuotationHeatshtml += '                       </tr>';
+
+
+                    }
+
+                    if (upnum == 1 && !!BY_QuotationHeats[i].QuotationHeatCode ) {
+                        var httpimg = "Resource/Document/HeatReport/" + BY_QuotationHeats[i].QuotationHeatCode + ".jpg";
+                        img1 = $.ajax({
+                            url: "/Utility/ImageToBase64?url=" + httpimg,
+                            async: false
+                        }).responseText;
+                    }
+
+                    if (upnum == 2 && !!BY_QuotationHeats[i].QuotationHeatCode && img1 != "") {
+                        var httpimg = "Resource/Document/HeatReport/" + BY_QuotationHeats[i].QuotationHeatCode + ".jpg";
+                        img2 = $.ajax({
+                            url: "/Utility/ImageToBase64?url=" + httpimg,
+                            async: false
+                        }).responseText;
+                    }
+                    if (upnum == 3 && !!BY_QuotationHeats[i].QuotationHeatCode && img1 != "" && img2 != "" ) {
+                        var httpimg = "Resource/Document/HeatReport/" + BY_QuotationHeats[i].QuotationHeatCode + ".jpg";
+                        img3 = $.ajax({
+                            url: "/Utility/ImageToBase64?url=" + httpimg,
+                            async: false
+                        }).responseText;
+                    }
+                    if (upnum == 4 && !!BY_QuotationHeats[i].QuotationHeatCode && img1 != "" && img2 != "" && img3 != "") {
+                        var httpimg = "Resource/Document/HeatReport/" + BY_QuotationHeats[i].QuotationHeatCode + ".jpg";
+                        img4 = $.ajax({
+                            url: "/Utility/ImageToBase64?url=" + httpimg,
+                            async: false
+                        }).responseText;
+                    }
+                    if (upnum == 5 && !!BY_QuotationHeats[i].QuotationHeatCode && img1 != "" && img2 != "" && img3 != "" && img4 != "") {
+                        var httpimg = "Resource/Document/HeatReport/" + BY_QuotationHeats[i].QuotationHeatCode + ".jpg";
+                        img5 = $.ajax({
+                            url: "/Utility/ImageToBase64?url=" + httpimg,
+                            async: false
+                        }).responseText;
+                    }
+                    if (upnum == 6 && !!BY_QuotationHeats[i].QuotationHeatCode && img1 != "" && img2 != "" && img3 != "" && img4 != "" && img5 != "") {
+                        var httpimg = "Resource/Document/HeatReport/" + BY_QuotationHeats[i].QuotationHeatCode + ".jpg";
+                        img6 = $.ajax({
+                            url: "/Utility/ImageToBase64?url=" + httpimg,
+                            async: false
+                        }).responseText;
+                    }
+                    if (upnum == 7 && !!BY_QuotationHeats[i].QuotationHeatCode && img1 != "" && img2 != "" && img3 != "" && img4 != "" && img5 != "" && img6 != "") {
+                        var httpimg = "Resource/Document/HeatReport/" + BY_QuotationHeats[i].QuotationHeatCode + ".jpg";
+                        img7 = $.ajax({
+                            url: "/Utility/ImageToBase64?url=" + httpimg,
+                            async: false
+                        }).responseText;
+                    }
+                    if (upnum == 0 && !!BY_QuotationHeats[i].QuotationHeatCode && img1 != "" && img2 != "" && img3 != "" && img4 != "" && img5 != "" && img6 != "" && img7 != "") {
+                        var httpimg = "Resource/Document/HeatReport/" + BY_QuotationHeats[i].QuotationHeatCode + ".jpg";
+                        img8 = $.ajax({
+                            url: "/Utility/ImageToBase64?url=" + httpimg,
+                            async: false
+                        }).responseText;
+                    }
+
+
+                    if (upnum <= 4 && upnum >= 1) {
+
+                        BY_QuotationHeatshtml += '<tr>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].CustomerName + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + formatDate(BY_QuotationHeats[i].CreateDate, 'yyyy-MM-dd') + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].QuotationHeatCode + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].SteelDescription + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;font-size: 8pt;">' + BY_QuotationHeats[i].ProductName + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].Qty + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].Weight + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;font-size: 8pt;">' + BY_QuotationHeats[i].Remark + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].Technology + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].TechnologQuery + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].ShipDescription + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].CreateUserName + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;"></td>';
+                        BY_QuotationHeatshtml += '</tr>';
+
+                        if (upnum == 4 || (i + 1) == BY_QuotationHeats.length) {
+                            BY_QuotationHeatshtml += '<tr>';
+                            BY_QuotationHeatshtml += '               <td colspan="12" valign="top">';
+                            BY_QuotationHeatshtml += '                   <div>';
+                            BY_QuotationHeatshtml += '                     <table border="0" class="form-print" style="width: 100%; border-collapse: collapse">';
+                            BY_QuotationHeatshtml += '     <td  style="border: 1px solid #000;width: 25%;"><img style="width: 250px; height:230px;" src="' + img1 + '"  onerror="this.style.display=\'none\'"/></td>';
+                            BY_QuotationHeatshtml += '     <td  style="border: 1px solid #000;width: 25%;"><img style="width: 250px; height:230px;" src="' + img2 + '"  onerror="this.style.display=\'none\'"/></td>';
+                            BY_QuotationHeatshtml += '     <td  style="border: 1px solid #000;width: 25%;"><img style="width: 250px; height:230px;" src="' + img3 + '"  onerror="this.style.display=\'none\'"/></td>';
+                            BY_QuotationHeatshtml += '     <td  style="border: 1px solid #000;width: 25%;"><img style="width: 250px; height:230px;" src="' + img4 + '"  onerror="this.style.display=\'none\'"/></td>';
+                            BY_QuotationHeatshtml += '                   </table>';
+                            BY_QuotationHeatshtml += '                   </div>';
+                            BY_QuotationHeatshtml += '               </td>';
+                            BY_QuotationHeatshtml += '</tr>';
+                            img1 = "";
+                            img2 = "";
+                            img3 = "";
+                            img4 = "";
+                        }
+
+                    }
+
+
+
+                    if (upnum > 4 || upnum == 0 ) {
+                        BY_QuotationHeatshtml += '<tr>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].CustomerName + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + formatDate(BY_QuotationHeats[i].CreateDate, 'yyyy-MM-dd') + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].QuotationHeatCode + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].SteelDescription + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;font-size: 8pt;">' + BY_QuotationHeats[i].ProductName + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].Qty + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].Weight + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;font-size: 8pt;">' + BY_QuotationHeats[i].Remark + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].Technology + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].TechnologQuery + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].ShipDescription + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;">' + BY_QuotationHeats[i].CreateUserName + '</td>';
+                        BY_QuotationHeatshtml += '     <td style="border: 1px solid #000;text-align:center ;word-break:break-all;"></td>';
+                        BY_QuotationHeatshtml += '</tr>';
+
+                        if (upnum == 0 ||( i+1) == BY_QuotationHeats.length) {
+                            BY_QuotationHeatshtml += '<tr>';
+                            BY_QuotationHeatshtml += '               <td colspan="12" valign="top">';
+                            BY_QuotationHeatshtml += '                   <div>';
+                            BY_QuotationHeatshtml += '                     <table border="0" class="form-print" style="width: 100%; border-collapse: collapse">';
+                            BY_QuotationHeatshtml += '     <td  style="border: 1px solid #000;width: 25%;"><img style="width: 250px; height:230px;" src="' + img5 + '" onerror="this.style.display=\'none\'"/></td>';
+                            BY_QuotationHeatshtml += '     <td  style="border: 1px solid #000;width: 25%;"><img style="width: 250px; height:230px;" src="' + img6 + '" onerror="this.style.display=\'none\'"/></td>';
+                            BY_QuotationHeatshtml += '     <td  style="border: 1px solid #000;width: 25%;"><img style="width: 250px; height:230px;" src="' + img7 + '" onerror="this.style.display=\'none\'"/></td>';
+                            BY_QuotationHeatshtml += '     <td  style="border: 1px solid #000;width: 25%;"><img style="width: 250px; height:230px;" src="' + img8 + '" onerror="this.style.display=\'none\'"/></td>';
+                            BY_QuotationHeatshtml += '                   </table>';
+                            BY_QuotationHeatshtml += '                   </div>';
+                            BY_QuotationHeatshtml += '               </td>';
+                            BY_QuotationHeatshtml += '</tr>';
+                            img5 = "";
+                            img6 = "";
+                            img7 = "";
+                            img8 = "";
+                        }
+                    }
+
+
+
+                    if ((index + 1) % RowNum == 0) {
+                        BY_QuotationHeatshtml += '                   </table>';
+                        BY_QuotationHeatshtml += '    </div>';
+                        BY_QuotationHeatshtml += '     </td>';
+                        BY_QuotationHeatshtml += '   </tr>';
+                        @*BY_QuotationHeatshtml += '     <tr>';
+                        BY_QuotationHeatshtml += '    <td colspan="4">';
+                        BY_QuotationHeatshtml += '       <table border="0"  style="width: 100%; border-collapse: collapse;background-color:none;">';
+                        BY_QuotationHeatshtml += '           <tr>';
+                        BY_QuotationHeatshtml += '               <th style="width:40%;text-align:center;height:28px;line-height:28px;border-top:2px solid #000;" >打印人：@DNS.Utilities.ManageProvider.Provider.Current().UserName</th>';
+                        BY_QuotationHeatshtml += '                <th style="width:40%;text-align:center;height:28px;line-height:28px;border-top:2px solid #000;" >打印时间：@DNS.Utilities.DateTimeHelper.GetDate(0)</th>';
+                        BY_QuotationHeatshtml += '             </tr>';
+                        BY_QuotationHeatshtml += '          </table>';
+                        BY_QuotationHeatshtml += '        </td>';
+                        BY_QuotationHeatshtml += '    </tr>';*@
+                        BY_QuotationHeatshtml += '    </table>';
+
+                    }
+                    $("#testlabel").val(index);
+
+                    index++;
+                });
+                if (BY_QuotationHeats.length % RowNum != 0) {
+                    BY_QuotationHeatshtml += '                   </table>';
+                    BY_QuotationHeatshtml += '    </div>';
+                    BY_QuotationHeatshtml += '     </td>';
+                    BY_QuotationHeatshtml += '   </tr>';
+                    @*BY_QuotationHeatshtml += '     <tr>';
+                    BY_QuotationHeatshtml += '    <td colspan="4">';
+                    BY_QuotationHeatshtml += '       <table border="0"  style="width: 100%; border-collapse: collapse;background-color:none;">';
+                    BY_QuotationHeatshtml += '           <tr>';
+                    BY_QuotationHeatshtml += '               <th style="width:40%;text-align:center;border-top:2px solid #000;" >打印人：@DNS.Utilities.ManageProvider.Provider.Current().UserName</th>';
+                    BY_QuotationHeatshtml += '                <th style="width:40%;text-align:center;border-top:2px solid #000;" >打印时间：@DNS.Utilities.DateTimeHelper.GetDate(0)</th>';
+                    BY_QuotationHeatshtml += '             </tr>';
+                    BY_QuotationHeatshtml += '          </table>';
+                    BY_QuotationHeatshtml += '        </td>';
+                    BY_QuotationHeatshtml += '    </tr>';*@
+                    BY_QuotationHeatshtml += '    </table>';
+
+                }
+                $("#my_area").append(BY_QuotationHeatshtml);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+            //AjaxJson("/QuotationModule/QuotationPrint/StateModify", { KeyValue: GetQuery('QuotationId') }, function (data) {
+            MyPreview();
+            //});
+        }
+    </script>
+</head>
+<body style="overflow-x: hidden;">
+    <div id="my_area" style="width: 100%; height: 100%;  ">
+        <label id="testlabel"></label>
+    </div>
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_PAGESIZE(2, "", "", "A4");
+        LODOP.SET_SHOW_MODE("LANDSCAPE_DEFROTATED","1");
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        //LODOP.SET_PRINT_STYLEA(0, "HtmWaitMilSecs", 15000);
+        //LODOP.PREVIEW();
+        LODOP.PRINTA();
+        //closeDialog();
+        
+    };
+</script>
+</html>

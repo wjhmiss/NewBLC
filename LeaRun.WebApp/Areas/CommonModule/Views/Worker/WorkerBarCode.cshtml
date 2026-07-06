@@ -1,0 +1,322 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>精料单打印预览</title>
+@*    <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/barcode/jquery-barcode.min.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+        @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+        @Scripts.Render("~/Content/Scripts/barcode/barcodejquery")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+
+    <script>
+        //初始化
+        var workercode = GetQuery('workercode');
+        var workname = GetQuery('workname');
+        var type = GetQuery('type');
+        var degree = GetQuery('degree');
+        $(function () {
+            
+            var depart = "";
+            if (type == "K") {
+                 depart = "开料部";
+            }
+            if (type == "J") {
+                 depart = "加工部";
+            }
+            if (type == "Z") {
+                 depart = "生产部";
+            }
+
+            var OrderDetailhtml = '';
+            OrderDetailhtml += '<table border="0" class="form-print" style="width: 92mm;border-collapse:collapse;height:135.83mm;vertical-align:top;">';
+            OrderDetailhtml += '    <tr>';
+            OrderDetailhtml += '        <td colspan="5" align="right" >';
+            OrderDetailhtml += '            <span style="font-size: 18px; font-weight: bold;height: 10px;line-height:10px;">北仑机械锻造厂</span>';
+            OrderDetailhtml += '        </td>';
+            OrderDetailhtml += '    </tr>';
+            OrderDetailhtml += '    <tr >';
+            OrderDetailhtml += '        <td colspan="5" align="right" style="padding-bottom:20px;height: 10px;line-height:10px;" >';
+            OrderDetailhtml += '            <span style="font-size: 14px;font-weight: bold;">DONGGUAN Xinze Steel Co.,Ltd.</span>';
+            OrderDetailhtml += '        </td>';
+            OrderDetailhtml += '    </tr>';
+            OrderDetailhtml += '    <tr style="font-weight: bold;">';
+            OrderDetailhtml += '        <td align="right" style="white-space:nowrap;">姓名：</td>';
+            OrderDetailhtml += '        <td style="font-size: 12pt;white-space:nowrap;">' + workname + ' </td>';
+            OrderDetailhtml += '        <td colspan="3" align="center" rowspan="3" style="border: 1px solid #000;">';
+            OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align="center">';
+            OrderDetailhtml += '                            <div barcode=' + workercode + ' class="barcodeTarget"></div>';
+            OrderDetailhtml += '                        </div>';
+            OrderDetailhtml += '        </td>';
+            OrderDetailhtml += '    </tr>';
+            OrderDetailhtml += '    <tr style=" font-weight: bold;">';
+            OrderDetailhtml += '        <td align="right" style="white-space:nowrap;">部门：</td>';
+            OrderDetailhtml += '        <td style="font-size: 12pt;white-space:nowrap;">' + depart + '</td>';
+            OrderDetailhtml += '    </tr>';
+            OrderDetailhtml += '    <tr style=" font-weight: bold;">';
+            OrderDetailhtml += '        <td align="right" style="white-space:nowrap;">岗位：</td>';
+            OrderDetailhtml += '        <td style="font-size: 12pt;white-space:nowrap;">' + degree + '</td>';
+            OrderDetailhtml += '    </tr>';
+            OrderDetailhtml += '    <tr >';
+            OrderDetailhtml += '        <td colspan="5" style="vertical-align:top;padding-top:15px;">';
+            OrderDetailhtml += '            <table border="0" class="form-print tb_Order_Detail" style="width: 100%; border-collapse:collapse;">';
+
+            if (type == "K") {
+                OrderDetailhtml += '                <tr >';
+                OrderDetailhtml += '                    <td align="center" colspan="2">';
+                OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+                OrderDetailhtml += '                            <div barcode="K001" class="barcodeTarget"></div>';
+                OrderDetailhtml += '                        </div>';
+                OrderDetailhtml += '                    </td>';
+                OrderDetailhtml += '                    <td align="center"> 开料</td>';
+                OrderDetailhtml += '                </tr>';
+                
+
+            }
+            if (type == "J") {
+
+
+                OrderDetailhtml += '                <tr >';
+                OrderDetailhtml += '                    <td align="center" colspan="2">';
+                OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+                OrderDetailhtml += '                            <div barcode="LMM" class="barcodeTarget"></div>';
+                OrderDetailhtml += '                        </div>';
+                OrderDetailhtml += '                    </td>';
+                OrderDetailhtml += '                    <td align="center"> 龙门磨</td>';
+                OrderDetailhtml += '                </tr>';
+
+
+
+                OrderDetailhtml += '                <tr >';
+                OrderDetailhtml += '                    <td align="center" colspan="2">';
+                OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+                OrderDetailhtml += '                            <div barcode="MLM" class="barcodeTarget"></div>';
+                OrderDetailhtml += '                        </div>';
+                OrderDetailhtml += '                    </td>';
+                OrderDetailhtml += '                    <td align="center"> 磨两面</td>';
+                OrderDetailhtml += '                </tr>';
+                OrderDetailhtml += '                <tr >';
+                OrderDetailhtml += '                    <td align="center"> 铣两面</td>';
+                OrderDetailhtml += '                    <td align="center" colspan="2">';
+                OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+                OrderDetailhtml += '                            <div barcode="XLM" class="barcodeTarget"></div>';
+                OrderDetailhtml += '                        </div>';
+                OrderDetailhtml += '                    </td>';
+
+                OrderDetailhtml += '                </tr>';
+                OrderDetailhtml += '                <tr >';
+                OrderDetailhtml += '                    <td align="center" colspan="2">';
+                OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+                OrderDetailhtml += '                            <div barcode="X4B" class="barcodeTarget"></div>';
+                OrderDetailhtml += '                        </div>';
+                OrderDetailhtml += '                    </td>';
+                OrderDetailhtml += '                    <td align="center"> 铣四边</td>';
+
+                OrderDetailhtml += '                </tr>';
+                OrderDetailhtml += '                <tr >';
+                OrderDetailhtml += '                    <td align="center"> 铣两头</td>';
+                OrderDetailhtml += '                    <td align="center" colspan="2">';
+                OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+                OrderDetailhtml += '                            <div barcode="X2T" class="barcodeTarget"></div>';
+                OrderDetailhtml += '                        </div>';
+                OrderDetailhtml += '                    </td>';
+                OrderDetailhtml += '                </tr>';
+                OrderDetailhtml += '                <tr >';
+                OrderDetailhtml += '                    <td align="center" colspan="2">';
+                OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+                OrderDetailhtml += '                            <div barcode="X2B" class="barcodeTarget"></div>';
+                OrderDetailhtml += '                        </div>';
+                OrderDetailhtml += '                    </td>';
+                OrderDetailhtml += '                    <td align="center"> 铣两边</td>';
+                OrderDetailhtml += '                </tr>';
+
+                OrderDetailhtml += '                <tr >';
+                OrderDetailhtml += '                    <td align="center" colspan="2">';
+                OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+                OrderDetailhtml += '                            <div barcode="DJ" class="barcodeTarget"></div>';
+                OrderDetailhtml += '                        </div>';
+                OrderDetailhtml += '                    </td>';
+                OrderDetailhtml += '                    <td align="center"> 倒角</td>';
+                OrderDetailhtml += '                </tr>';
+
+            }
+            //if (type == "Z") {
+            //    OrderDetailhtml += '                <tr >';
+            //    OrderDetailhtml += '                    <td align="center"> 铣平面</td>';
+            //    OrderDetailhtml += '                    <td align="center" colspan="2">';
+            //    OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+            //    OrderDetailhtml += '                            <div barcode="P001" class="barcodeTarget"></div>';
+            //    OrderDetailhtml += '                        </div>';
+            //    OrderDetailhtml += '                    </td>';
+            //    OrderDetailhtml += '                </tr>';
+            //    OrderDetailhtml += '                <tr >';
+            //    OrderDetailhtml += '                    <td align="center"> 磨平面</td>';
+            //    OrderDetailhtml += '                    <td align="center" colspan="2">';
+            //    OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+            //    OrderDetailhtml += '                            <div barcode="M003" class="barcodeTarget"></div>';
+            //    OrderDetailhtml += '                        </div>';
+            //    OrderDetailhtml += '                    </td>';
+
+            //    OrderDetailhtml += '                </tr>';
+            //    OrderDetailhtml += '                <tr >';
+            //    OrderDetailhtml += '                    <td align="center"> 双头铣</td>';
+            //    OrderDetailhtml += '                    <td align="center" colspan="2">';
+            //    OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+            //    OrderDetailhtml += '                            <div barcode="STX01" class="barcodeTarget"></div>';
+            //    OrderDetailhtml += '                        </div>';
+            //    OrderDetailhtml += '                    </td>';
+
+            //    OrderDetailhtml += '                </tr>';
+            //    OrderDetailhtml += '                <tr >';
+            //    OrderDetailhtml += '                    <td align="center"> 侧铣</td>';
+            //    OrderDetailhtml += '                    <td align="center" colspan="2">';
+            //    OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+            //    OrderDetailhtml += '                            <div barcode="X001" class="barcodeTarget"></div>';
+            //    OrderDetailhtml += '                        </div>';
+            //    OrderDetailhtml += '                    </td>';
+            //    OrderDetailhtml += '                </tr>';
+
+            //    OrderDetailhtml += '                </tr>';
+            //    OrderDetailhtml += '                <tr >';
+            //    OrderDetailhtml += '                    <td align="center"> 倒角</td>';
+            //    OrderDetailhtml += '                    <td align="center" colspan="2">';
+            //    OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+            //    OrderDetailhtml += '                            <div barcode="D001" class="barcodeTarget"></div>';
+            //    OrderDetailhtml += '                        </div>';
+            //    OrderDetailhtml += '                    </td>';
+            //    OrderDetailhtml += '                </tr>';
+
+            //    OrderDetailhtml += '                </tr>';
+            //    OrderDetailhtml += '                <tr >';
+            //    OrderDetailhtml += '                    <td align="center"> 吊孔</td>';
+            //    OrderDetailhtml += '                    <td align="center" colspan="2">';
+            //    OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+            //    OrderDetailhtml += '                            <div barcode="DK01" class="barcodeTarget"></div>';
+            //    OrderDetailhtml += '                        </div>';
+            //    OrderDetailhtml += '                    </td>';
+            //    OrderDetailhtml += '                </tr>';
+
+            //    OrderDetailhtml += '                </tr>';
+            //    OrderDetailhtml += '                <tr >';
+            //    OrderDetailhtml += '                    <td align="center"> 品检</td>';
+            //    OrderDetailhtml += '                    <td align="center" colspan="2">';
+            //    OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align:center">';
+            //    OrderDetailhtml += '                            <div barcode="JY01" class="barcodeTarget"></div>';
+            //    OrderDetailhtml += '                        </div>';
+            //    OrderDetailhtml += '                    </td>';
+            //    OrderDetailhtml += '                </tr>';
+            //}
+            OrderDetailhtml += '            </table>';
+            OrderDetailhtml += '        </td>';
+            OrderDetailhtml += '    </tr>';
+            OrderDetailhtml += '</table>';
+            $('#my_area').append(OrderDetailhtml);
+
+            $(".barcodeTarget").each(function () {
+                $(this).barcode($(this).attr('barcode'), "code128", { barWidth: 1.5, barHeight: 20 });
+            });
+        });
+        //确认打印
+        function AcceptClick() {
+            AjaxJson("/OrderModule/OrderPrint/UpdateOrderStatus", { OrderId: GetQuery('OrderId') }, function (data) {
+                MyPreview();
+
+            });
+        }
+    </script>
+</head>
+<body  >
+    
+    <div id="my_area" style="background: #fff;width:105mm;" >
+        <div style="float: left; position: absolute;">
+            @*<img style="width: 40px;padding: 5px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@
+        </div>
+    </div>
+
+
+
+
+    <script language="javascript" type="text/javascript">
+        function MyPreview() {
+            ////var LODOP = getLodop();
+            LODOP.PRINT_INIT("打印初始化");
+            //A5:148*210MM    0.36
+            //A6: 105 * 148MM   295*415px
+            LODOP.SET_PRINT_PAGESIZE(1, "", "", "A6")
+            var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+            LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+            LODOP.SET_SHOW_MODE("LANDSCAPE_DEFROTATED", 1);//横向时的正向显示
+            LODOP.PREVIEW();
+            tipDialog("打印成功", 3, 1);
+            //top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+            //if (LODOP.PRINTA()) {
+            //    LODOP.PRINT();
+            //    tipDialog("打印成功", 3, 1);
+            //    top.frames[tabiframeId()].windowload();
+            //    window.setTimeout(function () {closeDialog();}, 500);
+
+            //}
+            //else
+            //    //alert("");
+            //    tipDialog("放弃打印！", 3, 1);
+
+        };
+        function tabiframeId() {
+            var tabs_container = top.$("#tabs_container");
+            return "tabs_iframe_" + tabs_container.find('.selected').attr('id').substr(5);
+        }
+    </script>
+</body>
+<style>
+
+    .form-print th {
+        font-size: 12pt;
+        font-family: Arial;
+        font-weight: bold;
+        background-color: #fff;
+        height: 30.6px;
+        line-height:30.6px;
+        white-space: nowrap;
+        width: 80px;
+        
+        text-align: right;
+        padding-right: 2px;
+    }
+
+    .form-print td {
+        font-size: 12pt;
+        font-family: Arial;
+        font-weight: bold;
+        height: 30.6px;
+        line-height:30.6px;
+        padding-right: 2px;
+       
+    }
+
+    .tb_Order_Detail td {
+        border: 1px solid #000;
+    }
+
+    .tb_Order_Detail th {
+        text-align: center;
+    }
+
+    .topline {
+        border-top: 1px solid #000;
+        text-align: center;
+    }
+
+    .rightline {
+        border-right: 1px solid #000;
+    }
+
+    .bottomline {
+        border-bottom: 1px solid #000;
+    }
+</style>
+</html>

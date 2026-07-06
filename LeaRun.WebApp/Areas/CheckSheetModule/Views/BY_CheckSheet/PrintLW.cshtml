@@ -1,0 +1,286 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>粗料单打印预览</title>
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+    <style>
+        .form-print th {
+            font-size: 11pt;
+            font-family: Arial;
+            font-weight: bold;
+            background-color: #fff;
+            height: 24.6px;
+            line-height: 24.6px;
+            white-space: nowrap;
+            text-align: right;
+            padding-right: 2px;
+        }
+
+        .form-print td {
+            font-size: 11pt;
+            font-family: Arial;
+            font-weight: bold;
+            height: 24.6px;
+            line-height: 24.6px;
+            padding-right: 2px;
+        }
+    </style>
+    <script>
+        //初始化
+        $(function () {
+
+            var index = 0;
+            var rowid = 0;
+
+            AjaxJson("/CheckSheetModule/BY_ReimburseSheet/GridPageJsonLW?CustomerCode=" + GetQuery("CustomerCode") + "&CreateDate_StartTime=" + GetQuery("StartTime") + "&CreateDate_EndTime=" + GetQuery("EndTime") + "&LType=" + GetQuery("LType"), { CheckSheetCode: GetQuery('CheckSheetCode') }, function (data) {
+                var Orderhtml = '';
+                var temprows = data.rows;
+                var Name = data.base_customer.CompanyName;// "北仑机械锻造厂对账单";
+
+                $.each(temprows, function (i) {
+                    if (temprows[i].TotalAmount == 0 && temprows[i].GetMoney == 0 && temprows[i].NoGetMoney == 0) {
+                        return true;
+                    }
+                    if (index == 0) {
+                        Orderhtml += '<div style="float:left;position: absolute; ">@*<img style="width: 60px;padding: 5px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@</div><table id="tb_Order" border="0" class="form-print" style="width: 100%;">';
+                        Orderhtml += '<tr><td colspan="4" align="center" style="padding: 2px;"><span style="font-size: 25px; font-weight: bold;">' + Name + '</span></td></tr>';
+                        Orderhtml += '<tr><td colspan="4" style="height: 18.6px;line-height:18.6px;text-align:center">地址：宁波市北仑区大矸龙潭山三路15号，电话：18892600521;邮箱：124176905@qq.com&nbsp;</td></tr>';
+                        Orderhtml += '<tr><td colspan="4" align="center" style="border-top: 1px solid #000000;padding-top:10px;height: 18.6px;line-height:18.6px;"><span style="font-size: 25px; font-weight: bold;" id="CheckName"></span></td></tr><tr><th style="height: 18.6px;line-height:18.6px;">客户名称：</th><td style="height: 18.6px;line-height:18.6px;">' + GetQuery('CustomerName') + '</td></tr>';
+                        Orderhtml += '<tr><td colspan="4" align="left">一，' + GetQuery('StartTime').substr(0, 10) + " 至 " + GetQuery('EndTime').substr(0, 10) + ' 销售明细。</th></tr>';
+
+                        Orderhtml += '<tr><td colspan="4" valign="top"><div >';
+                        Orderhtml += '<table id="tb_QuotationDetail"  class="form-print" style="width: 100%; border-collapse:collapse;border: 1px solid #000000;">';
+                        Orderhtml += '<tr><td align="center" style="border:1px solid;;text-align:center">序号</td>';
+                        Orderhtml += '<td   style="border:1px solid;;text-align:center">日期</td>'
+                        Orderhtml += '<td   style="border:1px solid;;text-align:center">单据编号</td>';
+                        Orderhtml += '<td   style="border:1px solid;;text-align:center">单据类型</td>';
+                        Orderhtml += '<td   style="border:1px solid;;text-align:center">应收金额</td>';
+                        Orderhtml += '<td   style="border:1px solid;;text-align:center">已收金额</td>';
+                        Orderhtml += '<td   style="border:1px solid;;text-align:center">折让金额</td>';
+                        Orderhtml += '<td   style="border:1px solid;;text-align:center">应收余额</td>';
+                        Orderhtml += '<td   style="border:1px solid;;text-align:center;width: 22%;" >摘要</td>';
+                        Orderhtml += '</tr>';
+                    }
+
+                    if (!temprows[i].Code) {
+                        temprows[i].Code = "";
+                    }
+
+                    if (!temprows[i].Remark) {
+                        temprows[i].Remark = "";
+                    }
+                    if (!temprows[i].BuildDate) {
+                        temprows[i].BuildDate = "";
+                    }
+                    Orderhtml += '<tr>';
+                    if (temprows[i].BuildDate.substr(0, 10) == "0001-01-01") {
+                        temprows[i].BuildDate = "";
+                        Orderhtml += '     <td style="border:1px solid;;text-align:center">合计:</td>';
+                        temprows[i].Remark = "";
+                        temprows[i].Code = "";
+                    }
+                    else {
+                        rowid = rowid + 1;
+                        Orderhtml += '     <td style="border:1px solid;;text-align:center">' + rowid + '</td>';
+
+                    }
+                    var buildate = "";
+                    if (temprows[i].BuildDate.substr(0, 10) != "1900-01-01") {
+                        buildate = temprows[i].BuildDate.substr(0, 10);
+                    }
+                    Orderhtml += '     <td style="border:1px solid;;text-align:center">' + buildate + '</td>';
+                    Orderhtml += '     <td style="border:1px solid;;text-align:center">' + temprows[i].Code + '</td>';
+                    var type = "";
+                    if (!!temprows[i].Code) {
+                        if (temprows[i].Code.indexOf("GC") >= 0 || temprows[i].Code.indexOf("RC") >= 0 || temprows[i].Code.indexOf("LJ") >= 0) {
+                            type = "送货单";
+                        }
+                        else if (temprows[i].Code.indexOf("D") >= 0) {
+                            type = "送货单";
+                        }
+                        else if (temprows[i].Code.indexOf("W") >= 0) {
+                            type = "委外单";
+                        }
+                        else if (temprows[i].Code.indexOf("O") >= 0) {
+                            type = "其他单";
+                        }
+                        else if (temprows[i].Code.indexOf("R") >= 0) {
+                            type = "退货单";
+                        }
+                        else if (temprows[i].Code.indexOf("Y") >= 0) {
+                            type = "其他类型";
+                        }
+                    }
+                    else if (Number(temprows[i].GetMoney) > 0 && temprows[i].BuildDate != "") {
+                        type = "收款单";
+                    }
+                    else if (Number(temprows[i].GetMoney) < 0 && temprows[i].BuildDate != "") {
+                        type = "退款单";
+                    }
+                    else if (Number(temprows[i].TotalAmount) <= 0 && temprows[i].BuildDate != "") {
+                        type = "退货单";
+
+                    }
+
+
+
+                    Orderhtml += '     <td style="border:1px solid;;text-align:center">' + type + '</td>';
+                    Orderhtml += '     <td style="border:1px solid;;text-align:center">' + temprows[i].TotalAmount + '</td>';
+                    Orderhtml += '     <td style="border:1px solid;;text-align:center">' + temprows[i].GetMoney + '</td>';
+                    Orderhtml += '     <td style="border:1px solid;;text-align:center">' + temprows[i].ZRMoney + '</td>';
+                    Orderhtml += '     <td style="border:1px solid;;text-align:center">' + temprows[i].NoGetMoney + '</td>';
+                    Orderhtml += '     <td style="border:1px solid;;text-align:center">' + temprows[i].Remark + '</td>';
+                    Orderhtml += '</tr>';
+                    index++;
+                });
+                Orderhtml += '<tr>';
+                Orderhtml += '</tr></table></div></td></tr>';
+                Orderhtml += '<tr><td colspan="4">二，应收款项与未开发票。</td></tr>';
+                Orderhtml += '<tr><td colspan="4" valign="top">';
+                if (!data.dt1[0].gcnow) {
+                    data.dt1[0].gcnow = 0;
+                }
+                if (!data.dt1[0].gckptotal) {
+                    data.dt1[0].gckptotal = 0;
+                }
+                if (!data.dt1[0].rclkptotal) {
+                    data.dt1[0].rclkptotal = 0;
+                }
+                if (!data.dt1[0].rcltotal) {
+                    data.dt1[0].rcltotal = 0;
+                }
+                if (!data.dt1[0].gctotal) {
+                    data.dt1[0].gctotal = 0;
+                }
+                if (!data.dt1[0].rclkptotal) {
+                    data.dt1[0].rclkptotal = 0;
+                }
+                if (!data.dt1[0].gckptotal) {
+                    data.dt1[0].gckptotal = 0;
+                }
+                if (!data.dt1[0].rclnow) {
+                    data.dt1[0].rclnow = 0;
+                }
+                if (!data.dt1[0].gckpnowed) {
+                    data.dt1[0].gckpnowed = 0;
+                }
+                if (!data.dt1[0].rclkpnowed) {
+                    data.dt1[0].rclkpnowed = 0;
+                }
+                if (!data.dt1[0].gcbefore) {
+                    data.dt1[0].gcbefore = 0;
+                }
+                if (!data.dt1[0].rclbefore) {
+                    data.dt1[0].rclbefore = 0;
+                }
+                if (!data.dt1[0].rclkpbefore) {
+                    data.dt1[0].rclkpbefore = 0;
+                }
+                if (!data.dt1[0].gckpbefore) {
+                    data.dt1[0].gckpbefore = 0;
+                }
+
+
+                if (!data.dt1[0].ljtotal) {
+                    data.dt1[0].ljtotal = 0;
+                }
+                if (!data.dt1[0].ljkptotal) {
+                    data.dt1[0].ljkptotal = 0;
+                }
+                if (!data.dt1[0].ljnow) {
+                    data.dt1[0].ljnow = 0;
+                }
+                if (!data.dt1[0].ljkpnowed) {
+                    data.dt1[0].ljkpnowed = 0;
+                }
+
+                Orderhtml += '<table  border="1" class="form-print" style="width: 100%; border: 1px solid #000000;border-collapse:collapse;">';
+                Orderhtml += '<tr>';
+                Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:center">应收账款情况</td>';
+                Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:center">未开发票情况</td>';
+                Orderhtml += '</tr>';
+                Orderhtml += '<tr>';
+                Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:left">截止' + GetQuery('EndTime').substr(0, 10) + ',应收账款为：' + data.dt1[0].total.toFixed(2) + '</td>';
+                Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:left">截止' + GetQuery('EndTime').substr(0, 10) + ',未开发票为：' + (Number(data.dt1[0].gckptotal) + Number(data.dt1[0].rclkptotal) + Number(data.dt1[0].ljkptotal)).toFixed(2) + '</td>';
+                Orderhtml += '</tr>';
+                Orderhtml += '<tr>';
+                Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:left">其中：热处理(' + data.dt1[0].rcltotal + '),钢材(' + data.dt1[0].gctotal + '),配件(' + data.dt1[0].ljtotal + ')</td>';
+                Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:left">其中：热处理(' + data.dt1[0].rclkptotal + '),钢材(' + data.dt1[0].gckptotal + '),配件(' + data.dt1[0].ljkptotal + ')</td>';
+                Orderhtml += '</tr>';
+                Orderhtml += '<tr>';
+                Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:left">本月收款：' + (Number(data.dt1[0].gcnow) + Number(data.dt1[0].rclnow) + Number(data.dt1[0].ljnow)).toFixed(2) + '</td>';
+                Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:left">本月已开发票：' + (Number(data.dt1[0].gckpnowed) + Number(data.dt1[0].rclkpnowed) + Number(data.dt1[0].ljkpnowed)).toFixed(2) + '</td>';
+                Orderhtml += '</tr>';
+                Orderhtml += '<tr>';
+                Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:left">其中：热处理(' + data.dt1[0].rclnow + '),钢材(' + data.dt1[0].gcnow + '),配件(' + data.dt1[0].ljnow + ')</td>';
+                Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:left">其中：热处理(' + data.dt1[0].rclkpnowed + '),钢材(' + data.dt1[0].gckpnowed + '),配件(' + data.dt1[0].ljkpnowed + ')</td>';
+                Orderhtml += '</tr>';
+                //Orderhtml += '<tr>';
+                //Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:left">上月应收款余额：' + (Number(data.dt1[0].gcbefore) + Number(data.dt1[0].rclbefore)).toFixed(2) + '</td>';
+                //Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:left">上月未开发票余额：' + (Number(data.dt1[0].gckpbefore) + Number(data.dt1[0].rclkpbefore)).toFixed(2) + '</td>';
+                //Orderhtml += '</tr>';
+                //Orderhtml += '<tr>';
+                //Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:left">其中：热处理(' + data.dt1[0].rclbefore + '),钢材(' + data.dt1[0].gcbefore + ')</td>';
+                //Orderhtml += '<td colspan="2" style="border:1px solid;;text-align:left">其中：热处理(' + data.dt1[0].rclkpbefore + '),钢材(' + data.dt1[0].gckpbefore + ')</td>';
+                //Orderhtml += '</tr>';
+                Orderhtml += '<tr><td colspan="4" valign="top">提醒：为了确保公司资产的安全完整和真实准确，特询证公司与贵公司的来往帐等事项，如与贵公司记录相符，请在本函下端"数据证明无误"处签章确认；如有不符，列明不符金额。请贵公司在三天内给与签章回传确认，如未按时间回传则默认以上数据无误，谢谢！邮箱：124176905@qq.com</td></tr>';
+
+                Orderhtml += '</table>';
+
+
+                Orderhtml += '<table class="form-print" style="width: 100%; border-collapse:collapse;">';
+                Orderhtml += '<tr><td > </td>';
+                Orderhtml += '<td  style="width:50%">数据证明无误：</td></tr>';
+                Orderhtml += '<tr><td >发函人： </td>';
+                Orderhtml += '<td >贵公司确认(签字、盖章)：</td></tr>';
+                Orderhtml += '<tr><td >日期： </td>';
+                Orderhtml += '<td >日期：</td></tr>';
+                Orderhtml += '</table></td></tr></table>';
+
+
+                $("#my_area").append(Orderhtml);
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+            AjaxJson("/QuotationModule/QuotationPrint/StateModify", { KeyValue: GetQuery('QuotationId') }, function (data) {
+                MyPreview();
+
+            });
+        }
+    </script>
+</head>
+<body style="overflow-x: hidden;">
+    <div id="my_area" style="background: #fff; ">
+
+    </div>
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_PAGESIZE(1, "210mm", "297mm", "A4")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        LODOP.PREVIEW();
+        //LODOP.PRINTA();
+        window.setTimeout(function () { closeDialog(); }, 500);
+        //if (LODOP.PRINTA()) {
+        //    LODOP.PRINT();
+        //    tipDialog("打印成功", 3, 1);
+        //    top.frames[tabiframeId()].windowload();
+        //    window.setTimeout(function () {closeDialog();}, 500);
+
+        //}
+        //else
+        //    //alert("");
+        //    tipDialog("放弃打印！", 3, 1);
+
+    };
+</script>
+</html>

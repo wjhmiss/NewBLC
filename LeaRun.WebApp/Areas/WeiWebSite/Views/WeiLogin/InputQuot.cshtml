@@ -1,0 +1,292 @@
+﻿@{
+    ViewBag.Title = "快速下单";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+
+<script type="text/javascript">
+    var QuotationId = GetQuery('QuotationId');
+    var LineCode = 0;
+    var DetailCount = 0;
+    var CustomerId = "@DNS.Utilities.ManageProvider.Provider.Current().Account";
+        var OrderType = "";
+        var CustomerName = "";
+        var QuotationCode = "";
+        var CheckStatus = 0;
+    $(document).ready(function (e) {
+        $(".page-list a").attr("data-ignore", true);
+
+        if (QuotationId == undefined || QuotationId == "" || QuotationId == 'null' || QuotationId == 'undefined') {
+            $("#dge").show();
+            $("#dbj").hide();
+            $("#dbc").hide();
+            $("#dcu").hide();
+            $("#dfr").hide();
+            $("#djj").hide();
+        }
+        else {
+            $.ajax({
+                url: "@Url.Content("~/WeiWebSite/WeiLogin/SetQuotDetail")?QuotationId=" + QuotationId,
+                type: "post",
+                dataType: "json",
+                async: true,
+                success: function (data) {
+                    $("#dbj").hide();
+                    $("#dbc").hide();
+                    $("#dcu").hide();
+                    $("#dfr").hide();
+                    $("#djj").hide();
+                    if (data != "-1") {
+                        var BY_Quotation = data.by_quotation;
+                        var BY_QuotationDetails = data.by_quotationdetails;
+                        $("#dge").hide();
+                        OrderType = BY_Quotation.OrderType;
+                        CustomerName = BY_Quotation.CustomerName;
+                        if (BY_Quotation.OrderType == "BJ") {
+                            $("#dbj").show();
+                        }
+                        if (BY_Quotation.OrderType == "BC") {
+                            $("#dbc").show();
+                        }
+                        if (BY_Quotation.CustMaterial == "1") {
+                            $("#dcu").show();
+                        }
+                        if (BY_Quotation.FreeBill == "1") {
+                            $("#dfr").show();
+                        }
+                        if (BY_Quotation.IsEmergency == "1") {
+                            $("#djj").show();
+                        }
+                        if (BY_Quotation.CheckStatus == 0) {
+                            $("#status").html("待审核");
+                        } else if (BY_Quotation.CheckStatus == 1) {
+                            $("#status").html("已审核");
+                        } else if (BY_Quotation.CheckStatus == -1) {
+                            $("#status").html("驳回");
+                        } else {
+                            $("#status").html("未提交");
+                        }
+                        CheckStatus = $("#status").html();
+                        $("#amounts").html("￥" + BY_Quotation.TotalAmount);
+                        $("#qucode").html(BY_Quotation.QuotationCode);
+                        $("#timela").html(formatDate(BY_Quotation.CreateDate, "yyyy-MM-dd"));
+                        QuotationCode = BY_Quotation.QuotationCode;
+                        LineCode = 1;
+                        $.each(BY_QuotationDetails, function (i) {
+                            DetailCount += 1;
+                            if (Number(BY_QuotationDetails[i].LineCode) >= LineCode) {
+                                LineCode = Number(BY_QuotationDetails[i].LineCode) + 1;
+                            }
+                            var html = '<li>';
+                            html += '<input type="checkbox" id="' + BY_QuotationDetails[i].QuotationDetailId + '" class="checkall" >';
+                            html += '<label class="select" for="' + BY_QuotationDetails[i].QuotationDetailId + '" style="width: 22px; float: left; top: -11px; height: 42px;"></label>';
+                            html += '<a href="' + "@Url.Content("~/WeiWebSite/WeiLogin/QuoDetailCreate")?KeyValue=" + BY_QuotationDetails[i].QuotationDetailId + "&QuotationId=" + QuotationId + "&LineCode=" + BY_QuotationDetails[i].LineCode + "&CustomerId=" + CustomerId + "&OrderType=" + OrderType + "&CustomerName=" + escape(CustomerName) + "&QuotationCode=" + QuotationCode + "&CheckStatus=" + escape(CheckStatus) + '" data-ignore="true" style="position: initial; margin: 0px 0px 0px 0px; padding: 0px 0px 0px 0px;">';
+                             html += '<i class="number">' + BY_QuotationDetails[i].LineCode + '</i><span class="text">' + BY_QuotationDetails[i].SteelCode + ' ' + BY_QuotationDetails[i].Qty + 'ps ' + BY_QuotationDetails[i].Thick + '*' + BY_QuotationDetails[i].Weigh + '*' + BY_QuotationDetails[i].Length + ' ￥' + BY_QuotationDetails[i].SalesAmount + ' ' + BY_QuotationDetails[i].Remark + '</span>';
+                             html += ' </a></li>';
+                            $("#list").append(html);
+                        });
+                    }
+                    else {
+                        $("#dge").show();
+                    }
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+
+            });
+        }
+        $("#addQuo").click(function () {
+            if (CheckStatus == "已审核" || CheckStatus == "待审核") {
+                tipDialog("错误：报价单已经提交了,不能操作！", -1);
+                return false;
+            }
+            location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QuotFrom")?QuotationId=" + QuotationId;
+        });
+        $("#addQuoDetail").click(function () {
+            if (CheckStatus == "已审核" || CheckStatus == "待审核") {
+                tipDialog("错误：报价单已经提交了,不能操作！", -1);
+                return false;
+            }
+            if ( QuotationId =="" || LineCode == 0 ||  CustomerId == "" || OrderType ==""|| CustomerName =="" ) {
+                tipDialog("错误：请先创建订单后才能创建明细！", -1);
+                return false;
+            }
+            //alert(QuotationId +","+ LineCode +","+CustomerId +","+OrderType +","+CustomerName);
+            location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QuoDetailCreate")?QuotationId=" + QuotationId + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&OrderType=" + OrderType + "&CustomerName=" + escape(CustomerName) + "&QuotationCode=" + QuotationCode;
+          
+        });
+        $("#delQuoDetail").click(function () {
+            var QuotationDetailIds = "";
+            $(".checkall:checked").each(function (i) {
+                QuotationDetailIds = $(this).attr("id") + ",";
+            });
+            if (QuotationDetailIds == "") {
+                tipDialog("错误：请先勾选订单明细！", -1);
+                return false;
+            }
+            else {
+                if (CheckStatus == "已审核" || CheckStatus == "待审核") {
+                    tipDialog("错误：报价单已经提交了,不能操作！", -1);
+                    return false;
+                }
+                
+                var QuotationDetailIds = 'QuotationDetailIds=' + QuotationDetailIds;
+                AjaxJsonNoMassge("/QuotationModule/QuotationInput/DeleteDetails", { KeyValue: QuotationDetailIds }, function (data) {
+                    tipDialog(data.Message, data.Code);
+                });
+                //delConfig('/QuotationModule/QuotationInput/DeleteDetails', QuotationDetailIds);
+            }
+
+            @*location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QuoDetailCreate")?QuotationId=" + QuotationId;*@
+        });
+
+        $("#btnSubmit").click(function () {
+            $(this).attr("disabled", true);
+            $(this).val("请稍候...");
+            if (!QuotationId) {
+                tipDialog("请先保存报价单信息", 0);
+                $(this).attr("disabled", false);
+                $(this).val("重新创建");
+                return false;
+            }
+            if (DetailCount == 0) {
+                tipDialog("请输入报价单行明细", 0);
+                $(this).attr("disabled", false);
+                $(this).val("重新创建");
+                return false;
+            }
+            dialog({
+                title: '提示',
+                content: "您确认要提交报价单吗？",
+                okValue: '确定',
+                ok: function () {
+                    window.setTimeout(function () {
+                        AjaxJsonNoMassge("/QuotationModule/QuotationInput/SubmitAuditRun", { KeyValue: QuotationId, CheckStatus: 0 }, function (data) {
+                            tipDialog(data.Message, 3);
+                            if (data.Code > 0) {
+                                location.href = "@Url.Content("~/WeiWebSite/WeiLogin/UserCenter")";
+                            }
+                            $(this).attr("disabled", false);
+                            $(this).val("重新创建");
+                        });
+                    }, 200);
+                },
+                cancelValue: '取消',
+                cancel: function () {
+                    $(this).attr("disabled", false);
+                    $(this).val("重新创建");
+            }
+            }).showModal();
+        });
+        
+    });
+    function locationInputQuot() {
+        if (CheckStatus != "已审核" && CheckStatus != "待审核" && CheckStatus != 0) {
+            dialog({
+                title: '提示',
+                content: "还未提交，是否退出？",
+                okValue: '确定',
+                ok: function () {
+                    location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QueryQuot")";
+            },
+                cancelValue: '取消',
+                cancel: function () {
+
+                }
+            }).showModal();
+        }
+        else {
+            location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QueryQuot")";
+        }
+    }
+
+
+</script>
+
+<div id="categoryPanel" class="panel" data-footer="none">
+    <header>
+        <a onclick="locationInputQuot();" class="backButton">返回</a>
+        <h1>快速下单</h1>
+        <a onclick="$.ui.toggleSideMenu()" class="menuButton"></a>
+    </header>
+    <!--取得分页页码列表-->
+
+    <div class="wrap-box">
+        <h2><span id="status">新增</span><lable id="qucode"> 订单号：自动生成</lable></h2>
+        
+        <a  id="addQuo" class="img-list" data-ignore="true">
+            <div id="dge" style="display:none;text-align: center;">
+                <p><b class="red">点击快速生成</b></p>
+            </div>
+
+            <div id="dbj" style="display:none;text-align: center; width: 75px; height: 35px; border: 1px solid #0088D1; vertical-align: middle; display: inline-block; margin-bottom: 5px;">
+                <p><b class="#0088D1">精加工</b></p>
+            </div>
+            <div id="dbc" style="display:none;text-align: center; width: 75px; height: 35px; border: 1px solid #0088D1; vertical-align: middle; display: inline-block; margin-bottom: 5px;">
+                <p><b class="#0088D1">粗加工</b></p>
+            </div>
+            <div id="dcu" style="display:none;text-align: center; width: 75px; height: 35px; border: 1px solid #0088D1; vertical-align: middle; display: inline-block; margin-bottom: 5px;">
+                <p><b class="#0088D1">客来料</b></p>
+            </div>
+            <div id="dfr" style="display:none;text-align: center; width: 75px; height: 35px; border: 1px solid #0088D1; vertical-align: middle; display: inline-block; margin-bottom: 5px;">
+                <p><b class="#0088D1">补料单</b></p>
+            </div>
+            <div id="djj" style="display:none;text-align: center; width: 75px; height: 35px; border: 1px solid #0088D1; vertical-align: middle; display: inline-block; margin-bottom: 5px;">
+                <p><b class="#0088D1">特急</b></p>
+            </div>
+
+        </a>
+        <div class="note">
+            <p>时间：<lable id="timela"></lable></p> @*@DNS.Utilities.DateTimeHelper.GetTime()*@
+            <p>预计金额：<b class="red" id="amounts">￥0.00</b></p>
+        </div>
+        <div class="select-bar" style="margin: 0 -11px;">
+            <div class="col">
+                <a id="delQuoDetail" href="javascript:;" class="icon-trash" style="background: red; color: white; border: 0px;" >删除</a>
+            </div>
+            <div class="col">
+                <a id="addQuoDetail" href="javascript:;" class="icon-add" style="background-color: #00DD00; color: white; border: 0px;">增加</a>
+            </div>
+        </div>
+
+
+        <!--123-->
+
+        <div>
+            <ul id="list" class="list listview">
+
+               @* <li>
+                    <input type="checkbox" id="check1" class="checkall" >
+                    <label class="select" for="check1" style="width: 22px; float: left; top: -11px; height: 42px;"></label>
+                    <a href="#" data-ignore="true" style="position: initial; margin: 0px 0px 0px 0px; padding: 0px 0px 0px 0px;">
+                        <i class="number">1</i><span class="text">P20 50ps 500X500X1200 ￥12000 厚宽长0~+0.05</span>
+                    </a>
+                </li>*@
+                
+
+            </ul>
+        </div>
+        <!--/123-->
+
+        <div>
+            <input id="btnSubmit" name="btnSubmit" type="submit" value="提 交" class="btn orange full" />
+        </div>
+        @if (false)
+        {
+            <!--分页页码-->
+            <div class="page-list"><span>共18记录</span><span class="disabled">«上一页</span><span class="current">1</span><a href="/user/order-list-2.html">2</a><a href="/user/order-list-2.html">下一页»</a></div>
+            <!--/分页页码-->
+        }
+    </div>
+    <!--/交易订单-->
+
+
+
+
+    <!--版权信息-->
+    @Html.Partial("_PartialMobileBottom")
+
+    <!--/版权信息-->
+
+</div>
+

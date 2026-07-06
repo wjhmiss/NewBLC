@@ -1,0 +1,449 @@
+﻿@{
+    ViewBag.Title = "用户中心";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/highcharts/highchartsjquery")
+<link href="~/Content/Scripts/Mobile/templates/mobile/css/mobiscroll.custom-2.6.2.min.css" rel="stylesheet" />
+<script src="~/Content/Scripts/Mobile/templates/mobile/js/mobiscroll.custom-2.6.2.min.js"></script>
+<script>
+    var listA = [];
+    var listB = [];
+    var listC = [];
+    //初始化
+    $(function () {
+        if ("@DNS.Utilities.ManageProvider.Provider.Current().ObjectId".indexOf("20178431-3604-46b6-a75b-f7ba13548aed") < 0) {
+            tipDialog("错误：无权限！", -1, "return");
+            return false;
+        }
+
+        //初始化日期选择控件
+        var opt = {
+            preset: 'date', //日期
+            display: 'modal', //显示方式 
+            mode: 'scroller', //日期选择模式
+            dateFormat: 'yy-mm', // 日期格式
+            setText: '确定', //确认按钮名称
+            cancelText: '取消',//取消按钮名籍我
+            dateOrder: 'yymm', //面板中日期排列格式
+            monthText: '月', yearText: '年', //面板中年月日文字
+            endYear: new Date().getFullYear() //结束年份
+        };
+        $("#StartTime").mobiscroll(opt).date(opt);
+        $("#StartTime").bind('input propertychange', function () {
+            GetMetaChart();
+            GetCustomerchart();
+        });
+        $("#getWhere").click(function () {
+            location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QueryOrderWhere")";
+        });
+
+        AjaxJsonNoMassge("/Home/TaskMessageChart", {}, function (DataJson) {
+
+            var listA = DataJson.weekchartO;
+            var listB = DataJson.weekchartQ;
+            var listC = DataJson.weekchartD;
+            $('#container').highcharts({
+                chart: {
+                    type: 'spline'
+                },
+                title: {
+                    text: '最近5周报价单、订单、送货单统计数量'
+                },
+                xAxis: {
+                    categories: DataJson.names//['一周', '二周', '三周', '四周', '五周']
+                },
+                yAxis: {
+                    title: {
+                        text: '统计数量'
+                    },
+                    labels: {
+                        formatter: function () {
+                            return this.value + ''
+                        }
+                    }
+                },
+                tooltip: {
+                    crosshairs: true,
+                    shared: true
+                },
+                plotOptions: {
+                    spline: {
+                        marker: {
+                            radius: 4,
+                            lineColor: '#666666',
+                            lineWidth: 1
+                        }
+                    }
+                },
+                series: [{
+                    name: '报价单统计',
+                    data: listB
+
+                }, {
+                    name: '工单统计',
+                    data: listA
+                }, {
+                    name: '发运单统计',
+                    data: listC
+
+                }]
+            });
+        })
+        GetMetaChart();
+        GetCustomerchart();
+        SyntaxHighlighter.all();
+    })
+    function GetCustomerchart() {
+        AjaxJsonNoMassge("/CheckSheetModule/BY_CheckSheet/Customerdata", { Year: $("#StartTime").val().substr(0, 4), Month: $("#StartTime").val().substr(5, 2) }, function (data) {
+            var colors = Highcharts.getOptions().colors,
+                categories = data.categoriesName;//['天文模具', '永坚', '建欣模具', '优润', '云祥五金'],
+            name = '销售企业排名',
+            data = data.datas;
+            //    [{
+            //    y: 40760.18,
+            //    color: colors[0],
+            //    drilldown: {
+            //        name: '天文模具详情',
+            //        categories: ['2015-4-10', '2015-4-14', '2015-4-16', '2015-4-17', '2015-4-20'],
+            //        data: [1000.85, 880.35, 700.06, 500.81,994.11],
+            //        color: colors[0]
+            //    }
+            //}];
+            function setChart(name, categories, data, color) {
+                chart.xAxis[0].setCategories(categories, false);
+                chart.series[0].remove(false);
+                chart.addSeries({
+                    name: name,
+                    data: data,
+                    color: color || 'white'
+                }, false);
+                chart.redraw();
+            }
+
+            var chart = $('#container2').highcharts({
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: $("#StartTime").val() + '，采购前五名厂家明细！'
+                },
+                subtitle: {
+                    text: '点击柱状图可以查看具体销售详情'
+                },
+                xAxis: {
+                    categories: categories
+                },
+                yAxis: {
+                    title: {
+                        text: '销售金额（￥）'
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        cursor: 'pointer',
+                        point: {
+                            events: {
+                                click: function () {
+                                    var drilldown = this.drilldown;
+                                    if (drilldown) { // drill down
+                                        setChart(drilldown.name, drilldown.categories, drilldown.data, drilldown.color);
+                                    } else { // restore
+                                        setChart(name, categories, data);
+                                    }
+                                }
+                            }
+                        },
+                        dataLabels: {
+                            enabled: true,
+                            color: colors[0],
+                            style: {
+                                fontWeight: 'bold'
+                            },
+                            formatter: function () {
+                                return this.y + '￥';
+                            }
+                        }
+                    }
+                },
+                tooltip: {
+                    formatter: function () {
+                        var point = this.point,
+                            s = this.x + ':<b>' + this.y + '￥ </b><br>';
+                        if (point.drilldown) {
+                            s += '点击 ' + point.category + ' 详细信息';
+                        } else {
+                            s += '返回';
+                        }
+                        return s;
+                    }
+                },
+                series: [{
+                    name: name,
+                    data: data,
+                    color: 'white'
+                }],
+                exporting: {
+                    enabled: false
+                }
+            })
+            .highcharts(); // return chart
+        });
+    }
+    function GetMetaChart() {
+        AjaxJsonNoMassge("/CheckSheetModule/BY_CheckSheet/GetMetaChart", { Year: $("#StartTime").val().substr(0, 4), Month: $("#StartTime").val().substr(5, 2) }, function (data) {
+            var colors = Highcharts.getOptions().colors,
+                categories = data.categoriesName;//['天文模具', '永坚', '建欣模具', '优润', '云祥五金'],
+            name = '钢材用量排名',
+            data = data.datas;
+            //    [{
+            //    y: 40760.18,
+            //    color: colors[0],
+            //    drilldown: {
+            //        name: '天文模具详情',
+            //        categories: ['2015-4-10', '2015-4-14', '2015-4-16', '2015-4-17', '2015-4-20'],
+            //        data: [1000.85, 880.35, 700.06, 500.81,994.11],
+            //        color: colors[0]
+            //    }
+            //}];
+            function setChart(name, categories, data, color) {
+                chart.xAxis[0].setCategories(categories, false);
+                chart.series[0].remove(false);
+                chart.addSeries({
+                    name: name,
+                    data: data,
+                    color: color || 'white'
+                }, false);
+                chart.redraw();
+            }
+
+            var chart = $('#container1').highcharts({
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: $("#StartTime").val() + '，钢材用量排名！'
+                },
+                subtitle: {
+                    text: '点击柱状图可以查看具体销售详情'
+                },
+                xAxis: {
+                    categories: categories
+                },
+                yAxis: {
+                    title: {
+                        text: '重量（KG）'
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        cursor: 'pointer',
+                        point: {
+                            events: {
+                                click: function () {
+                                    var drilldown = this.drilldown;
+                                    if (drilldown) { // drill down
+                                        setChart(drilldown.name, drilldown.categories, drilldown.data, drilldown.color);
+                                    } else { // restore
+                                        setChart(name, categories, data);
+                                    }
+                                }
+                            }
+                        },
+                        dataLabels: {
+                            enabled: true,
+                            color: colors[0],
+                            style: {
+                                fontWeight: 'bold'
+                            },
+                            formatter: function () {
+                                return this.y + ' KG';
+                            }
+                        }
+                    }
+                },
+                tooltip: {
+                    formatter: function () {
+                        var point = this.point,
+                            s = this.x + ':<b>' + this.y + 'KG </b><br>';
+                        if (point.drilldown) {
+                            s += '点击 ' + point.category + ' 详细信息';
+                        } else {
+                            s += '返回';
+                        }
+                        return s;
+                    }
+                },
+                series: [{
+                    name: name,
+                    data: data,
+                    color: 'white'
+                }],
+                exporting: {
+                    enabled: false
+                }
+            })
+            .highcharts(); // return chart
+        });
+    }
+
+    Highcharts.theme = {
+        colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+        chart: {
+            backgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                stops: [
+                    [0, 'rgb(255, 255, 255)'],
+                    [1, 'rgb(240, 240, 255)']
+                ]
+            },
+            borderWidth: 2,
+            plotBackgroundColor: 'rgba(255, 255, 255, .9)',
+            plotShadow: true,
+            plotBorderWidth: 1
+        },
+        title: {
+            style: {
+                color: '#000',
+                font: 'bold 16px "Trebuchet MS", Verdana, sans-serif'
+            }
+        },
+        subtitle: {
+            style: {
+                color: '#666666',
+                font: 'bold 12px "Trebuchet MS", Verdana, sans-serif'
+            }
+        },
+        xAxis: {
+            gridLineWidth: 1,
+            lineColor: '#000',
+            tickColor: '#000',
+            labels: {
+                style: {
+                    color: '#000',
+                    font: '11px Trebuchet MS, Verdana, sans-serif'
+                }
+            },
+            title: {
+                style: {
+                    color: '#333',
+                    fontWeight: 'bold',
+                    fontSize: '12px',
+                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+
+                }
+            }
+        },
+        yAxis: {
+            minorTickInterval: 'auto',
+            lineColor: '#000',
+            lineWidth: 1,
+            tickWidth: 1,
+            tickColor: '#000',
+            labels: {
+                style: {
+                    color: '#000',
+                    font: '11px Trebuchet MS, Verdana, sans-serif'
+                }
+            },
+            title: {
+                style: {
+                    color: '#333',
+                    fontWeight: 'bold',
+                    fontSize: '12px',
+                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+                }
+            }
+        },
+        legend: {
+            itemStyle: {
+                font: '9pt Trebuchet MS, Verdana, sans-serif',
+                color: 'black'
+
+            },
+            itemHoverStyle: {
+                color: '#039'
+            },
+            itemHiddenStyle: {
+                color: 'gray'
+            }
+        },
+        labels: {
+            style: {
+                color: '#99b'
+            }
+        },
+
+        navigation: {
+            buttonOptions: {
+                theme: {
+                    stroke: '#CCCCCC'
+                }
+            }
+        }
+    };
+
+    // Apply the theme
+    var highchartsOptions = Highcharts.setOptions(Highcharts.theme);
+
+    function locationInputQuot() {
+        location.href = "@Url.Content("~/WeiWebSite/WeiLogin/WeiIndex")";
+    }
+
+</script>
+
+
+
+<div id="mainPanel" class="panel" data-footer="main_footer">
+    <!--会员中心-->
+    <header>
+        <a href="javascript:;" onclick="history.back(-1);" class="backButton">返回</a>
+        <h1>报表</h1>
+        <a onclick="$.ui.toggleSideMenu()" class="menuButton"></a>
+    </header>
+    <!--/筛选按钮-->
+
+    <!--最新商品-->
+    <div class="section">
+        <h1>报表查询</h1>
+    </div>
+    <div>
+        
+
+
+
+
+
+
+
+
+
+        <ul class="list listview">
+            <div id="container"></div>
+        </ul>
+        <div class="form-box">
+            <dl>
+                <dt>时间：</dt>
+                <dd>
+                    <input name="StartTime" id="StartTime" type="text" value="@DNS.Utilities.DateTimeHelper.GetyyyyMM()" readonly="" class="dwtd" disabled="" autocomplete="off" onchange=" GetMetaChart();GetCustomerchart();">
+            </dl>
+        </div>
+        <ul class="list listview">
+            <div id="container2"></div>
+        </ul>
+        <ul class="list listview">
+            <div id="container1"></div>
+        </ul>
+    </div>
+    <!--/最新商品-->
+
+
+    <!--版权信息-->
+    @Html.Partial("_PartialMobileBottom")
+    <!--/版权信息-->
+
+</div>
+
+
+
+
+

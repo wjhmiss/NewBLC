@@ -1,0 +1,258 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>粗料单打印预览</title>
+ @*   <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/barcode/jquery-barcode.min.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+        @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+        @Scripts.Render("~/Content/Scripts/barcode/barcodejquery")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+
+    <script>
+        //初始化
+        $(function () {
+            AjaxJson("/OrderModule/BY_OrderDetailBeOut/BeOutListJson", { OrderDetailOutIds: GetQuery('OrderDetailOutIds'), CustomerCode: GetQuery('CustomerCode') }, function (data) {
+                //var OrderEntiy = data.OrderEntiy;
+                var OrderDetail = data.OrderDetail;
+                
+                var index = 0;
+                var pageindex = 0;
+                var Orderhtml = '';
+                var total = 0
+                if (OrderDetail.length % 13 == 0) {
+                    total = OrderDetail.length / 13;
+                }
+                else {
+                    total = Math.floor(OrderDetail.length / 13) + 1
+                }
+                var quotitle = "";
+                var MnemonicCode = "";
+                
+                $.each(OrderDetail, function (i) {
+                    if (MnemonicCode == "") {
+                        MnemonicCode = OrderDetail[i].MnemonicCode;
+                    }
+                    var IsChamfer = "";
+                    var JJtype = "";
+                    var Qty = "";
+                    if (OrderDetail[i].JJtype == "按平方") {
+                        if (OrderDetail[i].IsChamfer == "1") {
+                            IsChamfer = "要";
+                        }
+                        else {
+                            IsChamfer = "不要";
+                        }
+                        JJtype = "M²";
+                        Qty = OrderDetail[i].Area;
+                    }
+                    else if (OrderDetail[i].JJtype == "按公斤") {
+                        IsChamfer = "";
+                        JJtype = "KG";
+                        Qty = OrderDetail[i].Weight;
+                    }
+                    else {
+                        IsChamfer = "";
+                        JJtype = "件";
+                        Qty = OrderDetail[i].Qty;
+                    }
+                    if (index % 13 == 0) {
+                        pageindex++;
+                        Orderhtml += '<table id="tb_Order" border="0" class="form-print" style="width: 100%;border-collapse:collapse;">';
+                        Orderhtml += '    <tr>';
+                        Orderhtml += '        <td colspan="6" align="center" style="padding: 2px;line-height:22px;">';
+                        Orderhtml += '            <span style="font-size: 24px; font-weight: bold; height: 30px;line-height:30px;">志   康   外   发   单' + MnemonicCode + '</span><span style="font-weight: bold;float:right ;position: absolute;padding-left:100px;">共：' + data.OrderDetailTotal + '件（' + pageindex + '/' + total + '）</span><span style="font-weight: bold;float:right ;position: absolute;padding-left:120px;font-size: 14pt;font-family: sans-serif;">' + quotitle + '</span>';
+                        Orderhtml += '        </td>';
+                        Orderhtml += '    </tr>';
+                        Orderhtml += '    <tr>';
+                        Orderhtml += '        <td style=" text-align: right;">电话：</td>';
+                        Orderhtml += '        <td style=" text-align: left;">18892600521</td>';
+                        Orderhtml += '        <td style=" text-align: right">传真：</td>';
+                        Orderhtml += '        <td style=" text-align: left;">18892600521</td>';
+                        Orderhtml += '        <td style=" text-align: right;">地址：</td>';
+                        Orderhtml += '        <td style=" text-align: left;">宁波市北仑区大矸龙潭山三路15号</td>';
+                        Orderhtml += '    </tr>';
+                        Orderhtml += '    <tr>';
+                        Orderhtml += '        <td style=" text-align: right;">名称：</td>';
+                        Orderhtml += '        <td style=" text-align: left;">' + OrderDetail[i].CustomerName + '</td>';
+                        Orderhtml += '        <td style=" text-align: right;">电话：</td>';
+                        Orderhtml += '        <td style=" text-align: left;">' + OrderDetail[i].ContactTel  + '</td>';
+                        Orderhtml += '        <td style=" text-align: right;">地址：</td>';
+                        Orderhtml += '        <td style=" text-align: left;">' + OrderDetail[i].CustomerAddress + '' + '</td>';
+                        Orderhtml += '    </tr>';
+                        Orderhtml += '    <tr>';
+                        Orderhtml += '        <td colspan="6" style="vertical-align:top;height: 85mm;" >';
+                        Orderhtml += '            <div style="height: 75mm;">';
+                        Orderhtml += '            <table id="tb_OrderDetail" border="0" cellpadding="0" cellspacing="0"  style="width: 100%; float:right;">';
+                        Orderhtml += '                <tr>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;">助记码</td>';
+                        Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;">钢种</td>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" >厚*宽*长</td>';
+                        Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;">件数</td>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" >公差</td>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;">倒角</td>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;">单位</td>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" >数量</td>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;">单价</td>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;">总金额</td>';
+                        
+                        Orderhtml += '                </tr>';
+                    }
+                    Orderhtml += '<tr style="height:25px;">';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;"> ' + OrderDetail[i].MnemonicCode + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + OrderDetail[i].ProductName + '</td>';
+                    Orderhtml += '    <td  style=" font-weight: bold;text-align:center;border: 1px solid #000;">' + parseFloat(OrderDetail[i].Length) + ' × ' + parseFloat(OrderDetail[i].Weigh) + ' × ' + parseFloat(OrderDetail[i].Thick) + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + OrderDetail[i].Qty + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + OrderDetail[i].Remark + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + IsChamfer + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + JJtype + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + Qty + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + OrderDetail[i].AreaPrice + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + OrderDetail[i].CostAmount + '</td>';
+                    
+                    Orderhtml += '</tr>';
+                    if ((index + 1) % 13 == 0) {
+                        Orderhtml += '            </table>';
+
+                        Orderhtml += '            </div>';
+                        Orderhtml += '        </td>';
+                        Orderhtml += '    </tr>';
+                        Orderhtml += '</table>';
+                        Orderhtml += '            <table border="0" class="form-print" style="width: 100%;border-collapse:collapse;">';
+                        Orderhtml += '                <tr >';
+                        Orderhtml += '                    <td style="width: 5%;border-top: 1px solid #000; "></td>';
+                        Orderhtml += '                </tr>';
+                        Orderhtml += '                <tr >';
+                        Orderhtml += '                    <td></td>';
+                        Orderhtml += '                </tr>';
+                        Orderhtml += '            </table>';
+                    }
+                    index++;
+                });
+                if (OrderDetail.length % 13 != 0) {
+                    Orderhtml += '            </table>';
+
+                    Orderhtml += '            </div>';
+                    Orderhtml += '        </td>';
+                    Orderhtml += '    </tr>';
+                    Orderhtml += '</table>';
+                    Orderhtml += '            <table border="0" class="form-print" style="width: 100%;border-collapse:collapse;">';
+                    Orderhtml += '                <tr >';
+                    Orderhtml += '                    <td style="width: 5%;border-top: 1px solid #000; "></td>';
+                    Orderhtml += '                    <td style="width: 10%;border-top: 1px solid #000; " colspan="2">合计：</td>';
+                    Orderhtml += '                    <td style="width: 15%; text-align: center;border-top: 1px solid #000;" colspan="2">数量：' + data.OrderDetailTotal + '</td>';
+                    Orderhtml += '                    <td style="width: 5%;border-top: 1px solid #000; " ></td>';
+                    Orderhtml += '                    <td style="width: 5%; border-top: 1px solid #000;"></td>';
+                    Orderhtml += '                    <td style="width: 15%; text-align: center;border-top: 1px solid #000;" colspan="2">总金额：' + data.OrderDetailCost + '</td>';
+                    Orderhtml += '                    <td style="width: 5%;border-top: 1px solid #000; "></td>';
+                    Orderhtml += '                </tr>';
+                    Orderhtml += '                <tr >';
+                    Orderhtml += '                    <td colspan="4" style="width: 5%;text-align: left ">制表人：@DNS.Utilities.ManageProvider.Provider.Current().UserName</td>';
+                    Orderhtml += '                    <td colspan="2" style="width: 5%;text-align: left ">外厂签收：</td>';
+                    Orderhtml += '                    <td colspan="3" style="width: 5%;text-align: right ">制表日期：@DNS.Utilities.DateTimeHelper.GetDate(0)</td>';
+                    Orderhtml += '                    <td></td>';
+                    Orderhtml += '                </tr>';
+                    Orderhtml += '            </table>';
+                }
+                
+                $("#my_area").append(Orderhtml);
+            });
+            $(".barcodeTarget").each(function () {
+                $(this).barcode($(this).attr('barcode'), "code128", { barWidth: 1, barHeight: 20 });
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+            AjaxJson("/OrderModule/OrderPrint/UpdateOrderStatus", { OrderId: GetQuery('OrderId') }, function (data) {
+                MyPreview();
+
+            });
+        }
+    </script>
+
+</head>
+<body style="overflow-x: hidden;">
+    <div id="my_area" style="background: #fff;   " >
+        <div style="float: left; position: absolute;">
+            @*<img style="width: 40px;padding: 5px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@
+        </div>
+        @*<div id="reprint" style="position: absolute; right: 15px; top: 15px; display: none; "><span style="font-size: 18px; font-weight: bold;"></span></div>*@
+    </div>
+   
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_PAGESIZE(1, "217mm", "140mm", "")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        LODOP.PREVIEW();
+
+        //LODOP.PRINTA();
+        top.frames[tabiframeId()].windowload();
+        window.setTimeout(function () {closeDialog();}, 500);
+        //if (LODOP.PRINTA()) {
+        //    LODOP.PRINT();
+        //    tipDialog("打印成功", 3, 1);
+        //    top.frames[tabiframeId()].windowload();
+        //    window.setTimeout(function () {closeDialog();}, 500);
+
+        //}
+        //else
+        //    //alert("");
+        //    tipDialog("放弃打印！", 3, 1);
+
+    };
+</script>
+    <style>
+    .form-print th {
+        font-size: 10pt;
+        font-family: sans-serif;
+        background-color: #fff;
+        height: 25px;
+        line-height:25;
+        white-space: nowrap;
+        width: 80px;
+        font-weight: bold;
+        text-align: right;
+        padding-right: 2px;
+    }
+
+    .form-print td {
+        font-family: sans-serif;
+        height: 25px;
+        line-height:25px;
+        padding-right: 2px;
+        font-size: 10pt; 
+        font-weight: bold;
+    }
+
+    .tb_Order_Detail td {
+        border: 1px solid #000;
+    }
+
+    .tb_Order_Detail th {
+        text-align: center;
+    }
+
+    .topline {
+        border-top: 1px solid #000;
+        text-align: center;
+    }
+
+    .rightline {
+        border-right: 1px solid #000;
+    }
+
+    .bottomline {
+        border-bottom: 1px solid #000;
+    }
+</style>
+</html>

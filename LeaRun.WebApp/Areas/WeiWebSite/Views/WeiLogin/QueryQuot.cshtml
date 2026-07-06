@@ -1,0 +1,140 @@
+﻿@{
+    ViewBag.Title = "用户中心";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+
+<script>
+    var QuotationCode = GetQuery("QuotationCode");
+    var StartTime = GetQuery("StartTime");
+    var EndTime = GetQuery("EndTime");
+    var CustomerName = GetQuery("CustomerName");
+    function querys(page) {
+        //var page = GetQuery("page") == "" ? 1 : GetQuery("page");
+        $.ajax({
+            url: "@Url.Content("~/QuotationModule/QuotationQuery/GridPageListJson")?QuotationCode=" + $.trim(QuotationCode) + "&StartTime=" + escape(StartTime) + "&EndTime=" + escape(EndTime) + "&CustomerName=" + escape(CustomerName),
+            type: "post",
+            dataType: "json",
+            data: { "rows": 30, "page": page },
+            async: true,
+            success: function (data) {
+                $("#list").html("");
+                $.each(data.rows, function (i) {
+                    var html = '<li><a href="@Url.Content("~/WeiWebSite/WeiLogin/InputQuot")?QuotationId=' + data.rows[i].quotationid + '" data-ignore="true">';
+                    html += '<div style="font-weight: 900; font-size: 1.3em; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; float: left; text-align: center; width: 75px; height: 75px; line-height: 75px; border: 1px solid #0088D1; vertical-align: middle; display: inline-block; margin-right: 5px;">';
+                    html += '<b class="#0088D1">' + (!!data.rows[i].billstatus ? data.rows[i].billstatus : "待提交") + '</b>';
+                    html += '</div><h2>合同号：' + data.rows[i].quotationcode + '</h2><div class="note">';
+                    html += '<p>客户名称：' + data.rows[i].customername + ' 时间：' + data.rows[i].createdate + ' 交期：' + data.rows[i].delivery + ' </p>';
+                    html += '<p><i class="hot">总数量：' + data.rows[i].qty + '(件)</i><i class="price">总金额：￥' + data.rows[i].totalamount + '</i></p>';
+                    html += '</div></a></li>';
+                    $("#list").append(html);
+                });
+                var htmlpage = '<span>共' + data.records + '记录</span>';
+                if (data.page == 1) {
+                    htmlpage += '<span class="disabled">«上一页</span>';
+                }
+                else {
+                    htmlpage += '<a href="javascript:;" onclick="querys(' + (data.page - 1) + ')" data-ignore="true">«上一页</a>';
+                }
+                htmlpage += '<span class="current">' + data.page + '</span>';
+                if (data.page == data.total || data.total == 1) {
+                    htmlpage += '<span class="disabled">下一页»</span>';
+                }
+                else {
+                    htmlpage += '<a href="javascript:;" onclick="querys(' + (data.page + 1) + ')" data-ignore="true">下一页»</a>';
+                }
+                $("#listPage").html("");
+                $("#listPage").append(htmlpage);
+            },
+            error: function (data) {
+                alert(data.responseText);
+            }
+
+        });
+    }
+
+    //初始化
+    $(function () {
+        $("#getWhere").click(function () {
+            location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QueryQuotWhere")";
+        });
+
+        querys(1);
+    })
+
+    function locationInputQuot() {
+        location.href = "@Url.Content("~/WeiWebSite/WeiLogin/WeiIndex")";
+    }
+
+</script>
+
+<style type="text/css">
+    #afui .list > li > a:after {
+        position: absolute;
+        right: 8px;
+        font-family: 'chevron';
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        content: " ";
+        top: 50%;
+        margin-top: -0.5em;
+        color: inherit;
+    }
+</style>
+
+<div id="mainPanel" class="panel" data-header="main_header" data-footer="main_footer">
+    <!--筛选按钮-->
+    <div class="select-bar">
+        <div class="col">
+            <a href="javascript:;" class="icon-back" onclick="history.back(-1)">返回上一页</a>
+        </div>
+        <div class="col">
+            <a id="getWhere" href="javascript:;" class="icon-carat-r">合同筛选</a>
+        </div>
+    </div>
+    <!--/筛选按钮-->
+
+    <!--最新商品-->
+    <div class="section">
+        <h1>合同信息</h1>
+    </div>
+    <div>
+        <ul class="list listview" id="list">
+
+            @*<li>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/InputQuot")?QuotationId=bc8bf2f9-729a-4b35-b940-41d8c442d992" data-ignore="true">
+                    <div style="font-weight: 900; font-size: 1.53em; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; float: left; text-align: center; width: 75px; height: 75px; line-height: 75px; border: 1px solid #0088D1; vertical-align: middle; display: inline-block; margin-right: 5px;">
+                        <b class="#0088D1">待审核</b>
+                    </div>
+                    <h2>合同号：BYJ201506-0243</h2>
+                    <div class="note">
+                        <p>时间：2015-11-12 12:22:51 明细：P20(1件),45#(3件)</p>
+                        <p><i class="hot">总重量：34200KG</i><i class="price">总金额：￥10000</i></p>
+                    </div>
+                </a>
+            </li>*@
+
+           
+        </ul>
+    </div>
+    <!--/最新商品-->
+
+    <div class="page-list" id="listPage">
+        
+
+    </div>
+
+    <!--版权信息-->
+    @Html.Partial("_PartialMobileBottom")
+    <!--/版权信息-->
+
+</div>
+
+
+
+
+

@@ -1,0 +1,132 @@
+﻿@{
+    ViewBag.Title = "Index";
+}
+<script src="~/Content/Scripts/jquery/jquery-2.1.1.min.js"></script>
+<script src="~/Content/Scripts/highcharts/highcharts.js"></script>
+<script src="~/Content/Scripts/highcharts/highcharts-more.js"></script>
+<script src="~/Content/Scripts/highcharts/modules/exporting.js"></script>
+
+
+<script type="text/javascript">
+    var chart;
+    $(function () {
+
+    var datas = {
+        chart: {
+            zoomType: 'xy'
+        }, 
+        title: {
+            text: 'Temperature vs Rainfall'
+        },
+        xAxis: [{
+            categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        }],
+        yAxis: [{ // Primary yAxis
+            labels: {
+                format: '{value} °C',
+                style: {
+                    color: Highcharts.getOptions().colors[1]
+                }
+            },
+            title: {
+                text: 'Temperature',
+                style: {
+                    color: Highcharts.getOptions().colors[1]
+                }
+            }
+        }, { // Secondary yAxis
+            title: {
+                text: 'Rainfall',
+                style: {
+                    color: Highcharts.getOptions().colors[0]
+                }
+            },
+            labels: {
+                format: '{value} mm',
+                style: {
+                    color: Highcharts.getOptions().colors[0]
+                }
+            },
+            opposite: true
+        }],
+
+        tooltip: {
+            shared: true
+        },
+
+        exporting: {
+            url: '/HighCharts/Export',
+            filename: 'MyChart',
+            width: 1200
+        },
+        series: [ 
+        {
+            name: 'Temperature',
+            type: 'spline',
+            data: [7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6],
+            tooltip: {
+                pointFormat: '<span style="font-weight: bold; color: {series.color}">{series.name}</span>: <b>{point.y:.1f}°C</b> '
+            }
+        }, {
+            name: 'Temperature error',
+            type: 'errorbar',
+            data: [[6, 8], [5.9, 7.6], [9.4, 10.4], [14.1, 15.9], [18.0, 20.1], [21.0, 24.0], [23.2, 25.3], [26.1, 27.8], [23.2, 23.9], [18.0, 21.1], [12.9, 14.0], [7.6, 10.0]],
+            tooltip: {
+                pointFormat: '(error range: {point.low}-{point.high}°C)<br/>'
+            }
+        }
+
+        , {
+            name: 't2===========',
+            type: 'spline',
+            data: [118.3, 13.9, 7.0, 6.9, 9.5, 14.5, 18.2, 21.5, 25.2, 26.5, 23.3, 9.6],
+            tooltip: {
+                pointFormat: '<span style="font-weight: bold; color: {series.color}">{series.name}</span>: <b>{point.y:.1f}°C</b> '
+            }
+        }, {
+            name: 't2============ error',
+            type: 'errorbar',
+            data: [[118.0, 121.1], [12.9, 14.0], [6, 8], [5.9, 7.6], [9.4, 10.4], [14.1, 15.9], [18.0, 20.1], [21.0, 24.0], [23.2, 25.3], [26.1, 27.8], [23.2, 23.9], [7.6, 10.0]],
+            tooltip: {
+                pointFormat: '(error range: {point.low}-{point.high}°C)<br/>'
+            }
+        }
+
+         
+
+
+        ]
+    };
+    $('#container-Test').highcharts(datas);
+    $('#container-Test2').highcharts(datas);
+});
+           
+    //点击一个按钮导出图片
+    function exportClick() {
+        var chartTest = $('#container-Test').highcharts();
+        var svgData = chartTest.getSVG();
+        $.post('/HighCharts/ManualExport', { filename: "手动导出的图片", type: "image/png", width: 1200, svg: svgData }, function (r) {
+            if (!r.state) return;
+            window.location.href = r.downloadpath;
+        },'json');
+    }
+
+</script>
+
+}
+
+
+<h2>Index</h2>
+
+<div>
+
+    <input type="button" value="点击一个按钮导出图片" onclick="exportClick()"/>
+</div>
+
+
+<div id="container-Test" style="height: 400px; margin: auto; min-width: 310px; max-width: 600px"></div>
+<hr />
+<div id="container-Test2" style="height: 400px; margin: auto; min-width: 310px; max-width: 600px"></div>
+
+
+

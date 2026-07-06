@@ -1,0 +1,136 @@
+﻿@{
+    ViewBag.Title = "用户中心";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+
+<script>
+    var BeginDate = GetQuery('BeginDate');
+    var CheckSheetCode = GetQuery('CheckSheetCode');
+    var CustomerName = GetQuery('CustomerName');
+    function querys(page) {
+        //var page = GetQuery("page") == "" ? 1 : GetQuery("page");
+        var Parameter = [{
+            paramName: "BeginDate",
+            paramValue: BeginDate == "" ? "" : BeginDate + "-01",
+            Operation: "Equal",
+            Logic: "AND"
+        }, {
+            paramName: "CustomerName",
+            paramValue: CustomerName,
+            Operation: "Like",
+            Logic: "AND"
+        }, {
+            paramName: "CheckSheetCode",
+            paramValue: CheckSheetCode,
+            Operation: "Equal",
+            Logic: "AND"
+        }]
+        $.ajax({
+            url: "@Url.Content("~/CheckSheetModule/BY_CheckSheet/GridPageJsonForMobile")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            type: "post",
+            dataType: "json",
+            data: { "rows": 30, "page": page },
+            async: true,
+            success: function (data) {
+                $("#list").html("");
+                $.each(data.rows, function (i) {
+                    var html = '<li><a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryCheckSheetDetail")?CheckSheetCode=' + data.rows[i].CheckSheetCode + '" data-ignore="true">';
+                    html += '<div style="font-weight: 900; font-size: 1.11em; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; float: left; text-align: center; width: 75px; height: 75px; line-height: 75px; border: 1px solid #0088D1; vertical-align: middle; display: inline-block; margin-right: 5px;">';
+                    html += '<b class="#0088D1" style="color: red;">' + data.rows[i].ShortName + '</b></div>';
+                    html += '<h2>' + ChangeDateFormat(data.rows[i].BeginDate).substr(0,7) + ' 对账单号：' + data.rows[i].CheckSheetCode + '</h2><div class="note">';
+                    html += '<p>名称：' + data.rows[i].CustomerName + ' 联系人：' + data.rows[i].ContactName + ' 电话：' + data.rows[i].MobileCode + '/' + data.rows[i].ContactTel + ' 总重量：' + data.rows[i].Weight + ' 地址：' + data.rows[i].CustomerAddress + '</p>';
+                    html += '<p><i class="hot">总件数：' + data.rows[i].Qty + '件</i><i class="price">总金额：￥' + data.rows[i].TotalAmount + '</i></p>';
+                    html += '</div></a></li>';
+                    $("#list").append(html);
+                });
+                var htmlpage = '<span>共' + data.records + '记录</span>';
+                if (data.page == 1) {
+                    htmlpage += '<span class="disabled">«上一页</span>';
+                }
+                else {
+                    htmlpage += '<a href="javascript:;" onclick="querys(' + (data.page - 1) + ')" data-ignore="true">«上一页</a>';
+                }
+                htmlpage += '<span class="current">' + data.page + '</span>';
+                if (data.page == data.total || data.total == 1) {
+                    htmlpage += '<span class="disabled">下一页»</span>';
+                }
+                else {
+                    htmlpage += '<a href="javascript:;" onclick="querys(' + (data.page + 1) + ')" data-ignore="true">下一页»</a>';
+                }
+                $("#listPage").html("");
+                $("#listPage").append(htmlpage);
+            },
+            error: function (data) {
+                alert(data.responseText);
+            }
+
+        });
+    }
+
+    //初始化
+    $(function () {
+        querys(1);
+        $("#getWhere").click(function () {
+            location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QueryCheckSheetWhere")";
+        });
+    })
+
+    function locationInputQuot() {
+        location.href = "@Url.Content("~/WeiWebSite/WeiLogin/WeiIndex")";
+    }
+
+</script>
+
+
+
+<div id="mainPanel" class="panel" data-header="main_header" data-footer="main_footer">
+    <!--筛选按钮-->
+    <div class="select-bar">
+        <div class="col">
+            <a href="javascript:;" class="icon-back" onclick="history.back(-1);">返回上一页</a>
+        </div>
+        <div class="col">
+            <a id="getWhere" href="javascript:;" class="icon-carat-r">对账单筛选</a>
+        </div>
+    </div>
+    <!--/筛选按钮-->
+
+    <!--最新商品-->
+    <div class="section">
+        <h1>对账单信息</h1>
+    </div>
+    <div>
+        <ul class="list listview" id="list">
+
+@*            <li>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryOrderDetail")?OrderDetailId=bc8bf2f9-729a-4b35-b940-41d8c442d992" data-ignore="true">
+                    <div style="font-weight: 900; font-size: 1.11em; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; float: left; text-align: center; width: 75px; height: 75px; line-height: 75px; border: 1px solid #0088D1; vertical-align: middle; display: inline-block; margin-right: 5px;">
+                        <b class="#0088D1" style="color: red;">中钢</b>
+                    </div>
+                    <h2>2015年5月 对账单号：BJ15-000230</h2>
+                    <div class="note">
+                        <p>名称：阿斯蒂芬 联系人：223 电话：2112/dcde33 总重量： 地址：</p>
+                        <p><i class="hot">总件数：32件</i><i class="price">总金额：￥338233</i></p>
+                    </div>
+                </a>
+            </li>*@
+
+            
+        </ul>
+    </div>
+    <!--/最新商品-->
+
+    <div class="page-list" id="listPage">
+
+    </div>
+
+    <!--版权信息-->
+    @Html.Partial("_PartialMobileBottom")
+    <!--/版权信息-->
+
+</div>
+
+
+
+
+

@@ -1,0 +1,166 @@
+@{
+    ViewBag.Title = "Base_SteelDDBeoutDetail";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        GetGrid();
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/OrderModule/Base_SteelDDBeoutDetail/GridPageListJson")",
+            datatype: "json",
+            height: $(window).height() - 140,
+            autowidth: true,
+            colModel: [
+                {
+                    label: '申请时间', name: 'createdate', index: 'createdate', width: 100, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+                { label: 'base_steelddbeoutdetailid', name: 'base_steelddbeoutdetailid', index: 'base_steelddbeoutdetailid', hidden: true },
+                { label: 'isback', name: 'isback', index: 'isback', hidden: true },
+                    { label: '对账单号', name: 'paychecksheetcode', index: 'paychecksheetcode', width: 80, align: 'left', sortable: true },
+                    { label: '采购单号', name: 'base_steelddbeoutcode', index: 'base_steelddbeoutcode', width: 100, align: 'left', sortable: true },
+                    { label: '供应商', name: 'customername', index: 'customername', width: 100, align: 'left', sortable: true },
+                    { label: '钢种', name: 'steeldescription', index: 'steeldescription', width: 80, align: 'left', sortable: true },
+                    { label: '厚度', name: 'thick', index: 'thick', width: 60, align: 'left', sortable: true },
+                    { label: '宽度', name: 'weigh', index: 'weigh', width: 60, align: 'left', sortable: true },
+                    { label: '长度', name: 'length', index: 'length', width: 60, align: 'left', sortable: true },
+                    { label: '数量', name: 'qty', index: 'qty', width: 60, align: 'left', sortable: true },
+                    { label: '面积', name: 'area', index: 'area', width: 60, align: 'left', sortable: true },
+                    { label: '采购价', name: 'materialprice', index: 'materialprice', width: 60, align: 'left', sortable: true },
+                    { label: '采购金额', name: 'materialamount', index: 'materialamount', width: 60, align: 'left', sortable: true },
+                    { label: '对应单号', name: 'quotationcode', index: 'quotationcode', width: 120, align: 'left', sortable: true },
+                    { label: '对应客户名称', name: 'customername1', index: 'customername1', width: 100, align: 'left', sortable: true, hidden: true },
+                    { label: '对应客户简称', name: 'shortname', index: 'shortname', width: 100, align: 'left', sortable: true },
+                    { label: '对应单价', name: 'materialprice1', index: 'materialprice1', width: 60, align: 'left', sortable: true, hidden: true },
+                    { label: '对应销额', name: 'materialamount1', index: 'materialamount1', width: 60, align: 'left', sortable: true, hidden: true },
+                    { label: '备注', name: 'remark', index: 'remark', width: 120, align: 'left', sortable: true },
+                { label: '计划时间', name: 'delivery', index: 'delivery', width: 120, align: 'left', sortable: true},
+
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'base_steelddbeoutcode',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "paychecksheetcode": "合计",
+                    "materialamount": FormatCurrency($("#gridTable").getCol('materialamount', false, 'sum')),
+
+                });
+
+                var data = $("#gridTable").jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    var item = i + 1;
+                    if (data[i].isback == "1") {
+                        $("#" + item).find('td').css("background-color", "#00AA00");
+                    }
+                    if (new Date(formatDate('@DateTime.Now', 'yyyy-MM-dd')) > new Date(formatDate(data[i].delivery, 'yyyy-MM-dd')) && data[i].isback != "1") {
+                        $("#" + item).find('td').css("background-color", "red");
+                    }
+                }
+            },
+        });
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+
+    function btn_Search() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/OrderModule/Base_SteelDDBeoutDetail/GridPageListJson")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+    }
+    function btn_Export1() {
+        SetDeriveExcel("#gridTable", "生产报表");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+
+
+    function btn_audit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "base_steelddbeoutdetailid");
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定回仓？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/OrderModule/Base_SteelDDBeoutDetail/Update?Base_SteelDDBeoutDetailId=" + KeyValue, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+</script>
+<!--工具栏-->
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;" id="QueryParameter">
+        <tr>
+            <th>采购单号：</th>
+            <td>
+                <input id="Base_SteelDDBeoutCode" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>对应单号：</th>
+            <td>
+                <input id="QuotationCode" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>供应商：</th>
+            <td>
+                <input id="CustomerCode" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>钢种：</th>
+            <td>
+                <input id="SteelCode" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th style="width: 20px;">长：</th>
+            <td>
+                <input id="Length" maxlength="50" type="text" class="txt" style="width: 50px;" />
+            </td>
+            <th style="width: 20px;">宽：</th>
+            <td>
+                <input id="Weigh" maxlength="50" type="text" class="txt" style="width: 50px;" />
+            </td>
+            <th style="width: 20px;">厚：</th>
+            <td>
+                <input id="Thick" maxlength="50" type="text" class="txt" style="width: 50px;" />
+            </td>
+            <th>客户：</th>
+            <td>
+                <input id="CustomerCode1" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>采购时间：</th>
+            <td>
+                <input id="StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 120px" />
+                <input id="EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 120px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                <input id="btn_export1" type="button" class="btnSearch" value="导出" onclick="btn_Export1()" />
+                <input id="btndf" type="button" class="btnSearch" value="已回" onclick="btn_audit()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

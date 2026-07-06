@@ -1,0 +1,478 @@
+﻿@{
+    ViewBag.Title = "生产报表";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+
+    })
+    //查询
+    function btn_Search() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/ReportModule/Production/GridPageListWorkDetail")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+    }
+    var tempred = "";
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx = 1;
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ReportModule/Production/GridPageListWorkDetail")?Condition=" + escape(Condition),
+            datatype: "json",
+            height: $(window).height() - 130,
+            autowidth: true,
+            colModel: [
+                    {
+                        label: '落单时间', name: 'createdate', index: 'createdate', width: 70, sortable: true,
+                        formatter: function (cellvalue, options, rowobject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '编号', name: 'mnemoniccode', index: 'mnemoniccode', width: 70, sortable: true },
+                    { label: '订单单号', name: 'ordercode', index: 'ordercode', width: 100, sortable: true },
+                    { label: '行号', name: 'linecode', index: 'linecode', width: 50, align: 'center', sortable: true },
+                    { label: '客户名称', name: 'customername', index: 'customername', width: 50, align: 'left', sortable: true },
+                    { label: '品名', name: 'productname', index: 'productname', width: 60, align: 'left', sortable: true },
+
+                    { label: '钢种', name: 'steeldescription', index: 'steeldescription', width: 50, align: 'left', sortable: true },
+                    {
+                        label: '规格', name: '规格', index: '规格', width: 150, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!rowObject.weigh) {
+                                return parseFloat(rowObject.length) + " ×" + parseFloat(rowObject.weigh) + " ×" + parseFloat(rowObject.thick);
+                            }
+                            else {
+                                return "Φ" + parseFloat(rowObject.thick) + "*" + parseFloat(rowObject.length);
+                            }
+                        }
+                    },
+                    { label: '数量', name: 'qty', index: 'qty', width: 50, align: 'center', sortable: true, hidden: true },
+                    {
+                        label: '当前状态', name: 'billstatus', index: 'billstatus', width: 60, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (rowObject.billstatus != "已发运" && rowObject.billstatus != "已完工" && rowObject.billstatus != "部分发运" && rowObject.billstatus != "部分完工") {
+                                return !!rowObject.billstatus1 ? rowObject.billstatus1 : "正在开料";
+                            }
+                            else {
+                                return cellvalue;
+                            }
+                        }
+                    },
+                    { label: '加工类型', name: 'ordertype', index: 'ordertype', width: 60, align: 'left', sortable: true },
+                    { label: '当前状态', name: 'billstatus1', index: 'billstatus', width: 60, align: 'center', sortable: true, hidden: true },
+
+                    { label: 'isbeout', name: 'isbeout', index: 'isbeout', hidden: true },
+                    { label: 'length', name: 'length', index: 'length', hidden: true },
+                    { label: 'thick', name: 'thick', index: 'thick', hidden: true },
+                    { label: 'weigh', name: 'weigh', index: 'weigh', hidden: true },
+                    
+                    {
+                        label: '开料数', name: 'kqty', index: 'kqty', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '已开料', name: 'k001', index: 'k001', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+                            }
+                            else {
+                                if (!!rowObject.kqty) {
+                                    return '0'
+                                }
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '铣平面', name: 'p001qty', index: 'p001qty', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '已铣平面', name: 'p001', index: 'p001', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                if (!!rowObject.p001qty) {
+                                    return '0'
+                                }
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '铣侧面', name: 'cx01qty', index: 'cx01qty', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '已铣侧面', name: 'cx01', index: 'cx01', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                if (!!rowObject.cx01qty) {
+                                    return '0'
+                                }
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '研磨', name: 'ym01qty', index: 'ym01qty', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '已研磨', name: 'ym01', index: 'ym01', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                if (!!rowObject.ym01qty) {
+                                    return '0'
+                                }
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '精铣', name: 'j001qty', index: 'j001qty', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '已精铣', name: 'j001', index: 'j001', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                if (!!rowObject.j001qty) {
+                                    return '0'
+                                }
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '倒角', name: 'd001qty', index: 'd001qty', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '已倒角', name: 'd001', index: 'd001', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                if (!!rowObject.d001qty) {
+                                    return '0'
+                                }
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '吊孔', name: 'dk01qty', index: 'dk01qty', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '已吊孔', name: 'dk01', index: 'dk01', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                if (!!rowObject.dk01qty) {
+                                    return '0'
+                                }
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: 'CNC', name: 'cncqty', index: 'cncqty', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '已CNC', name: 'cnc', index: 'cnc', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                if (!!rowObject.cncqty) {
+                                    return '0'
+                                }
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '退火后研磨', name: 'ym02qty', index: 'ym02qty', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '已退火后研磨', name: 'ym02', index: 'ym02', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                if (!!rowObject.ym02qty) {
+                                    return '0'
+                                }
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '锯切', name: 'jx01qty', index: 'jx01qty', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                return ''
+                            }
+                        }
+                    },
+                    {
+                        label: '已锯切', name: 'jx01', index: 'jx01', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue;
+
+                            }
+                            else {
+                                if (!!rowObject.jx01qty) {
+                                    return '0'
+                                }
+                                return ''
+                            }
+                        }
+                    },
+
+            ],
+            viewrecords: true,
+            rowNum: 50,
+            rowList: [50, 100, 200,500,1000],
+            pager: "#gridPager",
+            sortname: 'createdate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            altRows: true,
+            altclass: 'altclass',
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                //合计
+                //var strred = tempred.trim(';').split(';');
+                //for (i = 0; i < strred.length; i++) {
+                //    if (strred[i].split(',')[1] != "" && strred[i].split(',')[0] != "") {
+                //        this.rows[strred[i].split(',')[1]].cells[strred[i].split(',')[0]].bgColor = "#FF3333";
+                //    }
+                    
+                //}
+                //tempred = "";
+                var data = $("#gridTable").jqGrid("getRowData");
+                var boostr = 0;
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].kqty > data[i].k001) {
+                        boostr = 1;
+                        this.rows[i+1].cells[18].bgColor = "#FF3333";
+                    }
+                    if (data[i].p001qty > data[i].p001) {
+                        boostr = 1;
+                        this.rows[i + 1].cells[20].bgColor = "#FF3333";
+                    }
+                    if (data[i].cx01qty > data[i].cx01) {
+                        boostr = 1;
+                        this.rows[i + 1].cells[22].bgColor = "#FF3333";
+                    }
+                    if (data[i].ym01qty > data[i].ym01) {
+                        boostr = 1;
+                        this.rows[i + 1].cells[24].bgColor = "#FF3333";
+                    }
+                    if (data[i].j001qty > data[i].j001) {
+                        boostr = 1;
+                        this.rows[i + 1].cells[26].bgColor = "#FF3333";
+                    }
+                    if (data[i].d001qty > data[i].d001) {
+                        boostr = 1;
+                        this.rows[i + 1].cells[28].bgColor = "#FF3333";
+                    }
+                    if (data[i].dk01qty > data[i].dk01) {
+                        boostr = 1;
+                        this.rows[i + 1].cells[30].bgColor = "#FF3333";
+                    }
+                    if (data[i].cncqty > data[i].cnc) {
+                        boostr = 1;
+                        this.rows[i + 1].cells[32].bgColor = "#FF3333";
+                    }
+                    if (data[i].ym02qty > data[i].ym02) {
+                        boostr = 1;
+                        this.rows[i + 1].cells[34].bgColor = "#FF3333";
+                    }
+                    if (data[i].jx01qty > data[i].jx01) {
+                        boostr = 1;
+                        this.rows[i + 1].cells[36].bgColor = "#FF3333";
+                    }
+                    
+                    if (!boostr) {
+                        //this.rows[i + 1].bgColor = "green";
+                        $("#" + (i + 1)).find('td').css("background-color", "#008800");
+                    }
+                    boostr = 0;
+                }
+            }
+        });
+        $("#gridTable").jqGrid('setGroupHeaders', {
+            useColSpanStyle: true,
+            groupHeaders: [
+              { startColumnName: 'kqty', numberOfColumns: 2, titleText: '开料' },
+              { startColumnName: 'p001qty', numberOfColumns: 2, titleText: '铣平面' },
+              { startColumnName: 'cx01qty', numberOfColumns: 2, titleText: '铣侧面' },
+              { startColumnName: 'ym01qty', numberOfColumns: 2, titleText: '研磨' },
+              { startColumnName: 'j001qty', numberOfColumns: 2, titleText: '精铣' },
+              { startColumnName: 'd001qty', numberOfColumns: 2, titleText: '倒角' },
+              { startColumnName: 'dk01qty', numberOfColumns: 2, titleText: '吊孔' },
+              { startColumnName: 'cncqty', numberOfColumns: 2, titleText: 'CNC' },
+              { startColumnName: 'ym02qty', numberOfColumns: 2, titleText: '退火后研磨' },
+              { startColumnName: 'jx01qty', numberOfColumns: 2, titleText: '锯切' },
+            ]
+        });
+    }
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "生产报表");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+</script>
+<div class="leftline rightline topline QueryArea" style="margin: 1px; margin-bottom: 0px;">
+    <table class="form-find" id="QueryParameter" style="height: 45px;">
+        <tr>
+            <th>落单时间</th>
+                            <td>
+                                <input id="Delivery_StartTime" type="text" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />
+                                <input id="Delivery_EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />
+                            </td>
+
+            <th>助记编码：</th>
+            <td>
+                <input id="MnemonicCode" type="text" class="txt" style="width: 120px" />
+            </td>
+            <th>订单单号：</th>
+            <td>
+                <input id="OrderCode" type="text" class="txt" style="width: 120px" /></td>
+            <th>客户名称：</th>
+            <td>
+                <input id="CustomerName" type="text" class="txt" style="width: 100px" />
+            </td><td>
+            <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                <input id="btn_export" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
+</td>
+
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

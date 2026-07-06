@@ -1,0 +1,160 @@
+﻿@{
+    ViewBag.Title = "用户中心";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+
+<!--修改资料-->
+<link rel="stylesheet" type="text/css" href="~/Content/Scripts/Mobile/templates/mobile/css/mobiscroll.custom-2.6.2.min.css" />
+<script type="text/javascript" src="~/Content/Scripts/Mobile/templates/mobile/js/mobiscroll.custom-2.6.2.min.js"></script>
+<script type="text/javascript" src="~/Content/Scripts/Mobile/scripts/jquery/Validform_v5.3.2_min.js"></script>
+@*<script type="text/javascript" src="~/Content/Scripts/Mobile/scripts/jquery/PCASClass.js"></script>*@
+
+
+<script type="text/javascript">
+    $(document).ready(function (e) {
+        $("#main_footer a.user").addClass("pressed");
+        BindDropItem("#Category", "CustomerSort", "==请选择==");
+        //运输方式
+        BindDropItem("#TransitMode", "TransitMode", "==请选择==");
+        //账期
+        BindDropItem("#PaymentMode", "PaymentMode", "==请选择==");
+        //var mypcas = new PCAS("Sellregion,所属省份", "Sellarea,所属城市");
+        $("#Sellregion").append("<option value=''>==请选择==</option>");
+        $("#Sellarea").append("<option value=''>==请选择==</option>");
+        AjaxJsonNoMassge("/Utility/GetProvinceCityListJson", { ParentId: 0 }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Sellregion").append($("<option Code=" + DataJson[i].Code + "></option>").val(DataJson[i].FullName).html(DataJson[i].FullName));
+            });
+        })
+        //所在市
+        $("#Sellregion").change(function () {
+            BindCityId();
+        });
+
+        //初始化表单
+        AjaxInitForm('#info_form', '#btnSubmit', 1);
+        window.setTimeout(function () {
+            AjaxJsonNoMassge("/WeiWebSite/WeiLogin/GetCustomerEntity", "", function (data) {
+                SetWebControls(data.base_customer);
+                SetWebControls(data.base_customeraddress);
+
+                ////初始化地区
+                //var areaArr = ("").split(",");
+                //if (areaArr.length == 2) {
+                //    mypcas.SetValue(areaArr[0], areaArr[1]);
+                //}
+
+                BindCityId();
+                window.setTimeout(function () {
+                $("#Sellarea").val(data.base_customer.Sellarea);
+                }, 300);
+            });
+        }, 300);
+    });
+
+    //所在市下拉框
+    function BindCityId() {
+        $("#Sellarea").html("");
+        $("#Sellarea").append("<option value=''>==请选择==</option>");
+        AjaxJsonNoMassge("/Utility/GetProvinceCityListJson", { ParentId: $("#Sellregion").find("option:selected").attr('Code') }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Sellarea").append($("<option></option>").val(DataJson[i].FullName).html(DataJson[i].FullName));
+            });
+        })
+    }
+
+</script>
+
+<div id="mainPanel" class="panel" data-footer="main_footer">
+    <header>
+        <a onclick="history.back(-1);" class="backButton">返回</a>
+        <h1>个人资料</h1>
+        <a onclick="$.ui.toggleSideMenu()" class="menuButton"></a>
+    </header>
+    <form id="info_form" name="info_form" url="/WeiWebSite/WeiLogin/SubmitFormCustomer">
+        <div class="form-box">
+            <dl>
+                <dt>客户编号</dt>
+                <dd>@DNS.Utilities.ManageProvider.Provider.Current().UserId
+                <input name="CustomerId" id="CustomerId" type="text" style="display:none" />
+                <input name="CustomerAddressId" id="CustomerAddressId" type="text" style="display:none" /></dd>
+            </dl>
+            <dl>
+                <dt>客户名称</dt>
+                <dd>
+                    <input name="FullName" id="FullName" type="text" maxlength="50" value="@DNS.Utilities.ManageProvider.Provider.Current().CompanyName" readonly datatype="*" sucmsg=" " /></dd>
+            </dl>
+            <dl>
+                <dt>客户分类</dt>
+                <dd>
+                    <select name="Category" id="Category" datatype="*" sucmsg=" ">
+                    </select>
+            </dl>
+            <dl>
+                <dt>运输方式</dt>
+                <dd>
+                    <select name="TransitMode" id="TransitMode" datatype="*" sucmsg=" ">
+                    </select>
+            </dl>
+            <dl>
+                <dt>账期</dt>
+                <dd>
+                    <select name="PaymentMode" id="PaymentMode" datatype="*" sucmsg=" ">
+                    </select>
+            </dl>
+            <dl>
+                <dt>联系人：</dt>
+                <dd>
+                    <input name="Contact" id="Contact" type="text" maxlength="20"  datatype="*" sucmsg=" " /></dd>
+            </dl>
+            <dl>
+                <dt>联系电话：</dt>
+                <dd>
+                    <input name="Telephone" id="Telephone" type="text" maxlength="20"  datatype="*" sucmsg=" " /></dd>
+            </dl>
+            <dl>
+                <dt>联系手机：</dt>
+                <dd>
+                    <input name="Mobile" id="Mobile" type="text" maxlength="50"  datatype="*" sucmsg=" "/></dd>
+            </dl>
+            <dl>
+                <dt>传真号码：</dt>
+                <dd>
+                    <input name="Fax" id="Fax" type="text" maxlength="50" datatype="*" sucmsg=" " /></dd>
+            </dl>
+            <dl>
+                <dt>电子邮箱：</dt>
+                <dd>
+                    <input name="EmailAddress" id="EmailAddress" type="text" maxlength="50" /></dd>
+            </dl>
+
+            <dl>
+                <dt>销售大区：</dt>
+                <dd>
+                    <select id="Sellregion" name="Sellregion" class="select" datatype="*" sucmsg=" "></select>
+                </dd>
+            </dl>
+            <dl>
+                <dt>销售区域</dt>
+                <dd>
+                    <select id="Sellarea" name="Sellarea" class="select" datatype="*" sucmsg=" "></select>
+                </dd>
+            </dl>
+            <dl>
+                <dt>详细地址：</dt>
+                <dd>
+                    <textarea id="DetailAddress" name="DetailAddress" rows="3" datatype="*" sucmsg=" "></textarea>
+            </dl>
+        </div>
+
+        <div>
+            <input id="btnSubmit" name="btnSubmit" type="submit" value="确认修改" class="btn orange full" />
+        </div>
+    </form>
+    <!--/修改资料-->
+        <!--版权信息-->
+    @Html.Partial("_PartialMobileBottom")
+
+    <!--/版权信息-->
+
+</div>

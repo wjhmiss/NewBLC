@@ -1,0 +1,1055 @@
+﻿@{
+    ViewBag.Title = "DetailForm";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+<script type="text/javascript" src="~/Content/Scripts/Conversion.js?ver=@DateTime.Now.Ticks"></script>
+<script type="text/javascript">
+    var CopyKeyValue = GetQuery('CopyKeyValue');//复制的时候获取 主键
+    var KeyValue = GetQuery('KeyValue');//主键
+    var CustomerId = GetQuery('CustomerId');
+    var CustomerName = GetQuery('CustomerName');
+    var CustMaterial = GetQuery('CustMaterial');
+    var FreeBill = GetQuery('FreeBill');
+    var Insert = GetQuery('Insert');
+    var SteelCode = "";
+    var temp1 = 0;
+    var temp2 = 0;
+    var temp3 = 0;
+    var temp4 = 0;
+    var temp5 = 0;
+    var YLrequire = "";
+    var RLrequire = "";
+    var JLrequire = "";
+    var SteelType = "";
+    var LimitWeight = 0;
+    var LimitThick = 0;
+    var LimitWeightGB = 0;
+    var LimitThickGB = 0;
+    var ManagerCostLess = 0;
+    var InvoiceCostLess = 0;
+    var Mrequire = "";
+    var checkstatus = GetQuery('checkstatus');
+    var DKorQG = false;
+    var LType = "GC";
+    var temp6 = 0;
+    var temp7 = 0;
+    var temp8 = 0;
+
+    var temp10 = 0;
+    var temp11 = 0;
+    var temp12 = 0;
+    var temp13 = 0;
+
+
+    var Addtemp1 = 0;
+    var Addtemp2 = 0;
+    var Addtemp3 = 0;
+    //function checkfirst1(object) {
+    //    temp1 = temp1 + 1;
+    //}
+    //function checkfirst2(object) {
+    //    temp2 = temp2 + 1;
+    //}
+    //function checkfirst3(object) {
+    //    temp3 = temp3 + 1;
+    //}
+
+    $(function () {
+        //var OrderType = GetQuery('OrderType');
+        //if (OrderType == 'BC') {
+        //    $("#BoardId").val("P013");
+        //    $("#BoardDescription").val("钢材")
+        //} else {
+        //    $("#BoardId").val("P010");
+        //    $("#BoardDescription").val("精料")
+        //}
+        //禁止后退键 作用于Firefox、Opera
+        //document.onkeypress = enterInput;
+        //禁止后退键  作用于IE、Chrome
+        document.onkeydown = enterInput;
+        if (!$("#JJtype").val() || $("#JJtype").val() != "按件数") {
+            $("#JJtype").val("按公斤");
+        }
+
+        $("#QuotationId").val(GetQuery('QuotationId'));
+        //加工类型
+        BindDropItem("#OrderType", "ProcessType", "==请选择==");
+        BindDropItem("#Kprocess", "加工流程", "==请选择==");
+
+        //if (KeyValue != "" || CopyKeyValue != "") {
+        //    temp1 = temp1 + 1;
+        //    temp2 = temp2 + 1;
+        //    temp3 = temp3 + 1;
+        //}
+        $("#MaterialPrice").bind('input propertychange', function () {
+            temp1 = temp1 + 1;
+        });
+        $("#WorkPrice").bind('input propertychange', function () {
+            temp2 = temp2 + 1;
+        });
+        $("#HeatPrice").bind('input propertychange', function () {
+            temp3 = temp3 + 1;
+        });
+
+        $("#LimitThick").bind('input propertychange', function () {
+            temp4 = temp4 + 1;
+        });
+        $("#LimitWeight").bind('input propertychange', function () {
+            temp5 = temp5 + 1;
+        });
+        //钢材状态
+        //BindDropItemName("#SteelState", "SteelStatus", "==请选择==");
+        //工艺
+        BindDropItem("#Technology", "CraftType", "==请选择==");
+        //板件编码自动补全
+        //BoardAutocomplete();
+        //钢材编码自动补全
+        SteelAutocomplete();
+        InitControl();
+        $("#LineCode").val(GetQuery('LineCode'));
+        window.setTimeout(function () {
+            AjaxJsonNoMassge("/CommonModule/Steel/GetSteelEntityByCode", { SteelCode: $("#SteelCode").val() }, function (steeldata) {
+                Density = Number(steeldata.Density);
+                SteelType = steeldata.SteelType;
+                //Conversion();
+            });
+            AjaxJsonNoMassge("/CommonModule/Customer/GetEntity", { keywords: CustomerId }, function (DataJson) {
+                //if ($("#OrderType").val() != "毛料生产") {
+                //   LimitWeight = DataJson.LimitWeight;
+                //}
+                //else {
+                //    LimitWeight = 0;
+                //}
+                if (DataJson.LimitWeight) {
+                    LimitWeight = DataJson.LimitWeight;
+                }
+
+                
+                $("#Calc").val(DataJson.Calc);
+                $("#CPriceMessage").val(DataJson.PriceMessage);
+                $("#CMateRemark").val(DataJson.MateRemark);
+                $("#CRemark").val(DataJson.Remark);
+            });
+        }, 200);
+    })
+
+    function setAdd() {
+
+    }
+
+    function enterInput() {
+
+
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+        if (e && e.keyCode == 13) {//回车
+            if ($(tar).attr('id') == "SteelCode") {
+                $("#Length").select();
+            }
+            else if ($(tar).attr('id') == "Length") {
+                if (!!$(tar).val() && $(tar).val() != "0") {
+                    $("#Weigh").select();
+                }
+            }
+            else if ($(tar).attr('id') == "Weigh") {
+                $("#Thick").select();
+            }
+            else if ($(tar).attr('id') == "Thick") {
+                $("#BoreSize").select();
+            }
+            else if ($(tar).attr('id') == "BoreSize") {
+                $("#Qty").select();
+            }
+
+            else if ($(tar).attr('id') == "Qty") {
+                if ($(tar).val() != "0") {
+                    $("#MaterialPrice").select();
+                }
+            }
+            else if ($(tar).attr('id') == "MaterialPrice") {
+                $("#AddLength").select();
+            }
+
+            
+            else if ($(tar).attr('id') == "AddLength") {
+                $("#AddWeigh").select();
+            }
+            
+            else if ($(tar).attr('id') == "AddWeigh") {
+                $("#AddThick").select();
+            }
+            
+            else if ($(tar).attr('id') == "AddThick") {
+                $("#BoreSizeAdd").select();
+            }
+            else if ($(tar).attr('id') == "BoreSizeAdd") {
+                $("#CustomerProduct").select();
+
+            }
+
+
+            else if ($(tar).attr('id') == "CustomerProduct") {
+                $("#WorkPrice").select();
+            }
+
+         
+            
+            else if ($(tar).attr('id') == "WorkPrice") {
+                $("#SmallCost").select();
+
+            }
+
+            else if ($(tar).attr('id') == "SmallCost") {
+                $("#RemarkKL").select();
+
+                
+            }
+
+            
+           
+            else if ($(tar).attr('id') == "RemarkKL") {
+                $("#Remark").select();
+
+            }
+
+            else if ($(tar).attr('id') == "Remark") {
+                $("#ShipDescription").select();
+            }
+            
+            else if ($(tar).attr('id') == "ShipDescription") {
+                if (!$("#Delivery").val()) {
+                    $("#Delivery").select();
+
+                }
+                else if (!$("#Kprocess").val())
+                {
+                    $("#Kprocess").select();
+                }
+                else {
+                    if (!!KeyValue) {
+                        //编辑
+                        AcceptClick2(1);
+                    }
+                    else {
+                        AcceptClick1();
+                    }
+                }
+
+            }
+            else if ($(tar).attr('id') == "Delivery") {
+                //if ($("#Remark").val() != "") {
+                if (!$("#Kprocess").val()) {
+                    $("#Kprocess").select();
+                }
+                else if (!!KeyValue) {
+                    //编辑
+                    AcceptClick2(1);
+                }
+                else {
+                    AcceptClick1();
+                }
+                //}
+            }
+            else if ($(tar).attr('id') == "Kprocess") {
+                //if ($("#Remark").val() != "") {
+                if (!!KeyValue) {
+                    //编辑
+                    AcceptClick2(1);
+                }
+                else {
+                    AcceptClick1();
+                }
+                //}
+            }
+            else {
+                $("#Delivery").select();
+            }
+
+        }
+    }
+    //板件编码自动补全
+    var Density = "0";
+    //function BoardAutocomplete() {
+    //    var $BoardId = $("#BoardId");
+    //    $BoardId.focus(function () {
+    //        $(this).select();
+    //        DataSource();
+    //    });
+    //    //上，下键盘回调
+    //    autocompletekeydown("BoardId", function (data) {
+    //        $("#BoardId").val(data.Code);
+    //        $("#BoardDescription").val(data.FullName)
+    //    });
+    //    //获取数据源
+    //    function DataSource() {
+    //        getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: "PanelClassBaseInfo" }, function (data) {
+    //            var itemjson = eval("(" + data + ")");
+    //            var html = "";
+    //            $.each(itemjson, function (i) {
+    //                html += "<tr>";
+    //                html += '<td id="Code" style="width: 30%;">' + itemjson[i].Code + '</td>';
+    //                html += '<td id="FullName" style="width: 100%;">' + itemjson[i].FullName + '</td>';
+    //                html += "</tr>";
+    //            });
+    //            //点击事件回调
+    //            autocomplete("BoardId", $BoardId.width() + "px", "200px", html, function (data) {
+    //                $("#BoardId").val(data.Code);
+    //                $("#BoardDescription").val(data.FullName);
+    //                if (data.Code == "P013") {
+    //                    OrderType = "BC";
+    //                }
+    //                else {
+    //                    OrderType = "BJ";
+    //                }
+    //            });
+    //        });
+    //    }
+    //}
+    //钢材编码自动补全
+    function SteelAutocomplete() {
+        var $SteelCode = $("#SteelCode");
+        $SteelCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            //DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("SteelCode", function (data) {
+            if (!!data.SteelCode) {
+                //if (data.Length == 0) {
+                //    $("#JJtype").val("按件数");
+                //}
+                //else {
+                //    $("#JJtype").val("按公斤");
+                //}
+                $("#SteelId").val(data.SteelId);
+                $("#SteelCode").val(data.SteelCode);
+                $("#SteelDescription").val(data.SteelName);
+                Density = data.Density;
+                SteelType = data.SteelType;
+                $("#RepalceMl").val(data.RepalceMl);
+                $("#SteelType").val(data.SteelType);
+                ConversionAdd();
+                Conversion();
+            }
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJsonNoMassge("/CommonModule/Steel/GetAutoCompleJson", { keywords: $SteelCode.val(), isBanOrYuan: "", type: 1 }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="SteelId" style="display: none;">' + DataJson[i].SteelId + '</td>';
+                    html += '<td id="SteelCode" style="width: 40%;">' + DataJson[i].SteelCode + '</td>';
+                    html += '<td id="SteelName" style="width: 60%;">' + DataJson[i].SteelName + '</td>';
+                    html += '<td id="Density" style="display: none;">' + DataJson[i].Density + '</td>';
+                    html += '<td id="SteelType" style="display: none;">' + DataJson[i].SteelType + '</td>';
+                    html += '<td id="RepalceMl" style="display: none;">' + DataJson[i].RepalceMl + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("SteelCode", "150px", "250px", html, function (data) {
+                    //if (data.Length == 0) {
+                    //    $("#JJtype").val("按件数");
+                    //}
+                    //else {
+                    //    $("#JJtype").val("按公斤");
+                    //}
+                    $("#SteelId").val(data.SteelId);
+                    $("#SteelCode").val(data.SteelCode);
+                    $("#SteelDescription").val(data.SteelName);
+                    Density = data.Density;
+                    SteelType = data.SteelType;
+                    $("#RepalceMl").val(data.RepalceMl);
+                    $("#SteelType").val(data.SteelType);
+                    ConversionAdd();
+                    Conversion();
+
+                });
+            });
+        }
+        ////选择钢材，自动把钢材状态赋值
+        //function GetSteelStatus(SteelCode) {
+        //    AjaxJsonNoMassge("/CommonModule/SteelStatus/GetSteelStatusJson", { SteelCode: SteelCode }, function (data) {
+        //        $("#SteelState").val(data.SteelStatus);
+        //    });
+        //}
+    }
+    //得到一个对象实体
+    function InitControl() {
+        if (!!KeyValue) {
+            AjaxJsonNoMassge("/QuotationModule/QuotationInput/SetDetailForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+                if (!!checkstatus) {
+                    //$("#form1").find("input,select,label").attr('disabled', 'disabled');
+                    //$("#ShipDescription").prop('disabled',false);
+                    //$("#CustomerProduct").prop('disabled', false);
+                    //$("#JJtype").prop('disabled', false);
+                    //$("#ProductName").prop('disabled', false);
+                }
+                if (!!GetQuery('Show')) {
+                    $("#form1").find("input,select,label").attr('disabled', 'disabled');
+                    $("#nextps").hide();
+                    $("#ups").hide();
+                }
+
+            });
+        }
+        else {
+            ConversionAdd();
+        }
+        if (!KeyValue) {
+            $("#nextps").hide();
+            $("#ups").hide();
+        }
+        //复制的时候自动给控件赋值
+        if (!!CopyKeyValue) {
+            AjaxJsonNoMassge("/QuotationModule/QuotationInput/SetDetailForm", { KeyValue: CopyKeyValue }, function (data) {
+                SetWebControls(data);
+                $("#Qty").select();
+
+            });
+        }
+        //if (Number($("#MaterialPrice").val()) != 0) {
+        //    temp1 = temp1 + 1;
+        //}
+        //if (Number($("#WorkPrice").val()) != 0) {
+        //    temp2 = temp2 + 1;
+        //}
+        //if (Number($("#HeatPrice").val()) != 0) {
+        //    temp3 = temp3 + 1;
+        //}
+
+
+    }
+    //保存事件
+    function AcceptClick() {
+
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        if (postData.Qty <= 0) {
+            tipCss("#Qty", "数量必须大于0");
+            return false;
+        }
+        if (postData.Thick <= 0 && $("#SteelCode").val() != "FY" && CustMaterial != "1") {
+            tipCss("#Thick", "厚度必须大于0");
+            return false;
+        }
+        //if (postData.Weigh <= 0) {
+        //    tipCss("#Weigh", "宽度必须大于0");
+        //    return false;
+        //}
+        if (postData.Length <= 0 && $("#SteelCode").val() != "FY" && CustMaterial != "1") {
+            tipCss("#Length", "长度必须大于0");
+            return false;
+        }
+
+        AjaxJsonNoMassge("/QuotationModule/QuotationInput/SubmitDetailForm?KeyValue=" + KeyValue + "&Insert=" + Insert, postData, function (data) {
+            if (data.Code < 0) {
+                //tipDialog(data.Message, 2, data.Code);
+                tipCss("#Remark", data.Message);
+                return false;
+
+            }
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+
+    //保存事件
+    function AcceptClick1() {
+
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        if (postData.Qty <= 0) {
+            tipCss("#Qty", "数量必须大于0");
+            return false;
+        }
+        if (postData.Thick <= 0 && $("#SteelCode").val() != "FY" && CustMaterial != "1") {
+            tipCss("#Thick", "厚度必须大于0");
+            return false;
+        }
+        //if (postData.Weigh <= 0) {
+        //    tipCss("#Weigh", "宽度必须大于0");
+        //    return false;
+        //}
+        if (postData.Length <= 0 && $("#SteelCode").val() != "FY" && CustMaterial != "1") {
+            tipCss("#Length", "长度必须大于0");
+            return false;
+        }
+        $("#Qty").val("1"); $("#Thick").val("0"); $("#Weigh").val("0"); $("#Length").val("0");
+        //$("#AddThick").val("0");
+        //$("#AddWeigh").val("0");
+        //$("#AddLength").val("0");
+        temp1 = 0;
+        temp2 = 0;
+        temp3 = 0;
+        temp4 = 0;
+        temp5 = 0;
+        temp6 = 0;
+        temp7 = 0;
+        temp8 = 0;
+        temp10 = 0;
+        temp11 = 0;
+        temp12 = 0;
+        Addtemp1 = 0;
+        Addtemp2 = 0;
+        Addtemp3 = 0;
+
+        AjaxJsonNoMassge("/QuotationModule/QuotationInput/SubmitDetailForm?KeyValue=" + KeyValue + "&Insert=" + Insert, postData, function (data) {
+            //tipDialog(data.Message, 1, data.Code);
+            if (data.Code < 0) {
+                //tipDialog(data.Message, 2, data.Code);
+                tipCss("#Remark", data.Message);
+                return false;
+
+            }
+            $("#Length").select();
+            $("#LineCode").val(Number($("#LineCode").val()) + 1);
+            top.frames[tabiframeId()].windowload();
+        });
+    }
+    function AcceptClick2(num, obj) {
+
+
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        if (postData.Qty <= 0) {
+            tipCss("#Qty", "数量必须大于0");
+            return false;
+        }
+        if (postData.Thick <= 0 && $("#SteelCode").val() != "FY" && CustMaterial != "1") {
+            tipCss("#Thick", "厚度必须大于0");
+            return false;
+        }
+        //if (postData.Weigh <= 0) {
+        //    tipCss("#Weigh", "宽度必须大于0");
+        //    return false;
+        //}
+        if (postData.Length <= 0 && $("#SteelCode").val() != "FY" && CustMaterial != "1") {
+            tipCss("#Length", "长度必须大于0");
+            return false;
+        }
+        AjaxJsonNoMassge("/QuotationModule/QuotationInput/SubmitDetailForm?KeyValue=" + KeyValue + "&ShipDescription=" + $("#ShipDescription").val() + "&CustomerProduct=" + $("#CustomerProduct").val(), postData, function (data) {
+            if (data.Code < 0) {
+                //tipDialog(data.Message, 2, data.Code);
+                tipCss("#Remark", data.Message);
+                return false;
+
+            }
+
+
+            top.frames[tabiframeId()].windowload();
+            $("#LineCode").val(Number($("#LineCode").val()) + Number(num));
+            AjaxJsonNoMassge("/QuotationModule/QuotationInput/SetDetailFormByLine", { QuotationId: $("#QuotationId").val(), LineCode: Number($("#LineCode").val()) }, function (data) {
+                if (!data.Qty) {
+                    window.setTimeout(function () {closeDialog();}, 500);
+                    return false;
+                }
+                SetWebControls(data);
+
+                KeyValue = data.QuotationDetailId;
+
+                if (!!KeyValue && !!obj) {
+                    //编辑
+                    //$("#SteelCode").select();
+                    obj.select();
+                }
+                else {
+                    $("#Length").select();
+                }
+            });
+        });
+    }
+    function UP() {
+        AcceptClick2(-1)
+    }
+    function Next() {
+        AcceptClick2(1)
+    }
+    function setname() {
+        var Mheipi = $("#Mheipi").prop("checked") == true ? 1 : 0;
+        if (Mheipi == 1) {
+            $("#ProductName").val($("#SteelDescription").val() + "净尺寸黑皮");
+        }
+        else {
+            $("#ProductName").val($("#SteelDescription").val() + $("#OrderType").val().substr(0, 2));
+
+            if ($("#ProductName").val().indexOf("板") >= 0) {
+                var temp = $("#ProductName").val().replace(/板/g, "");
+                $("#ProductName").val(temp + "板");
+            }
+        }
+
+    }
+</script>
+
+<div class="bd" style="border-bottom: none; margin: 1px;">
+    <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+        <div class="tab_list_top" style="position: absolute">
+            <div id="Tabtab1" class="tab_list bd actived" onclick="Tabchange('tab1');">客户统计</div>
+            <div id="Tabtab2" class="tab_list bd " onclick="Tabchange('tab2');">报价及注意事项</div>
+        </div>
+    </div>
+</div>
+<div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+    <div id="tab1" class="tabPanel" style="margin: 1px; margin-top: -1px;">
+        <form id="form1" style="margin: 1px">
+            <div id="message" style="display: none"></div>
+            <input id="QuotationId" type="hidden" />
+            <input id="SteelType" type="hidden" />
+            <input id="RepalceMl" type="hidden" />
+            <input id="ProductName1" type="hidden" />
+            <input id="Calc" type="hidden" />
+            <input id="WorkWeight" type="hidden" />
+
+            <input id="内孔重量" type="hidden" />
+            <input id="管状重量" type="hidden" />
+            <input id="两平面面积" type="hidden" />
+            <input id="四侧面积" type="hidden" />
+            <input id="六面面积" type="hidden" />
+            <input id="WorkWeight" type="hidden" />
+            <input id="WorkWeight" type="hidden" />
+            <input id="WorkWeight" type="hidden" />
+
+
+
+
+            <table class="form">
+
+                <tr>
+
+                    <th class="formTitle" colspan="2">加工类型：</th>
+                    <td class="formValue">
+                        @*<input id="BoardId" type="text" class="txt" />
+                        *@
+                        <select id="OrderType" onchange="ConversionAdd();Conversion();" class="txtselect" datacol="yes" err="加工类型" checkexpession="NotNull">
+                        </select>
+                    </td>
+
+                    @*<th class="formTitle" colspan="2">板件名称：</th>
+                <td class="formValue">
+                    <input disabled id="BoardDescription" type="text" class="txt" /></td>*@
+                    <th class="formTitle" colspan="2">几放：</th>
+                    <td class="formValue">
+                        <select id="Fang" class="txtselect" datacol="yes" err="几放" checkexpession="NotNull" onchange="setAdd();">
+                            <option value="一放" selected="selected">一放</option>
+                            <option value="二放">二放</option>
+                            <option value="三放">三放</option>
+                            <option value="不放">不放</option>
+                        </select>
+                    </td>
+
+
+                </tr>
+
+                <tr>
+
+                    <th class="formTitle" colspan="2">钢材编码：</th>
+                    <td class="formValue">
+                        <input id="SteelId" type="hidden" />
+                        <input id="SteelCode" type="text" class="txt" datacol="yes" err="钢材编码" checkexpession="NotNull" style="width: 45%" />
+                        <input disabled id="SteelDescription" type="text" class="txt" style="width: 45%" />
+                    </td>
+                    @*<th class="formTitle" colspan="2">板件名称：</th>
+                <td class="formValue">
+                    <input disabled id="BoardDescription" type="text" class="txt" /></td>*@
+
+
+                    <th class="formTitle" colspan="2"></th>
+                    <td class="formValue">
+                        毛重<input id="Weight" onfocus="IsMoney(this.id);" onkeyup="CountTotalMoney()" type="text" class="txt" value="0.00" onblur="value0(this)" style="width:30%" />
+                        净重<input id="TheoryWeight" onfocus="IsMoney(this.id);" onkeyup="CountTotalMoney()" type="text" class="txt" value="0.00" onblur="value0(this)" style="width:30%" />
+                    </td>
+
+                </tr>
+
+                <tr>
+                    <th class="formTitle" rowspan="4">要求尺寸</th>
+                    <th class="formTitle">长度：</th>
+                    <td class="formValue">
+                        <input id="Length" onfocus="IsMoney(this.id);" onkeyup="Conversion();" type="text" class="txt" value="0" onblur="value0(this)" />
+                    </td>
+                    <th class="formTitle" rowspan="4">计价余量</th>
+                    <th class="formTitle">长度：</th>
+                    <td class="formValue">
+                        <input id="AddLength" onfocus="IsMoney(this.id);" onkeyup="Addtemp3 = Addtemp3+1;Conversion();" type="text" class="txt" value="0" onblur="value0(this)" />
+                    </td>
+
+
+                </tr>
+                <tr>
+                    <th class="formTitle">宽度：</th>
+                    <td class="formValue">
+                        <input id="Weigh" onfocus="IsMoney(this.id);" onkeyup="Conversion();" type="text" class="txt" value="0" onblur="value0(this)" />
+                    </td>
+                    <th class="formTitle">宽度：</th>
+                    <td class="formValue">
+                        <input id="AddWeigh" onfocus="IsMoney(this.id);" onkeyup="Addtemp2 = Addtemp2+1;Conversion();" type="text" class="txt" value="0" onblur="value0(this)" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">厚(直径)：</th>
+                    <td class="formValue">
+                        <input id="Thick" onfocus="IsMoney(this.id);" onkeyup="Conversion();" type="text" class="txt" value="0" onblur="value0(this)" />
+                    </td>
+                    <th class="formTitle">厚(直径)：</th>
+                    <td class="formValue">
+                        <input id="AddThick" onfocus="IsMoney(this.id);" onkeyup="Addtemp1 = Addtemp1+1;Conversion();" type="text" class="txt" value="0" onblur="value0(this)" />
+                    </td>
+
+
+
+                </tr>
+                <tr>
+
+                    <th class="formTitle">孔径：</th>
+                    <td class="formValue">
+                        <span class="item" style="display:none;">
+                            <input id="Mheipi" name="GasCuttingSteel" type="checkbox" style="vertical-align: middle;" onclick="setname();" />
+                            <label for="Mheipi" style="vertical-align: middle;">净尺寸黑皮</label>
+                            &nbsp;&nbsp;
+                        </span>
+                        <input id="BoreSize" onfocus="IsMoney(this.id);" onkeyup="Conversion()" type="text" class="txt" value="0" onblur="value0(this)" />
+                    </td>
+
+                    <th class="formTitle">孔径：</th>
+                    <td class="formValue">
+                        <input id="BoreSizeAdd" onfocus="IsMoney(this.id);" onkeyup="Conversion()" type="text" class="txt" value="0" onblur="value0(this)" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle" colspan="2">数&nbsp;&nbsp;量：</th>
+                    <td class="formValue">
+                        <input id="Qty" onfocus="IsNumber(this.id);" onkeyup="Conversion()" type="text" class="txt" value="1" onblur="value0(this)" />
+                    </td>
+
+                    
+                    <th class="formTitle" rowspan="2">热处理</th>
+
+                    <th class="formTitle">工艺：</th>
+                    <td class="formValue">
+                        <select id="Technology" onchange="Conversion();" class="txtselect">
+                            <option value="">无</option>
+                        </select>
+                    </td>
+
+
+                </tr>
+                <tr>
+                    <th class="formTitle" rowspan="2">材料费用</th>
+                    <th class="formTitle">单价/KG：</th>
+                    <td class="formValue">
+                        <input id="MaterialPrice" onfocus="IsMoney(this.id);" onkeyup="temp1 = temp1 + 1;Conversion();" type="text" class="txt" value="0.00" onblur="value0(this)" style="width:50%" />
+                        <select id="JJtype" class="txtselect" datacol="yes" err="加工类型" checkexpession="NotNull" style="width:40%" onchange="Conversion();">
+                            <option value="按公斤" selected="selected">按公斤</option>
+                            <option value="按件数">按件数</option>
+                        </select>
+                    </td>
+
+                    <!--<th class="formTitle" colspan="2"></th>
+    <td class="formValue">-->
+                    @*<input id="ProjectCode" type="text" class="txt" />配件号*@
+                    <!--</td>-->
+                    <th class="formTitle">单价：</th>
+                    <td class="formValue">
+                        单价<input id="HeatPrice" onkeyup="temp3 = temp3 + 1;Conversion();" type="text" class="txt" value="0.00" style="width:30%" />
+                        总额<input id="HeatAmount" type="text" class="txt" value="0.00" style="width:30%" disabled />
+
+                    </td>
+                </tr>
+
+                <tr>
+
+                    <th class="formTitle">金额：</th>
+                    <td class="formValue">
+                        <input id="MaterialAmount" onfocus="IsMoney(this.id);" onkeyup="CountTotalMoney1()" type="text" class="txt" value="0.00" onblur="value0(this)" disabled />
+                    </td>
+
+
+
+                    <th class="formTitle" colspan="2">模号：</th>
+                    <td class="formValue">
+                        <input id="MaterialCost" type="hidden" />
+                        <input id="CustomerProduct" type="text" class="txt" />
+                    </td>
+
+
+
+                </tr>
+                <tr>
+
+                    <th class="formTitle" rowspan="2">加工费/件</th>
+                    <th class="formTitle">单价/件：</th>
+                    <td class="formValue">
+                        <input id="WorkPrice" onkeyup="temp2 = temp2 + 1;Conversion();" type="text" class="txt" value="0.00" onblur="value0(this)" />
+                    </td>
+
+
+
+
+                    <th class="formTitle" colspan="2">开料备注：</th>
+                    <td class="formValue">
+                        <input id="RemarkKL" type="text" class="txt" />
+                    </td>
+
+
+
+
+                </tr>
+                <tr>
+                    <th class="formTitle">金额：</th>
+                    <td class="formValue">
+                        <input id="WorkAmount" disabled type="text" class="txt" value="0.00" />
+                    </td>
+
+
+                    <th class="formTitle" colspan="2">加工备注：</th>
+                    <td class="formValue">
+                        <input id="Remark" type="text" class="txt" />
+                    </td>
+
+                    <!--<th class="formTitle" colspan="2"></th>
+                    <td class="formValue">-->
+                        @*<input id="DingCode" type="text" class="txt" /> 钉边编码*@
+                    <!--</td>-->
+
+                </tr>
+
+                <tr>
+
+                    <th class="formTitle" rowspan="2">加工费/kg</th>
+                    <th class="formTitle">加工单价：</th>
+                    <td class="formValue">
+                        <input id="SmallCost" onfocus="IsMoney(this.id);" onkeyup="temp6 = temp6 + 1;Conversion();" type="text" class="txt" value="0.00" onblur="value0(this)" />
+
+                    </td>
+
+
+
+
+                    <th class="formTitle" colspan="2">送货备注：</th>
+                    <td class="formValue">
+                        <input id="ShipDescription" type="text" class="txt" />
+                    </td>
+
+                </tr>
+
+
+                <tr>
+
+
+                    <th class="formTitle">加工总额：</th>
+                    <td class="formValue">
+                        <input id="SmallAmount" disabled type="text" class="txt" value="0.00" />
+                    </td>
+
+
+
+                    <th class="formTitle" colspan="2">品名：</th>
+                    <td class="formValue">
+                        <input id="ManagerCost" type="hidden" />
+                        <input id="WorkCost" type="hidden" />
+
+                        <input id="ProductName" type="text" class="txt" datacol="yes" err="品名" checkexpession="NotNull" />
+                    </td>
+
+                </tr>
+                <tr>
+
+
+                    <th class="formTitle" rowspan="2">切角</th>
+                    <th class="formTitle">选项：</th>
+                    <td class="formValue">
+                        @*<span class="item" style="cursor: pointer;">
+                        <input type="radio" name="MianType" value="1" id="m1" checked="checked" onchange="Conversion();" />
+                        <label for="m1">无</label>
+                    </span>
+                    <span class="item" style="cursor: pointer;">
+                        <input type="radio" name="MianType" value="2" id="m2" onchange="Conversion();" />
+                        <label for="m2">单边</label>
+                    </span>
+                    <span class="item" style="cursor: pointer;">
+                        <input type="radio" name="MianType" value="3" id="m3" onchange="Conversion();" />
+                        <label for="m3">双边</label>
+                    </span>*@
+                        <select id="DJ" class="txtselect">
+                            <option id="NO">不倒</option>
+                            <option id="0.5">倒角0.5</option>
+                            <option id="1">倒角1</option>
+                            <option id="1.5">倒角1.5</option>
+                            <option id="2">倒角2</option>
+                            <option id="2.5">倒角2.5</option>
+                            <option id="3">倒角3</option>
+                            <option id="4">倒角4</option>
+                        </select>
+                    </td>
+
+
+                    <th class="formTitle" colspan="2">交期：</th>
+                    <td class="formValue">
+                        <input id="Delivery" type="text" class="txt Wdate" value="" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 95%" datacol="yes" err="交期" checkexpession="NotNull" />
+                    </td>
+
+                </tr>
+                <tr style="display:none;">
+
+                    <th class="formTitle" rowspan="2">面边加工</th>
+                    <th class="formTitle">面加工：</th>
+                    <td class="formValue">
+                        <span class="item" style="cursor: pointer;">
+                            <input type="radio" name="MianCostUnit" value="1" id="mm1" checked="checked" onchange="Conversion();" />
+                            <label for="mm1">无</label>
+                        </span>
+                        <span class="item" style="cursor: pointer;">
+                            <input type="radio" name="MianCostUnit" value="2" id="mm2" onchange="Conversion();" />
+                            <label for="mm2">单面</label>
+                        </span>
+                        <span class="item" style="cursor: pointer;">
+                            <input type="radio" name="MianCostUnit" value="3" id="mm3" onchange="Conversion();" />
+                            <label for="mm3">双面</label>
+                        </span>
+
+                        <input id="MianCostArea" onkeyup="temp10 = temp10 + 1;Conversion();" type="text" class="txt" value="0.00" onblur="value0(this)" style="width:30%" /><br />
+                        单价
+                        <input id="MianCostPer" type="text" onkeyup="Conversion();" class="txt" value="0.00" style="width:30%" />
+                        总额
+                        <input id="MianCost" type="text" class="txt" value="0.00" style="width:30%" disabled />
+                    </td>
+
+
+
+
+
+                </tr>
+                <tr style="display:none;">
+
+
+                    <th class="formTitle">边加工：</th>
+                    <td class="formValue">
+                        <span class="item" style="cursor: pointer;">
+                            <input type="radio" name="BianCostUnit" value="1" id="bb1" checked="checked" onchange="Conversion();" />
+                            <label for="bb1">无</label>
+                        </span>
+                        <span class="item" style="cursor: pointer;">
+                            <input type="radio" name="BianCostUnit" value="2" id="bb2" onchange="Conversion();" />
+                            <label for="bb2">单边</label>
+                        </span>
+                        <span class="item" style="cursor: pointer;">
+                            <input type="radio" name="BianCostUnit" value="3" id="bb3" onchange="Conversion();" />
+                            <label for="bb3">双边</label>
+                        </span>
+                        <input id="BianCostLong" onkeyup="temp11 = temp11 + 1;Conversion();" type="text" class="txt" value="0.00" onblur="value0(this)" style="width:30%" /><br />
+                        单价
+                        <input id="BianCostPer" onkeyup="Conversion();" type="text" class="txt" value="0.00" style="width:30%" />
+                        总额
+                        <input id="BianCost" type="text" class="txt" value="0.00" style="width:30%" disabled />
+
+                    </td>
+
+
+
+
+
+
+                </tr>
+
+                <tr>
+
+
+
+                    <th class="formTitle">单价/件：</th>
+                    <td class="formValue">
+                        <input id="DDCostPer" onkeyup="temp8 = temp8 + 1;Conversion();" type="text" class="txt" value="0.00" onblur="value0(this)" style="width:30%" />
+                        总额:
+                        <input id="DDCost" disabled type="text" class="txt" value="0.00" style="width:30%" />
+
+                    </td>
+
+                    <th class="formTitle" colspan="2">加工要求：</th>
+                    <td class="formValue">
+                        <select id="Kprocess" class="txtselect">
+                        </select>
+
+                    </td>
+
+
+                </tr>
+
+
+
+                <tr>
+
+                    <th class="formTitle" colspan="2">锯工费：</th>
+                    <td class="formValue">
+                        单价<input id="JKCostPer" onkeyup="temp12 = temp12 + 1;Conversion();" type="text" class="txt" value="0.00" style="width:30%" />
+                        总额<input id="JKCost" type="text" class="txt" value="0.00" style="width:30%" disabled />
+
+                    </td>
+
+
+                    <th class="formTitle" colspan="2">销售额：</th>
+                    <td class="formValue">
+                        <input id="SalesAmount" onfocus="IsMoney(this.id);" disabled type="text" class="txt" value="0.00" onchange="Conversion()" onblur="value0(this)" />
+                        <input id="InvoiceCost" type="hidden" />
+                        <input id="CostAmount" type="hidden" />
+                        <input id="LimitWeight" type="hidden" />
+                        <input id="JKCostQty" type="hidden" value="0" />
+
+
+                        <input id="ProfitAmount" type="hidden" />
+                    </td>
+
+
+                </tr>
+                <tr>
+                    <td class="formValue" colspan="6" style="height: 65px;">
+                        <input id="LineCode" type="text" class="txt" style="height: 65px; font-size: 30px; font-weight: bold; text-align: center; color: #FF0000" readonly />
+                    </td>
+                </tr>
+            </table>
+            <style>
+                .form .formTitle {
+                    width: 120px;
+                }
+            </style>
+        </form>
+    </div>
+    <div id="tab2" class="tabPanel" style="margin: 1px; margin-top: -1px; display: none;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">单价信息：
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea id="CPriceMessage" class="txtArea" rows="15"></textarea>
+                </td>
+
+            </tr>
+            <tr>
+                <th class="formTitle">用料说明：
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea id="CMateRemark" class="txtArea" rows="8"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">说明：
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea id="CRemark" class="txtArea" rows="8"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</div>

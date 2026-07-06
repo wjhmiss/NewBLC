@@ -1,0 +1,131 @@
+﻿@{
+    ViewBag.Title = "用户中心";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+
+<script>
+    var FullName = GetQuery('FullName');
+    function querys(page) {
+        //var page = GetQuery("page") == "" ? 1 : GetQuery("page");
+        $.ajax({
+            url: "@Url.Content("~/CommonModule/Customer/GetCusInfo")?keywords=" + escape(FullName),
+            type: "post",
+            dataType: "json",
+            data: { "rows": 30, "page": page },
+            async: true,
+            success: function (data) {
+                $("#list").html("");
+                $.each(data.rows, function (i) {
+                    var html = '<li><a href="javascript:;" data-ignore="true">';
+                    html += '<h2>客户名称：' + data.rows[i].fullname + '</h2>';
+                    html += '<div class="note">';
+                    html += '<p>联系人：' + data.rows[i].contact + ' 联系电话：' + data.rows[i].mobile + '  地址：' + data.rows[i].detailaddress + ' 线路：' + data.rows[i].sendpath + '</p>';
+                    html += '<p><i class="hot" style="float: left;">客户编号：' + data.rows[i].code + ' 销售区域：' + data.rows[i].sellarea + '  备注：' + data.rows[i].remark + '</i></p>';
+                    html += '</div></a></li>';
+                    $("#list").append(html);
+                });
+                var htmlpage = '<span>共' + data.records + '记录</span>';
+                if (data.page == 1) {
+                    htmlpage += '<span class="disabled">«上一页</span>';
+                }
+                else {
+                    htmlpage += '<a href="javascript:;" onclick="querys(' + (data.page - 1) + ')" data-ignore="true">«上一页</a>';
+                }
+                htmlpage += '<span class="current">' + data.page + '</span>';
+                if (data.page == data.total || data.total == 1) {
+                    htmlpage += '<span class="disabled">下一页»</span>';
+                }
+                else {
+                    htmlpage += '<a href="javascript:;" onclick="querys(' + (data.page + 1) + ')" data-ignore="true">下一页»</a>';
+                }
+                $("#listPage").html("");
+                $("#listPage").append(htmlpage);
+            },
+            error: function (data) {
+                alert(data.responseText);
+            }
+
+        });
+        }
+    //初始化
+    $(function () {
+        querys(1);
+        $("#getWhere").click(function () {
+            location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QueryCustomersWhere")";
+        });
+    })
+
+    function locationInputQuot() {
+        location.href = "@Url.Content("~/WeiWebSite/WeiLogin/WeiIndex")";
+    }
+
+</script>
+<style type="text/css">
+    #afui .list > li > a:after {
+        position: absolute;
+        right: 8px;
+        font-family: 'chevron';
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        content: " ";
+        top: 50%;
+        margin-top: -0.5em;
+        color: inherit;
+    }
+</style>
+
+
+
+<div id="mainPanel" class="panel" data-header="main_header" data-footer="main_footer">
+    <!--筛选按钮-->
+    <div class="select-bar">
+        <div class="col">
+            <a href="javascript:;" class="icon-back" onclick="history.back(-1);">返回上一页</a>
+        </div>
+        <div class="col">
+            <a id="getWhere" href="javascript:;" class="icon-carat-r">客户筛选</a>
+        </div>
+    </div>
+    <!--/筛选按钮-->
+
+    <!--最新商品-->
+    <div class="section">
+        <h1>客户信息</h1>
+    </div>
+    <div>
+        <ul class="list listview" id="list">
+
+            @*<li>
+                <a href="javascript:;" data-ignore="true">
+                    <h2>客户名称：BJ15-000230</h2>
+                    <div class="note">
+                        <p>联系人：1 联系电话：BYJ201506-0244  地址： 线路：</p>
+                        <p><i class="hot" style="float: left;">客户编号：1 销售区域：BYJ201506-0244  备注：</i></p>
+                    </div>
+                </a>
+            </li>*@
+
+            
+        </ul>
+    </div>
+    <!--/最新商品-->
+
+    <div class="page-list" id="listPage">
+
+    </div>
+
+    <!--版权信息-->
+    @Html.Partial("_PartialMobileBottom")
+    <!--/版权信息-->
+
+</div>
+
+
+
+
+

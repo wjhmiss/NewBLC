@@ -1,0 +1,442 @@
+@{
+    ViewBag.Title = "付款单";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        BindDropDepartmentName("#DepartmentName");
+
+        BindDropItem("#Prcess", "加工流程", "==请选择==");
+        setType();
+
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    function setType() {
+        if ($("#Type0").val() == "收款") {
+            BindDropItemT2index("#Type1", "#Type2", "收款类型", "==请选择==");
+
+        }
+        else {
+            BindDropItemT2index("#Type1", "#Type2", "CostType", "==请选择==");
+        }
+    }
+    //加载表格
+    function GetGrid() {
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable").jqGrid({
+        url: "@Url.Content("~/PaymentModule/Base_PaySheet/GridPageJson1")",
+        datatype: "json",
+        height: $(window).height() - 179,
+        autowidth: true,
+        colModel: [
+            { label: '选项', name: 'Type0', index: 'Type0', width: 60, align: 'left', sortable: true },
+                { label: '选项1', name: 'Type1', index: 'Type1', width: 60, align: 'left', sortable: true },
+                { label: '选项2', name: 'Type2', index: 'Type2', width: 60, align: 'left', sortable: true },
+                {
+                    label: '明细', name: 'Remark', index: 'Remark', width: 220, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                },
+                { label: '付款id', name: 'PaySheetId', index: 'PaySheetId', hidden: true },
+                { label: '数量', name: 'Qty', index: 'Qty', width: 80, align: 'left', sortable: true, hidden: true },
+                { label: '单价', name: 'PricePer', index: 'PricePer', width: 80, align: 'left', sortable: true, hidden: true },
+                { label: '规格', name: 'Size', index: 'Size', width: 80, align: 'left', sortable: true, hidden: true },
+
+                { label: '付款号', name: 'PaySheetCode', index: 'PaySheetCode', width: 100, align: 'left', sortable: true },
+                  {
+                      label: '事由时间', name: 'UseDate', index: 'UseDate', width: 100, align: 'left', sortable: true,
+                      formatter: function (cellvalue, options, rowObject) {
+                          return formatDate(cellvalue, 'yyyy-MM-dd');
+                      }
+                  },
+                { label: '总金额', name: 'TotalAmount', index: 'TotalAmount', width: 80, align: 'left', sortable: true },
+                { label: '已付金额', name: 'GetedAmount', index: 'GetedAmount', width: 80, align: 'left', sortable: true },
+                
+                
+                { label: '员工姓名', name: 'WorkerName', index: 'WorkerName', width: 100, align: 'left', sortable: true },
+                { label: '申报部门', name: 'DepartmentName', index: 'DepartmentName', width: 120, align: 'left', sortable: true },
+                {
+                    label: '付款时间', name: 'CreateDate', index: 'CreateDate', width: 0, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+                {
+                    label: '审核状态', name: 'Status', index: 'Status', width: 60, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return cellvalue == "0" ? "否" : "是";
+                    }
+                },
+                { label: '创建人', name: 'CreateUserName', index: 'CreateUserName', width: 80, align: 'left', sortable: true },
+                { label: '修改人', name: 'ModifyUserName', index: 'ModifyUserName', width: 80, align: 'left', sortable: true },
+
+        ],
+        viewrecords: true,
+        rowNum: 30,
+        rowList: [30, 50, 100, 500, 5000],
+        pager: "#gridPager",
+        sortname: 'CreateDate',
+        sortorder: 'desc',
+        rownumbers: true,
+        shrinkToFit: false,
+        gridview: true,
+        ondblClickRow: function (rowid, iRow, iCol, e) {
+            btn_edit();
+        },
+        multiselect: true,
+        footerrow: true,
+        onSelectRow: function (rowid, status) {
+            SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            rowScrod = $("#" + rowid).position().top;
+        },
+        gridComplete: function () {
+            $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
+            $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            //合计
+            $(this).footerData("set", {
+                "PayName": "合计",
+                "Qty": FormatCurrency($("#gridTable").getCol('Qty', false, 'sum')),
+                "TotalAmount": FormatCurrency($("#gridTable").getCol('TotalAmount', false, 'sum')),
+                "GetedAmount": FormatCurrency($("#gridTable").getCol('GetedAmount', false, 'sum')),
+            });
+            var data = $("#gridTable").jqGrid("getRowData");
+            for (var i = 0; i < data.length; i++) {
+                var item = i + 1;
+                if (data[i].Status == "是") {
+                    $("#" + item).find('td').css("background-color", "#00AA00");
+                }
+                if (data[i].IsPay == "是") {
+                    $("#" + item).find('td').css("background-color", "#00AA88");
+                }
+                if (data[i].IsInvoice == "是") {
+                    $("#" + item).find('td').css("background-color", "#2200AA");
+                }
+                
+
+            }
+        }
+    });
+}
+    //新增
+    function btn_add() {
+        var url = "/PaymentModule/Base_PaySheet/Form"
+        openDialog(url, "Form", "新增付款单", 770, 395, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var noedit = 0;
+        var Status = GetJqGridRowValue("#gridTable", "Status");
+        if (Status == "是") {
+            var noedit = 1;
+        }
+        var IsPay = GetJqGridRowValue("#gridTable", "IsPay");
+        if (IsPay == "是" ) {
+            var noedit = 1;
+        }
+        var IsInvoice = GetJqGridRowValue("#gridTable", "IsInvoice");
+        if (IsInvoice == "是" ) {
+            var noedit = 1;
+        }
+
+        var GetedAmount = GetJqGridRowValue("#gridTable", "GetedAmount");
+        if (GetedAmount > 0) {
+            var noedit = 1;
+        }
+        if ("@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "超级管理员" && "@DNS.Utilities.ManageProvider.Provider.Current().ObjectId".indexOf("9d04b362-c9fe-4c67-95a5-d24d6ad9177d") < 0) {
+            if (noedit == 1) {
+                tipDialog("操作失败：不可修改!", 3, 0);
+                return;
+            }
+        }
+
+        var KeyValue = GetJqGridRowValue("#gridTable", "PaySheetId");
+        if (IsChecked(KeyValue)) {
+            var url = "/PaymentModule/Base_PaySheet/Form?KeyValue=" + KeyValue + "&noedit=" + noedit;
+            openDialog(url, "Form", "编辑付款单", 770, 395, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s1 = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                if (myrow.Status == "是") {
+                    tipDialog("操作失败：部分报价单已审核!", 3, 0);
+                    return false;
+                }
+                if (myrow.GetedAmount > 0) {
+                    alertDialog("当前申请单已收款", 0);
+                    return false;
+                }
+            }
+            var KeyValue = GetJqGridRowValue("#gridTable", "PaySheetId");
+            if (IsDelData(KeyValue)) {
+                var delparm = 'KeyValue=' + KeyValue;
+                delConfig('/PaymentModule/Base_PaySheet/Delete', delparm, KeyValue.split(",").length);
+            }
+        }
+    }
+    //明细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "PaySheetId");
+        if (IsChecked(KeyValue)) {
+            var url = "/PaymentModule/Base_PaySheet/Detail?KeyValue=" + KeyValue;
+            Dialog(url, "Detail", "付款单明细", 820, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+        
+    }
+
+    function btn_Invoice() {
+        //var IsInvoice = GetJqGridRowValue("#gridTable", "IsInvoice");
+        //if (IsInvoice == "是") {
+        //    alertDialog("当前报价单已开票", 0);
+        //    return false;
+        //}
+        //var KeyValue = GetJqGridRowValue("#gridTable", "PaySheetId");
+        //if (IsChecked(KeyValue)) {
+        //    confirmDialog("提示", "确定要开票？", function (r) {
+        //        if (r) {
+        //            Loading(true, "正在提交数据...");
+        //            window.setTimeout(function () {
+        //                AjaxJson("/PaymentModule/Base_PaySheet/Update?IsInvoice=1&PaySheetId=" + KeyValue, "", function (data) {
+        //                    tipDialog(data.Message, 3, data.Code);
+        //                    windowload();
+        //                });
+        //            }, 200);
+        //        }
+        //    });
+        //}
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s1 = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                s1 = s1 + myrow.PaySheetId + ",";
+            }
+            s1 = s1.trim(',');
+            confirmDialog("提示", "确定要开票？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/Base_PaySheet/Update?IsInvoice=1" + "&PaySheetIds=" + s1, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    function btn_audit() {
+ 
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s1 = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                s1 = s1 + myrow.PaySheetId + ",";
+            }
+            s1 = s1.trim(',');
+            confirmDialog("提示", "确定要审核通过？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/Base_PaySheet/Update?Status=1" + "&PaySheetIds=" + s1, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    function btn_payed() {
+        //var IsPay = GetJqGridRowValue("#gridTable", "IsPay");
+        //if (IsPay == "是") {
+        //    alertDialog("当前报价单已付款", 0);
+        //    return false;
+        //}
+        //var KeyValue = GetJqGridRowValue("#gridTable", "PaySheetId");
+        //if (IsChecked(KeyValue)) {
+        //    confirmDialog("提示", "确定要付费？", function (r) {
+        //        if (r) {
+        //            Loading(true, "正在提交数据...");
+        //            window.setTimeout(function () {
+        //                AjaxJson("/PaymentModule/Base_PaySheet/Update?IsPay=1&PaySheetId=" + KeyValue, "", function (data) {
+        //                    tipDialog(data.Message, 3, data.Code);
+        //                    windowload();
+        //                });
+        //            }, 200);
+        //        }
+        //    });
+        //}
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s1 = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                s1 = s1 + myrow.PaySheetId + ",";
+            }
+            s1 = s1.trim(',');
+            confirmDialog("提示", "确定要付费？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/Base_PaySheet/Update?IsPay=1" + "&PaySheetIds=" + s1, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+
+    //查询
+    function btn_Search() {
+        var tempstatus = "";
+        if ($("#Status").prop("checked")) {
+            tempstatus = 0;
+        }
+        if ($("#Status1").prop("checked")) {
+            tempstatus = 1;
+        }
+        if ($("#Status1").prop("checked") && $("#Status").prop("checked")) {
+            tempstatus = "";
+        }
+        var Parameter = [{
+            paramName: "PaySheetCode",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+            Logic: "AND",
+        },
+        {
+            paramName: "Type0",
+            paramValue: $("#Type0").val(),
+            Operation: "Equal",
+            Logic: "AND",
+        },
+        {
+            paramName: "Type1",
+            paramValue: $("#Type1").val(),
+            Operation: "Equal",
+            Logic: "AND",
+        },
+        {
+            paramName: "Type2",
+            paramValue: $("#Type2").val(),
+            Operation: "Equal",
+            Logic: "AND",
+        }, {
+            paramName: "DepartmentName",
+            paramValue: $("#DepartmentName").val(),
+            Operation: "Equal",
+            Logic: "AND"
+        }
+        , {
+            paramName: "WorkerName",
+            paramValue: $("#WorkerName").val(),
+            Operation: "Equal",
+            Logic: "AND"
+        }
+        , {
+            paramName: "Status",
+            paramValue: tempstatus,
+            Operation: "Equal",
+            Logic: "AND"
+        }, {
+            paramName: "CreateDate",
+            paramValue: $("#CreateDate_StartTime").val(),
+            Operation: "GreaterThan",
+            Logic: "AND"
+        }, {
+            paramName: "CreateDate",
+            paramValue: $("#CreateDate_EndTime").val()+" 23:59:59",
+            Operation: "LessThan",
+            Logic: "AND"
+        }]
+
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/Base_PaySheet/GridPageJson1")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "费用申请报表");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <td>单号：
+            
+                <input id="keywords" type="text" class="txt" style="width: 100px" />
+            员工姓名：
+                <input id="WorkerName" type="text" class="txt" style="width: 100px" />
+            选项：
+                <select id="Type0" class="select" style="width:60px;" onchange="setType();"  datacol="yes" err="收款项0" checkexpession="NotNull">
+                    <option value="">全部</option>
+                    <option value="收款">收款</option>
+                    <option value="付款">付款</option>
+                </select>
+                <select id="Type1" class="select" style="width:80px;" datacol="yes" err="收款项1" checkexpession="NotNull">
+                </select>
+                <select id="Type2" class="select" style="width:80px;" datacol="yes" err="收款项2" checkexpession="NotNull">
+                </select>
+            申报部门：
+                <select id="DepartmentName" class="select" style="width: 100px" >
+                    <option value="">全部</option>
+                </select>
+            日期 从：
+                <input id="CreateDate_StartTime" type="text" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()"  class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />
+                <input id="CreateDate_EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />
+            
+                    <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkbox" id="Status"  />
+                        <label for="Status">未审核</label>
+                    </span>
+                <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkbox" id="Status1"  />
+                        <label for="Status1">已审核</label>
+                    </span>
+                
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                 <input id="btn_export" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

@@ -1,0 +1,35 @@
+@{
+    ViewBag.Title = "产能表》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        $("#Qty").val(GetQuery('Qty'));
+        $("#Weight").val(GetQuery('Weight'));
+    })
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        top.frames[tabiframeId()].windowload();
+        window.setTimeout(function () {closeDialog();}, 500);
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>数量：</th>
+            <td class='formValue'>
+                <input id="Qty" maxlength="18" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>重量：</th>
+            <td class='formValue'>
+                <input id="Weight" type="text" class="txt" />
+            </td>
+        </tr>
+    </table>
+</form>

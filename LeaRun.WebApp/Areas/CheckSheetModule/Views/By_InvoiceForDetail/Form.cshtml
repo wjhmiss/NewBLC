@@ -1,0 +1,136 @@
+@{
+    ViewBag.Title = "By_InvoiceForDetail》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+    @Scripts.Render("~/Content/Scripts/jqgrid/jqgridjquery")
+     @Styles.Render("~/Content/Scripts/jqgrid/css/jqgridcss")
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    var checksheetid = GetQuery('checksheetid');//主键
+    $(function () {
+        InitControl();
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+
+    })
+
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CheckSheetModule/By_InvoiceForDetail/GridPaasdf")?checksheetid=" + checksheetid,
+            datatype: "json",
+            height: $(window).height() - 311,
+            autowidth: true,
+            colModel: [
+                    {
+                        label: '客户品名', name: 'ProductName', index: 'ProductName', width: 130, align: 'left', sortable: true
+                    },
+                    { label: '重量', name: 'Weight', index: 'Weight', width: 80, align: 'left', sortable: true },
+                    
+                    { label: '金额', name: 'MaterialAmount', index: 'MaterialAmount', width: 80, align: 'left', sortable: true },
+            ],
+            pager: false,
+            viewrecords: true,
+            rowNum: 9999,
+            rowList: [30, 50, 100, 500, 5000],
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "ProductName": "合计",
+                    "Qty": FormatCurrency($("#gridTable").getCol('Qty', false, 'sum')),
+                    "Weight": FormatCurrency($("#gridTable").getCol('Weight', false, 'sum')),
+                    "MaterialAmount": FormatCurrency($("#gridTable").getCol('MaterialAmount', false, 'sum')),
+
+                });
+            },
+        });
+    }
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CheckSheetModule/By_InvoiceForDetail/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+        else {
+            $("#InvoiceCustomer").val(GetQuery('customername'));
+            $("#InvoiceMoney").val(GetQuery('caninvoicemoney'));
+        }
+
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        $(".ui_state_highlight").attr("disabled", true);
+        AjaxJson("/CheckSheetModule/By_InvoiceForDetail/SubmitForm1?KeyValue=" + KeyValue + "&checksheetid=" + checksheetid, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+         
+        <tr>
+            <th class='formTitle'>发票日期：</th>
+            <td class='formValue'>
+                <input id="DeliveryDetailId" type="hidden" />
+                <input id="InvoiceId" type="hidden" />
+                <input id="InvoiceDate" type="text" value="@DNS.Utilities.DateTimeHelper.GetDate(0)" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 160px" datacol="yes" err="申请时间" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle'>发票代码：</th>
+            <td class='formValue'>
+                <input id="InvoiceCode" maxlength=50 type="text" class="txt" datacol="yes" err="发票代码" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>接收单位：</th>
+            <td class='formValue'>
+                <input id="InvoiceCustomer" maxlength=50 type="text" class="txt" datacol="yes" err="接收单位" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle'>发票号码：</th>
+            <td class='formValue'>
+                <input id="InvoiceNum" maxlength=50 type="text" class="txt" datacol="yes" err="发票号码" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>类型：</th>
+            <td class='formValue'>
+                <select id="TypeName" class="txtselect">
+                    <option value="实际发票">实际发票</option>
+                    <option value="虚拟发票">虚拟发票</option>
+                </select>
+            </td>
+            <th class='formTitle'>发票金额：</th>
+            <td class='formValue'>
+                <input id="InvoiceMoney" maxlength=18 type="text" class="txt" datacol="yes" err="发票金额" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+             <th class='formTitle'>备注：</th>
+                    <td class="formValue" colspan="3">
+                <input id="Remark" maxlength=500 type="text" class="txt"    />
+                    </td>
+            
+        </tr>
+        
+    </table>
+
+    <div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>
+</form>

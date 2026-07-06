@@ -1,0 +1,339 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>欢迎使用</title>
+    <!--框架必需start-->
+    @*<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+        <link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />*@
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js?n=123"></script>
+    @*@Scripts.Render("~/Content/Scripts/frameworkjquery")*@
+    @Styles.Render("~/Content/Styles/frameworkcss")
+    @Styles.Render("~/Content/Styles/accordioncss")
+    <!--框架必需end-->
+    <!--第三方统计图start-->
+    @*<script src="~/Content/Scripts/highcharts/highcharts.js"></script>
+        <script src="~/Content/Scripts/highcharts/highcharts-more.js"></script>
+        <script src="~/Content/Scripts/highcharts/modules/exporting.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/highcharts/highchartsjquery")
+    <!--第三方统计图end-->
+    @*    <link href="~/Content/Scripts/IndexPagejs/css/smartmenu.css" type="text/css" rel="stylesheet" />
+        <link type="text/css" rel="stylesheet" href="~/Content/Scripts/IndexPagejs/css/shCore.css" />
+        <link type="text/css" rel="stylesheet" href="~/Content/Scripts/IndexPagejs/css/shThemeDefault.css" />
+
+        <script type="text/javascript" src="~/Content/Scripts/IndexPagejs/js/smartmenu.js"></script>
+        <script type="text/javascript" src="~/Content/Scripts/IndexPagejs/js/shCore.js"></script>
+        <script type="text/javascript" src="~/Content/Scripts/IndexPagejs/js/shBrushJScript.js"></script>
+        <script type="text/javascript" src="~/Content/Scripts/IndexPagejs/js/shBrushXml.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/IndexPagejs/js/smartmenujquery")
+    @Styles.Render("~/Content/Scripts/IndexPagejs/css/smartmenucss")
+
+    <script>
+        var listA = [];
+        var listB = [];
+        var listC = [];
+        $(function () {
+            jQuery("#navigation1").Smartmenu({
+                animationDuration: 350
+            });
+            jQuery("#navigation2").Smartmenu({
+                animationDuration: 350
+            });
+            jQuery("#navigation3").Smartmenu({
+                animationDuration: 350
+            });
+            jQuery("#navigation4").Smartmenu({
+                animationDuration: 350
+            });
+            jQuery("#navigation5").Smartmenu({
+                animationDuration: 350
+            });
+            AjaxJson("/Home/TaskMessageChart", {}, function (DataJson) {
+                $("#Number_A").html(DataJson.A);
+                $("#Number_B").html(DataJson.B);
+                $("#Number_C").html(DataJson.C);
+                $("#Number_D").html(DataJson.D);
+                $("#Number_E").html(DataJson.E);
+                var listA = DataJson.weekchartO;
+                var listB = DataJson.weekchartQ;
+                var listC = DataJson.weekchartD;
+                $('#container').highcharts({
+                    chart: {
+                        type: 'spline'
+                    },
+                    title: {
+                        text: '最近5周报价单、订单、送货单统计数量'
+                    },
+                    xAxis: {
+                        categories: DataJson.names//['一周', '二周', '三周', '四周', '五周']
+                    },
+                    yAxis: {
+                        title: {
+                            text: '统计数量'
+                        },
+                        labels: {
+                            formatter: function () {
+                                return this.value + ''
+                            }
+                        }
+                    },
+                    tooltip: {
+                        crosshairs: true,
+                        shared: true
+                    },
+                    plotOptions: {
+                        spline: {
+                            marker: {
+                                radius: 4,
+                                lineColor: '#666666',
+                                lineWidth: 1
+                            }
+                        }
+                    },
+                    exporting: {
+                        url: '/Home/Export',  //1、自带导出按钮的请求路径
+                        filename: 'MyChart',
+                        width: 1200
+                    },
+                    series: [{
+                        name: '报价单统计',
+                        data: listB
+
+                    }, {
+                        name: '工单统计',
+                        data: listA
+                    },  {
+                        name: '发运单统计',
+                        data: listC
+
+                    }]
+                });
+            })
+
+            //AjaxJson("/OrderModule/OrderQuery/GetGQOrder", {}, function (DataJson) {
+            //    if (!!DataJson.A) {
+            //        alertDialog("提醒：有" + DataJson.A + "个过期订单，请在订单查询中点击过期然后查询处理！", 0);
+            //    }
+
+            //})
+        })
+
+
+        function addtabtoshow1() {
+            AddTabMenu("3042eb10-9f95-4a60-ae33-b137599d7574", "@Url.Content("/QuotationModule/QuotationQuery/Index")", "报价单查询", "page_white_find.png", false);
+            top.linkAddTabMenu();
+        }
+        function addtabtoshow2() {
+            AddTabMenu("a58e9c23-d957-4142-b63c-436e03363a0d", "@Url.Content("/OrderModule/OrderQuery/Index")", "订单查询", "document_inspector.png", false);
+            top.linkAddTabMenu();
+        }
+        function addtabtoshow3() {
+            AddTabMenu("a05aee31-3f25-4851-aff8-03bd57c4142a", "@Url.Content("/DeliveryModule/InventoryComfirm/Index")", "发运确认", "send_receive_all_folders.png", false);
+            top.linkAddTabMenu();
+        }
+        function addtabtoshow4() {
+            AddTabMenu("3042eb10-9f95-4a60-ae33-b137599d7574", "@Url.Content("/QuotationModule/QuotationQuery/Index")", "报价单查询", "page_white_find.png", false);
+            top.linkAddTabMenu();
+        }
+        function addtabtoshow5() {
+            AddTabMenu("28a783cf-2a66-4c35-970b-efed2e84fd34", "@Url.Content("/DeliveryModule/BY_Delivery/Index")", "发运单列印", "printer.png", false);
+            top.linkAddTabMenu();
+        }
+        function showtab(moduleid, url, title, img) {
+            AddTabMenu(moduleid, url, title, img, false);
+            top.linkAddTabMenu();
+        }
+        SyntaxHighlighter.all();
+    </script>
+</head>
+<body>
+
+    <div style="margin: 10px;">
+        <table style="width: 100%">
+            <tr>
+                <td>
+                    <div id="navigation1" class="smartmenu" style="background-color: #E7191B; margin: 20px 1px 20px 1px; width: 165px; height: 110px;  display: block; position: relative; cursor: pointer; -moz-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px; box-shadow: 0 0 10px #ccc;" onclick="showtab('2416537e-00e8-4db9-a0ea-d897bb8cbd8d','/StorageModule/BY_Inventory/Index','库存现有量查询','box_open.png');">
+                        <i></i>
+                        <div class="centre" style="top: 10px;">
+                            <div class="icon">
+                                <img src="~/Content/Images/task-1.png" />
+                            </div>
+                            <div id="Number_A" class="Number">10</div>
+                        </div>
+                        <ul>
+                            <li><a href="#"  style="position: absolute; left: 30px; top: 75px; font-size: 20px; font-weight: bold; color: #fff;">仓库管理
+                            </a>
+                                <ul>
+                                    <li><a href="#" onclick="showtab('1a6109f3-1023-4a92-8aa0-1efdcc26f7c9','/StorageModule/BY_InStock/BoardIndex','板件入仓','inbox_download.png');">板件入仓</a> </li>
+                                    <li><a href="#" onclick="showtab('81e540e5-34f0-45d2-bf80-189812fd73f4','/StorageModule/BY_OutStock/ScaleIndex','过磅消数','clock_select_remain.png');">过磅消数</a> </li>
+
+                                    <li><a href="#" onclick="showtab('8686d9ac-57f6-4d39-b237-37f780bdfcbc','/StorageModule/BY_OutStock/OutStockIndex','材料出仓查询','production_copyleft.png');">材料出仓查询</a> </li>
+
+                                    <li><a href="#" onclick="showtab('0205c6ff-a0c0-49e7-87fd-4fef08ad03a8','/StorageModule/BY_AdjustQuery/Index','调质转型查询','query_design.png');">调质转型查询</a> </li>
+
+                                    <li><a href="#" onclick="showtab('bdc70fd7-3759-4bdb-b273-9ea33ed600af','/StorageModule/AdjustStock/AdjustStockForm','调质转型开料','convert_color_to_gray.png');">调质转型开料</a> </li>
+
+                                    <li><a href="#" onclick="showtab('2416537e-00e8-4db9-a0ea-d897bb8cbd8d','/StorageModule/BY_Inventory/Index','库存现有量查询','box_open.png');">库存现有量查询</a> </li>
+
+                                    <li><a href="#" onclick="showtab('b6451fae-8f80-4802-9d83-c7d76297a40d','/StorageModule/BY_InStock/Index','材料入仓查询','cart_go.png');">材料入仓查询</a> </li>
+
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </div>
+                </td>
+                
+                <td>
+                    <div>
+                        <img src="~/Content/Images/1.png" />
+                    </div>
+                </td>
+                <td>
+                    <div id="navigation2" class="smartmenu" style="background-color: #C07FE7; margin: 20px 1px 20px 1px; width: 165px; height: 110px; display: block; position: relative; cursor: pointer; -moz-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px; box-shadow: 0 0 10px #ccc;"  onclick="showtab('8f1ac470-896c-46f8-af97-5176fe716491','/QuotationModule/QuotationInput/Index','报价单录入','page_white_edit.png');">
+                        <i></i>
+                        <div class="centre" style="top: 10px;">
+                            <div class="icon">
+                                <img src="~/Content/Images/task-5.png" />
+                            </div>
+                            <div id="Number_B" class="Number">18</div>
+                        </div>
+                       
+                        <ul>
+                            <li><a href="#"  style="position: absolute; left: 30px; top: 75px; font-size: 20px; font-weight: bold; color: #fff;">报价单管理
+                            </a>
+                                <ul>
+                                    <li><a href="#" onclick="showtab('8f1ac470-896c-46f8-af97-5176fe716491','/QuotationModule/QuotationInput/Index','报价单录入','page_white_edit.png');">报价单录入</a> </li>
+
+                                    <li><a href="#" onclick="showtab('65590e2c-f46c-41de-8cfb-9be9a6bf74bf','/QuotationModule/QuotationAudit/Index','报价单审核','page_white_key.png');">报价单审核</a> </li>
+
+                                    <li><a href="#" onclick="showtab('3042eb10-9f95-4a60-ae33-b137599d7574','/QuotationModule/QuotationQuery/Index','报价单查询','page_white_find.png');">报价单查询</a> </li>
+
+                                    <li><a href="#" onclick="showtab('bcf380d5-d384-485a-b82e-4fb4caccced6','/QuotationModule/QuotationManage/Index','报价单管理','page_white_gear.png');">报价单管理</a> </li>
+
+                                   
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <img src="~/Content/Images/2.png" />
+                    </div>
+                </td>
+
+                <td>
+                    <div id="navigation3" class="smartmenu" style="background-color: #EEAE44; margin: 20px 1px 20px 1px; width: 165px; height: 110px; display: block; position: relative; cursor: pointer; -moz-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px; box-shadow: 0 0 10px #ccc;" onclick="showtab('a58e9c23-d957-4142-b63c-436e03363a0d','/OrderModule/OrderQuery/Index','订单查询','document_inspector.png');">
+                        <i></i>
+                        <div class="centre" style="top: 10px;">
+                            <div class="icon">
+                                <img src="~/Content/Images/task-2.png" />
+                            </div>
+                            <div id="Number_C" class="Number">11</div>
+                        </div>
+                        
+                        <ul>
+                            <li><a href="#"  style="position: absolute; left: 30px; top: 75px; font-size: 20px; font-weight: bold; color: #fff;">工单管理
+                            </a>
+                                <ul>
+                                    <li><a href="#" onclick="showtab('3ed7fd81-b7d1-4734-8583-3411767191d3','/OrderModule/OrderComplete/Index','订单完工销数','document_prepare.png');">订单完工销数</a> </li>
+
+                                    <li><a href="#" onclick="showtab('a58e9c23-d957-4142-b63c-436e03363a0d','/OrderModule/OrderQuery/Index','订单查询','document_inspector.png');">订单查询</a> </li>
+
+                                    <li><a href="#" onclick="showtab('0299d911-7d5d-4b27-afe8-6caa5016134f','/OrderModule/OrderPrint/BCPrint','粗料单列印','printer.png');">粗料单列印</a> </li>
+
+                                    <li><a href="#" onclick="showtab('4ad49c06-ef1c-44bb-9836-fc12e09a55f9','/OrderModule/OrderPrint/BJPrint','精料单列印','printer.png');">精料单列印</a> </li>
+
+                                    
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <img src="~/Content/Images/3.png" />
+                    </div>
+                </td>
+                <td>
+                    <div id="navigation4" class="smartmenu" style="background-color: #28B779; margin: 20px 1px 20px 1px; width: 165px; height: 110px; display: block; position: relative; cursor: pointer; -moz-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px; box-shadow: 0 0 10px #ccc;"  onclick="showtab('a0e3613b-917c-454a-a7e4-ed3447b45d8a','/OrderDetailProcessModule/BY_OrderDetailProcessDetail/OpenReport','开料产出报表','report_user.png');">
+                        <i></i>
+                        <div class="centre" style="top: 10px;">
+                            <div class="icon">
+                                <img src="~/Content/Images/task-3.png" />
+                            </div>
+                            <div id="Number_D" class="Number">20</div>
+                        </div>
+                       
+                        <ul>
+                            <li><a href="#"  style="position: absolute; left: 30px; top: 75px; font-size: 20px; font-weight: bold; color: #fff;">生产管理
+                            </a>
+                                <ul>
+                                    <li><a href="#" onclick="showtab('769fdf27-a318-40f7-9378-ff7fac6c3d79','/OrderDetailProcessModule/BY_OrderDetailProcessDetail/Index','工时扫描','scanner_working.png');">工时扫描</a> </li>
+
+                                    <li><a href="#" onclick="showtab('28b5c941-f922-4857-adf2-137d1e500569','/OrderDetailProcessModule/BY_OrderDetailProcessDetail/ChangeReport','订单转序查询','query_design.png');">订单转序查询</a> </li>
+
+                                    <li><a href="#" onclick="showtab('2a5687f4-581c-4de9-998c-3809198cd011','/OrderDetailProcessModule/BY_OrderDetailProcessDetail/WorkingHours','精料工时查询','timeline.png');">精料工时查询</a> </li>
+
+                                    <li><a href="#" onclick="showtab('a0e3613b-917c-454a-a7e4-ed3447b45d8a','/OrderDetailProcessModule/BY_OrderDetailProcessDetail/OpenReport','开料产出报表','report_user.png');">开料产出报表</a> </li>
+
+                                    <li><a href="#" onclick="showtab('a403717c-9afb-43cb-bbbb-dd2fbbd1104e','/OrderDetailProcessModule/BY_OrderDetailProcess/Index','工序查询/补录','page_white_wrench.png');">工序查询/补录</a> </li>
+
+                                    <li><a href="#" onclick="showtab('f4e1ad0d-d3d3-4dab-9abd-ef1e5b07225b','/OrderDetailProcessModule/BY_OrderDetailProcessDetail/ClassesReport','班次完成订单量','report_torn.png');">班次完成订单量</a> </li>
+
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </div>
+                </td>
+                <td>
+                    <div>
+                        <img src="~/Content/Images/4.png" />
+                    </div>
+                </td>
+                <td>
+                    <div id="navigation5" class="smartmenu" style="background-color: #2BA9E3; margin: 20px 1px 20px 1px; width: 165px; height: 110px; display: block; position: relative; cursor: pointer; -moz-border-radius: 8px; -webkit-border-radius: 8px; border-radius: 8px; box-shadow: 0 0 10px #ccc;" onclick="showtab('28a783cf-2a66-4c35-970b-efed2e84fd34','/DeliveryModule/BY_Delivery/Index','发运单列印','printer.png');">
+                        <i></i>
+                        <div class="centre" style="top: 10px;">
+                            <div class="icon">
+                                <img src="~/Content/Images/task-4.png" />
+                            </div>
+                            <div id="Number_E" class="Number">78</div>
+                        </div>
+                        
+                        <ul>
+                            <li><a href="#"  style="position: absolute; left: 30px; top: 75px; font-size: 20px; font-weight: bold; color: #fff;">发运单管理
+                            </a>
+                                <ul>
+                                    <li><a href="#" onclick="showtab('a05aee31-3f25-4851-aff8-03bd57c4142a','/DeliveryModule/InventoryComfirm/Index','发运确认','send_receive_all_folders.png');">发运确认</a> </li>
+
+                                    <li><a href="#" onclick="showtab('28a783cf-2a66-4c35-970b-efed2e84fd34','/DeliveryModule/BY_Delivery/Index','发运单列印','printer.png');">发运单列印</a> </li>
+
+                                    <li><a href="#" onclick="showtab('31863e21-052e-480a-8501-f5bdc6bb7c99','/DeliveryModule/BY_DeliveryDetail/Index','发运单修改','chart_line_edit.png');">发运单修改</a> </li>
+
+                                   
+                                </ul>
+                            </li>
+
+                        </ul>
+                    </div>
+                </td>
+
+            </tr>
+        </table>
+        <div style="margin-left: 20px; margin-right: 30px;">
+            <div id="container"></div>
+        </div>
+    </div>
+</body>
+</html>

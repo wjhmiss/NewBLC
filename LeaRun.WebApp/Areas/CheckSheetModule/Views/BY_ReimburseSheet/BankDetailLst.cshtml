@@ -1,0 +1,153 @@
+@{
+    ViewBag.Title = "费用申请单";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+         
+        BindDropItem("#BankNum", "银行名称", "==请选择==");
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+
+
+
+    //加载表格
+    function GetGrid() {
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CheckSheetModule/BY_ReimburseSheet/GridPageJsonBank")?BankNum=" + escape(GetQuery('BankNum')) + "&CreateDate_StartTime=" + $("#CreateDate_StartTime").val() + "&CreateDate_EndTime=" + $("#CreateDate_EndTime").val() + "&InvoiceNum=" + $("#InvoiceNum").val(),
+            datatype: "json",
+            height: $(window).height() - 100,
+            autowidth: true,
+            colModel: [
+                    {
+                        label: '日期', name: 'BuildDate', index: 'BuildDate', width: 80, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (rowObject.Remark == "合计") {
+                                return "";
+                            }
+                            else {
+                                return formatDate(cellvalue, 'yyyy-MM-dd');
+                            }
+                        }
+                    },
+                     {
+                         label: '收款项1', name: 'Type1', index: 'Type1', width: 80, align: 'left', sortable: true
+                     },
+                    {
+                        label: '收款项2', name: 'Type2', index: 'Type2', width: 80, align: 'left', sortable: true
+                    },
+                    { label: '类型', name: 'Banktype', index: 'Banktype', width: 80, align: 'left', sortable: true },
+
+                    {
+                        label: '摘要', name: 'Remark', index: 'Remark', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");;
+
+                            }
+                            return "";
+                        }
+                    },
+                    { label: '单号', name: 'Code', index: 'Code', width: 80, align: 'left', sortable: true },
+                    { label: '收款类型', name: 'GetType', index: 'GetType', width: 80, align: 'left', sortable: true },
+                    { label: '收款金额', name: 'GetMoney', index: 'GetMoney', width: 80, align: 'left', sortable: true },
+                    { label: '付款金额', name: 'paymoney', index: 'GetMoney', width: 80, align: 'left', sortable: true },
+                    { label: '剩余金额', name: 'NowMoney', index: 'GetMoney', width: 80, align: 'left', sortable: true },
+                    { label: '账户', name: 'BankNum', index: 'BankNum', width: 80, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 999999,
+            rowList: [999999, 999999, 999999, 999999, 999999],
+            pager: false,
+
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            footerrow: false,
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+
+                $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
+            },
+            onSelectRow: function (rowid, status) {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                rowScrod = $("#" + rowid).position().top;
+
+            },
+        });
+    }
+
+    //查询
+    function btn_Search() {
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CheckSheetModule/BY_ReimburseSheet/GridPageJsonBank")?BankNum=" + escape(GetQuery('BankNum')) + "&CreateDate_StartTime=" + $("#CreateDate_StartTime").val() + "&CreateDate_EndTime=" + $("#CreateDate_EndTime").val() + "&InvoiceNum=" + $("#InvoiceNum").val(), page: 1 }).trigger('reloadGrid');
+    }
+
+
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "应收款明细导出");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+    //
+    function btn_Pint() {
+        GetQuery('OrderId')
+    }
+</script>
+
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>日期 从：</th>
+            <td>
+                <input id="CreateDate_StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 100px" />
+            </td>
+            <th style="width: 20px;">至：</th>
+            <td>
+                <input id="CreateDate_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 100px" />
+            </td>
+           @* <th style="width: 40px;">发票号：</th>
+            <td>
+                <input id="InvoiceNum" type="text" class="txt" style="width: 80px" />
+            </td>*@
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜索" onclick="btn_Search()" />
+                <input id="btn_export" type="button" class="btnSearch" value="导出" onclick="btn_Export()" />
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+
+
+
+
+<div id="layout2" class="layout2">
+    <!--左边-->
+    <div class="layoutPanel layout-west" style="">
+        <div class="btnbartitle">
+            <div>
+                账务收支明细
+            </div>
+        </div>
+        <div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+            <table id="gridTable"></table>
+            <div id="gridPager"></div>
+        </div>
+    </div>
+
+</div>

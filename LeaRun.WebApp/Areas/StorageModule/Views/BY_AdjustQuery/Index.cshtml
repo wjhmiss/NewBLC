@@ -1,0 +1,362 @@
+@{
+    ViewBag.Title = "BY_AdjustQuery";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        Loadlayout2();
+        SteelAutocomplete();
+        window.setTimeout(function () {
+            GetGrid();
+            GetGridYS();
+        }, 200);
+        BatchCodeAutocomplete();
+    })
+
+    function Loadlayout2() {
+        if ($('.layout2').length > 0) {
+            $("#layout2").splitter({
+                type: "v",
+                outline: true,
+                sizeLeft: 850,
+                minLeft: 200,
+                minRight: 200,
+                anchorToWindow: true,
+                accessKey: "L",
+            });
+        }
+    }
+
+
+    function GetGridYS() {
+        $("#gridTableYS").jqGrid({
+            url: "@Url.Content("~/StorageModule/BY_AdjustQuery/GridPageListJson2")?BatchCode=" + $("#BatchCode").val(),
+            datatype: "json",
+            height: $(window).height() - 149,
+            autowidth: true,
+            colModel: [
+
+                { label: '类型', name: 'stocktype', index: 'stocktype', width: 80, align: 'left', sortable: true },
+                    { label: '客户名称', name: 'customername', index: 'customername', width: 120, align: 'left', sortable: true },
+                    { label: '报价单', name: 'quotationcode', index: 'quotationcode', width: 120, align: 'left', sortable: true },
+                    { label: '订单号', name: 'ordercode', index: 'ordercode', width: 60, align: 'left', sortable: true, hidden: true },
+                    { label: '行号', name: 'linecode', index: 'linecode', width: 50, align: 'left', sortable: true },
+                    { label: '钢种名称', name: 'steeldescription', index: 'steeldescription', width: 80, align: 'left', sortable: true },
+                    { label: '批次号', name: 'billcode', index: 'billcode', width: 80, align: 'left', sortable: true },
+                    { label: '长度', name: 'length', index: 'length', width: 50, align: 'left', sortable: true, hidden: true },
+                    { label: '宽度', name: 'weigh', index: 'weigh', width: 50, align: 'left', sortable: true, hidden: true },
+                    { label: '厚度', name: 'thick', index: 'thick', width: 50, align: 'left', sortable: true, hidden: true },
+                    {
+                        label: "规格(长宽厚)", name: "size", index: "size", width: 120,
+                        formatter: function (cellvalue, options, rowobject) {
+                            if (!!rowobject.weigh) {
+                                return parseFloat(rowobject.length) + " x " + parseFloat(rowobject.weigh) + " x " + parseFloat(rowobject.thick);
+                            }
+                            else {
+                                var BoreSize = "";
+                                if (!!rowobject.boresize) {
+                                    BoreSize = "xΦ" + rowobject.boresize;
+                                }
+                                return "Φ" + parseFloat(rowobject.thick) + BoreSize + " x " + parseFloat(rowobject.length);
+                            }
+                        }
+                    },
+                    { label: '数量', name: 'qty', index: 'qty', width: 40, align: 'left', sortable: true },
+
+                    //{ label: '理论重量', name: 'theoryweight', index: 'theoryweight', width: 50, align: 'left', sortable: true },
+                {
+                    label: '进出库重量', name: 'weight', index: 'weight', width: 50, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.stocktype.indexOf("入库") > -1 ) {
+                            return "+"+cellvalue;
+                        }
+                        else {
+                            return "-" + cellvalue;
+                        }
+                    }
+},
+                { label: '开料前重量', name: 'originalweight', index: 'originalweight', width: 70, align: 'left', sortable: true, },
+                { label: '开料后重量', name: 'nowweight', index: 'nowweight', width: 70, align: 'left', sortable: true, },
+                    {
+                        label: '损耗比', name: '损耗比', index: '损耗比', width: 65, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (rowObject.theoryweight >= rowObject.gbweight) {
+                                return 0;
+                            }
+                            return ((rowObject.gbweight - rowObject.theoryweight) * 100 / rowObject.theoryweight).toFixed(2) + '%'
+                        }
+                    },
+                    { label: '开料前尺寸', name: 'originalsize', index: 'originalsize', width: 150, align: 'left', sortable: true },
+                    { label: '开料后尺寸', name: 'nowsize', index: 'nowsize', width: 150, align: 'left', sortable: true, },
+                    
+                    { label: '采购单号', name: 'steelpurchasecode', index: 'steelpurchasecode', width: 70, align: 'left', sortable: true, },
+                    { label: '炉号', name: 'stovecode', index: 'stovecode', width: 70, align: 'left', sortable: true, },
+                {
+                    label: '操作时间', name: 'createdate', index: 'createdate', width: 65, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd HH:mm:ss');
+                    }
+                },
+                    { label: '操作人', name: 'createusername', index: 'createusername', width: 100, align: 'left', sortable: true },
+                    
+
+                    //{
+                    //    label: '操作', name: 'caozuo', width: 0, align: 'center', sortable: true,
+                    //    formatter: function (cellvalue, options, rowobject) {
+                    //        if (rowobject.outstocktype == '4') {
+                    //            return "<a class='alink' style='color:blue' onclick='OpearLog(\"" + rowobject.outstockid + "\",\"" + rowobject.steelcode + "\")'>操作</a>";
+                    //        }
+                    //        return "";
+                    //    }
+                    //},
+
+            ],
+            viewrecords: false,
+            rowNum: 5000,
+            rowList: [5000, 5000, 5000, 5000, 5000],
+            pager: "#gridPagerYS",
+            sortname: 'CreateDate',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            gridComplete: function () {
+                var data = $("#gridTableYS").jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    var item = i + 1;
+                    //黄
+                    if (data[i].stocktype.indexOf("入库") > -1) {
+                        $("#gridTableYS").find('#' + item).find('td').css("background-color", "#c9daf8");
+                    }
+                    else {
+                        $("#gridTableYS").find('#' + item).find('td').css("background-color", "#a8df8f");
+                        
+                    }
+                    
+                }
+            },
+        });
+    }
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/StorageModule/BY_AdjustQuery/GridPageListJson")?SteelCode=" + escape($("#SteelCode").val()) + "&BatchCode=" + escape($("#BatchCode").val()) ,
+            datatype: "json",
+            height: $(window).height() - 149,
+            autowidth: true,
+            colModel: [
+
+                    //{
+                    //    label: '钢材类型', name: 'MaterialType', index: 'MaterialType', width: 200, align: 'left', sortable: true,
+                    //    formatter: function (cellvalue, options, rowObject) {
+                    //        if (cellvalue == '0') return "<span style='color:blue'>板料</span>";
+                    //        if (cellvalue == '1') return "<span style='color:red'>碎料</span>";
+                    //    }
+                //},
+                { label: '钢材编号', name: 'BatchCode', index: 'BatchCode', width: 120, align: 'left', sortable: true },
+                { label: '炉号', name: 'StoveCode', index: 'StoveCode', width: 50, align: 'left', sortable: true },
+
+                        { label: '钢种编号', name: 'SteelCode', index: 'SteelCode', width: 50, align: 'left', sortable: true },
+                        { label: '钢种名称', name: 'SteelDescription', index: 'SteelDescription', width: 50, align: 'left', sortable: true },
+                        { label: '原始尺寸', name: 'OriginalSize', index: 'OriginalSize', width: 80, align: 'left', sortable: true },
+                        { label: '供应商', name: 'CustomerName', index: 'SteelDescription', width: 100, align: 'left', sortable: true },
+                        //{
+                        //    label: '状态', name: 'SteelStatus', index: 'SteelStatus', width: 50, align: 'left', sortable: true,
+                        //    formatter: function (cellvalue, options, rowObject) {
+                        //        if (cellvalue == 'H') { return "预硬"; }
+                        //        else if (cellvalue == 'A') return "加硬";
+                        //        else if (cellvalue == 'T') return "退火";
+                        //        else if (cellvalue == 'N') return "正常";
+                        //        else { return ""; }
+                        //    }
+                        //},
+                        {
+                            label: '类型', name: 'SteelType', index: 'SteelType', width: 50, align: 'left', sortable: true,
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (cellvalue == 'F') return "条钢";
+                                else if (cellvalue == 'P') return "板料";
+                                else if (cellvalue == 'B') return "模料";
+                                else if (cellvalue == 'R') return "圆料";
+                                else { return ""; }
+                            }
+                        },
+                        { label: '厚度', name: 'OThick', index: 'OThick', width: 50, align: 'left', sortable: true },
+                        { label: '宽度', name: 'OWeigh', index: 'OWeigh', width: 50, align: 'left', sortable: true },
+                        { label: '长度', name: 'OLength', index: 'OLength', width: 50, align: 'left', sortable: true },
+                        { label: '重量', name: 'OWeight', index: 'OWeight', width: 50, align: 'left', sortable: true },
+                        {
+                            label: '日期', name: 'CreateDate', index: 'InStockDate', width: 65, align: 'left', sortable: true,
+                            formatter: function (cellvalue, options, rowObject) {
+                                return formatDate(cellvalue, 'yyyy-MM-dd HH:mm:ss');
+                            }
+                        },
+                        {
+                            label: '备注', name: 'Remark', index: 'Remark', width: 100, align: 'left', sortable: true,
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (!!cellvalue) {
+                                    return cellvalue.replace(/,/g, "，");;
+
+                                }
+                                return "";
+                            }
+                        },
+                        { label: '创建人', name: 'CreateUserName', index: 'CreateUserName', width: 80, align: 'left', sortable: true }
+            ],
+            viewrecords: true,
+            rowNum: 5000,
+            rowList: [5000, 5000, 5000, 5000, 5000],
+            pager: "#gridPager",
+            sortname: 'InStockDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+
+            treeGrid: true,
+            treeGridModel: "nested",
+            ExpandColumn: "StoveCode",
+
+
+        });
+    }
+    //批号自动补全
+    function BatchCodeAutocomplete() {
+        var $BatchCode = $("#BatchCode");
+        $BatchCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("BatchCode", function (data) {
+            $("#BatchCode").val(data.BatchCode);
+        });
+        var tempstr;
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/StorageModule/BY_Inventory/GetDistinctBatchCode", { BatchCode: $("#BatchCode").val(), ParentInventoryId: "0" }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    //if (tempstr != DataJson[i].BatchCode) {
+                    html += "<tr>";
+                    html += '<td id="BatchCode" >' + DataJson[i].batchcode + '</td>';
+                    html += "</tr>";
+                    //    tempstr = DataJson[i].BatchCode;
+                    //}
+
+                });
+                //点击事件回调
+                autocomplete("BatchCode", $BatchCode.width() + "px", "200px", html, function (data) {
+                    $("#BatchCode").val(data.BatchCode);
+                    //tempstr = "";
+                });
+            });
+        }
+    }
+
+        //查询
+        function btn_Search() {
+            $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/StorageModule/BY_AdjustQuery/GridPageListJson")?SteelCode=" + escape($("#SteelCode").val()) + "&BatchCode=" + escape($("#BatchCode").val()) , page: 1 }).trigger('reloadGrid');
+            $("#gridTableYS").jqGrid('setGridParam', { url: "@Url.Content("~/StorageModule/BY_AdjustQuery/GridPageListJson2")?BatchCode=" + escape($("#BatchCode").val()) , page: 1 }).trigger('reloadGrid');
+        }
+        //刷新
+        function windowload() {
+            $("#gridTable").trigger("reloadGrid"); //重新载入
+            $("#gridTableYS").trigger("reloadGrid"); //重新载入
+
+        }
+        //导出
+        function btn_Export() {
+            SetDeriveExcel("#gridTable", "库存信息");
+
+            Loading(true, "正在处理要导出数据...");
+            window.setTimeout(function () {
+                location.href = "/Utility/GetDeriveExcel";
+                Loading(false);
+            }, 200);
+        }
+        //钢材编码自动补全
+        function SteelAutocomplete() {
+            var $SteelCode = $("#SteelCode");
+            $SteelCode.bind("keyup", function (e) {
+                if (e.which != 13 && e.which != 40 && e.which != 38) {
+                    DataSource();
+                }
+            }).focus(function () {
+                $(this).select();
+                DataSource();
+            });
+            //上，下键盘回调
+            autocompletekeydown("SteelCode", function (data) {
+                $("#SteelCode").val(data.SteelCode);
+            });
+            //获取数据源
+            function DataSource() {
+                AjaxJson("/CommonModule/Steel/GetAutoCompleJson", { keywords: $SteelCode.val() }, function (DataJson) {
+                    var html = "";
+                    $.each(DataJson, function (i) {
+                        html += "<tr>";
+                        html += '<td id="SteelId" style="display: none;">' + DataJson[i].SteelId + '</td>';
+                        html += '<td id="SteelCode" style="width: 50%;">' + DataJson[i].SteelCode + '</td>';
+                        html += '<td id="SteelName" style="width: 100%;">' + DataJson[i].SteelName + '</td>';
+                        html += "</tr>";
+                    });
+                    //点击事件回调
+                    autocomplete("SteelCode", $SteelCode.width() + "px", "200px", html, function (data) {
+                        $("#SteelCode").val(data.SteelCode);
+                    });
+                });
+            }
+        }
+</script>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+
+            @*<th>钢种：</th>
+            <td>
+                <input id="SteelCode" maxlength="50" type="text" class="txt" />
+            </td>*@
+            <th>钢材编号：</th>
+            <td>
+                <input id="BatchCode" maxlength="50" type="text" class="txt" />
+            </td>
+
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+            @*<td>
+                    <input id="btnExport" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
+                </td>*@
+        </tr>
+    </table>
+</div>
+
+<div id="layout2" class="layout2">
+    <!--左边-->
+    <div class="layoutPanel layout-west" style="">
+        <div class="btnbartitle">
+            <div>
+                开料层级查询
+            </div>
+        </div>
+        <div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+            <table id="gridTable"></table>
+            <div id="gridPager"></div>
+        </div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                进出仓查询
+            </div>
+        </div>
+        <!--视图-->
+        <table id="gridTableYS"></table>
+        <div id="gridPagerYS"></div>
+    </div>
+</div>

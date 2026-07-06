@@ -1,0 +1,174 @@
+﻿@{
+    ViewBag.Title = "导出Excel";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+@*<script src="~/Content/Scripts/cookie/jquery.cookie.js"></script>*@
+@Scripts.Render("~/Content/Scripts/cookie/cookiejquery")
+<script>
+    var LType = GetQuery('LType');
+
+    function addDelive1(s) {
+        $("#Delives").html("");
+        $("#Delives").append("<li title='" + GetQuery('deliverycode') + "'><a id='" + GetQuery('deliverycode') + "'>" + GetQuery('deliverycode') + "</a><i></i></li>");
+        if (!!s) {
+            var list = s.split(',');
+            for (var i = 0; i < list.length; i++) {
+                if (list[i] != GetQuery('deliverycode')) {
+                    $("#Delives").append("<li title='" + list[i] + "'><a id='" + list[i] + "'>" + list[i] + "</a><i></i></li>");
+
+                }
+            }
+        }
+       
+    }
+    function btn_query() {
+      
+        openDialog("/DeliveryModule/BY_Delivery/QueryDelivery?customercode=" + escape(GetQuery('customercode')) + "&LType=" + LType, "Query", "送货单查询", 850, 460, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    $(function () {
+        getAjax("/DeliveryModule/BY_Delivery/GetChooseType", { customercode: GetQuery('customercode'), LType: LType }, function (data) {
+            var data1 = eval("(" + data + ")");
+            var JsonData = data1.Data;
+            var Customer = data1.Customer;
+            $("#custemername").text(Customer.FullName);
+            $("#DeliveryRemark").text(Customer.DeliveryRemark);
+            $.each(JsonData, function (i) {
+                var Key = JsonData[i].Key;
+                var Value = JsonData[i].Value;
+                if (!!Key) {
+                    if (i == 0) {
+                        $("#AccessView").append("<li class='selected' title='" + Key + "'><a id='" + Key + "'><img src=\"../../Content/Images/Icon16/tag_blue.png\">" + Value + "</a><i></i></li>");
+                    }
+                    else {
+                        $("#AccessView").append("<li title='" + Key + "'><a id='" + Key + "'><img src=\"../../Content/Images/Icon16/tag_blue.png\">" + Value + "</a><i></i></li>");
+
+                    }
+                }
+            });
+        });
+        addDelive1();
+        $("#AccessView li").click(function () {
+            if (!$(this).find('a').hasClass('disabled')) {
+                $('#AccessView li').removeClass("selected");
+                if (!!$(this).hasClass("selected")) {
+                    $(this).removeClass("selected");
+                } else {
+                    $(this).addClass("selected");
+                }
+            }
+        });
+        $("#AccessView1 li").click(function () {
+            if (!$(this).find('a').hasClass('disabled')) {
+                $('#AccessView1 li').removeClass("selected");
+                if (!!$(this).hasClass("selected")) {
+                    $(this).removeClass("selected");
+                } else {
+                    $(this).addClass("selected");
+                }
+            }
+        });
+        //自定义复选框 全选/反选
+        $("#CheckView").click(function () {
+            if (!!$(this).hasClass("checkAllOff")) {
+                $(this).attr('title', '反选');
+                $(this).text('反选');
+                $(this).attr('class', 'checkAllOn');
+                $('#AccessView li').addClass('selected');
+            } else {
+                $(this).attr('title', '全选');
+                $(this).text('全选');
+                $(this).attr('class', 'checkAllOff');
+                $('#AccessView li').removeClass('selected');
+            }
+        })
+        //$("#CheckView").trigger("click");
+    })
+    //确认导出
+    function AcceptClick() {
+        //AjaxJson("/DeliveryModule/BY_Delivery/Update", { KeyValue: GetQuery('KeyValue'), PrintUserId: "1" }, function (data) {
+        var printType, perType, deliverycodes = "";
+        $('#AccessView1 .selected a').each(function () { perType = escape($(this).attr('id')); });
+        $('#AccessView .selected a').each(function () { printType = escape($(this).attr('id')); });
+        $('#Delives a').each(function () { deliverycodes += escape($(this).attr('id')) + ','; });
+        deliverycodes = deliverycodes.trim(',');
+        top.frames[tabiframeId()].DeliveryPrint(perType, printType, "PREVIEW", deliverycodes);
+        window.setTimeout(function () {closeDialog();}, 500);
+        //});
+    }
+    function AcceptClick2() {
+        //AjaxJson("/DeliveryModule/BY_Delivery/Update", { KeyValue: GetQuery('KeyValue'), PrintUserId: "1" }, function (data) {
+        var printType, perType, deliverycodes = "";
+        $('#AccessView1 .selected a').each(function () { perType = escape($(this).attr('id')); });
+        $('#AccessView .selected a').each(function () { printType = escape($(this).attr('id')); });
+        $('#Delives a').each(function () { deliverycodes += escape($(this).attr('id')) + ','; });
+        deliverycodes = deliverycodes.trim(',');
+        top.frames[tabiframeId()].DeliveryPrint(perType, printType, "PRINT_DESIGN", deliverycodes);
+        window.setTimeout(function () {closeDialog();}, 500);
+        //});
+    }
+</script>
+<div class="note-prompt" style="margin: 1px;">
+    温馨提示：请选择纸张和打印格式。
+</div>
+<div class="border" style="margin: 1px;">
+    <div class="btnbartitle">
+
+        <div style="float: left">
+            打印纸张 <span class="ModuleName"></span>
+        </div>
+        @*<div style="float: right" >
+            <label id="CheckView1" class="checkAllOff" title="取消">取消</label>
+        </div>*@
+    </div>
+    <div style="height: 60px; overflow: auto;">
+        <ul id="AccessView1" class="sys_spec_text">
+            <li title='A4' ><a id='A4'>
+                <img src="../../Content/Images/Icon16/tag_blue.png">A4</a><i></i></li>
+            <li title='A5' class="selected"><a id='A5'>
+                <img src="../../Content/Images/Icon16/tag_blue.png">A5</a><i></i></li>
+        </ul>
+    </div>
+
+    <div class="btnbartitle">
+
+        <div style="float: left">
+            打印格式 <span class="ModuleName"></span>
+        </div>
+        @*<div style="float: right">
+            <label id="CheckView" class="checkAllOff" title="取消">取消</label>
+        </div>*@
+    </div>
+        <div style="height: 220px; overflow: auto;">
+        <ul id="AccessView" class="sys_spec_text">
+        </ul>
+    </div>
+        <div class="btnbartitle">
+
+        <div style="float: left">
+            送货单选择 <span class="ModuleName"></span>
+        </div>
+        <div style="float: right">
+            <label id="addDelive" class="checkAllOff" title="增加" onclick="btn_query();">增加</label>
+        </div>
+    </div>
+    <div style="height: 60px; overflow: auto;">
+        <ul id="Delives" class="sys_spec_text">
+        </ul>
+    </div>
+    <div class="btnbartitle">
+
+        <div style="float: left">
+        ‘<label id="custemername"></label>’送货格式备注 <span class="ModuleName"></span>
+        </div>
+        @*<div style="float: right">
+            <label id="CheckView" class="checkAllOff" title="取消">取消</label>
+        </div>*@
+    </div>
+    <div style="height: 55px; overflow: auto;">
+        <div  >
+            <label id="DeliveryRemark"></label>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,58 @@
+@{
+    ViewBag.Title = "机床设置》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        BindDropItem("#MachineCode", "Machine", "==请选择==");
+        InitControl();
+        $("#MachineCode").change(function () {
+            $("#MachineName").val($('#MachineCode option:selected').text());
+        });
+        
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/MachineModule/BY_Machine/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/MachineModule/BY_Machine/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>设备编号：</th>
+            <td class='formValue'>
+                <select id="MachineCode" class="txtselect" style="width: 96%" datacol="yes" err="设备编号" checkexpession="NotNull">
+                    </select>
+                <input id="MachineName" maxlength=200 type="text" class="txt" style="display:none;"  />
+            </td>
+            
+        </tr>
+        <tr>
+            <th class='formTitle' >MachineIP：</th>
+            <td class='formValue'  >
+                <input id="MachineIP" maxlength=50 type="text" class="txt"  datacol="yes" err="设备IP" checkexpession="NotNull"  />
+            </td>
+            
+        </tr>
+        
+    </table>
+</form>

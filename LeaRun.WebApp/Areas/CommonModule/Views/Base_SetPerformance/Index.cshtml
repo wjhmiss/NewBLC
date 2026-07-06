@@ -1,0 +1,194 @@
+@{
+    ViewBag.Title = "设置绩效";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+        url: "@Url.Content("~/CommonModule/Base_SetPerformance/GridPageJson")",
+        datatype: "json",
+        height: $(window).height() - 149,
+        autowidth: true,
+        colModel: [
+                { label: 'id', name: 'SetPerformanceId', index: 'SetPerformanceId', hidden: true },
+                 { label: '工艺名称', name: 'TechnologyId', index: 'TechnologyId', width: 80, align: 'left', sortable: true },
+                { label: '工艺名称', name: 'TechnologyName', index: 'TechnologyName', width: 80, align: 'left',sortable: true  },
+                { label: '钢材类型', name: 'SteelType', index: 'SteelType', width: 80, align: 'left', sortable: true, hidden: true },
+                { label: '加工类型', name: 'OrderType', index: 'OrderType', width: 80, align: 'left', sortable: true, hidden: true },
+                { label: 'PachyStart', name: 'PachyStart', index: 'PachyStart', hidden: true },
+                { label: 'PachyEnd', name: 'PachyEnd', index: 'PachyEnd', hidden: true },
+                { label: 'WidthStart', name: 'WidthStart', index: 'WidthStart', hidden: true },
+                { label: 'WidthEnd', name: 'WidthEnd', index: 'WidthEnd', hidden: true },
+                { label: 'LengthStart', name: 'LengthStart', index: 'LengthStart', hidden: true },
+                { label: 'LengthEnd', name: 'LengthEnd', index: 'LengthEnd', hidden: true },
+                { label: 'WeightStart', name: 'WeightStart', index: 'WeightStart', hidden: true },
+                { label: 'WeightEnd', name: 'WeightEnd', index: 'WeightEnd', hidden: true },
+                { label: '条件', name: 'WhereQ', hidden: true },
+                { label: '条件', name: 'WhereQty', hidden: true },
+                {
+                    label: '条件', name: '', index: '', width: 100, hidden: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.WhereQty >0) {
+                            var str = rowObject.WhereQ;
+                            str += rowObject.WhereQty;
+                            return str;
+                        }
+                        return "";
+                    }
+                },
+                {
+                    label: '重量范围', name: 'WeightStart', index: 'WeightStart', width: 80, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return rowObject.WeightStart + "-" + rowObject.WeightEnd;
+                    }
+                },
+                {
+                    label: '长范围', name: 'LengthStart', index: 'LengthStart', width: 80, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!rowObject.LengthEnd) {
+                            return rowObject.LengthStart + "-" + rowObject.LengthEnd;
+
+                        }
+                        return "";
+                    }, hidden: true
+                },
+                {
+                    label: '宽范围', name: 'WidthStart', index: 'WidthStart', width: 80, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!rowObject.WidthEnd) {
+                            return rowObject.WidthStart + "-" + rowObject.WidthEnd;
+
+                        }
+                        return "";
+                    }, hidden: true
+                },
+                {
+                    label: '厚比例', name: 'PachyStart', index: 'PachyStart', width: 80, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!rowObject.PachyEnd) {
+                            return rowObject.PachyStart + "-" + rowObject.PachyEnd;
+
+                        }
+                        return "";
+                    }, hidden: true
+                },
+                { label: '单价', name: 'Price', index: 'Price', width: 80, align: 'left', sortable: true },
+                { label: '单位', name: 'Unit', index: 'Unit', width: 80, align: 'left', sortable: true },
+                { label: '比例', name: 'PercentWorkAmount', index: 'PercentWorkAmount', width: 80, align: 'left', sortable: true, hidden: true },
+                {
+                    label: '备注', name: 'Remark', index: 'Remark', width: 80, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                }
+                
+        ],
+        viewrecords: true,
+        rowNum: 30,
+        rowList: [30, 50, 100, 500, 5000],
+        pager: "#gridPager",
+        sortname: 'OrderType',
+        sortorder: 'desc',
+        rownumbers: true,
+        shrinkToFit: false,
+        gridview: true,
+        ondblClickRow: function (rowid, iRow, iCol, e) {
+            btn_edit();
+        }
+    });
+}
+    //新增
+    function btn_add() {
+        var url = "/CommonModule/Base_SetPerformance/Form"
+        openDialog(url, "Form", "新增设置绩效", 770, 395, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "SetPerformanceId");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/Base_SetPerformance/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑设置绩效", 770, 395, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "SetPerformanceId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/Base_SetPerformance/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //明细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "SetPerformanceId");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/Base_SetPerformance/Detail?KeyValue=" + KeyValue;
+            Dialog(url, "Detail", "设置绩效明细", 820, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+        
+    }
+
+    //查询
+    function btn_Search() {
+        var Parameter = [{
+            paramName: "TechnologyName",
+            paramValue: $("#TechnologyName").val(),
+            Operation: "Like",
+            Logic: "AND"
+        }, {
+            paramName: "OrderType",
+            paramValue: $("#OrderType").val(),
+            Operation: "Equal",
+            Logic: "AND"
+        }]
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CommonModule/Base_SetPerformance/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            
+            <th>工序名称：</th>
+            <td>
+                <input id="TechnologyName" type="text" class="txt" style="width: 200px" />
+            </td>
+            <th>加工类型：</th>
+            <td>
+                <input id="OrderType" type="text" class="txt" style="width: 200px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

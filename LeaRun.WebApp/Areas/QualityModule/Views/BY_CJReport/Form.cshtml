@@ -1,0 +1,201 @@
+@{
+    ViewBag.Title = "BY_CJReport》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/QualityModule/BY_CJReport/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        $(".ui_state_highlight").attr("disabled", true);
+        AjaxJson("/QualityModule/BY_CJReport/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>送检客户：</th>
+            <td class='formValue'>
+                <input id="CustomerName" maxlength=500 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>数量：</th>
+            <td class='formValue'>
+                <input id="Qty" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <input id="CreateDate" maxlength=23 type="text" class="txt" value="@DNS.Utilities.DateTimeHelper.GetToday()" onfocus="WdatePicker()"   />
+            </td>
+        </tr>
+        
+        <tr>
+            <th class='formTitle'>样品名称：</th>
+            <td class='formValue'>
+                <input id="SteelDescription" maxlength=200 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>尺寸：</th>
+            <td class='formValue'>
+                <input id="Size" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>测试方法：</th>
+            <td class='formValue'>
+                <input id="CheckMethod" maxlength=50 type="text" class="txt"  value="ASTM ES23-16b"  />
+            </td>
+           
+        </tr>
+        <tr>
+             <th class='formTitle'>A-1：</th>
+            <td class='formValue'>
+                <input id="CheckA1" maxlength=50 type="text" class="txt"  value="冲击吸收能量"  />
+            </td>
+            <th class='formTitle'>测试条件：</th>
+            <td class='formValue'>
+                   <textarea id="CheckA1Condition" class="txtArea" rows="3">试片：夏比V型缺口
+试片尺寸：
+温度：室温
+                       </textarea>
+            </td>
+            <th class='formTitle'>测试结果：</th>
+            <td class='formValue'>
+                <input id="CheckA1Result" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>A-2：</th>
+            <td class='formValue'>
+                <input id="CheckA2" maxlength=50 type="text" class="txt"   value="冲击吸收能量"  />
+            </td>
+            <th class='formTitle'>测试条件：</th>
+            <td class='formValue'>
+                <textarea id="CheckA2Condition" class="txtArea" rows="3">试片：夏比V型缺口
+试片尺寸：
+温度：室温
+                       </textarea>
+            </td>
+            <th class='formTitle'>测试结果：</th>
+            <td class='formValue'>
+                <input id="CheckA2Result" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            
+            <th class='formTitle'>A-3：</th>
+            <td class='formValue'>
+                <input id="CheckA3" maxlength=50 type="text" class="txt"  value="冲击吸收能量"   />
+            </td>
+             <th class='formTitle'>测试条件：</th>
+            <td class='formValue'>
+                <textarea id="CheckA3Condition" class="txtArea" rows="3">试片：夏比V型缺口
+试片尺寸：
+温度：室温
+                       </textarea>
+            </td>
+            <th class='formTitle'>测试结果：</th>
+            <td class='formValue'>
+                <input id="CheckA3Result" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+           
+        </tr>
+        <tr>
+            <th class='formTitle'>A-4：</th>
+            <td class='formValue'>
+                <input id="CheckA4" maxlength=50 type="text" class="txt"  value="冲击吸收能量"   />
+            </td>
+            <th class='formTitle'>测试条件：</th>
+            <td class='formValue'>
+                  <textarea id="CheckA4Condition" class="txtArea" rows="3">试片：夏比V型缺口
+试片尺寸：
+温度：室温
+                       </textarea>
+            </td>
+            <th class='formTitle'>测试结果：</th>
+            <td class='formValue'>
+                <input id="CheckA4Result" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            
+            <th class='formTitle'>A-5：</th>
+            <td class='formValue'>
+                <input id="CheckA5" maxlength=50 type="text" class="txt"  value="冲击吸收能量"   />
+            </td>
+        
+            <th class='formTitle'>测试条件：</th>
+            <td class='formValue'>
+                 <textarea id="CheckA5Condition" class="txtArea" rows="3">试片：夏比V型缺口
+试片尺寸：
+温度：室温
+                       </textarea>
+            </td>
+            <th class='formTitle'>测试结果：</th>
+            <td class='formValue'>
+                <input id="CheckA5Result" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>A-6：</th>
+            <td class='formValue'>
+                <input id="CheckA6" maxlength=50 type="text" class="txt"  value="冲击吸收能量"   />
+            </td>
+            <th class='formTitle'>测试条件：</th>
+            <td class='formValue'>
+                 <textarea id="CheckA6Condition" class="txtArea" rows="3">试片：夏比V型缺口
+试片尺寸：
+温度：室温
+                       </textarea>
+            </td>
+            <th class='formTitle'>测试结果：</th>
+            <td class='formValue'>
+                <input id="CheckA6Result" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        
+        <tr>
+           
+            <th class='formTitle'>均值：</th>
+            <td class='formValue'>
+                <input id="PJResult" maxlength=500 type="text" class="txt"  value="0"  />
+            </td>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue'>
+                <input id="Remark" maxlength=500 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>原材料编码：</th>
+            <td class='formValue'>
+                <input id="SteelQualityreportCode" maxlength=50 type="text" class="txt"   />
+            </td>
+            
+        </tr>
+        <tr>
+            <th class='formTitle'>订单号：</th>
+            <td class='formValue'>
+                <input id="OrderLineCode" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>热处理单号：</th>
+            <td class='formValue'>
+                <input id="QuotationHeatCode" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+    </table>
+</form>

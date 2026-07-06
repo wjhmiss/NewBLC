@@ -1,0 +1,91 @@
+﻿@{
+    ViewBag.Title = "AuditForm";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        InitControl();
+        
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CheckSheetModule/BY_ReimburseSheet/SetForm", { KeyValue: KeyValue }, function (data) {
+                //SetWebControls(data);
+                $("#RequiredMoney").val(data.RequiredMoney);
+                $("#Code").val(data.Code);
+                $("#CodeType").val(data.CodeType);
+                
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick1() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        AjaxJson("/CheckSheetModule/BY_ReimburseSheet/AuditCost?Status=1&KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+    //保存事件
+    function AcceptClick2() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        AjaxJson("/CheckSheetModule/BY_ReimburseSheet/AuditCost?Status=-1&KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <div class="note-prompt" style="margin: 1px;">
+        温馨提示：审核时，请填写实际金额。
+    </div>
+    <table class="form">
+        <tr>
+            
+            <th class='formTitle'>审核人：</th>
+            <td class='formValue'>
+                <input id="AuditMan" maxlength="200" type="text" class="txt" disabled value="@DNS.Utilities.ManageProvider.Provider.Current().UserName" />
+            </td>
+            <th class='formTitle'>审核时间：</th>
+            <td class='formValue'>
+                <input id="AuditDateTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetTime()" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})" datacol="yes" err="审核时间" checkexpession="NotNull"/>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>账单类型：</th>
+            <td class='formValue' >
+                <input id="CodeType"  disabled maxlength="18" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>单号：</th>
+            <td class='formValue'  >
+                <input id="Code"  maxlength="19" type="text" class="txt" disabled />
+            </td>
+        </tr>
+            <tr>
+            <th class='formTitle'>收款金额：</th>
+            <td class='formValue' colspan="3">
+                <input id="RequiredMoney" onfocus="IsMoney(this.id);" disabled maxlength="18" type="text" class="txt" datacol="yes" err="实际金额" checkexpession="NotNull"/>
+            </td>
+        </tr>
+        <tr>
+            
+            <th class='formTitle'>备注：</th>
+            <td class='formValue' colspan="3">
+                <textarea id="AuditRemark" class="txtArea" rows="6"  ></textarea>
+            </td>
+        </tr>
+        
+    </table>
+</form>
+

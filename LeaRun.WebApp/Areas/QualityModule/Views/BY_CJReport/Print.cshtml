@@ -1,0 +1,210 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>粗料单打印预览</title>
+    @*   <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/barcode/jquery-barcode.min.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+    @Scripts.Render("~/Content/Scripts/barcode/barcodejquery")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+
+    <script>
+        //初始化
+        $(function () {
+            AjaxJson("/QualityModule/BY_CJReport/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                //var OrderEntiy = data.OrderEntiy;
+                var Orderhtml = "";
+
+                Orderhtml += '<table id="tb_Order" border="0" class="form-print" style="border-collapse:collapse;">';
+                Orderhtml += '    <tr>';
+                Orderhtml += '    <td colspan="4" align="center" style="padding: 2px;height: 20px; line-height: 20px;"><span style="font-size: 30px; CSBReportId">北仑机械锻造厂</span></td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr>';
+                Orderhtml += '    <td colspan="4" align="center" style="padding: 2px;height: 20px; line-height: 20px;">DONGGUAN Xinze Steel Co.,Ltd.</td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr>';
+                Orderhtml += '    <td colspan="4" align="center" style="padding: 2px;height: 20px; line-height: 20px;">地址：宁波市北仑区大矸龙潭山三路15号&nbsp;&nbsp;&nbsp;&nbsp;电话：18892600521&nbsp;&nbsp;&nbsp;&nbsp;邮箱：124176905@qq.com</td>';
+                Orderhtml += '    </tr>';
+
+                Orderhtml += '    <tr>';
+                Orderhtml += '    <td colspan="4" align="center" style="padding: 2px;border-top: 2px solid #000;height: 40px; line-height: 40px;"><span style="font-size: 26px; CSBReportId">冲击检验报告</td>';
+                Orderhtml += '    </tr>';
+
+
+                Orderhtml += '                <tr>';
+                Orderhtml += '                    <td style="border: 1px solid #000000;text-align: center;width:25%;" >送检单位：</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;width:25%;" >' + data.CustomerName + '</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;width:25%;">送检时间：</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;width:25%;">' + formatDate(data.CreateDate, 'yyyy-MM-dd') + '</td>';
+                Orderhtml += '                </tr>';
+                Orderhtml += '                <tr>';
+                Orderhtml += '                    <td style="border: 1px solid #000000;text-align: center;width:25%;" >生产商：</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;width:25%;" >抚顺特钢股份有限公司</td>';
+                Orderhtml += '                    <td style="border: 1px solid #000000;text-align: center;width:25%;" >样品名称：</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;width:25%;" colspan="3" >' + data.SteelDescription + '</td>';
+                Orderhtml += '                </tr>';
+                Orderhtml += '                <tr>';
+                Orderhtml += '                    <td style="border: 1px solid #000000;text-align: center;width:25%;" >测试方法：</td>';
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: center;width:25%;" colspan="3" >' + data.CheckMethod + '</td>';
+                Orderhtml += '                </tr>';
+                Orderhtml += '<tr >';
+                Orderhtml += '    <td style="border-spacing: 0px;"  colspan="4" >';
+                Orderhtml += '            <table border="0" cellpadding="0" cellspacing="0" class="form-print" style="width: 100%; border-collapse: collapse" >';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;width: 10%;" >序号</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;width: 20%;" >测试项目</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >测试条件</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;width: 20%;" >结果</td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >A-1</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;;" >' + data.CheckA1 + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA1Condition.replace(/@@/g, "<br/>") + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA1Result + '</td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >A-2</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA2 + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA2Condition.replace(/@@/g, "<br/>") + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA2Result + '</td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >A-3</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA3 + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA3Condition.replace(/@@/g, "<br/>") + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA3Result + '</td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >A-4</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA4 + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA4Condition.replace(/@@/g, "<br/>") + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA4Result + '</td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >A-5</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA5 + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA5Condition.replace(/@@/g, "<br/>") + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA5Result + '</td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >A-6</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA6 + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA6Condition.replace(/@@/g, "<br/>") + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.CheckA6Result + '</td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >A-6</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" colspan="2" >均值：</td>';
+                if (!data.PJResult) {
+                    data.PJResult = "";
+                }
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;height: 10px; line-height: 10px;" >' + data.PJResult + '</td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '    </table></td></tr>';
+
+
+
+                Orderhtml += '                <tr>';
+                Orderhtml += '                    <td style="border: 1px solid #000000;text-align: left;width:100%;height:300px;" colspan="4" >图片：';
+                var nums = Math.random();
+                Orderhtml += '                    <img style="height:300px" src=../../Resource/Document/BY_CJReport/' + GetQuery('KeyValue') + '.jpg?' + nums + '>';
+
+
+                Orderhtml += '                       </td>';
+                Orderhtml += '                </tr>';
+
+                Orderhtml += '                <tr>';
+                Orderhtml += '                    <td style="border: 1px solid #000000;text-align: center;width:25%;" >备注：</td>';
+
+                Orderhtml += '                    <td style=" border: 1px solid #000000;text-align: left;" colspan="3"  >' + data.Remark + '';
+                Orderhtml += '                    <img id="logo"  style="z-index: -1; right:25px;top:850px; width: 4cm;float:left;position: absolute; " src="@Url.Content("~/Content/Images/124.png")" />';
+                Orderhtml += '                   <img id="logo1"  style="z-index: -1; right:225px;top:920px; width: 4cm;  float:left;position: absolute;" src="@Url.Content("~/Content/Images/125.png")" /> </td>';
+                Orderhtml += '                </tr>';
+                Orderhtml += '                <tr>';
+                Orderhtml += '                    <td style=" text-align: right;width:25%;" >检验人：</td> ';
+                Orderhtml += '                    <td style=" text-align: left;width:25%;" ></td>';
+                Orderhtml += '                    <td style=" text-align: right;width:25%;">核对人：</td>';
+                Orderhtml += '                    <td style=" text-align: left;width:25%;"></td>';
+                Orderhtml += '                </tr>';
+                Orderhtml += '            </table>';
+
+                $("#my_area1").append(Orderhtml);
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+            MyPreview();
+        }
+    </script>
+
+</head>
+<body style="overflow-x: hidden;">
+    <div id="my_area1" >
+        <div style="float: left; position: absolute; ">
+            @*<img style="width: 80px;padding: 5px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@
+        </div>
+        @*<div id="reprint" style="position: absolute; right: 15px; top: 15px; display: none; "><span style="font-size: 18px; CSBReportId"></span></div>*@
+    </div>
+
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_PAGESIZE(1, "", "", "A4")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        LODOP.PREVIEW();
+        //LODOP.PRINTA();
+        window.setTimeout(function () {closeDialog();}, 500);
+    };
+</script>
+<style>
+    .form-print th {
+        font-size: 12pt;
+        font-family: sans-serif;
+        background-color: #fff;
+        height: 40px; line-height: 40px;
+        white-space: nowrap;
+        width: 80px; 
+        text-align: right;
+        padding-right: 2px;
+    }
+
+    .form-print td {
+        font-family: sans-serif;
+        height: 40px;
+        line-height: 40px;
+        padding-right: 2px;
+        font-size: 12pt;
+    }
+
+    .tb_Order_Detail td {
+        border: 1px solid #000000;
+    }
+
+    .tb_Order_Detail th {
+        text-align: center;
+    }
+
+    .topline {
+        border-top: 1px solid #000000;
+        text-align: center;
+    }
+
+    .rightline {
+        border-right: 1px solid #000000;
+    }
+
+    .bottomline {
+        border-bottom: 1px solid #000000;
+    }
+</style>
+</html>

@@ -1,0 +1,113 @@
+@{
+    ViewBag.Title = "工单工序表》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        InitControl();
+        ProcessAutocomplete();
+    })
+
+    function ProcessAutocomplete() {
+        var $TechnologyId = $("#TechnologyId");
+        $TechnologyId.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("TechnologyId", function (data) {
+            $("#TechnologyId").val(data.Code);
+            $("#TechnologyName").val(data.FullName);
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/CommonModule/DataDictionary/GetAutoCompleJson", { keywords: $("#TechnologyId").val(), parentCode: "Operation" }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    //html += '<td id="TechnologyId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="Code" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 70%;">' + DataJson[i].FullName + '</td>';
+
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("TechnologyId", "300px", "200px", html, function (data) {
+                    $("#TechnologyId").val(data.Code);
+                    $("#TechnologyName").val(data.FullName);
+
+                });
+
+            });
+        }
+
+    }
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/OrderDetailProcessModule/BY_OrderDetailProcess/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+        else {
+            $("#OrderCode").val(GetQuery('ordercode'))
+            $("#LineCode").val(GetQuery('linecode'))
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/OrderDetailProcessModule/BY_OrderDetailProcess/UpdateForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>订单号：</th>
+            <td class='formValue'>
+                <input id="Qty" type="hidden" />
+                    <input id="OrderCode" disabled maxlength="50" type="text" class="txt" datacol="yes" err="订单号" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle'>行号：</th>
+            <td class='formValue'>
+                    <input id="LineCode" disabled maxlength="50" type="text" class="txt" datacol="yes" err="行号" checkexpession="NotNull" />
+            </td>
+             </tr>
+        <tr>
+            <th class='formTitle'>工序/编码：</th>
+            <td class='formValue' >
+                    <input id="TechnologyId" maxlength="50" type="text" class="txt" datacol="yes" err="工序编号/名称" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle'>工序名称：</th>
+            <td class='formValue' >
+                <input id="TechnologyName" type="text"  class="txt" disabled/>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>状态：</th>
+            <td class='formValue' >
+                 <span class="item">
+                    <input type="checkbox" name="checkbox" checked="checked" id="DeleteMark" />
+                    <label for="DeleteMark">无效，不可扫描</label>
+                </span>
+            </td>
+            
+        </tr>
+    </table>
+</form>

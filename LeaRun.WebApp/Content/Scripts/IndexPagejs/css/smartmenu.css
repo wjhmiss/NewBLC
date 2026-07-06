@@ -1,0 +1,111 @@
+.smartmenu, .smartmenufloaty {
+    background: #8DB638 none repeat scroll 0 0;
+    border-top:1px solid #B7DF63;
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+    -moz-border-radius-bottomleft: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -webkit-border-bottom-right-radius: 5px;
+}
+
+.smartmenu i{position: absolute;top: 5px;left: 5px;display: block;width: 12px;height: 12px;background: url(../../../images/dispose.png) repeat-x;}
+.smartmenu .centre{position: absolute;top: 20px;left: 20px;margin-bottom: 5px;}
+.smartmenu .Number{position: absolute;top: -3px;left: 56px;margin-bottom: 5px;color: #fff;font-size: 50px;font-family: Microsoft Yahei;width: 85px;text-align: center;}
+.smartmenu .text{position: absolute;top: 87px;left: 18px;color: #fff;}
+
+.smartmenuie6 {
+    height: 30px;
+}
+
+.smartmenu a, 
+.smartmenufloaty a {
+    font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
+    text-decoration: none;
+    color: #FFF;
+    border-right: 1px dotted #FFF;
+    padding: 0px 10px;
+}
+
+.smartmenu a.last {
+    border: none;
+}
+
+.smartmenu a:hover {
+    color: #333;
+}
+
+.smartmenu ul, .smartmenufloaty ul {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+}
+
+.smartmenu ul li, .smartmenufloaty li {
+    padding: 5px 0px 5px 0px;
+    float: left;
+}
+
+.smartmenu li ul {
+    display: none;
+}
+
+.smartmenufloaty {
+    background: transparent;
+    position: absolute;
+    border: none;
+    width: auto;
+    height: auto;
+    left: 50px;
+    top: 50px;
+    z-index: 1000;
+}
+
+.smartmenufloaty .tip {
+    background: url(../images/floatytip.png) no-repeat;
+    font-size: 0px; 
+    height: 20px;
+    width: 50px;
+    margin: 0px;
+    overflow: hidden;
+    display: block;
+}
+
+.smartmenufloaty .tipIE6 { 
+    background: url(../images/floatytip.gif);
+}
+
+.smartmenufloaty .padder {
+    background: url(../images/floatybg.png);
+    padding: 0px 8px; 
+    -moz-border-radius-bottomleft: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -webkit-border-bottom-right-radius: 5px;
+}
+
+.smartmenufloaty .padderIE6 {
+    background: url(../images/floatybg.gif);
+}
+
+.smartmenufloaty li {
+    float: none ;
+    border-bottom: 1px dotted #FFF;
+    padding: 5px 8px; 
+}
+ 
+.smartmenufloaty li.last {
+    border: none;
+}
+
+.smartmenufloaty a {
+    border: none;
+    padding: 0px;
+}
+
+.smartmenufloaty a:hover {
+    color: #222;
+}

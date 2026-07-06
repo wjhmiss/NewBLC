@@ -1,0 +1,542 @@
+@{
+    ViewBag.Title = "Base_SteelDDPerchaseDetail》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/OrderModule/Base_SteelDDPerchaseDetail/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/OrderModule/Base_SteelDDPerchaseDetail/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>报价单明细ID：</th>
+            <td class='formValue'>
+                <input id="Base_SteelDDPerchaseDetailId" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>Base_SteelDDPerchaseId：</th>
+            <td class='formValue'>
+                <input id="Base_SteelDDPerchaseId" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>行号：</th>
+            <td class='formValue'>
+                <input id="LineCode" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>板件编码：</th>
+            <td class='formValue'>
+                <input id="BoardId" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>板件描述：</th>
+            <td class='formValue'>
+                <input id="BoardDescription" maxlength=500 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>数量：</th>
+            <td class='formValue'>
+                <input id="Qty" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>项目编号：</th>
+            <td class='formValue'>
+                <input id="ProjectCode" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>磨四角：</th>
+            <td class='formValue'>
+                <input id="IsGrindAngle" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>倒角：</th>
+            <td class='formValue'>
+                <input id="IsChamfer" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>钢种：</th>
+            <td class='formValue'>
+                <input id="SteelId" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>钢种编号：</th>
+            <td class='formValue'>
+                <input id="SteelCode" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>钢种描述：</th>
+            <td class='formValue'>
+                <input id="SteelDescription" maxlength=200 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>钢种其它描述：</th>
+            <td class='formValue'>
+                <input id="SteelOtherDescription" maxlength=200 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>钢种状态：</th>
+            <td class='formValue'>
+                <input id="SteelState" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>模号：</th>
+            <td class='formValue'>
+                <input id="DieCode" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>厚度：</th>
+            <td class='formValue'>
+                <input id="Thick" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>宽：</th>
+            <td class='formValue'>
+                <input id="Weigh" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>长：</th>
+            <td class='formValue'>
+                <input id="Length" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>计价余量(厚度)：</th>
+            <td class='formValue'>
+                <input id="AddThick" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>计价余量(宽)：</th>
+            <td class='formValue'>
+                <input id="AddWeigh" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>计价余量(长)：</th>
+            <td class='formValue'>
+                <input id="AddLength" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>工艺：</th>
+            <td class='formValue'>
+                <input id="Technology" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>理论重量：</th>
+            <td class='formValue'>
+                <input id="Weight" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>材料单价：</th>
+            <td class='formValue'>
+                <input id="MaterialPrice" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>材料折扣：</th>
+            <td class='formValue'>
+                <input id="MaterialLess" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>金额（材料）：</th>
+            <td class='formValue'>
+                <input id="MaterialAmount" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>小件单价：</th>
+            <td class='formValue'>
+                <input id="WorkPrice" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>加工费折扣：</th>
+            <td class='formValue'>
+                <input id="WorkLess" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>小件金额（加工费）：</th>
+            <td class='formValue'>
+                <input id="WorkAmount" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>热处理单价：</th>
+            <td class='formValue'>
+                <input id="HeatPrice" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>热处理折扣：</th>
+            <td class='formValue'>
+                <input id="HeatLess" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>金额（热处理）：</th>
+            <td class='formValue'>
+                <input id="HeatAmount" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>销售额：</th>
+            <td class='formValue'>
+                <input id="SalesAmount" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>成本：</th>
+            <td class='formValue'>
+                <input id="CostAmount" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>毛利润：</th>
+            <td class='formValue'>
+                <input id="ProfitAmount" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>毛利率：</th>
+            <td class='formValue'>
+                <input id="ProfitRate" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>送货说明：</th>
+            <td class='formValue'>
+                <input id="ShipDescription" maxlength=500 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue'>
+                <input id="Remark" maxlength=2000 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <input id="Enabled" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>排序码：</th>
+            <td class='formValue'>
+                <input id="SortCode" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>删除标记：</th>
+            <td class='formValue'>
+                <input id="DeleteMark" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <input id="CreateDate" maxlength=23 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>创建用户主键：</th>
+            <td class='formValue'>
+                <input id="CreateUserId" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>创建用户：</th>
+            <td class='formValue'>
+                <input id="CreateUserName" maxlength=200 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>修改时间：</th>
+            <td class='formValue'>
+                <input id="ModifyDate" maxlength=23 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>修改用户主键：</th>
+            <td class='formValue'>
+                <input id="ModifyUserId" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>修改用户：</th>
+            <td class='formValue'>
+                <input id="ModifyUserName" maxlength=200 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>落单状态：</th>
+            <td class='formValue'>
+                <input id="PlaceOrderStatus" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>加工类型：</th>
+            <td class='formValue'>
+                <input id="OrderType" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>客户订单号：</th>
+            <td class='formValue'>
+                <input id="CustomerOrder" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>客户货品号：</th>
+            <td class='formValue'>
+                <input id="CustomerProduct" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>报价单号：</th>
+            <td class='formValue'>
+                <input id="QuotationCode" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>打底重量：</th>
+            <td class='formValue'>
+                <input id="LimitWeight" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>打底厚度：</th>
+            <td class='formValue'>
+                <input id="LimitThick" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>加工费：</th>
+            <td class='formValue'>
+                <input id="WorkCost" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>材料费：</th>
+            <td class='formValue'>
+                <input id="MaterialCost" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>管理费：</th>
+            <td class='formValue'>
+                <input id="ManagerCost" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>税费：</th>
+            <td class='formValue'>
+                <input id="InvoiceCost" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>替代料：</th>
+            <td class='formValue'>
+                <input id="RepalceMl" maxlength=200 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>计价类型：按kg，按件：</th>
+            <td class='formValue'>
+                <input id="JJtype" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>品名（一般钢材名加加工类型）可修改：</th>
+            <td class='formValue'>
+                <input id="ProductName" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>吊孔：</th>
+            <td class='formValue'>
+                <input id="LiftingHole" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>气割：</th>
+            <td class='formValue'>
+                <input id="GasCuttingSteel" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>孔径：</th>
+            <td class='formValue'>
+                <input id="BoreSize" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>钢材类型：</th>
+            <td class='formValue'>
+                <input id="SteelType" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>Area：</th>
+            <td class='formValue'>
+                <input id="Area" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>理论重量：</th>
+            <td class='formValue'>
+                <input id="TheoryWeight" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>磨铣：</th>
+            <td class='formValue'>
+                <input id="MandXSteel" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>磨面：</th>
+            <td class='formValue'>
+                <input id="MorXSteel" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>类型洗边：</th>
+            <td class='formValue'>
+                <input id="BSteel" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>0：</th>
+            <td class='formValue'>
+                <input id="MianCostArea" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>面单价：</th>
+            <td class='formValue'>
+                <input id="MianCostPer" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>面总费用：</th>
+            <td class='formValue'>
+                <input id="MianCost" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>BianCostLong：</th>
+            <td class='formValue'>
+                <input id="BianCostLong" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>边单价：</th>
+            <td class='formValue'>
+                <input id="BianCostPer" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>边总价：</th>
+            <td class='formValue'>
+                <input id="BianCost" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>锯口费：</th>
+            <td class='formValue'>
+                <input id="JKCost" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>加工费：</th>
+            <td class='formValue'>
+                <input id="SmallCost" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>加工费计算员工费用：</th>
+            <td class='formValue'>
+                <input id="WorkCostForWork" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>类型精洗边：</th>
+            <td class='formValue'>
+                <input id="JBSteel" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>加工费计算员工费用：</th>
+            <td class='formValue'>
+                <input id="WorkCostForWorkTemp" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>面类型  2，两面，1，单面：</th>
+            <td class='formValue'>
+                <input id="MianType" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>边类型，4，四边，3，长短，2，两长，1两短：</th>
+            <td class='formValue'>
+                <input id="BianType" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>按件计算：</th>
+            <td class='formValue'>
+                <input id="MianCostUnit" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>按件计算：</th>
+            <td class='formValue'>
+                <input id="BianCostUnit" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>按件计算：</th>
+            <td class='formValue'>
+                <input id="WorkUnit" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>铣面：</th>
+            <td class='formValue'>
+                <input id="XorMSteel" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>计算公式：</th>
+            <td class='formValue'>
+                <input id="CountShow" maxlength=500 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>面总费用：</th>
+            <td class='formValue'>
+                <input id="MianCostWork" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>边总价：</th>
+            <td class='formValue'>
+                <input id="BianCostWork" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>CNC：</th>
+            <td class='formValue'>
+                <input id="CNC" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>研磨：</th>
+            <td class='formValue'>
+                <input id="YM" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>锯切：</th>
+            <td class='formValue'>
+                <input id="JQ" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>Kprocess：</th>
+            <td class='formValue'>
+                <input id="Kprocess" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>锯口费单价：</th>
+            <td class='formValue'>
+                <input id="JKCostPer" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>几刀：</th>
+            <td class='formValue'>
+                <input id="JKCostQty" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>加工金额（加工费）：</th>
+            <td class='formValue'>
+                <input id="SmallAmount" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>二放三放：</th>
+            <td class='formValue'>
+                <input id="Fang" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>切角单价：</th>
+            <td class='formValue'>
+                <input id="DDCostPer" maxlength=18 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>切角费用：</th>
+            <td class='formValue'>
+                <input id="DDCost" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>DD：</th>
+            <td class='formValue'>
+                <input id="DD" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+    </table>
+</form>

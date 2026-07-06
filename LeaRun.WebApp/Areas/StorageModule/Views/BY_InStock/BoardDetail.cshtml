@@ -1,0 +1,148 @@
+@{
+    ViewBag.Title = "入仓表》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        BindCombobox();
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/StorageModule/BY_InStock/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //初始化绑定下拉框
+    function BindCombobox() {
+        //产地下拉框
+        BindDropItem("#PlaceOrigin", "SteelSource", "==请选择==");
+        //外观类型下拉框
+        BindDropItem("#SteelType", "FaceType", "==请选择==");
+        //钢板状态下拉框
+        BindDropItem("#SteelStatus", "SteelStatus", "==请选择==");
+        //钢种下拉框
+        SteelAutocomplete();
+    }
+    //钢材编码自动补全
+    function SteelAutocomplete() {
+        var $SteelCode = $("#SteelCode");
+        $SteelCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("SteelCode", function (data) {
+            $("#SteelId").val(data.SteelId);
+            $("#SteelCode").val(data.SteelCode);
+            $("#SteelDescription").val(data.SteelName);
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/CommonModule/Steel/GetAutoCompleJson", { keywords: $SteelCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="SteelId" style="display: none;">' + DataJson[i].SteelId + '</td>';
+                    html += '<td id="SteelCode" style="width: 50%;">' + DataJson[i].SteelCode + '</td>';
+                    html += '<td id="SteelName" style="width: 100%;">' + DataJson[i].SteelName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("SteelCode", $SteelCode.width() + "px", "200px", html, function (data) {
+                    $("#SteelId").val(data.SteelId);
+                    $("#SteelCode").val(data.SteelCode);
+                });
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>钢种：</th>
+            <td class='formValue'>
+                <input id="SteelId" type="hidden" class="txt" />
+                <input id="SteelCode" maxlength="50" type="text" class="txt" datacol="yes" err="钢材编码" checkexpession="NotNull" />
+                <input id="SteelDescription" type="hidden" class="txt"  />
+            </td>
+            <th class='formTitle'>产地：</th>
+            <td class='formValue'>
+                <select id="PlaceOrigin" class="txtselect"></select>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>类型：</th>
+            <td class='formValue'>
+                <select id="SteelType" class="txtselect"></select>
+            </td>
+            <th class='formTitle'>钢板状态：</th>
+            <td class='formValue'>
+                <select id="SteelStatus" class="txtselect"></select>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>厚度：</th>
+            <td class='formValue'>
+                <input id="Thick" maxlength="18" type="text" class="txt" value="0" datacol="yes" err="厚度" checkexpession="Num" />
+            </td>
+            <th class='formTitle'>宽：</th>
+            <td class='formValue'>
+                <input id="Weigh" maxlength="18" type="text" class="txt" value="0" datacol="yes" err="宽" checkexpession="Num" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>长：</th>
+            <td class='formValue'>
+                <input id="Length" maxlength="18" type="text" class="txt" value="0" datacol="yes" err="长" checkexpession="Num" />
+            </td>
+            <th class='formTitle'>件数：</th>
+            <td class='formValue'>
+                <input id="Qty" maxlength="10" type="text" class="txt" value="1" disabled />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>炉号：</th>
+            <td class='formValue'>
+                <input id="StoveCode" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>钢厂单号：</th>
+            <td class='formValue'>
+                <input id="FactoryCode" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>理论重量：</th>
+            <td class='formValue'>
+                <input id="TheoryWeight" maxlength="18" type="text" class="txt" value="0.00" datacol="yes" err="理论重量" checkexpession="Double" />
+            </td>
+            <th class='formTitle'>实际重量：</th>
+            <td class='formValue'>
+                <input id="Weight" maxlength="18" type="text" class="txt" value="0.00" datacol="yes" err="实际重量" checkexpession="Double" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>单价：</th>
+            <td class='formValue'>
+                <input id="Price" maxlength="18" type="text" class="txt" value="0.00" datacol="yes" err="单价" checkexpession="Double" />
+            </td>
+            <th class='formTitle'>进仓时间：</th>
+            <td class='formValue'>
+                <input id="InStockDate" type="text" class="txt Wdate" onfocus="WdatePicker()" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue' colspan="3">
+                <input id="Remark" maxlength="200" type="text" class="txt" />
+            </td>
+        </tr>
+    </table>
+</form>

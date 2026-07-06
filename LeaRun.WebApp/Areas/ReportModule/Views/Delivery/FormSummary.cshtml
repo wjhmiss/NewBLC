@@ -1,0 +1,111 @@
+@{
+    ViewBag.Title = "对账单》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/Workday/kalendarjqueryyyyydd")
+@Styles.Render("~/Content/Scripts/Workday/kalendarcss")
+<script type="text/javascript">
+
+    //保存事件
+    function AcceptClick() {
+        
+        var postData = {
+            StartTime: $("#StartTime").val(),
+            EndTime: $("#EndTime").val(),
+        };
+        AjaxJson("/ReportModule/Delivery/BuildSummary", postData, function (data) {
+            SetWebControls(data[0]);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+
+
+    <div class="note-prompt" style="margin: 1px;">
+        温馨提示：选择年月后点击生成对账单，由于数据量大，可能需要等待。
+    </div>
+    <div class="border" style="margin: 1px;">
+    </div>
+
+    <div id="basic" class="tabPanel">
+        <table class="form">
+            <tr>
+                <th class='formTitle' colspan="2" style="width:150px;">开始日期：</th>
+                <td class='formValue'>
+                    <input id="StartTime" type="text" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()"  class="txt Wdate required" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 95%" datacol="yes" err="开始时间" checkexpession="NotNull" />
+                </td>
+                <th class='formTitle' colspan="2" style="width:150px;">结束日期：</th>
+                <td class='formValue'>
+                    <input id="EndTime" type="text" class="txt Wdate required" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 95%"  datacol="yes" err="结束时间" checkexpession="NotNull"/>
+                </td>
+            </tr>
+            <tr>
+                <th class='formTitle' rowspan="6" >收入</th>
+                <th class='formTitle' >材料费：</th>
+                <td class='formValue'>
+                    <label id="materialamount"></label>
+                </td>
+                <th class='formTitle' rowspan="6" >成本</th>
+                <th class='formTitle'>材料费：</th>
+                <td class='formValue'>
+                    <label id="materialcost"></label>
+                </td>
+            </tr>
+            <tr>
+                <th class='formTitle'>加工费：</th>
+                <td class='formValue'>
+                    <label id="workamount"></label>
+                </td>
+                <th class='formTitle'>加工费：</th>
+                <td class='formValue'>
+                    <label id="workcost"></label>
+                </td>
+            </tr>
+            <tr>
+                <th class='formTitle'>热处理费：</th>
+                <td class='formValue'>
+                    <label id="heatamount"></label>
+                </td>
+                <th class='formTitle'>热处理费：</th>
+                <td class='formValue'>
+                    <label id="heatcost"></label>
+                </td>
+            </tr>
+            <tr>
+                <th class='formTitle'></th>
+                <td class='formValue'>
+                </td>
+                <th class='formTitle'>管理费：</th>
+                <td class='formValue'>
+                    <label id="managercost"></label>
+                </td>
+            </tr>
+            <tr>
+                <th class='formTitle'></th>
+                <td class='formValue'>
+                </td>
+                <th class='formTitle'>税费：</th>
+                <td class='formValue'>
+                    <label id="invoicecost"></label>
+                </td>
+            </tr>
+            <tr>
+                <th class='formTitle'>总收入：</th>
+                <td class='formValue'>
+                    <label id="salesamount"></label>
+                </td>
+                <th class='formTitle'>总成本：</th>
+                <td class='formValue'>
+                    <label id="totalcost"></label>
+                </td>
+            </tr>
+             <tr>
+                <th class='formTitle' >营收：</th>
+                <td class='formValue' colspan="5">
+                    <label id="yingli"></label>
+                </td>
+                
+            </tr>
+        </table>
+    </div>
+</form>

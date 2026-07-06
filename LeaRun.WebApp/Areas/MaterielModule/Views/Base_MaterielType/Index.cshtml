@@ -1,0 +1,172 @@
+@{
+    ViewBag.Title = "物料种类";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+
+    //搜索
+    function btn_Search() {
+        var str1 = $("#keywords").val();
+        var Parameter = [{
+            paramName: "MaterielName",
+            paramValue: str1,
+            Operation: "Like",
+            Logic: "OR"
+        }, {
+            paramName: "MaterielCode",
+            paramValue: str1,
+            Operation: "Like",
+            Logic: "OR"
+        }, {
+            paramName: "MaterielType",
+            paramValue: str1,
+            Operation: "Like",
+            Logic: "OR"
+        }, {
+            paramName: "CustomerName",
+            paramValue: str1,
+            Operation: "Like",
+            Logic: "OR"
+        }, {
+            paramName: "CustomerCode",
+            paramValue: str1,
+            Operation: "Like",
+            Logic: "OR"
+        }]
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/MaterielModule/Base_MaterielType/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1
+        }).trigger('reloadGrid');
+        }
+
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+        url: "@Url.Content("~/MaterielModule/Base_MaterielType/GridPageJson")",
+        datatype: "json",
+        height: $(window).height() - 149,
+        autowidth: true,
+        colModel: [
+                { label: '物料id', name: 'MaterielId', index: 'MaterielId', hidden: true },
+                { label: '物料号', name: 'MaterielCode', index: 'MaterielCode', width: 80, align: 'left', sortable: true },
+                { label: '物料名称', name: 'MaterielName', index: 'MaterielName', width: 80, align: 'left', sortable: true },
+                { label: '物料类型', name: 'MaterielType', index: 'MaterielType', width: 100, align: 'left',sortable: true  },
+                { label: '尺寸', name: 'MaterielSize', index: 'MaterielSize', width: 120, align: 'left',sortable: true  },
+                { label: '单位', name: 'Unit', index: 'Unit', width: 60, align: 'left',sortable: true  },
+                { label: '供应商ID', name: 'CustomerId', index: 'CustomerId', hidden: true },
+                { label: '供应商编号', name: 'CustomerCode', index: 'CustomerCode', width: 80, align: 'left', sortable: true },
+                { label: '供应商名称', name: 'CustomerName', index: 'CustomerName', width: 100, align: 'left', sortable: true },
+                { label: '单价', name: 'PricePer', index: 'PricePer', width: 60, align: 'left',sortable: true  },
+                { label: '报警库存', name: 'AlarmNumber', index: 'AlarmNumber', width: 60, align: 'left',sortable: true  },
+                {
+                    label: '备注', name: 'Remark', index: 'Remark', width: 160, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                },
+                {
+                    label: '创建时间', name: 'CreateDate', index: 'CreateDate', width: 100, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+                { label: '创建用户', name: 'CreateUserName', index: 'CreateUserName', width: 80, align: 'left',sortable: true  },
+               
+        ],
+        viewrecords: true,
+        rowNum: 30,
+        rowList: [30, 50, 100, 500, 5000],
+        pager: "#gridPager",
+        sortname: 'CreateDate',
+        sortorder: 'desc',
+        rownumbers: true,
+        shrinkToFit: false,
+        gridview: true,
+        ondblClickRow: function (rowid, iRow, iCol, e) {
+            btn_edit();
+        }
+    });
+}
+    //新增
+    function btn_add() {
+        var url = "/MaterielModule/Base_MaterielType/Form"
+        openDialog(url, "Form", "新增物料种类", 770, 395, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielId");
+        if (IsChecked(KeyValue)) {
+            var url = "/MaterielModule/Base_MaterielType/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑物料种类", 770, 395, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/MaterielModule/Base_MaterielType/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //明细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielId");
+        if (IsChecked(KeyValue)) {
+            var url = "/MaterielModule/Base_MaterielType/Detail?KeyValue=" + KeyValue;
+            Dialog(url, "Detail", "物料种类明细", 820, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+        
+    }
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "物料类型报表");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>关键字：</th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 200px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                 <input id="btn_export" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

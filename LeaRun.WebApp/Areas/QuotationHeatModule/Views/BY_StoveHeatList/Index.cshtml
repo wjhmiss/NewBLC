@@ -1,0 +1,135 @@
+@{
+    ViewBag.Title = "BY_StoveHeatList";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        GetGrid();
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+        url: "@Url.Content("~/QuotationHeatModule/BY_StoveHeatList/GridPageJson")",
+        datatype: "json",
+        height: $(window).height() - 149,
+        autowidth: true,
+        colModel: [
+                { label: '报价单明细ID', name: 'QuotationHeatId', index: 'QuotationHeatId', width: 0, align: 'left',sortable: true  },
+                { label: 'StoveId', name: 'StoveId', index: 'StoveId', width: 0, align: 'left',sortable: true  },
+                { label: '行号', name: 'QuotationHeatCode', index: 'QuotationHeatCode', width: 0, align: 'left',sortable: true  },
+                { label: '板件编码', name: 'BoardId', index: 'BoardId', width: 0, align: 'left',sortable: true  },
+                { label: '板件描述', name: 'BoardDescription', index: 'BoardDescription', width: 0, align: 'left',sortable: true  },
+                { label: '数量', name: 'Qty', index: 'Qty', width: 0, align: 'left',sortable: true  },
+                { label: '项目编号', name: 'ProjectCode', index: 'ProjectCode', width: 0, align: 'left',sortable: true  },
+                { label: '磨四角', name: 'IsGrindAngle', index: 'IsGrindAngle', width: 0, align: 'left',sortable: true  },
+                { label: '倒角', name: 'IsChamfer', index: 'IsChamfer', width: 0, align: 'left',sortable: true  },
+                { label: '钢种', name: 'SteelId', index: 'SteelId', width: 0, align: 'left',sortable: true  },
+                { label: '钢种编号', name: 'SteelCode', index: 'SteelCode', width: 0, align: 'left',sortable: true  },
+                { label: '钢种描述', name: 'SteelDescription', index: 'SteelDescription', width: 0, align: 'left',sortable: true  },
+                { label: '钢种其它描述', name: 'SteelOtherDescription', index: 'SteelOtherDescription', width: 0, align: 'left',sortable: true  },
+                { label: '钢种状态', name: 'SteelState', index: 'SteelState', width: 0, align: 'left',sortable: true  },
+                { label: '模号', name: 'DieCode', index: 'DieCode', width: 0, align: 'left',sortable: true  },
+                { label: '厚度', name: 'Thick', index: 'Thick', width: 0, align: 'left',sortable: true  },
+                { label: '宽', name: 'Weigh', index: 'Weigh', width: 0, align: 'left',sortable: true  },
+                { label: '长', name: 'Length', index: 'Length', width: 0, align: 'left',sortable: true  },
+                { label: '计价余量(厚度)', name: 'AddThick', index: 'AddThick', width: 0, align: 'left',sortable: true  },
+                { label: '计价余量(宽)', name: 'AddWeigh', index: 'AddWeigh', width: 0, align: 'left',sortable: true  },
+                { label: '计价余量(长)', name: 'AddLength', index: 'AddLength', width: 0, align: 'left',sortable: true  },
+                { label: '工艺', name: 'Technology', index: 'Technology', width: 0, align: 'left',sortable: true  },
+                { label: '理论重量', name: 'Weight', index: 'Weight', width: 0, align: 'left',sortable: true  },
+                { label: '材料单价', name: 'MaterialPrice', index: 'MaterialPrice', width: 0, align: 'left',sortable: true  },
+                { label: '材料折扣', name: 'MaterialLess', index: 'MaterialLess', width: 0, align: 'left',sortable: true  },
+                { label: '金额（材料）', name: 'MaterialAmount', index: 'MaterialAmount', width: 0, align: 'left',sortable: true  },
+                { label: '小件单价', name: 'WorkPrice', index: 'WorkPrice', width: 0, align: 'left',sortable: true  },
+                { label: '加工费折扣', name: 'WorkLess', index: 'WorkLess', width: 0, align: 'left',sortable: true  },
+                { label: '小件金额（加工费）', name: 'WorkAmount', index: 'WorkAmount', width: 0, align: 'left',sortable: true  },
+                { label: '热处理单价', name: 'HeatPrice', index: 'HeatPrice', width: 0, align: 'left',sortable: true  },
+                { label: '热处理折扣', name: 'HeatLess', index: 'HeatLess', width: 0, align: 'left',sortable: true  },
+                { label: '金额（热处理）', name: 'HeatAmount', index: 'HeatAmount', width: 0, align: 'left',sortable: true  },
+                { label: '销售额', name: 'SalesAmount', index: 'SalesAmount', width: 0, align: 'left',sortable: true  },
+                { label: '成本', name: 'CostAmount', index: 'CostAmount', width: 0, align: 'left',sortable: true  },
+                { label: '毛利润', name: 'ProfitAmount', index: 'ProfitAmount', width: 0, align: 'left',sortable: true  },
+                { label: '毛利率', name: 'ProfitRate', index: 'ProfitRate', width: 0, align: 'left',sortable: true  },
+                { label: '送货说明', name: 'ShipDescription', index: 'ShipDescription', width: 0, align: 'left',sortable: true  },
+                { label: '备注', name: 'Remark', index: 'Remark', width: 0, align: 'left',sortable: true  },
+                { label: '有效', name: 'Enabled', index: 'Enabled', width: 0, align: 'left',sortable: true  },
+                { label: '排序码', name: 'SortCode', index: 'SortCode', width: 0, align: 'left',sortable: true  },
+                { label: '删除标记', name: 'DeleteMark', index: 'DeleteMark', width: 0, align: 'left',sortable: true  },
+                { label: '创建时间', name: 'CreateDate', index: 'CreateDate', width: 0, align: 'left',sortable: true  },
+                { label: '创建用户主键', name: 'CreateUserId', index: 'CreateUserId', width: 0, align: 'left',sortable: true  },
+                { label: '创建用户', name: 'CreateUserName', index: 'CreateUserName', width: 0, align: 'left',sortable: true  },
+                { label: '修改时间', name: 'ModifyDate', index: 'ModifyDate', width: 0, align: 'left',sortable: true  },
+                { label: '修改用户主键', name: 'ModifyUserId', index: 'ModifyUserId', width: 0, align: 'left',sortable: true  },
+                { label: '修改用户', name: 'ModifyUserName', index: 'ModifyUserName', width: 0, align: 'left',sortable: true  },
+                { label: '落单状态', name: 'PlaceOrderStatus', index: 'PlaceOrderStatus', width: 0, align: 'left',sortable: true  },
+                { label: '加工类型', name: 'OrderType', index: 'OrderType', width: 0, align: 'left',sortable: true  },
+                { label: '客户订单号', name: 'CustomerOrder', index: 'CustomerOrder', width: 0, align: 'left',sortable: true  },
+                { label: '客户货品号', name: 'CustomerProduct', index: 'CustomerProduct', width: 0, align: 'left',sortable: true  },
+                { label: '报价单号', name: 'QuotationCode', index: 'QuotationCode', width: 0, align: 'left',sortable: true  },
+                { label: '打底重量', name: 'LimitWeight', index: 'LimitWeight', width: 0, align: 'left',sortable: true  },
+                { label: '打底厚度', name: 'LimitThick', index: 'LimitThick', width: 0, align: 'left',sortable: true  },
+                { label: '计价类型：按kg，按件', name: 'JJtype', index: 'JJtype', width: 0, align: 'left',sortable: true  },
+                { label: '品名（一般钢材名加加工类型）可修改', name: 'ProductName', index: 'ProductName', width: 0, align: 'left',sortable: true  },
+                { label: '吊孔', name: 'LiftingHole', index: 'LiftingHole', width: 0, align: 'left',sortable: true  },
+                { label: '气割', name: 'GasCuttingSteel', index: 'GasCuttingSteel', width: 0, align: 'left',sortable: true  },
+                { label: '孔径', name: 'BoreSize', index: 'BoreSize', width: 0, align: 'left',sortable: true  },
+                { label: '钢材类型', name: 'SteelType', index: 'SteelType', width: 0, align: 'left',sortable: true  },
+                { label: 'Area', name: 'Area', index: 'Area', width: 0, align: 'left',sortable: true  },
+                { label: '理论重量', name: 'TheoryWeight', index: 'TheoryWeight', width: 0, align: 'left',sortable: true  },
+                { label: '客户PO', name: 'CustomerPO', index: 'CustomerPO', width: 0, align: 'left',sortable: true  },
+                { label: '客户ID', name: 'CustomerId', index: 'CustomerId', width: 0, align: 'left',sortable: true  },
+                { label: '客户编号', name: 'CustomerCode', index: 'CustomerCode', width: 0, align: 'left',sortable: true  },
+                { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 0, align: 'left',sortable: true  },
+                { label: '客户简称', name: 'ShortName', index: 'ShortName', width: 0, align: 'left',sortable: true  },
+                { label: '联系人', name: 'ContactName', index: 'ContactName', width: 0, align: 'left',sortable: true  },
+                { label: '联系电话', name: 'ContactTel', index: 'ContactTel', width: 0, align: 'left',sortable: true  },
+                { label: '传真', name: 'ContactFax', index: 'ContactFax', width: 0, align: 'left',sortable: true  },
+                { label: '邮箱', name: 'ContactMail', index: 'ContactMail', width: 0, align: 'left',sortable: true  },
+                { label: '手机', name: 'MobileCode', index: 'MobileCode', width: 0, align: 'left',sortable: true  },
+                { label: '客户地址', name: 'CustomerAddress', index: 'CustomerAddress', width: 0, align: 'left',sortable: true  },
+                { label: 'TechnologQuery', name: 'TechnologQuery', index: 'TechnologQuery', width: 0, align: 'left',sortable: true  },
+                { label: 'TechnologQueryWrite', name: 'TechnologQueryWrite', index: 'TechnologQueryWrite', width: 0, align: 'left',sortable: true  },
+                { label: 'BillStatus', name: 'BillStatus', index: 'BillStatus', width: 0, align: 'left',sortable: true  },
+                { label: 'HeatStatus', name: 'HeatStatus', index: 'HeatStatus', width: 0, align: 'left',sortable: true  },
+                { label: '发运单号', name: 'DeliveryCode', index: 'DeliveryCode', width: 0, align: 'left',sortable: true  },
+        ],
+        viewrecords: true,
+        rowNum: 30,
+        rowList: [30, 50, 100, 500, 5000],
+        pager: "#gridPager",
+        sortname: 'CreateDate',
+        sortorder: 'desc',
+        rownumbers: true,
+        shrinkToFit: false,
+        gridview: true,
+    });
+}
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+        
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>关键字：</th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 200px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

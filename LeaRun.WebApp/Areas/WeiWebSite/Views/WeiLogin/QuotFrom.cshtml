@@ -1,0 +1,130 @@
+﻿@{
+    ViewBag.Title = "仓库";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+<script type="text/javascript">
+    var QuotationId = GetQuery('QuotationId');
+    $(document).ready(function (e) {
+        
+
+        if (QuotationId == undefined || QuotationId == "" || QuotationId == 'null' || QuotationId == 'undefined') {
+        } else {
+
+            $.ajax({
+                url: "@Url.Content("~/WeiWebSite/WeiLogin/SetQuot")?QuotationId=" + QuotationId,
+                type: "post",
+                dataType: "json",
+                async: true,
+                success: function (data) {
+                    if (data != "-1") {
+                        if (data.OrderType == "BJ") {
+                            $("#radio_1").prop('checked', true)
+                        }
+                        if (data.OrderType == "BC") {
+                            $("#radio_2").prop('checked', true)
+                        }
+                        if (data.CustMaterial == 1) {
+                            $("#CustMaterial").prop('checked', true)
+                        }
+                        if (data.FreeBill == 1) {
+                            $("#FreeBill").prop('checked', true)
+                        }
+                        if (data.IsEmergency == 1) {
+                            $("#IsEmergency").prop('checked', true)
+                        }
+
+
+                    }
+                    else {
+                    }
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+
+            });
+        }
+
+        $("#btnSubmit").click(function () {
+            $(this).attr("disabled", true);
+            $(this).val("请稍候...");
+            var type = $("input[name=radio_test]:checked").val()
+            if (type != "BJ" && type != "BC") {
+                tipDialog("错误：请选择加工类型", -1);
+                $(this).attr("disabled", false);
+                $(this).val("重新创建");
+                return false;
+            }
+            
+            AjaxJsonNoMassge("@Url.Content("~/WeiWebSite/WeiLogin/QuotCreate")", { OrderType: type, CustMaterial: $("#CustMaterial").prop('checked') ? 1 : 0, FreeBill: $("#FreeBill").prop('checked') ? 1 : 0, IsEmergency: $("#IsEmergency").prop('checked') ? 1 : 0, QuotationId: QuotationId }, function (data) {
+                if (data != "-1") {
+                    tipDialog("创建订单成功，请继续创建明细！", 1, "@Url.Content("~/WeiWebSite/WeiLogin/InputQuot")?QuotationId=" + data.QuotationId);
+                }
+                else {
+                    tipDialog("错误：只能普通用户创建订单，管理员无权创建！", -1);
+                    $("#btnSubmit").attr("disabled", false);
+                    $("#btnSubmit").val("重新创建");
+                    return false;
+                }
+            });
+         });
+
+
+    });
+
+    function locationInputQuot() {
+        location.href = "@Url.Content("~/WeiWebSite/WeiLogin/InputQuot")?QuotationId=" + QuotationId;
+        }
+</script>
+<!--分类筛选-->
+<div id="categoryPanel" class="panel" data-footer="none">
+    <header>
+        <a onclick="locationInputQuot();" class="backButton">返回</a>
+        <h1>订单创建</h1>
+        <a onclick="$.ui.toggleSideMenu()" class="menuButton"></a>
+    </header>
+
+    <ul class="category-bar">
+        <!--大类-->
+
+        <li>
+            <h2><a href="/goods/40.html" data-ignore="true">加工类型</a></h2>
+            <p>
+                <!--小类-->
+                <div style="display: inline-block; float: left; width: 50%;">
+                    <input id="radio_1" type="radio" name="radio_test" value="BJ"><label for="radio_1">精料加工</label>
+                </div>
+                <div style="display: inline-block; float: left; width: 50%;">
+                    <input id="radio_2" type="radio" name="radio_test" value="BC"><label for="radio_2">粗料加工</label>
+                </div>
+
+                <!--/小类-->
+            </p>
+        </li>
+        <li>
+            <h2><a href="/goods/40.html" data-ignore="true">订单选项</a></h2>
+            <p>
+                <!--小类-->
+                <div style="display: inline-block; float: left; width: 33.33%; margin-left:-30px;">
+                    <input type="checkbox" id="CustMaterial" class="checkall" >
+                    <label class="select" for="CustMaterial" >客来料</label>
+                </div>
+                <div style="display: inline-block; float: left; width: 33.33%;">
+                    <input type="checkbox" id="FreeBill" class="checkall" >
+                    <label class="select" for="FreeBill" >补料单</label>
+                </div>
+                <div style="display: inline-block; float: left; width: 33.33%;">
+                    <input type="checkbox" id="IsEmergency" class="checkall" >
+                    <label class="select" for="IsEmergency" >特急单</label>
+                </div>
+
+                <!--/小类-->
+            </p>
+        </li>
+        
+        <div >
+            <input id="btnSubmit" name="btnSubmit" type="submit" value="创  建" class="btn orange full" />
+        </div>
+        <!--/大类-->
+    </ul>
+</div>

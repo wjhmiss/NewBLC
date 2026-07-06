@@ -1,0 +1,46 @@
+﻿@{
+    ViewBag.Title = "报价单审核";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script>
+    var KeyValue = GetQuery('KeyValue');//主键
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        $(".ui_state_highlight").attr("disabled", true);
+        window.setTimeout(function () {
+            var postData = {
+                CheckStatus: -1,
+                CheckRemark: $("#CheckRemark").val()
+            }
+            AjaxJson("/QuotationModule/QuotationAudit/SubmitAudit?KeyValue=" + KeyValue, postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                top.frames["tabs_iframe_65590e2c-f46c-41de-8cfb-9be9a6bf74bf"].windowload();
+                window.setTimeout(function () {closeDialog();}, 500);
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class="formTitle">驳回意见：
+            </th>
+            <td class="formValue">
+                <textarea id="CheckRemark" maxlength="200" class="txtArea" rows="4" datacol="yes" err="驳回意见" checkexpession="NotNull"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>员工姓名：</th>
+            <td class='formValue'>
+                <input id="CheckUserId" readonly maxlength="50" type="text" value="@DNS.Utilities.ManageProvider.Provider.Current().UserName" class="txt readonly" />
+            </td>
+        </tr>
+    </table>
+</form>
+

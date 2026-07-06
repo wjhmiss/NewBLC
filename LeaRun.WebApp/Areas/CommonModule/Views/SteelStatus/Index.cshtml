@@ -1,0 +1,135 @@
+@{
+    ViewBag.Title = "钢材状态设置表";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //查询
+    function btn_Search() {
+        var Parameter = [{
+            paramName: "SteelCode",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+            Logic: "OR"
+        }, {
+            paramName: "SteelName",
+            paramValue: $("#keywords").val(),
+            Operation: "Like"
+        }]
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CommonModule/SteelStatus/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/SteelStatus/GridPageJson")",
+            datatype: "json",
+            height: $(window).height() - 149,
+            autowidth: true,
+            colModel: [
+                    { label: '状态主键', name: 'SteelStatusId', hidden: true },
+                    { label: '钢材编码', name: 'SteelCode', index: 'SteelCode', width: 80, align: 'left', sortable: true },
+                    { label: '钢材名称', name: 'SteelName', index: 'SteelName', width: 200, align: 'left', sortable: true },
+                    { label: '钢材状态', name: 'SteelStatus', index: 'SteelStatus', width: 80, align: 'center', sortable: true },
+                    {
+                        label: '备注', name: 'Remark', index: 'Remark', width: 300, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");;
+
+                            }
+                            return "";
+                        }
+                    },
+                    {
+                        label: '主要选项', name: 'MainFlag', index: 'MainFlag', width: 80, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                            if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                        }
+                    },
+                    {
+                        label: '有效', name: 'Enabled', index: 'Enabled', width: 45, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                            if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                        }
+                    },
+                    {
+                        label: '最近更新时间', name: 'ModifyDate', index: 'ModifyDate', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                   { label: '最近更新人', name: 'ModifyUserName', index: 'ModifyUserName', width: 80, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+        });
+    }
+    //新增
+    function btn_add() {
+        var url = "/CommonModule/SteelStatus/Form"
+        openDialog(url, "Form", "新增钢材状态", 650, 250, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "SteelStatusId");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/SteelStatus/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑钢态状态", 650, 250, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "SteelStatusId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/SteelStatus/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>关键字：</th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 200px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

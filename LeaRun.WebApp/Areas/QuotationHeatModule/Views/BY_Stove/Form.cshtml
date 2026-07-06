@@ -1,0 +1,1030 @@
+@{
+    ViewBag.Title = "BY_Stove》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/jqgrid/jqgridjquery")
+@Styles.Render("~/Content/Scripts/jqgrid/css/jqgridcss")
+    @Scripts.Render("~/Content/Scripts/highcharts/highchartsjquery")
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+
+
+
+    $(function () {
+        InitControl();
+
+        WorkerNameAutocomplete("MethodBuilder");
+        WorkerNameAutocomplete("OperatorName");
+        document.onkeydown = enterInput;
+        window.setTimeout(function () {
+            GetGrid();
+            Loadlayout2();
+
+        }, 500);
+    })
+
+    function enterInput() {
+
+
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+        if (event.keyCode == 38) {//上
+            if ($(tar).attr('id') == "StoveNum") {
+            }
+            else if ($(tar).attr('id') == "StartDateTime") {
+                $("#StoveNum").select();
+            }
+            else if ($(tar).attr('id') == "StoveType") {
+                $("#StartDateTime").select();
+            }
+            else if ($(tar).attr('id') == "MethodBuilder") {
+                $("#StoveType").focus();
+            }
+            else if ($(tar).attr('id') == "OperatorName") {
+                $("#MethodBuilder").select();
+            }
+            else if ($(tar).attr('id') == "BuildMethod") {
+                $("#OperatorName").select();
+            }
+            else if ($(tar).attr('id') == "Remark") {
+                $("#BuildMethod").select();
+            }
+            else if ($(tar).attr('id') == "H1Time1") {
+                $("#Remark").select();
+            }
+            else if ($(tar).attr('id') == "H1Code1") {
+                $("#H1Time1").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature1") {
+                $("#H1Code1").select();
+            }
+            else if ($(tar).attr('id') == "H1Time2") {
+                $("#H1Temprature1").select();
+            }
+            else if ($(tar).attr('id') == "H1Code2") {
+                $("#H1Time2").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature2") {
+                $("#H1Code2").select();
+            }
+            else if ($(tar).attr('id') == "H1Time3") {
+                $("#H1Temprature2").select();
+            }
+            else if ($(tar).attr('id') == "H1Code3") {
+                $("#H1Time3").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature3") {
+                $("#H1Code3").select();
+            }
+            else if ($(tar).attr('id') == "H1Time4") {
+                $("#H1Temprature3").select();
+            }
+            else if ($(tar).attr('id') == "H1Code4") {
+                $("#H1Time4").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature4") {
+                $("#H1Code4").select();
+            }
+            else if ($(tar).attr('id') == "H1Time5") {
+                $("#H1Temprature4").select();
+            }
+            else if ($(tar).attr('id') == "H1Code5") {
+                $("#H1Time5").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature5") {
+                $("#H1Code5").select();
+            }
+            else if ($(tar).attr('id') == "H1Time6") {
+                $("#H1Temprature5").select();
+            }
+            else if ($(tar).attr('id') == "H1Code6") {
+                $("#H1Time6").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature6") {
+                $("#H1Code6").select();
+            }
+            else if ($(tar).attr('id') == "H1Time7") {
+                $("#H1Temprature6").select();
+            }
+            else if ($(tar).attr('id') == "H1Code7") {
+                $("#H1Time7").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature7") {
+                $("#H1Code7").select();
+            }
+            else if ($(tar).attr('id') == "H1Time8") {
+                $("#H1Temprature7").select();
+            }
+            else if ($(tar).attr('id') == "H1Code8") {
+                $("#H1Time8").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature8") {
+                $("#H1Code8").select();
+            }
+            else if ($(tar).attr('id') == "SDDateTime") {
+                $("#H1Temprature8").select();
+            }
+            else if ($(tar).attr('id') == "DWDateTime") {
+                $("#SDDateTime").select();
+            }
+            else if ($(tar).attr('id') == "CLDateTime") {
+                $("#DWDateTime").select();
+            }
+        }
+        if (event.keyCode == 40 ||  e.keyCode == 13) {//下
+            if ($(tar).attr('id') == "StoveNum") {
+                $("#StartDateTime").select();
+            }
+            else if ($(tar).attr('id') == "StartDateTime") {
+                $("#StoveType").focus();
+            }
+            else if ($(tar).attr('id') == "StoveType") {
+                $("#MethodBuilder").select();
+            }
+            else if ($(tar).attr('id') == "MethodBuilder") {
+                $("#OperatorName").select();
+            }
+            else if ($(tar).attr('id') == "OperatorName") {
+                $("#BuildMethod").select();
+            }
+            else if ($(tar).attr('id') == "BuildMethod") {
+                $("#Remark").select();
+            }
+            else if ($(tar).attr('id') == "Remark") {
+            }
+            else if ($(tar).attr('id') == "H1Time1") {
+                $("#H1Time2").select();
+            }
+            else if ($(tar).attr('id') == "H1Time2") {
+                $("#H1Time3").select();
+            }
+            else if ($(tar).attr('id') == "H1Time3") {
+                $("#H1Time4").select();
+            }
+            else if ($(tar).attr('id') == "H1Time4") {
+                $("#H1Time5").select();
+            }
+            else if ($(tar).attr('id') == "H1Time5") {
+                $("#H1Time6").select();
+            }
+            else if ($(tar).attr('id') == "H1Time6") {
+                $("#H1Time7").select();
+            }
+            else if ($(tar).attr('id') == "H1Time7") {
+                $("#H1Time8").select();
+            }
+            else if ($(tar).attr('id') == "H1Time8") {
+                $("#H1Code1").select();
+            }
+            else if ($(tar).attr('id') == "H1Code1") {
+                $("#H1Code2").select();
+            }
+            else if ($(tar).attr('id') == "H1Code2") {
+                $("#H1Code3").select();
+            }
+            else if ($(tar).attr('id') == "H1Code3") {
+                $("#H1Code4").select();
+            }
+            else if ($(tar).attr('id') == "H1Code4") {
+                $("#H1Code5").select();
+            }
+            else if ($(tar).attr('id') == "H1Code5") {
+                $("#H1Code6").select();
+            }
+            else if ($(tar).attr('id') == "H1Code6") {
+                $("#H1Code7").select();
+            }
+            else if ($(tar).attr('id') == "H1Code7") {
+                $("#H1Code8").select();
+            }
+            else if ($(tar).attr('id') == "H1Code8") {
+                $("#H1Temprature1").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature1") {
+                $("#H1Temprature2").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature2") {
+                $("#H1Temprature3").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature3") {
+                $("#H1Temprature4").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature4") {
+                $("#H1Temprature5").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature5") {
+                $("#H1Temprature6").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature6") {
+                $("#H1Temprature7").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature7") {
+                $("#H1Temprature8").select();
+            }
+            else if ($(tar).attr('id') == "H1Temprature8") {
+                $("#SDDateTime").select();
+            }
+            else if ($(tar).attr('id') == "SDDateTime") {
+                $("#DWDateTime").select();
+            }
+            else if ($(tar).attr('id') == "DWDateTime") {
+                $("#CLDateTime").select();
+            }
+            else if ($(tar).attr('id') == "CLDateTime") {
+            }
+        }
+    }
+
+    function WorkerNameAutocomplete(objectid) {
+        var $WorkerName = $("#" + objectid);
+        $WorkerName.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown(objectid, function (data) {
+            if (!!data.WorkerName) {
+                $("#" + objectid).val(data.WorkerName);
+            }
+
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/CommonModule/Worker/GetAutoCompleJson", { keywords: $WorkerName.val(), DepartmentName: "热处理" }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="WorkerId" style="display: none;">' + DataJson[i].WorkerId + '</td>';
+                    html += '<td id="WorkerCode" style="width: 30%;">' + DataJson[i].WorkerCode + '</td>';
+                    html += '<td id="WorkerName" style="width: 40%;">' + DataJson[i].WorkerName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete(objectid,   "200px", "280px", html, function (data) {
+                    if (!!data.WorkerName) {
+                        $("#" + objectid).val(data.WorkerName);
+
+                    }
+                });
+            });
+        }
+    }
+
+
+    function Loadlayout2() {
+        if ($('.layout2').length > 0) {
+            $("#layout2").splitter({
+                type: "v",
+                outline: true,
+                minLeft: 250, minRight: 200, sizeLeft: 500,
+                anchorToWindow: true,
+                accessKey: "L"
+            });
+        }
+
+    }
+
+    //客户编码自动补全
+    function Autocomplete(objectname, id) {
+        if (!objectname) {
+            return;
+        }
+        var $CustomerCode = $("#" + objectname);
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown(objectname, function (data) {
+            $("[name='QuotationHeatCode']").val(data.QuotationHeatCode);
+            $("#gridTable").jqGrid('setRowData', id, { QuotationHeatId: data.QuotationHeatId });
+            $("#gridTable").jqGrid('setRowData', id, { CustomerName: data.CustomerName });
+            $("#gridTable").jqGrid('setRowData', id, { SteelDescription: data.SteelDescription });
+            $("#gridTable").jqGrid('setRowData', id, { ProductName: data.ProductName });
+            $("#gridTable").jqGrid('setRowData', id, { Remark: data.Remark });
+            $("#gridTable").jqGrid('setRowData', id, { Technology: data.Technology });
+            $("#gridTable").jqGrid('setRowData', id, { TechnologQuery: data.TechnologQuery });
+            $("#gridTable").jqGrid('setRowData', id, { Qty: data.Qty });
+            $("#gridTable").jqGrid('setRowData', id, { Weight: data.Weight });
+            return false;
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/QuotationHeatModule/BY_QuotationHeat/GetAutoCompleJson", { QuotationHeatCode: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="QuotationHeatCode" >' + DataJson[i].QuotationHeatCode + '</td>';
+                    html += '<td id="QuotationHeatId" style="display: none;">' + DataJson[i].QuotationHeatId + '</td>';
+                    html += '<td id="CustomerName" style="display: none;">' + DataJson[i].CustomerName + '</td>';
+                    html += '<td id="SteelDescription" style="display: none;">' + DataJson[i].SteelDescription + '</td>';
+                    html += '<td id="ProductName" style="display: none;">' + DataJson[i].ProductName + '</td>';
+                    html += '<td id="Remark" style="display: none;">' + DataJson[i].Remark + '</td>';
+                    html += '<td id="Technology" style="display: none;">' + DataJson[i].Technology + '</td>';
+                    html += '<td id="TechnologQuery" style="display: none;">' + DataJson[i].TechnologQuery + '</td>';
+                    html += '<td id="Qty" style="display: none;">' + DataJson[i].Qty + '</td>';
+                    html += '<td id="Weight" style="display: none;">' + DataJson[i].Weight + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete(objectname, "300px", "250px", html, function (data) {
+                    $("[name='QuotationHeatCode']").val(data.QuotationHeatCode);
+                    $("#gridTable").jqGrid('setRowData', id, { QuotationHeatId: data.QuotationHeatId });
+                    $("#gridTable").jqGrid('setRowData', id, { CustomerName: data.CustomerName });
+                    $("#gridTable").jqGrid('setRowData', id, { SteelDescription: data.SteelDescription });
+                    $("#gridTable").jqGrid('setRowData', id, { ProductName: data.ProductName });
+                    $("#gridTable").jqGrid('setRowData', id, { Remark: data.Remark });
+                    $("#gridTable").jqGrid('setRowData', id, { Technology: data.Technology });
+                    $("#gridTable").jqGrid('setRowData', id, { TechnologQuery: data.TechnologQuery });
+                    $("#gridTable").jqGrid('setRowData', id, { Qty: data.Qty });
+                    $("#gridTable").jqGrid('setRowData', id, { Weight: data.Weight });
+                    return false;
+                });
+            });
+        }
+    }
+
+
+        var lastsel;
+    function GetGrid() {
+        var lastselpostdate;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/QuotationHeatModule/BY_StoveHeatList/GetListJson1")?StoveId=" + $("#StoveId").val(),
+            datatype: "json",
+            height: $(window).height() - 220,
+            autowidth: true,
+            colModel: [
+                { label: '报价单明细ID', name: 'QuotationHeatId', hidden: true },
+                { label: '序号', name: 'SortCode', width: 40, align: 'center', hidden: true },
+                { label: '生产编号', name: 'QuotationHeatCode', index: 'QuotationHeatCode', width: 60, align: 'left', sortable: true },
+                { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 80, align: 'left', sortable: true },
+                { label: '材质', name: 'SteelDescription', index: 'SteelDescription', width: 50, align: 'left', sortable: true },
+                { label: '工件名称', name: 'ProductName', index: 'ProductName', width: 80, align: 'left', sortable: true },
+                { label: '外形尺寸', name: 'Remark', index: 'Remark', width: 100, align: 'left', sortable: true },
+                { label: '热处理类别', name: 'Technology', index: 'Technology', width: 60, align: 'left', sortable: true },
+                { label: '技术要求', name: 'TechnologQuery', index: 'TechnologQuery', width: 60, align: 'left', sortable: true },
+                { label: '实测硬度', name: 'TechnologQueryWrite', index: 'TechnologQueryWrite', width: 60, align: 'left', sortable: true, editable: true },
+                { label: '状态', name: 'HeatStatus', index: 'HeatStatus', width: 60, align: 'left', sortable: true },
+                { label: '件数', name: 'Qty', index: 'Qty', width: 40, align: 'left', sortable: true },
+                { label: '重量', name: 'Weight', index: 'Weight', width: 40, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 999, 999, 999],
+            pager: false,
+            shrinkToFit: false,
+            rownumbers: true,
+            altRows: false,
+            sortname: 'QuotationHeatCode',
+            sortorder: 'desc',
+            altclass: 'altclass',
+            gridview: true,
+            cellsubmit: 'clientArray',
+            onSelectRow: function (id) {
+                var postData = {
+                    QuotationHeatCode: $("[name='QuotationHeatCode']").val(),
+                    TechnologQueryWrite: $("[name='TechnologQueryWrite']").val(),
+                }
+                if (id && id !== lastsel) {
+                    $('#gridTable').jqGrid('restoreRow', lastsel);
+                    $('#gridTable').jqGrid('editRow', id, { keys: false });
+                    $('#gridTable').jqGrid('setRowData', lastsel, postData, '');
+                }
+                lastselpostdate = postData;
+                lastsel = id;
+
+                Autocomplete(id + "_QuotationHeatCode", id);
+
+            },
+            gridComplete: function () {
+                //合计
+            }
+
+        });
+        $("#lr-delete-Row").click(function () {
+            var Index = GetJqGridRowIndx("#gridTable");
+            $("#gridTable").jqGrid("delRowData", Index);
+        });
+    }
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/QuotationHeatModule/BY_Stove/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+            updateMap(KeyValue);
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+
+        var postData = {
+            QuotationHeatCode: $("[name='QuotationHeatCode']").val(),
+            TechnologQueryWrite: $("[name='TechnologQueryWrite']").val(),
+        }
+        $('#gridTable').jqGrid('setRowData', GetJqGridRowIndx('#gridTable'), postData, '');
+
+        var postData = GetWebControls("#form2");
+        postData["SteelListJson"] = JSON.stringify($("#gridTable").jqGrid("getRowData"));
+        //postData["postData2"] = GetWebControls("#form2");
+
+        AjaxJson("/QuotationHeatModule/BY_Stove/SubmitForm1?KeyValue=" + KeyValue + "&StoveCode=" + escape($("#StoveCode").val()) + "&StoveNum=" + escape($("#StoveNum").val()) + "&StartDateTime=" + escape($("#StartDateTime").val()) + "&StoveType=" + escape($("#StoveType").val()) + "&MethodBuilder=" + escape($("#MethodBuilder").val())
+            + "&OperatorName=" + escape($("#OperatorName").val()) + "&OPname=" + escape($("#OPname").val()) + "&BuildMethod=" + escape($("#BuildMethod").val()) + "&Remark=" + escape($("#Remark").val()), postData, function (data) {
+                tipDialog("保存成功！", 3, data.Code);
+                if (data.Code == "1") {
+                    $('#StoveId').val(data.Message);
+                    $('#StoveCode').val(data.Attribute);
+                    KeyValue = data.Message;
+                    updateMap(KeyValue)
+                    //jj
+                    var chartTest = $('#container').highcharts();
+                    var svgData = chartTest.getSVG();
+                    $.post('/HighCharts/ManualExport', { filename: KeyValue, type: "image/jpeg", width: 1200, svg: svgData }, function (r) {
+                    }, 'json');
+                }
+                else {
+                    $('#StoveId').val("");
+                    KeyValue = "";
+                }
+            top.frames[tabiframeId()].windowload();
+        });
+    }
+
+    function Print() {
+        if (!$('#StoveId').val()) {
+            tipDialog("打印失败：请先保存！", 3, -1);
+            return;
+        }
+        if ($('#StoveType').val() == "真空炉") {
+            PrintDialog("/QuotationHeatModule/BY_Stove/PrintZK?StoveId=" + $('#StoveId').val(), "PrintPage", "打印", 1070, 600, function (iframe) {
+                top.frames[iframe].AcceptClick();
+                window.setTimeout(function () {closeDialog();}, 500);
+            });
+        }
+        else {
+            PrintDialog("/QuotationHeatModule/BY_Stove/PrintCG?StoveId=" + $('#StoveId').val(), "PrintPage", "打印", 1070, 600, function (iframe) {
+                top.frames[iframe].AcceptClick();
+                window.setTimeout(function () {closeDialog();}, 500);
+            });
+        }
+    }
+
+
+    function addforQuo(s) {
+
+        var data = $("#gridTable").jqGrid("getRowData");
+
+
+
+
+        var SortCode = 0;
+        if (!!Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode"))) {
+            SortCode = Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode")) + 1;
+        }
+        else {
+            SortCode = 1;
+        }
+        var index = 0;
+        if (!!$("#gridTable").getGridParam("reccount")) {
+            index = $("#gridTable").getGridParam("reccount") + 1;
+        }
+        else {
+            index = 1;
+        }
+        var entitys = s.split(';');
+        var same = false;
+        for (var i = 0; i < entitys.length; i++) {
+            var items = entitys[i].split(',');
+            //s1 = s1 + myrow.QuotationHeatId + "," + myrow.quotationheatcode + "," + myrow.customercode + "," + myrow.customername + "," + myrow.steeldescription + "," + myrow.productname + "," + myrow.remark
+            //         + "," + myrow.technology + "," + myrow.technologquery + "," + myrow.qty + "," + myrow.weight + "," + myrow.billstatus + ";";
+
+            for (var j = 0; j < data.length; j++) {
+                if (data[j].QuotationHeatId == items[0]) {
+                    same = true;
+                }
+            }
+
+
+            if (same) {
+                same = false;
+                continue
+            }
+
+            var RowData = {
+                SortCode: SortCode + i,
+                QuotationHeatId: items[0],
+                QuotationHeatCode: items[1],
+                CustomerName: items[2],
+                SteelDescription: items[3],
+                ProductName: items[4],
+                Remark: items[5],
+                Technology: items[6],
+                TechnologQuery: items[7],
+                Qty: items[8],
+                Weight: items[9],
+            }
+            $('#gridTable').jqGrid('addRowData', index, RowData, "last");
+            index += 1;
+        }
+
+    }
+
+    //新增一行
+    function addrow() {
+        var SortCode = 0;
+        if (!!Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode"))) {
+            SortCode = Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode")) + 1;
+        }
+        else {
+            SortCode = 1;
+        }
+        var index = 0;
+        if (!!$("#gridTable").getGridParam("reccount")) {
+            index = $("#gridTable").getGridParam("reccount") + 1;
+        }
+        else {
+            index = 1;
+        }
+
+        var RowData = {
+            SortCode: SortCode,
+            QuotationHeatId: "",
+            QuotationHeatCode: "",
+            CustomerName: "",
+            SteelDescription: "",
+            ProductName: "",
+            Remark: "",
+            Technology: "",
+            TechnologQuery: "",
+            Qty: 0,
+            Weight:0,
+        }
+        $('#gridTable').jqGrid('restoreRow', index);
+        $('#gridTable').jqGrid('addRowData', index, RowData, "last");
+        $("#gridTable").setSelection(index);
+    }
+
+
+    function btn_Quotationquery() {
+        openDialog("/QuotationHeatModule/BY_QuotationHeat/IndexSelect", "Query", "查询", 1050, 660, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    // Load the fonts
+
+    function updateMap(KeyValue) {
+        AjaxJson("/QuotationHeatModule/BY_Stove/GetChart", { KeyValue: KeyValue }, function (DataJson) {
+            var BY_Stove = DataJson.BY_Stove;
+
+            $('#container').highcharts({
+
+                chart: {
+                    type: 'line',
+                },
+
+                title: {
+                    text: '温度曲线图'
+                },
+
+                xAxis: {
+                    categories: ['kaonima',BY_Stove.H1Time, BY_Stove.H1Time1, BY_Stove.H1Time2, BY_Stove.H1Time3, BY_Stove.H1Time4,
+                        BY_Stove.H1Time5,
+                        BY_Stove.H1Time6, BY_Stove.H1Time7, BY_Stove.H1Time8, BY_Stove.H1Time9, BY_Stove.H1Time10],//['一周', '二周', '三周', '四周', '五周']
+                    plotLines: [{
+                        color: 'red',            //线的颜色，定义为红色
+                        dashStyle: 'longdashdot',//标示线的样式，默认是solid（实线），这里定义为长虚线
+                        value: 2,                //定义在那个值上显示标示线，这里是在x轴上刻度为3的值处垂直化一条线
+                        width: 1,                //标示线的宽度，2px
+                        label: {
+                            text: 'H1',     //标签的内容
+                            align: 'center',                //标签的水平位置，水平居左,默认是水平居中center
+                            x: 0,                         //标签相对于被定位的位置水平偏移的像素，重新定位，水平居左10px
+                            y: -50
+                        }
+                    }, {
+                        color: 'red',            //线的颜色，定义为红色
+                        dashStyle: 'longdashdot',//标示线的样式，默认是solid（实线），这里定义为长虚线
+                        value: 3,                //定义在那个值上显示标示线，这里是在x轴上刻度为3的值处垂直化一条线
+                        width: 1,                //标示线的宽度，2px
+                        label: {
+                            text: 'H2',     //标签的内容
+                            align: 'left',                //标签的水平位置，水平居左,默认是水平居中center
+                            x: 0 ,                        //标签相对于被定位的位置水平偏移的像素，重新定位，水平居左10px
+                            y: -50
+                        }
+                    }, {
+                        color: 'red',            //线的颜色，定义为红色
+                        dashStyle: 'longdashdot',//标示线的样式，默认是solid（实线），这里定义为长虚线
+                        value: 4,                //定义在那个值上显示标示线，这里是在x轴上刻度为3的值处垂直化一条线
+                        width: 1,                //标示线的宽度，2px
+                        label: {
+                            text: 'H3',     //标签的内容
+                            align: 'left',                //标签的水平位置，水平居左,默认是水平居中center
+                            x: 0    ,                     //标签相对于被定位的位置水平偏移的像素，重新定位，水平居左10px
+                            y: -50
+                        }
+                    }, {
+                        color: 'red',            //线的颜色，定义为红色
+                        dashStyle: 'longdashdot',//标示线的样式，默认是solid（实线），这里定义为长虚线
+                        value: 5,                //定义在那个值上显示标示线，这里是在x轴上刻度为3的值处垂直化一条线
+                        width: 1,                //标示线的宽度，2px
+                        label: {
+                            text: 'H4',     //标签的内容
+                            align: 'left',                //标签的水平位置，水平居左,默认是水平居中center
+                            x: 0     ,                    //标签相对于被定位的位置水平偏移的像素，重新定位，水平居左10px
+                            y: -50
+                        }
+                    }, {
+                        color: 'red',            //线的颜色，定义为红色
+                        dashStyle: 'longdashdot',//标示线的样式，默认是solid（实线），这里定义为长虚线
+                        value: 6,                //定义在那个值上显示标示线，这里是在x轴上刻度为3的值处垂直化一条线
+                        width: 1,                //标示线的宽度，2px
+                        label: {
+                            text: 'H5',     //标签的内容
+                            align: 'left',                //标签的水平位置，水平居左,默认是水平居中center
+                            x: 0     ,                    //标签相对于被定位的位置水平偏移的像素，重新定位，水平居左10px
+                            y: -50
+                        }
+                    }, {
+                        color: 'red',            //线的颜色，定义为红色
+                        dashStyle: 'longdashdot',//标示线的样式，默认是solid（实线），这里定义为长虚线
+                        value: 7,                //定义在那个值上显示标示线，这里是在x轴上刻度为3的值处垂直化一条线
+                        width: 1,                //标示线的宽度，2px
+                        label: {
+                            text: 'H6',     //标签的内容
+                            align: 'left',                //标签的水平位置，水平居左,默认是水平居中center
+                            x: 0      ,                   //标签相对于被定位的位置水平偏移的像素，重新定位，水平居左10px
+                            y: -50
+                        }
+                    }, {
+                        color: 'red',            //线的颜色，定义为红色
+                        dashStyle: 'longdashdot',//标示线的样式，默认是solid（实线），这里定义为长虚线
+                        value: 8,                //定义在那个值上显示标示线，这里是在x轴上刻度为3的值处垂直化一条线
+                        width: 1,                //标示线的宽度，2px
+                        label: {
+                            text: 'H7',     //标签的内容
+                            align: 'left',                //标签的水平位置，水平居左,默认是水平居中center
+                            x: 0,                   //标签相对于被定位的位置水平偏移的像素，重新定位，水平居左10px
+                            y: -50
+                        }
+                        }, {
+                            color: 'red',            //线的颜色，定义为红色
+                            dashStyle: 'longdashdot',//标示线的样式，默认是solid（实线），这里定义为长虚线
+                            value: 9,                //定义在那个值上显示标示线，这里是在x轴上刻度为3的值处垂直化一条线
+                            width: 1,                //标示线的宽度，2px
+                            label: {
+                                text: 'H8',     //标签的内容
+                                align: 'left',                //标签的水平位置，水平居左,默认是水平居中center
+                                x: 0,                   //标签相对于被定位的位置水平偏移的像素，重新定位，水平居左10px
+                                y: -50
+                            }
+                        }
+                        , {
+                            color: 'red',            //线的颜色，定义为红色
+                            dashStyle: 'longdashdot',//标示线的样式，默认是solid（实线），这里定义为长虚线
+                            value: 10,                //定义在那个值上显示标示线，这里是在x轴上刻度为3的值处垂直化一条线
+                            width: 1,                //标示线的宽度，2px
+                            label: {
+                                text: 'H9',     //标签的内容
+                                align: 'left',                //标签的水平位置，水平居左,默认是水平居中center
+                                x: 0,                   //标签相对于被定位的位置水平偏移的像素，重新定位，水平居左10px
+                                y: -50
+                            }
+                        }, {
+                            color: 'red',            //线的颜色，定义为红色
+                            dashStyle: 'longdashdot',//标示线的样式，默认是solid（实线），这里定义为长虚线
+                            value: 12,                //定义在那个值上显示标示线，这里是在x轴上刻度为3的值处垂直化一条线
+                            width: 1,                //标示线的宽度，2px
+                            label: {
+                                text: 'H10',     //标签的内容
+                                align: 'left',                //标签的水平位置，水平居左,默认是水平居中center
+                                x: 0,                   //标签相对于被定位的位置水平偏移的像素，重新定位，水平居左10px
+                                y: -50
+                            }
+                        }],
+                    plotBands: [{ // Light air
+                        from: 0.3,
+                        to: 111.5,
+                        color: 'rgba(68, 170, 213, 0.1)',
+                        label: {
+                            text: 'Light air',
+                            style: {
+                                color: '#606060'
+                            }
+                        }
+                    }]
+                },
+
+                yAxis: {
+                    title: {
+                        text: null
+                    },
+                    labels: {
+                        formatter: function () {
+                            return this.value + '℃'
+                        }
+                    },
+                    min: 0,
+
+                },
+                plotOptions: {
+                    line: {
+                        dataLabels: {
+                            enabled: true,
+                            formatter: function() {return '<b style="font-size:24px;">'+this.y+'℃</b>';}
+                        },
+                    }
+                },
+                tooltip: {
+                    headerFormat: '<b>{series.name}</b><br />',
+                    pointFormat: 'x = {point.x}, y = {point.y}'
+                },
+                exporting: {
+                    url: '/Home/Export',  //1、自带导出按钮的请求路径
+                    filename: KeyValue,
+                    width: 1200
+                },
+                series: [{
+                    data: [BY_Stove.H1Temprature, BY_Stove.H1Temprature1, BY_Stove.H1Temprature2, BY_Stove.H1Temprature3, BY_Stove.H1Temprature4
+                        , BY_Stove.H1Temprature5, BY_Stove.H1Temprature6, BY_Stove.H1Temprature7, BY_Stove.H1Temprature8, BY_Stove.H1Temprature9, BY_Stove.H1Temprature10],
+                    //[7.0, 6.9, 9.5, 14.5, 18.4, 21.5, 25.2, 26.5, 23.3, 18.3, 13.9, 9.6]
+                    pointStart: 1
+                }]
+            });
+        })
+    }
+
+    Highcharts.theme = {
+
+        legend: {
+            enabled: false
+        },
+
+    };
+
+    // Apply the theme
+    Highcharts.setOptions(Highcharts.theme);
+
+</script>
+<div id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <div>
+        <div style="font-family: 华文楷体; font-size: x-large; height: 40px; line-height: 40px; text-align: center;">
+            热处理炉生产单
+        </div>
+    </div>
+    <div style="display: none">
+            <div id="container"></div>
+        </div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>编号：</th>
+            <td class='formValue'>
+                <input id="StoveId" type="hidden" />
+                <input id="StoveCode" maxlength="50" type="text" class="txt" value="自动生成" disabled />
+            </td>
+            <th class='formTitle'>炉号：</th>
+            <td class='formValue'>
+                <input id="StoveNum" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>计划开炉：</th>
+            <td class='formValue'>
+                <input id="StartDateTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetTime()" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})"  datacol="yes" err="付款时间" checkexpession="NotNull"  />
+            </td>
+            <th class='formTitle'>炉子类型：</th>
+            <td class='formValue'>
+                <select id="StoveType" class="txtselect">
+                    <option id="真空炉">真空炉</option>
+                    <option id="常规炉">常规炉</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>工艺制定人：</th>
+            <td class='formValue'>
+                <input id="MethodBuilder" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>装炉人：</th>
+            <td class='formValue'>
+                <input id="OperatorName" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>操作人：</th>
+            <td class='formValue'>
+                <input id="OPname" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>生产工艺：</th>
+            <td class='formValue'>
+                <input id="BuildMethod" maxlength="50" type="text" class="txt" />
+            </td>
+
+        </tr>
+           <tr>
+                    <th class="formTitle">备注：
+                    </th>
+                    <td class="formValue" colspan="7">
+                        <textarea id="Remark" name="Description" maxlength="200" class="txtArea" rows="3"></textarea>
+                    </td>
+                </tr>
+    </table>
+</div>
+<div id="layout2" class="layout2">
+    <!--左边-->
+    <div class="layoutPanel layout-west" id="leftPane">
+        <div class="btnbartitle">
+            <div>
+                工艺参数
+            </div>
+        </div>
+        <table class="form" id="form2" style="width: 200px;">
+            <tr>
+                <th class='formTitle' style="text-align: center; width: 30px;">代号</th>
+                <th class='formTitle' style="text-align: center; width: 50px;">时间</th>
+                <th class='formTitle' style="text-align: center; width: 50px;">代号</th>
+                <th class='formTitle' style="text-align: center; width: 50px;">温度</th>
+
+                <th class='formTitle' style="text-align: center; width: 50px;">气压(Pa)</th>
+                <th class='formTitle' style="text-align: center; width: 50px;">电压(V)</th>
+                <th class='formTitle' style="text-align: center; width: 50px;">占空比%</th>
+                <th class='formTitle' style="text-align: center; width: 50px;">氦气(ML)</th>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;">H1</th>
+                <td class='formValue' style="text-align: center;"><input id="H1Time1" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Code1" type="text" class="txt" value="升温" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Temprature1" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+
+                <td class='formValue' style="text-align: center;"><input id="H1q1" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1d1" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1z1" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1a1" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;">H2</th>
+                <td class='formValue' style="text-align: center;"><input id="H1Time2" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Code2" type="text" class="txt" value="T1" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Temprature2" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+
+                <td class='formValue' style="text-align: center;"><input id="H1q2" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1d2" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1z2" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1a2" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;">H3</th>
+                <td class='formValue' style="text-align: center;"><input id="H1Time3" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Code3" type="text" class="txt" value="T2" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Temprature3" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+
+                <td class='formValue' style="text-align: center;"><input id="H1q3" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1d3" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1z3" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1a3" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;">H4</th>
+                <td class='formValue' style="text-align: center;"><input id="H1Time4" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Code4" type="text" class="txt" value="T3" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Temprature4" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+
+                <td class='formValue' style="text-align: center;"><input id="H1q4" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1d4" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1z4" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1a4" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;">H5</th>
+                <td class='formValue' style="text-align: center;"><input id="H1Time5" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Code5" type="text" class="txt" value="T4" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Temprature5" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+
+                <td class='formValue' style="text-align: center;"><input id="H1q5" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1d5" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1z5" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1a5" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;">H6</th>
+                <td class='formValue' style="text-align: center;"><input id="H1Time6" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Code6" type="text" class="txt" value="T5" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Temprature6" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+
+                <td class='formValue' style="text-align: center;"><input id="H1q6" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1d6" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1z6" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1a6" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;">H7</th>
+                <td class='formValue' style="text-align: center;"><input id="H1Time7" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Code7" type="text" class="txt" value="T6" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Temprature7" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+
+                <td class='formValue' style="text-align: center;"><input id="H1q7" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1d7" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1z7" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1a7" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;">H8</th>
+                <td class='formValue' style="text-align: center;"><input id="H1Time8" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Code8" type="text" class="txt" value="保温" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Temprature8" type="text" class="txt" value="" /></td>
+
+                <td class='formValue' style="text-align: center;"><input id="H1q8" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1d8" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1z8" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1a8" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;">H9</th>
+                <td class='formValue' style="text-align: center;"><input id="H1Time9" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Code9" type="text" class="txt" value="B1" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Temprature9" type="text" class="txt" value="" /></td>
+
+                <td class='formValue' style="text-align: center;"><input id="H1q9" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1d9" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1z9" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1a9" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;">H10</th>
+                <td class='formValue' style="text-align: center;"><input id="H1Time10" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Code10" type="text" class="txt" value="B2" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1Temprature10" type="text" class="txt" value="" /></td>
+
+                <td class='formValue' style="text-align: center;"><input id="H1q10" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1d10" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1z10" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+                <td class='formValue' style="text-align: center;"><input id="H1a10" onfocus="IsMoney(this.id);" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;" colspan="3">送电</th>
+                <td class='formValue' style="text-align: center;" colspan="5"><input id="SDDateTime" type="text" class="txt Wdate"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm'})" /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;" colspan="3">到温</th>
+                <td class='formValue' style="text-align: center;" colspan="5"><input id="DWDateTime" type="text" class="txt Wdate"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm'})" /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;" colspan="3">出炉</th>
+                <td class='formValue' style="text-align: center;" colspan="6"><input id="CLDateTime" type="text" class="txt Wdate"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm'})" /></td>
+            </tr>
+
+            <tr>
+                <th class='formTitle' style="text-align: center;" colspan="3">硬度</th>
+                <td class='formValue' style="text-align: center;" colspan="6"><input id="yd" type="text" class="txt"  /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;" colspan="3">光谱</th>
+                <td class='formValue' style="text-align: center;" colspan="6"><input id="gp" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;" colspan="3">表面缺陷</th>
+                <td class='formValue' style="text-align: center;" colspan="6"><input id="qx" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;" colspan="3">放试块</th>
+                <td class='formValue' style="text-align: center;" colspan="6"><input id="fsk" type="text" class="txt"  /></td>
+            </tr>
+            <tr>
+                <th class='formTitle' style="text-align: center;" colspan="3">拍照装炉</th>
+                <td class='formValue' style="text-align: center;" colspan="6"><input id="pz" type="text" class="txt"/></td>
+            </tr>
+        </table>
+         
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center" id="rightPane">
+        <div class="btnbartitle">
+            <div>
+                <span id="CenterTitle">生产编号</span>
+                <div id="lr-add-Row" class="nui-toolbar-item nui-btn-right" onclick="addrow();" style="height: 14px; line-height: 14px;">
+                        <span class="nui-btn-text" style="height: 14px; line-height: 14px;">新增</span>
+                    </div>
+                <div id="lr-choose-Row" class="nui-toolbar-item nui-btn-right nui-btn-left" style="height: 14px; line-height: 14px;">
+                    <span class="nui-btn-text" onclick="btn_Quotationquery();" style="height: 14px; line-height: 14px;">导入</span>
+                </div>
+                <div id="lr-delete-Row" class="nui-toolbar-item nui-btn-left" style="height: 14px; line-height: 14px;">
+                    <span class="nui-btn-text" style="height: 14px; line-height: 14px;">删除</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="topline rightline" style="margin: 1px; margin-top: -1px;" id="div4">
+            <table id="gridTable"></table>
+        </div>
+    </div>
+</div>
+

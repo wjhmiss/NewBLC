@@ -1,0 +1,77 @@
+@{
+    ViewBag.Title = "Base_ProcessList》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CommonModule/Base_ProcessList/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <table class="form">
+        <tr>
+            <th class='formTitle'>按钮设置主键：</th>
+            <td class='formValue'>
+                <label id="ProcessListID" />
+            </td>
+            <th class='formTitle'>ProcessValue：</th>
+            <td class='formValue'>
+                <label id="ProcessValue" />
+            </td>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue'>
+                <label id="Remark" />
+            </td>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <label id="Enabled" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>排序码：</th>
+            <td class='formValue'>
+                <label id="SortCode" />
+            </td>
+            <th class='formTitle'>删除标记：</th>
+            <td class='formValue'>
+                <label id="DeleteMark" />
+            </td>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <label id="CreateDate" />
+            </td>
+            <th class='formTitle'>创建用户主键：</th>
+            <td class='formValue'>
+                <label id="CreateUserId" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>创建用户：</th>
+            <td class='formValue'>
+                <label id="CreateUserName" />
+            </td>
+            <th class='formTitle'>修改时间：</th>
+            <td class='formValue'>
+                <label id="ModifyDate" />
+            </td>
+            <th class='formTitle'>修改用户主键：</th>
+            <td class='formValue'>
+                <label id="ModifyUserId" />
+            </td>
+            <th class='formTitle'>修改用户：</th>
+            <td class='formValue'>
+                <label id="ModifyUserName" />
+            </td>
+        </tr>
+        <tr>
+        </tr>
+    </table>
+</form>

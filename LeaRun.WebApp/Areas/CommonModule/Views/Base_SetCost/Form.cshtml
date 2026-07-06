@@ -1,0 +1,169 @@
+@{
+    ViewBag.Title = "设置成本》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = "10000";//主键
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!KeyValue) {
+            AjaxJson("/CommonModule/Base_SetCost/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        $(".ui_state_highlight").attr("disabled", true);
+        AjaxJson("/CommonModule/Base_SetCost/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<div class="tools_bar" style="margin-top: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+
+</div>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+
+            <th class='formTitle' style="width: 120px;">光硬价格(平方)：</th>
+            <td class='formValue'>
+                <input id="GYPrice" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" datacol="yes" err="钢材编码" checkexpession="NotNull" />
+            </td>
+
+            <th class='formTitle' style="width: 120px;">光软价格(平方)：</th>
+            <td class='formValue'>
+                <input id="GRPrice" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" datacol="yes" err="钢材编码" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle' style="width: 120px;">精板价格(平方)：</th>
+            <td class='formValue'>
+                <input id="JBPrice" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" datacol="yes" err="钢材编码" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle' style="width: 120px;">热处理价格(平方)：</th>
+            <td class='formValue'>
+                <input id="RclPrice" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" datacol="yes" err="钢材编码" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+
+            <th class='formTitle'>总光硬保底面积：</th>
+            <td class='formValue'>
+                <input id="GYLimiteArea" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" datacol="yes" err="钢材编码" checkexpession="NotNull" />
+            </td>
+
+            <th class='formTitle'>总光软保底面积：</th>
+            <td class='formValue'>
+                <input id="GRLimiteArea" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" datacol="yes" err="钢材编码" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle'>总精板保底面积：</th>
+            <td class='formValue'>
+                <input id="JBLimiteArea" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" datacol="yes" err="钢材编码" checkexpession="NotNull" />
+            </td>
+
+            <th class='formTitle'>总热处理保底面积：</th>
+            <td class='formValue'>
+                <input id="RclLimiteArea" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" datacol="yes" err="钢材编码" checkexpession="NotNull" />
+            </td>
+
+        </tr>
+        @*        <tr>
+            <th class='formTitle'>每个光硬保底面积：</th>
+            <td class='formValue'>
+                <input id="GYLimiteAreaPer" maxlength=18 type="text" class="txt" onfocus="IsMoney(this.id);"  />
+            </td>
+            <th class='formTitle'>每个光软保底面积：</th>
+            <td class='formValue'>
+                <input id="GRLimiteAreaPer" maxlength=18 type="text" class="txt" onfocus="IsMoney(this.id);"  />
+            </td>
+            <th class='formTitle'>每个精板保底面积：</th>
+            <td class='formValue'>
+                <input id="JBLimiteAreaPer" maxlength=18 type="text" class="txt" onfocus="IsMoney(this.id);"  />
+            </td>
+            <th class='formTitle'>每个热处理保底面积：</th>
+            <td class='formValue'>
+                <input id="RclLimiteAreaPer" maxlength=18 type="text" class="txt"  onfocus="IsMoney(this.id);" />
+            </td>
+            </tr>*@
+        <tr>
+            <th class='formTitle'>超长：</th>
+            <td class='formValue'>
+                <input id="GreatLong" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" />
+            </td>
+
+            <th class='formTitle'>超宽：</th>
+            <td class='formValue'>
+                <input id="GreatWeigh" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" />
+            </td>
+            <th class='formTitle'>超长宽后价格：</th>
+            <td class='formValue' colspan="3">
+                <input id="GreatPrice" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle' rowspan="5">面积计算：</th>
+            <td class='formValue' colspan="7">
+                <span class="item" style="cursor: pointer;">
+                    <input type="radio" name="SetAreaType" value="0" id="Print0"  />
+                    <label for="Print0">光板
+                        如果厚<60,则面积(长*宽*2)。
+                                        如果60<=厚<80，则面积(长*宽+长*厚)*2。
+                                        如果厚>=80，则面积(长*宽+长*厚+宽*厚)*2。精料(长*宽+长*厚+宽*厚)*2</label></span>
+            </td>
+        </tr>
+        <tr>
+            <td class='formValue' colspan="7">
+                <span class="item" style="cursor: pointer;">
+                    <input type="radio" name="SetAreaType" value="1" id="Print1"  />
+                    <label for="Print1">统一精料光板
+                        如果厚<60,则面积(长*宽*2)。
+                                        如果60<=厚<80，则面积(长*宽+长*厚)*2。
+                                        如果厚>=80，则面积(长*宽+长*厚+宽*厚)*2。</label></span>
+            </td>
+        </tr>
+        <tr>
+            <td class='formValue' colspan="7">
+                <span class="item" style="cursor: pointer;">
+                    <input type="radio" name="SetAreaType" value="2" id="Print2" />
+                    <label for="Print2">统一精料光板(长*宽*2)</label></span>
+            </td>
+        </tr>
+        <tr>
+            <td class='formValue' colspan="7">
+                <span class="item" style="cursor: pointer;">
+                    <input type="radio" name="SetAreaType" value="3" id="Print3"  />
+                    <label for="Print3">统一精料光板(长*宽+长*厚+宽*厚)*2</label></span>
+            </td>
+        </tr>
+        <tr>
+            <td class='formValue' colspan="7">
+                <span class="item" style="cursor: pointer;">
+                    <input type="radio" name="SetAreaType" value="4" id="Print4"  />
+                    <label for="Print4">统一精料(长*宽+长*厚+宽*厚)*2，光板(长*宽*2)</label></span>
+            </td>
+
+        </tr>
+        <tr>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue' colspan="7">
+                <textarea id="Remark" class="txtArea" rows="8"></textarea>
+            </td>
+
+        </tr>
+
+
+    </table>
+</form>

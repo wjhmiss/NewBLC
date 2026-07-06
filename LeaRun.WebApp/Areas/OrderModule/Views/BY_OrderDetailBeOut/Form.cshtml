@@ -1,0 +1,470 @@
+@{
+    ViewBag.Title = "BY_OrderDetailBeOut》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    var QuotationDetailId = GetQuery('QuotationDetailId');//主键
+    var OrderDetailId = GetQuery('OrderDetailId');//主键
+    var WeightFact = GetQuery('WeightFact') == "" ? 0 : GetQuery('WeightFact');//主键
+    var MnemonicCode = GetQuery('MnemonicCode');//主键
+
+    var totalQty = 0;
+    var changeNum = 0;
+    $(function () {
+        //客户编码自动补全
+        CustomerAutocomplete();
+        //加工类型
+        BindDropItem("#OrderType", "ProcessType", "==请选择==");
+        //工艺
+        BindDropItem("#Technology", "CraftType", "==请选择==");
+
+        if (WeightFact != "") {
+            $("#WeightFact").val(WeightFact);
+        }
+        InitControl();
+        if (!!MnemonicCode) {
+            $("#MnemonicCode").val(MnemonicCode);
+
+        }
+        $("#QuotationDetailId").val(QuotationDetailId);
+        $("#OrderDetailId").val(OrderDetailId);
+        if (!!$("#WeightFact").val()) {
+            WeightFact = $("#WeightFact").val();
+        }
+
+        totalQty = Number($("#Qty").val()) == "" ? 0 : Number($("#Qty").val());
+
+        
+        
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/OrderModule/BY_OrderDetailBeOut/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+        else {
+            AjaxJson("/QuotationModule/QuotationInput/SetDetailForm", { KeyValue: QuotationDetailId }, function (data) {
+                SetWebControls(data);
+                Conversion1();
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/OrderModule/BY_OrderDetailBeOut/SubmitForm1?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+
+    //保存事件
+    function AcceptClick2() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        AjaxJson("/OrderModule/BY_OrderDetailBeOut/SubmitForm1?KeyValue=" + KeyValue + "&audit=yes", "", function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+    //客户编码自动补全
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.FullName);
+            $("#PaymentMode").val(data.PaymentMode);
+            
+            LoadContactName(data.CustomerId);
+            Conversion1();
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Customer/GetAutoCompleJson", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 70%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="ShortName" style="display: none;">' + DataJson[i].ShortName + '</td>';
+                    html += '<td id="Sellpeople" style="display: none;">' + DataJson[i].Sellpeople + '</td>';
+                    html += '<td id="SalesArea" style="display: none;">' + DataJson[i].Sellarea + '</td>';
+                    html += '<td id="DiscountRate" style="display: none;">' + DataJson[i].DiscountRate + '</td>';
+                    html += '<td id="TransitMode" style="display: none;">' + DataJson[i].TransitMode + '</td>';
+                    html += '<td id="PaymentMode" style="display: none;">' + DataJson[i].PaymentMode + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.FullName);
+                    $("#PaymentMode").val(data.PaymentMode);
+                    LoadContactName(data.CustomerId);
+                    Conversion1();
+                });
+                
+            });
+        }
+        //联系人
+        function LoadContactName(CustomerId) {
+            if (!!CustomerId) {
+                AjaxJson("/CommonModule/Customer/CustomerAddressListJson", { CustomerId: CustomerId }, function (data) {
+                    $("#ShipAddress").html('');
+                    $("#CollectAddress").html('');
+                    var datajson = data.rows;
+                    $.each(datajson, function (i) {
+                            $("#ShipAddress").append($("<option data='" + JSON.stringify(datajson[i]) + "'></option>").val(datajson[i].AddressCode + " " + datajson[i].DetailAddress).html(datajson[i].AddressCode + " " + datajson[i].DetailAddress));
+                        
+                            $("#ContactTel").val(datajson[i].Telephone);
+                            $("#ContactFax").val(datajson[i].Fax);
+                            $("#ContactMail").val(datajson[i].EmailAddress);
+                            $("#MobileCode").val(datajson[i].Mobile);
+                            $("#CustomerAddress").val(datajson[i].DetailAddress);
+                            $("#ShipRoute").val(datajson[i].SendPath);
+                            $("#ContactName").val(datajson[i].Contact);
+                            $("#ShipAddress").val(datajson[i].AddressCode + " " + datajson[i].DetailAddress);
+                       
+                        
+                    });
+                })
+            }
+        }
+    }
+
+    //明细换算
+    function Conversion1() {
+        if (Number($("#AmerceAmount").val()) > 0) {
+            $("#AreaPrice").val("0");
+            $("#CostAmount").val("-" + $("#AmerceAmount").val());
+            return;
+        }
+
+        //理论重量=（厚计价余量厚 * 宽+计价余量宽 * 高+计价余量高）*密度*数量
+        var Thick = Number($("#Thick").val());
+        var Weigh = Number($("#Weigh").val());
+        var Length = Number($("#Length").val());
+        var Qty = Number($("#Qty").val());
+        var AddThick = 0;//Number($("#AddThick").val());
+        var AddWeigh = 0;//Number($("#AddWeigh").val());
+        var AddLength = 0;//Number($("#AddLength").val());
+
+        
+        //RoundFeed
+        //取单价、折扣率
+        if (!Number($("#Weight").val())) {
+            return false;
+        }
+        var OrderType = $("#OrderType").val();
+        var Area = 0;
+        
+
+        if (OrderType == "光板加工") {
+            if (Thick < 60) {
+                Area = (Weigh * Length * 2) * Qty / 1000000;
+            }
+            else if (Thick >= 60 && Thick < 80) {
+                Area = (Weigh * Length + Length * Thick) * 2 * Qty / 1000000;
+            }
+            else {
+                Area = (Thick * Weigh + Thick * Length + Weigh * Length) * 2 * Qty / 1000000;
+            }
+        }
+        if (OrderType == "精板加工") {
+            Area = (Thick * Weigh + Thick * Length + Weigh * Length) * 2 * Qty / 1000000;
+        }
+
+        $("#Area").val(Area.toFixed(4))
+
+        var SteelType = "";
+        var CostAmount = 0;
+        //var AreaPrice = $("#AreaPrice").val();
+        AjaxJsonNoMassge("/CommonModule/Steel/GetSteelEntityByCode", { SteelCode: $("#SteelCode").val() }, function (data) {
+            SteelType = data.SteelType;
+            AjaxJsonNoMassge("/CommonModule/Customer/SetForm", { KeyValue: $("#CustomerId").val() }, function (data) {
+                //if (SteelType == "软料") {
+                //    if (changeNum ==0) {
+                //        $("#AreaPrice").val(data.RBeOutAreaPrice);
+                //    }
+                //    if (Area * Number($("#AreaPrice").val()) < 6) {
+                //        CostAmount = 6;
+                //    }
+                //    else {
+                //        CostAmount = Area * Number($("#AreaPrice").val());
+                //    }
+                //}
+                //if (SteelType == "硬料") {
+                //    if (changeNum == 0) {
+                //        $("#AreaPrice").val(data.YBeOutAreaPrice);
+                //    }
+                //    if (Area * Number($("#AreaPrice").val()) < 7) {
+                //        CostAmount = 7;
+                //    }
+                //    else {
+                //        CostAmount = Area * Number($("#AreaPrice").val());
+                //    }
+                //}
+                
+                if ($("#JJtype").val() == "按公斤") {
+                    if (SteelType == "普通钢") {
+                        if (Number($("#Weight").val()) * Number($("#AreaPrice").val()) < 6) {
+                            CostAmount = 6;
+                        }
+                        else {
+                            CostAmount = Number($("#Weight").val()) * Number($("#AreaPrice").val());
+                        }
+                    }
+                    if (SteelType == "特殊钢") {
+                        if (Number($("#Weight").val()) * Number($("#AreaPrice").val()) < 7) {
+                            CostAmount = 7;
+                        }
+                        else {
+                            CostAmount = Number($("#Weight").val()) * Number($("#AreaPrice").val());
+                        }
+                    }
+                }
+                else if ($("#JJtype").val() == "按件数") {
+                    if (SteelType == "普通钢") {
+                        if (Qty * Number($("#AreaPrice").val()) < 6) {
+                            CostAmount = 6;
+                        }
+                        else {
+                            CostAmount = Qty * Number($("#AreaPrice").val());
+                        }
+                    }
+                    if (SteelType == "特殊钢") {
+                         
+                        if (Number($("#Qty").val()) * Number($("#AreaPrice").val()) < 7) {
+                            CostAmount = 7;
+                        }
+                        else {
+                            CostAmount = Number($("#Qty").val()) * Number($("#AreaPrice").val());
+                        }
+                    }
+                }
+                else {
+                    if (SteelType == "普通钢") {
+                        
+                        if (Area * Number($("#AreaPrice").val()) < 6) {
+                            CostAmount = 6;
+                        }
+                        else {
+                            CostAmount = Area * Number($("#AreaPrice").val());
+                        }
+                    }
+                    if (SteelType == "特殊钢") {
+                        if (Area * Number($("#AreaPrice").val()) < 7) {
+                            CostAmount = 7;
+                        }
+                        else {
+                            CostAmount = Area * Number($("#AreaPrice").val());
+                        }
+                    }
+                }
+                
+                $("#CostAmount").val(CostAmount.toFixed(4));//成本
+            })
+        })
+        
+
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <input id="MnemonicCode" type="hidden" />
+    <input id="QuotationDetailId" type="hidden" />
+    <input id="OrderDetailOutId" type="hidden" />
+    <input id="OrderDetailId" type="hidden" />
+    <input id="OrderId" type="hidden" />
+    <input id="OrderCode" type="hidden" />
+    <input id="LineCode" type="hidden" />
+    <table class="form">
+        <tr  >
+            <th class="formTitle" colspan="2">委外客户：</th>
+            <td class="formValue">
+                <input id="CustomerId" type="hidden" />
+                <input id="PaymentMode" type="hidden" />
+                
+                <input id="CustomerCode" type="text" class="txt" style="width: 95%" datacol="yes" err="客户编码" checkexpession="NotNull" />
+            </td>
+            <th class="formTitle" colspan="2">客户名称：</th>
+            <td class="formValue">
+                <input id="CustomerName" disabled type="text" class="txt" style="width: 95%" />
+            </td>
+        </tr>
+
+        <tr  >
+            <th class='formTitle' colspan="2">联系人：</th>
+            <td class='formValue'>
+                <input id="ContactName" disabled maxlength="200" type="text" class="txt" />
+            </td>
+
+            <th class='formTitle' colspan="2">联系电话：</th>
+            <td class='formValue'>
+                <input id="ContactTel" disabled maxlength="50" type="text" class="txt" />
+            </td>
+
+        </tr>
+        <tr  >
+            <th class='formTitle' colspan="2">传真：</th>
+            <td class='formValue'>
+                <input id="ContactFax" disabled maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle' colspan="2">手机：</th>
+            <td class='formValue'>
+                <input id="MobileCode" disabled maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr  >
+            <th class='formTitle' colspan="2">客户地址：</th>
+            <td class='formValue'  colspan="4">
+                <input id="CustomerAddress" disabled maxlength="500" type="text" class="txt" />
+            </td>
+        </tr>
+
+        <tr  >
+            <th class="formTitle" colspan="2">加工类型：</th>
+            <td class="formValue">
+                <select id="OrderType" disabled class="txtselect" datacol="yes" err="加工类型" checkexpession="NotNull">
+                </select>
+            </td>
+
+            <th class="formTitle" colspan="2">特殊工序：</th>
+            <td class="formValue"><span class="item">
+                <input id="IsGrindAngle" name="IsGrindAngle" type="checkbox" style="vertical-align: middle;" />
+                <label for="IsGrindAngle" disabled style="vertical-align: middle;">磨四侧</label>
+                &nbsp;&nbsp;
+            </span>
+                <span class="item">
+                    <input id="IsChamfer" name="IsChamfer" type="checkbox" style="vertical-align: middle;" />
+                    <label for="IsChamfer" disabled style="vertical-align: middle;">倒角</label>
+                    &nbsp;&nbsp;
+                </span></td>
+
+        </tr>
+        <tr  >
+            <th class="formTitle" colspan="2">钢材编码：</th>
+            <td class="formValue">
+                <input id="SteelId" type="hidden" />
+                <input id="SteelCode" disabled type="text" class="txt"  datacol="yes" err="钢材编码" checkexpession="NotNull" /></td>
+            <th class="formTitle" colspan="2">钢材名称：</th>
+            <td class="formValue">
+                <input disabled id="SteelDescription"  type="text" class="txt" /></td>
+        </tr>
+
+        <tr  >
+            <th class="formTitle" colspan="2">客户订单编码：</th>
+            <td class="formValue">
+                <input id="CustomerOrder" type="text" disabled class="txt" /></td>
+            <th class="formTitle" colspan="2">货品编号：</th>
+            <td class="formValue">
+                <input id="CustomerProduct" disabled type="text" class="txt" />
+            </td>
+        </tr>
+        <tr  >
+            <th class="formTitle" colspan="2">数&nbsp;&nbsp;量：</th>
+            <td class="formValue">
+                <input id="Qty" onfocus="IsNumber(this.id);" onkeyup="Conversion1()" type="text" class="txt" value="0" /></td>
+            <th class="formTitle" colspan="2">模&nbsp;&nbsp;号：</th>
+            <td class="formValue">
+                <input id="DieCode" disabled type="text" class="txt" />
+            </td>
+        </tr>
+        <tr  >
+            <th class="formTitle" rowspan="3">要求尺寸</th>
+            <th class="formTitle">厚(直径)：</th>
+            <td class="formValue">
+                <input id="Thick"  type="text" class="txt" value="0" onkeyup="changeNum= changeNum+1;Conversion1();" datacol="yes" err="尺寸" checkexpession="NotNull" /></td>
+            <th class="formTitle" rowspan="3">计价余量</th>
+            <th class="formTitle">厚(直径)：</th>
+            <td class="formValue">
+                <input id="AddThick"  type="text" class="txt" value="0" onkeyup="changeNum= changeNum+1;Conversion1();" datacol="yes" err="尺寸" checkexpession="NotNull" /></td>
+        </tr>
+        <tr  >
+            <th class="formTitle">宽度：</th>
+            <td class="formValue">
+                <input id="Weigh"  type="text" class="txt" value="0" onkeyup="changeNum= changeNum+1;Conversion1();" datacol="yes" err="尺寸" checkexpession="NotNull"  /></td>
+            <th class="formTitle">宽度：</th>
+            <td class="formValue">
+                <input id="AddWeigh"  type="text" class="txt" value="0" onkeyup="changeNum= changeNum+1;Conversion1();" datacol="yes" err="尺寸" checkexpession="NotNull" /></td>
+        </tr>
+        <tr  >
+            <th class="formTitle">长度：</th>
+            <td class="formValue">
+                <input id="Length"  type="text" class="txt" value="0" onkeyup="changeNum= changeNum+1;Conversion1();" datacol="yes" err="尺寸" checkexpession="NotNull" /></td>
+            <th class="formTitle">长度：</th>
+            <td class="formValue">
+                <input id="AddLength"  type="text" class="txt" value="0" onkeyup="changeNum= changeNum+1;Conversion1();" datacol="yes" err="尺寸" checkexpession="NotNull" /></td>
+        </tr>
+                
+        <tr>
+            <th class="formTitle" rowspan="2">费用计算</th>
+            <th class="formTitle">计价类型：</th>
+            <td class="formValue">
+                <select id="JJtype" onchange="Conversion1();"  class="txtselect" datacol="yes" err="加工类型" checkexpession="NotNull">
+                    <option value="按平方" selected="selected">按平方</option>
+                           <option value="按公斤" selected="selected">按公斤</option>
+                           <option value="按件数">按件数</option>
+                        </select></td>
+            <th class="formTitle" rowspan="2">数量</th>
+            <th class="formTitle">面积：</th>
+            <td class="formValue">
+                <input id="Area"  type="text" class="txt" value="0" onkeyup="changeNum= changeNum+1;Conversion1();" datacol="yes" err="尺寸" checkexpession="NotNull"  /></td>
+            
+            
+        </tr>
+        <tr>
+            <th class="formTitle">单价：</th>
+            <td class="formValue">
+                <input id="AreaPrice" onfocus="IsMoney(this.id);" onkeyup="changeNum= changeNum+1;Conversion1();" type="text" class="txt" value="0.00" datacol="yes" err="单价" checkexpession="NotNull" /></td>
+            <th class="formTitle" >重量：</th>
+            <td class="formValue">
+                <input id="Weight"  type="text" class="txt" value="0.00" onkeyup="changeNum= changeNum+1;Conversion1();" datacol="yes" err="重量" checkexpession="NotNull"  /></td>
+        </tr>
+        <tr>
+            <th class="formTitle" colspan="2">费用：</th>
+            <td class="formValue" colspan="4">
+                <input id="CostAmount" type="text" class="txt" value="0" onfocus="IsMoney(this.id);"  datacol="yes" err="罚款扣费，默认为0" checkexpession="NotNull" /></td>
+        </tr>
+        <tr>
+            <th class="formTitle" colspan="2">罚款扣费：</th>
+            <td class="formValue" colspan="4">
+                <input id="AmerceAmount" type="text" class="txt" value="0" onfocus="IsMoney(this.id);" onkeyup="Conversion1();" datacol="yes" err="罚款扣费，默认为0" checkexpession="NotNull" /></td>
+        </tr>
+        <tr >
+            <th class="formTitle" colspan="2">备注：</th>
+            <td class="formValue" colspan="4">
+                <input id="Remark" type="text" class="txt" /></td>
+        </tr>
+    </table>
+    <style>
+        .form .formTitle {
+            width: 120px;
+        }
+    </style>
+</form>
+
+

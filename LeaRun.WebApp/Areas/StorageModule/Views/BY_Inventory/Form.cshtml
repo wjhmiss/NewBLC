@@ -1,0 +1,121 @@
+@{
+    ViewBag.Title = "库存修改";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/StorageModule/BY_Inventory/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/StorageModule/BY_Inventory/SubmitInventoryForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+
+    //计算理论重量
+    function Conversion() {
+        //理论重量=（厚计价余量厚 * 宽+计价余量宽 * 高+计价余量高）*密度*数量
+        var Thick = Number($("#Thick").val());
+        var Weigh = Number($("#Weigh").val());
+        var Length = Number($("#Length").val());
+        var Density = Number($("#Density").val());
+        var Qty = Number(1);
+        var _Weight = ((Thick * Weigh * Length) * Number(Density) * Qty) / 1000000;
+        var BoreSize = $("#BoreSize").val();
+        $("#Weight").val(FormatCurrency(_Weight));
+        if (Thick != 0 && Length != 0 && Weigh == 0) {
+            _Weight = (((Thick / 2) * (Thick / 2) * 3.1415 * (Length)) * Number(Density) * Qty) / 1000000
+            //_Weight = (((Thick) * (Thick) * (Length)) * Number(Density) * Qty) / 1000000
+            if (!!BoreSize) {
+                _Weight = _Weight - Length * (BoreSize / 2) * (BoreSize / 2) * 3.1415 * Number(Density) / 1000000;
+                //_Weight = _Weight - Length * (BoreSize) * (BoreSize) * Number(Density) * Qty / 1000000;
+            }
+            if (_Weight < 0) {
+                return;
+            }
+            $("#Weight").val(FormatCurrency(_Weight));//理论重量
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <table class="form">
+        @*<tr>
+            <th class='formTitle'>厚度：</th>
+            <td class='formValue'>
+                <input id="Thick" maxlength="18" type="text" class="txt" datacol="yes" err="厚度" checkexpession="Double" onkeyup="Conversion();" disabled />
+            </td>
+            <th class='formTitle'>宽度：</th>
+            <td class='formValue'>
+                <input id="Weigh" maxlength="18" type="text" class="txt" datacol="yes" err="宽度" checkexpession="Double" onkeyup="Conversion();" disabled />
+            </td>
+            <th class='formTitle'>长度：</th>
+            <td class='formValue'>
+                <input id="Length" maxlength="18" type="text" class="txt" datacol="yes" err="长度" checkexpession="Double" onkeyup="Conversion();" disabled />
+            </td>
+            <th class='formTitle'>重量：</th>
+            <td class='formValue'>
+                <input id="Weight" maxlength="18" type="text" class="txt" datacol="yes" err="重量" checkexpession="Double" disabled />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>编号：</th>
+            <td class='formValue' colspan="3">
+                <input id="BatchCode" maxlength="18" type="text" class="txt" datacol="yes" err="编号" checkexpession="NotNull" disabled />
+            </td>
+            <th class='formTitle'>价格：</th>
+            <td class='formValue' colspan="3">
+                <input id="Price" maxlength="18" type="text" class="txt" disabled />
+            </td>
+
+
+        </tr>*@
+        <tr>
+            <th class='formTitle'>原始料号：</th>
+            <td class='formValue' colspan="3">
+                <input id="StoveCode" maxlength="18" type="text" class="txt" disabled />
+            </td>
+            <th class='formTitle'>仓位：</th>
+            <td class='formValue' colspan="3">
+                <input id="position" maxlength="18" type="text" class="txt" />
+            </td>
+
+        </tr>
+        <tr>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue' colspan="7">
+                <input id="Remark" maxlength="18" type="text" class="txt" />
+                <input id="Density" type="hidden" />
+            </td>
+
+        </tr>
+        @*<tr>
+            <th class='formTitle'>工艺：</th>
+            <td class='formValue' colspan="3">
+                <input id="SteelStatus" maxlength="18" type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>产地：</th>
+            <td class='formValue' colspan="3" >
+                <input id="PlaceOrigin" maxlength="18" type="text" class="txt"   />
+            </td>
+
+        </tr>*@
+    </table>
+</form>

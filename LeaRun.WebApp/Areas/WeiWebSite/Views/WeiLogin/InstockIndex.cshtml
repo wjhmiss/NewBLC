@@ -1,0 +1,161 @@
+﻿@{
+    ViewBag.Title = "用户中心";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+
+<script>
+    //初始化
+    var MaterialType = GetQuery("MaterialType") == "" ? "-1" : GetQuery("MaterialType");
+    var SteelCode = GetQuery("SteelCode");
+    var Thick = GetQuery("Thick");
+    var Weigh = GetQuery("Weigh");
+    var Length = GetQuery("Length");
+    var alarmck = GetQuery("alarmck");
+
+    function querys(page) {
+        //var page = GetQuery("page") == "" ? 1 : GetQuery("page");
+        $.ajax({
+            url: "@Url.Content("~/StorageModule/BY_Inventory/GridPageListJson")?MaterialType=" + MaterialType + "&SteelCode=" + escape(SteelCode) + "&BatchCode=" + '' + "&Thick=" + $.trim(Thick.toString()) + "&Weigh=" + $.trim(Weigh.toString()) + "&Length=" + $.trim(Length.toString()) + "&alarmck=" + alarmck ,
+            type: "post",
+            dataType: "json",
+            data: { "rows": 30, "page": page },
+            async: true,
+            success: function (data) {
+                $("#list").html("");
+                $.each(data.rows, function (i) {
+                    var html = '<li><a href="javascript:;" data-ignore="true">';
+                    html += '<div style="font-weight: 900; font-size: 1.53em; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; float: left; text-align: center; width: 75px; height: 75px; line-height: 75px; border: 1px solid #0088D1; vertical-align: middle; display: inline-block; margin-right: 5px;"><b class="#0088D1">';
+                    html += data.rows[i].steelcode;
+                    html += '</b></div>';
+                    html += '<h2>入仓编码：' + data.rows[i].batchcode + '</h2>';
+                    html += '<div class="note">';
+                    html += '<p>产地：' + data.rows[i].placeorigin + '，状态：' + data.rows[i].steelstatus + '，类型：' + data.rows[i].steeltype + '，炉号：' + data.rows[i].stovecode + '，日期：' + data.rows[i].instockdate + '</p>';
+                    html += '<p><i class="hot">重量：' + data.rows[i].weight + 'KG</i><i class="price">规格：' + data.rows[i].thick + '*' + data.rows[i].weigh + '*' + data.rows[i].length + '</i></p>';
+                    html += '</div>                </a>            </li>';
+                    $("#list").append(html);
+                });
+                var htmlpage = '<span>共' + data.records + '记录</span>';
+                if (data.page == 1) {
+                    htmlpage += '<span class="disabled">«上一页</span>';
+                }
+                else {
+                    htmlpage += '<a href="javascript:;" onclick="querys(' + (data.page-1) + ')" data-ignore="true">«上一页</a>';
+                }
+                htmlpage += '<span class="current">' + data.page + '</span>';
+                if (data.page == data.total || data.total == 1) {
+                    htmlpage += '<span class="disabled">下一页»</span>';
+                }
+                else {
+                    htmlpage += '<a href="javascript:;" onclick="querys(' + (data.page + 1) + ')" data-ignore="true">下一页»</a>';
+                }
+                $("#listPage").html("");
+                $("#listPage").append(htmlpage);
+            },
+            error: function (data) {
+                alert(data.responseText);
+            }
+
+        });
+    }
+
+    $(function () {
+        if ("@DNS.Utilities.ManageProvider.Provider.Current().ObjectId".indexOf("20178431-3604-46b6-a75b-f7ba13548aed") < 0) {
+            tipDialog("错误：无权限！", -1, "return");
+            return false;
+        }
+
+        $("#getWhere").click(function () {
+            location.href = "@Url.Content("~/WeiWebSite/WeiLogin/InstockIndexWhere")";
+        });
+        
+
+        querys(1);
+
+    })
+
+    function locationInputQuot() {
+        location.href = "@Url.Content("~/WeiWebSite/WeiLogin/WeiIndex")";
+    }
+
+</script>
+
+<style type="text/css">
+    #afui .list > li > a:after {
+        position: absolute;
+        right: 8px;
+        font-family: 'chevron';
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        -webkit-font-smoothing: antialiased;
+        content: " ";
+        top: 50%;
+        margin-top: -0.5em;
+        color: inherit;
+    }
+</style>
+
+<div id="mainPanel" class="panel" data-header="main_header" data-footer="main_footer">
+    <!--筛选按钮-->
+    <div class="select-bar">
+        <div class="col">
+            <a href="javascript:;" class="icon-back" onclick="history.back(-1);">返回上一页</a>
+        </div>
+        <div class="col">
+            <a id="getWhere" href="javascript:;" class="icon-carat-r">库存筛选</a>
+        </div>
+    </div>
+    <!--/筛选按钮-->
+
+    <!--最新商品-->
+    <div class="section">
+        <h1>库存信息</h1>
+    </div>
+    <div>
+        <ul id="list" class="list listview">
+
+@*            <li>
+                <a href="javascript:;" data-ignore="true">
+                    <div style="font-weight: 900; font-size: 1.53em; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; float: left; text-align: center; width: 75px; height: 75px; line-height: 75px; border: 1px solid #0088D1; vertical-align: middle; display: inline-block; margin-right: 5px;">
+                        <b class="#0088D1">38CrmoAL</b>
+                    </div>
+                    <h2>入仓编码：4140-B03H00001</h2>
+                    <div class="note">
+                        <p>产地：湘钢，状态：加硬，类型：大板，炉号：555441222，日期：2015-12-01</p>
+                        <p><i class="hot">重量：22200KG</i><i class="price">规格：500X1200X2400</i></p>
+                    </div>
+                </a>
+            </li>*@
+
+            
+
+        </ul>
+    </div>
+    <!--/最新商品-->
+
+    <div class="page-list" id="listPage">
+        @*<span>共18记录</span>
+        <span class="disabled">«上一页</span>
+        <span class="current">1</span>
+        <span class="disabled">«下一页</span>*@
+    </div>
+    @*<div class="page-list">
+        <span>共21记录</span>
+        <a href="/user/order-list-1.html" data-ignore="true">«上一页</a>
+        <span class="current">2</span>
+        <a href="/user/order-list-3.html" data-ignore="true">下一页»</a>
+
+    </div>*@
+    <!--版权信息-->
+    @Html.Partial("_PartialMobileBottom")
+    <!--/版权信息-->
+
+</div>
+
+
+
+
+

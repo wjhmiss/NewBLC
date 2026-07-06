@@ -1,0 +1,306 @@
+@{
+    ViewBag.Title = "BY_QuotationHeat";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js?ver=@DateTime.Now.Ticks"></script>
+
+
+
+<link href="~/Content/Scripts/imgGreate/00540/kao/css/index.css" rel="stylesheet" />
+<script src="~/Content/Scripts/imgGreate/00540/kao/js/ToolTip.js"></script>
+
+
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+        BindDropItem("#Technology", "CraftType", "==请选择==");
+    })
+    function btn_Search() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/QuotationHeatModule/BY_QuotationHeat/GridPageListJson")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+    }
+
+
+    function btn_Printqutity() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "quotationheatid");
+        if (IsChecked(KeyValue)) {
+            var technology = GetJqGridRowValue("#gridTable", "technology");
+            if (technology == "真空淬火") {
+                PrintDialog("/QuotationHeatModule/BY_QuotationHeat/HeatReportPrintZK?KeyValue=" + KeyValue, "PrintPage", "打印", 850, 600, function (iframe) {
+                    top.frames[iframe].AcceptClick();
+                });
+            }
+            else {
+                PrintDialog("/QuotationHeatModule/BY_QuotationHeat/HeatReportPrintCG?KeyValue=" + KeyValue, "PrintPage", "打印", 850, 600, function (iframe) {
+                    top.frames[iframe].AcceptClick();
+                });
+            }
+
+        }}
+
+
+    function btn_add() {
+        //var url = "/QuotationHeatModule/BY_QuotationHeat/FormAll"
+        //openDialog(url, "Form", "热处理录入", 1400, 700, function (iframe) {
+        //    top.frames[iframe].AcceptClick();
+        //    windowload();
+        //});
+        var url = "/QuotationHeatModule/BY_QuotationHeat/Form";
+        Dialog(url, "Form", "热处理编辑", 1400, 700);
+    }
+    function btn_addAll() {
+        var url = "/QuotationHeatModule/BY_QuotationHeat/FormAll"
+        openDialog(url, "Form", "热处理录入", 1400, 700, function (iframe) {
+            top.frames[iframe].AcceptClick();
+            windowload();
+        });
+    }
+    function btn_updateimg() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "quotationheatid");
+        if (IsChecked(KeyValue)) {
+            var url = "/QuotationHeatModule/BY_QuotationHeat/HeatReport?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "热处理质量报告", 1070, 700, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+
+    function btn_WorkPrint() {
+        var starttime = $("#CreateDate_StartTime").val();
+        var endtime = $("#CreateDate_EndTime").val();
+        if (starttime == "" || endtime == "") {
+            alertDialog("请选择开始和结束时间！", 0);
+            return false;
+        }
+        var Condition = GetParameterJson("QueryParameter");
+        PrintDialog("/QuotationHeatModule/BY_QuotationHeat/WorkPrint?Condition=" + escape(Condition), "PrintPage", "打印", 1350, 800, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var billstatus = GetJqGridRowValue("#gridTable", "billstatus");
+        if (billstatus == "已发运") {
+            alertDialog("已发运，不能删除", 0);
+            return false;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "quotationheatid");
+        if (IsChecked(KeyValue)) {
+            var url = "/QuotationHeatModule/BY_QuotationHeat/Form?KeyValue=" + KeyValue ;
+            openDialog(url, "Form", "热处理编辑", 1400, 700, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+
+        }
+    }
+    function btn_Print() {
+        var starttime = $("#CreateDate_StartTime").val();
+        var endtime = $("#CreateDate_EndTime").val();
+        if (starttime == "" || endtime == "") {
+            alertDialog("请选择开始和结束时间！", 0);
+            return false;
+        }
+        PrintDialog("/QuotationHeatModule/BY_QuotationHeat/Print?starttime=" + starttime + "&endtime=" + endtime, "PrintPage", "打印", 850, 600, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+
+    function btn_Setlu() {
+        var url = "/QuotationHeatModule/BY_Stove/Form"
+        //openDialogFName(url, _id, _title, _width, _height,name1,name2, _callBack1, _callBack2) {
+        openDialogFName(url, "Form", "炉子新增", 1070, 700, "保存", "打印", function (iframe) {
+            top.frames[iframe].AcceptClick()
+        }, function (iframe) {
+            top.frames[iframe].Print();
+        });
+    }
+
+    function btn_Print1(){
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                s = s + myrow.quotationheatid + ",";
+            }
+
+
+            PrintDialog("/QuotationHeatModule/BY_QuotationHeat/BJPrintPreview?QuotationHeatIds=" + s, "PrintPage", "打印", 850, 600, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+
+        }
+
+    }
+    //删除
+    function btn_delete() {
+
+        // if ("@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "超级管理员") {
+        var billstatus = GetJqGridRowValue("#gridTable", "billstatus");
+        if (billstatus == "已发运") {
+            alertDialog("已发运，不能删除", 0);
+            return false;
+        }
+
+        var KeyValue = GetJqGridRowValue("#gridTable", "quotationheatid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/QuotationHeatModule/BY_QuotationHeat/Delete1', delparm, KeyValue.split(",").length);
+        }
+    }
+    //明细
+
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+
+    //加载表格
+    function GetGrid() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/QuotationHeatModule/BY_QuotationHeat/GridPageListJson")?Condition=" + escape(Condition),
+        datatype: "json",
+        height: $(window).height() - 179,
+        autowidth: true,
+        colModel: [
+                { label: '报价单明细ID', name: 'quotationheatid', hidden: true },
+                { label: '生产编号', name: 'quotationheatcode', index: 'quotationheatcode', width: 80, align: 'left',sortable: true  },
+                { label: '客户编号', name: 'customercode', index: 'customercode', width: 70, align: 'left', sortable: true },
+                { label: '客户名称', name: 'customername', index: 'customername', width: 100, align: 'left', sortable: true },
+                { label: '材质', name: 'steeldescription', index: 'steeldescription', width: 80, align: 'left', sortable: true },
+                { label: '工件名称', name: 'productname', index: 'productname', width: 100, align: 'left', sortable: true },
+                { label: '外形尺寸', name: 'remark', index: 'remark', width: 150, align: 'left', sortable: true },
+                { label: '热处理类别', name: 'technology', index: 'technology', width: 100, align: 'left', sortable: true },
+                { label: '技术要求', name: 'technologquery', index: 'technologquery', width:80, align: 'left', sortable: true },
+                { label: '件数', name: 'qty', index: 'qty', width: 70, align: 'left', sortable: true },
+                { label: '重量', name: 'weight', index: 'weight', width: 70, align: 'left', sortable: true },
+                { label: '状态', name: 'billstatus', index: 'billstatus', width: 70, align: 'left', sortable: true },
+                { label: '已', name: 'heatstatus', index: 'heatstatus', width: 70, align: 'left', sortable: true },
+            { label: '备注', name: 'shipdescription', index: 'shipdescription', width: 70, align: 'left', sortable: true },
+                { label: '录入人', name: 'createusername', index: 'createusername', width: 70, align: 'left', sortable: true },
+                {
+                    label: '录单时间', name: 'createdate', index: 'createdate', width: 70, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+            },
+            {
+                label: '图片', name: 'imgshow', index: 'imgshow', width: 100,
+                formatter: function (cellvalue, options, rowObject) {
+                    if (!!rowObject.quotationheatcode) {
+                        var nums = Math.random();
+                        return "<div  ><img style='width:30px;' src='../../Resource/Document/HeatReport/" + rowObject.quotationheatcode + ".jpg?" + nums + "'  onMouseOver='toolTip(\"<img style=width:600px src=../../Resource/Document/HeatReport/" + rowObject.quotationheatcode + ".jpg?" + nums + ">\")' onMouseOut='toolTip()' /></div> ";
+                    }
+                    return "";
+                }
+            },
+            { label: '创建人', name: 'createusername', index: 'createusername', width: 70, align: 'left', sortable: true },
+            {
+                label: '创建时间', name: 'createdate', index: 'createdate', width: 70, align: 'left', sortable: true,
+                formatter: function (cellvalue, options, rowObject) {
+                    return formatDate(cellvalue, 'yyyy-MM-dd');
+                }
+            },
+                { label: '更新人', name: 'modifyusername', index: 'modifyusername', width: 70, align: 'left', sortable: true },
+                {
+                    label: '更新时间', name: 'modifydate', index: 'modifydate', width: 70, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+
+
+        ],
+        viewrecords: true,
+        rowNum: 300,
+        rowList: [300, 500, 1000, 2000, 5000],
+        pager: "#gridPager",
+        sortname: 'quotationheatcode',
+        sortorder: 'desc',
+        rownumbers: true,
+        shrinkToFit: false,
+        gridview: true,
+        footerrow: true,
+        //multiselect: true,
+        ondblClickRow: function (rowid, iRow, iCol, e) {
+            var billstatus = GetJqGridRowValue("#gridTable", "billstatus");
+            if (billstatus == "已发运") {
+                alertDialog("操作失败：已发运，不能编辑", 0);
+                return false;
+            }
+            btn_edit();
+        },
+        gridComplete: function () {
+            var data = $("#gridTable").jqGrid("getRowData");
+            for (var i = 0; i < data.length; i++) {
+                var item = i + 1;
+                //黄
+                if (data[i].billstatus == "检验通过") {
+                    $("#" + item).find('td').css("background-color", "#BBBB00");
+                }
+                    //蓝
+                else if (data[i].billstatus == "已发运") {
+                    $("#" + item).find('td').css("background-color", "#33CCFF");
+                }
+
+            }
+            //合计
+            $(this).footerData("set", {
+                "quotationheatcode": "合计",
+                "qty": FormatCurrency($("#gridTable").getCol('qty', false, 'sum')),
+                "weight": FormatCurrency($("#gridTable").getCol('weight', false, 'sum')),
+            });
+        },
+    });
+}
+
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" id="QueryParameter" class="form-find" style="height: 45px;">
+        <tr>
+            <td>
+                生产编号：
+                <input id="QuotationHeatCode" type="text" class="txt" style="width: 80px" onkeyup="btn_Search();" />
+                客户：
+                <input id="CustomerCode" type="text" class="txt" style="width: 80px" onkeyup="btn_Search();" />
+                材质：
+                <input id="SteelDescription" type="text" class="txt" style="width: 80px" onkeyup="btn_Search();" />
+                工件名称：
+                <input id="ProductName" type="text" class="txt" style="width: 80px" onkeyup="btn_Search();" />
+                外形尺寸：
+                <input id="Remark" type="text" class="txt" style="width: 80px" onkeyup="btn_Search();" />
+                热处理类型：
+                <select id="Technology" class="select" onchange="btn_Search();">
+                    <option value="">全部</option>
+                </select>
+                状态：
+                <select id="BillStatus" class="select" onchange="btn_Search();">
+                    <option value="">全部</option>
+                    <option value="正常生产">正常生产</option>
+                    <option value="检验通过">检验通过</option>
+                    <option value="已发运">已发运</option>
+                </select>
+                订单日期<input id="CreateDate_StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00',onpicked:function(){btn_Search();}})" value="@DNS.Utilities.DateTimeHelper.GetToday() 00:00" style="width: 100px"   />
+                至：
+                <input id="CreateDate_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59',onpicked:function(){btn_Search();}})" value="@DNS.Utilities.DateTimeHelper.GetToday() 23:59" style="width: 100px" onchange="btn_Search();" />
+
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

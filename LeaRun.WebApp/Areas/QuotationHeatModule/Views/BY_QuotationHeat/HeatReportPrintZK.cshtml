@@ -1,0 +1,270 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>精料单打印预览</title>
+    @* <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+    @Styles.Render("~/Content/Styles/frameworkcss")
+    @Scripts.Render("~/Content/Scripts/barcode/barcodejquery")
+     <style>
+
+    .form-print th {
+        font-size: 12pt;
+        font-family: Arial;
+        height: 26.6px;
+        line-height:1.5;
+        white-space: nowrap;
+        text-align: right;
+        padding-right: 2px;
+    }
+
+    .form-print td {
+        font-size: 12pt;
+        font-family: Arial;
+        height: 26.6px;
+        line-height:1.5;
+        padding-right: 2px;
+       
+    }
+</style>
+     <script>
+        //初始化
+        $(function () {
+            AjaxJson("/QuotationHeatModule/BY_QuotationHeat/PrintDataJson1", { KeyValue: GetQuery('KeyValue') }, function (data) {
+
+                //~~~~~~~~~~~~~~
+                var BY_QuotationHeat = data.BY_QuotationHeat;
+                var BY_StoveHeatLists = data.BY_StoveHeatLists;
+
+                if (!BY_QuotationHeat.Remark1 || !BY_QuotationHeat.Remark1.replace("&nbsp;", "")) {
+                    BY_QuotationHeat.Remark1 = "合格";
+                }
+                if (!BY_QuotationHeat.TechnologQueryWrite || !BY_QuotationHeat.TechnologQueryWrite.replace("&nbsp;", "")) {
+                    BY_QuotationHeat.TechnologQueryWrite = "";
+                }
+
+                if (!BY_QuotationHeat.TechnologQueryMax) {
+                    BY_QuotationHeat.TechnologQueryMax = "";
+                }
+                if (!BY_QuotationHeat.TechnologQueryMin) {
+                    BY_QuotationHeat.TechnologQueryMin = "";
+                }
+
+                if (BY_QuotationHeat.CustomerName.indexOf("颂扬机械") >= 0 ) {
+                    BY_QuotationHeat.CustomerName = "";
+                    BY_QuotationHeat.Weight = "";
+                }
+                var Orderhtml = '';
+                Orderhtml += '<table class="form-print" style="width: 100%;page-break-after:always;border-collapse:collapse;" border="0" cellpadding="0" cellspacing="0">';
+                Orderhtml += '    <tr>';
+                Orderhtml += '        <td colspan="9" align="center" style="" >';
+                Orderhtml += '            <span style="font-size: 25px; font-weight: bold;">@*<img id="logo1" style="float: left;position: absolute;width: 70px;height: 40px;margin-left: -100px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@北仑机械锻造厂</span>';
+                Orderhtml += '            <div style="float:right;position: absolute; margin-left:102px;margin-top:0px;display:inline;"><div id="barcodeTarget" style="margin-top: 0px;" barcode=' + BY_QuotationHeat.QuotationHeatCode + '  class="barcodeTarget"></div></div>';
+                Orderhtml += '        </td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr>';
+                Orderhtml += '        <td colspan="9" align="center" style="border-bottom: 2px solid #000;" >';
+                Orderhtml += '            <span style="font-size: 12px; font-weight: bold;">DONGGUAN Xinze Steel Co.,Ltd.</span>';
+                Orderhtml += '        </td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr>';
+                Orderhtml += '        <td colspan="9" align="center" style="" >';
+                Orderhtml += '            <span style="font-size: 20px; font-weight: bold;">热处理品检报告</span>';
+                Orderhtml += '        </td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr>';
+                Orderhtml += '        <td colspan="9" align="center" style="" >';
+                Orderhtml += '            <span style="font-size: 12px; font-weight: bold;">HEAT-TREATMENT QC REPORT</span>';
+                Orderhtml += '        </td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr>';
+                Orderhtml += '    <td colspan="9" align="center" style=""><span style="font-size: 10pt;float: left;margin-left: 5%; ">编号 JOB NO：' + BY_QuotationHeat.QuotationHeatCode + '</span><span style="font-size: 10pt; float:right;margin-right: 50px;">报告日期 DATE：@DNS.Utilities.DateTimeHelper.GetToday()</span></td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr >';
+                Orderhtml += '        <td colspan="9"  style="vertical-align:top;">';
+                Orderhtml += '            <table border="0" class="form-print" style="width: 100%; border-collapse: collapse" cellpadding="0" cellspacing="0">';
+                Orderhtml += '<tr >';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;width:18%;" >客户名称<br/> CUSTOMER</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;width:32%;" >' + BY_QuotationHeat.CustomerName + '</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;width:18%;" >钢号<br/> GRADE</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;width:32%;" >' + BY_QuotationHeat.SteelDescription + '</td>';
+                Orderhtml += '</tr>';
+                Orderhtml += '<tr >';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >模具名称<br/> DIE NAME</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >' + BY_QuotationHeat.ProductName + '</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >热处理工艺<br/> TECHNOLOGY</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >' + BY_QuotationHeat.Technology + '</td>';
+                Orderhtml += '</tr>';
+                Orderhtml += '<tr >';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >数量<br/> QUANTITY</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >' + BY_QuotationHeat.Qty + '</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >重量<br/> WEIGHT(KG)</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >' + BY_QuotationHeat.Weight + '</td>';
+                Orderhtml += '</tr>';
+                Orderhtml += '<tr >';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >技术要求<br/>HARDNESS</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >' + BY_QuotationHeat.TechnologQuery + '</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >规格<br/> SIZE</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >' + BY_QuotationHeat.Remark + '</td>';
+                Orderhtml += '</tr>';
+                Orderhtml += '<tr >';
+
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >检验结果<br/>RESULT</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;"  >' + BY_QuotationHeat.Remark1 + '</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >实测硬度<br/>HARDNESS</td>';
+                Orderhtml += '    <td style="font-size: 10pt;border: 1px solid #000; text-align: center;"  >' + BY_QuotationHeat.TechnologQueryWrite + '</td>';
+                Orderhtml += '</tr>';
+                Orderhtml += '            </table>';
+                Orderhtml += '    </td>';
+                Orderhtml += '    </tr>';
+
+
+                Orderhtml += '<tr >';
+                Orderhtml += '    <td style="border-spacing: 0px;"  colspan="9" >';
+                Orderhtml += '            <table border="0" cellpadding="0" cellspacing="0" class="form-print" style="width: 100%; border-collapse: collapse" >';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; text-align: center;" colspan="12">热&nbsp;&nbsp;处&nbsp;&nbsp;理&nbsp;&nbsp;工&nbsp;&nbsp;艺&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PROCESSING RECORDS</td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;width:18%;" >设备</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >内容</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >装/开炉时间</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >炉生产凭证号</td>';
+                Orderhtml += '                  </tr>';
+                $.each(BY_StoveHeatLists, function (i) {
+                    Orderhtml += '                  <tr >';
+                    Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >' + BY_StoveHeatLists[i].StoveNum + '</td>';
+                    Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >' + BY_StoveHeatLists[i].HeatStatus + '</td>';
+                    Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >' + formatDate(BY_StoveHeatLists[i].SDDateTime, 'yyyy-MM-dd hh:mm') + '</td>';
+                    Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;" >' + BY_StoveHeatLists[i].StoveCode + '</td>';
+                    Orderhtml += '                  </tr>';
+                });
+                Orderhtml += '            </table>';
+                Orderhtml += '        </td>';
+                Orderhtml += '    </tr>';
+
+                Orderhtml += '<tr >';
+                Orderhtml += '    <td style="border-spacing: 0px;"  colspan="9" >';
+                Orderhtml += '            <table border="0" cellpadding="0" cellspacing="0" class="form-print" style="width: 100%; border-collapse: collapse" >';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border-left: 1px solid #000; border-right: 1px solid #000; border-bottom: 1px solid #000; text-align: center;" colspan="12">硬&nbsp;&nbsp;度&nbsp;&nbsp;检&nbsp;&nbsp;验&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;HARDNESS TEST</td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;width:18%;height: 20.6px;line-height:1;" ></td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" >测定部位<br/><span style="font-size: 10px;">Test Position</span></td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" >最大值<br/><span style="font-size: 10px;">MAX</span></td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" >最小值<br/><span style="font-size: 10px;">MIN</span></td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" >平值<br/><span style="font-size: 10px;">Average</span></td>';
+                var nums = Math.random();
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;width:50%;;height: 20.6px;line-height:1;" rowspan="5"><DIV><img  style="width: 250px;border: 1px solid #33CCFF;" src="../../Resource/Document/HeatReport/' + BY_QuotationHeat.QuotationHeatCode + '.jpg?' + nums + '" /></DIV></td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" >洛氏硬度测试结果(HRC)<br/><span style="font-size: 10px;">Rockwell Test Result</span></td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" >表面</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" >' + BY_QuotationHeat.TechnologQueryMax + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" >' + BY_QuotationHeat.TechnologQueryMin + '</td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" >' + BY_QuotationHeat.TechnologQueryWrite + '</td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" >布氏硬度测试结果(HB)<br/><span style="font-size: 10px;">Brinell Test Result</span></td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" colspan="2">近似换算值(HRC)<br/><span style="font-size: 10px;">Approx Convert Value</span></td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" colspan="2"></td>';
+                Orderhtml += '                  </tr>';
+                if (!BY_QuotationHeat.OutCheck || !BY_QuotationHeat.OutCheck.replace("&nbsp;", "")) {
+                    BY_QuotationHeat.OutCheck = "合格";
+                }
+                if (!BY_QuotationHeat.ProductResult || !BY_QuotationHeat.ProductResult.replace("&nbsp;", "")) {
+                    BY_QuotationHeat.ProductResult = "合格";
+                }
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" >外观检查<br/><span style="font-size: 10px;">APPEARANCE INSPECTION</span></td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" colspan="4">' + BY_QuotationHeat.OutCheck + '</td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '                  <tr >';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" >产品判定<br/><span style="font-size: 10px;">PRODUCTS DETERMINE</span></td>';
+                Orderhtml += '                      <td style="font-size: 10pt;border: 1px solid #000; text-align: center;;height: 20.6px;line-height:1;" colspan="4">' + BY_QuotationHeat.ProductResult + '</td>';
+                Orderhtml += '                  </tr>';
+                Orderhtml += '            </table>';
+                Orderhtml += '        </td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '<tr >';
+                Orderhtml += '    <td  colspan="9"></td>';
+                Orderhtml += '</tr>';
+                Orderhtml += '    <tr >';
+                Orderhtml += '        <td style="border-spacing: 0px;text-align: left;font-size: 10pt;line-height:1;height: 18px;width: 60%;"  colspan="8" >本公司仅对北仑模具技术有限公司模具钢做热处理品质保证；</td>';
+                //Orderhtml += '        <td style="border-spacing: 0px;font-size: 14pt;text-align: left;;line-height:1;height: 18px;width: 40%;"  rowspan="11" ><img id="logo"  style="z-index: 99; right:45px; width: 4cm; " src="@Url.Content("~/Content/Images/126.png")" /><br/>负责人签字:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>CHIEF：宋泽忠&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>';
+                Orderhtml += '        <td style="border-spacing: 0px;font-size: 14pt;text-align: left;;line-height:1;height: 18px;width: 40%;"  rowspan="11" ><br/>负责人签字:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<br/>CHIEF：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr >';
+                Orderhtml += '        <td style="border-spacing: 0px;text-align: left; font-size: 10pt;line-height:1;height: 18px;"  colspan="8" >Our company only assure heart treatment quality of Our Steels;</td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr >';
+                Orderhtml += '        <td style="border-spacing: 0px;text-align: left;line-height:1;font-size: 10pt;height: 18px;"  colspan="8" >检验设备系统误差为0.5HRC;</td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr >';
+                Orderhtml += '        <td style="border-spacing: 0px;text-align: left;font-size: 10pt;line-height:1;height: 18px;"  colspan="8" >System deviation of inspecting equipment is 0.5HRC;</td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr >';
+                Orderhtml += '        <td style="border-spacing: 0px;text-align: left;line-height:1;font-size: 10pt;height: 18px;"  colspan="8" >接受热处理质量投诉需出示本报告及热处理付款凭证；</td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr >';
+                Orderhtml += '        <td style="border-spacing: 0px;text-align: left;font-size: 10pt;line-height:1;height: 18px;"  colspan="8" >You shall present this report and the payment evidence of heat;</td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr >';
+                Orderhtml += '        <td style="border-spacing: 0px;text-align: left;font-size: 10pt;line-height:1;height: 18px;"  colspan="8" >treatment if you have heat treatment  quality complaint;</td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr >';
+                Orderhtml += '        <td style="border-spacing: 0px;text-align: left;line-height:1;font-size: 10pt;height: 18px;"  colspan="8" >相关热处理工艺可凭炉批号向本公司热处理部门查询。</td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr >';
+                Orderhtml += '        <td style="border-spacing: 0px;text-align: left;font-size: 10pt;line-height:1;height: 18px;"  colspan="8" >You can inquiry the related heat treatment process according to</td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '    <tr >';
+                Orderhtml += '        <td style="border-spacing: 0px;text-align: left;font-size: 10pt;line-height:1;height: 18px;"  colspan="8" >the furnace batch number from our heat treatment department.</td>';
+                Orderhtml += '    </tr>';
+                Orderhtml += '</table>';
+                $("#my_area").append(Orderhtml);
+            })
+
+
+            $(".barcodeTarget").each(function () {
+                $(this).barcode($(this).attr('barcode'), "code128", { barWidth: 1.5, barHeight: 30 });
+            });
+
+
+
+        })
+        //确认打印
+        function AcceptClick() {
+            //AjaxJson("/QuotationModule/QuotationPrint/StateModify", { KeyValue: GetQuery('QuotationId') }, function (data) {
+            MyPreview();
+            //});
+        }
+     </script>
+</head>
+<body style="overflow-x: hidden;">
+    <div id="my_area" style="width: 95%; height: 95%; margin-left: 25px; margin-top: 30px;">
+        
+    </div>
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_PAGESIZE(1, "", "", "A4")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        LODOP.PREVIEW();
+        //LODOP.PRINTA();
+        window.setTimeout(function () {closeDialog();}, 500);
+
+    };
+</script>
+</html>

@@ -1,0 +1,229 @@
+@{
+    ViewBag.Title = "发运单》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        getAjax('/CommonModule/Company/ListJson', { ParentId: "1" }, function (data) {
+            $("#CompanyName").append($("<option></option>").val("").html("请选择！"));
+            var itemjson = eval("(" + data + ")");
+            $.each(itemjson, function (i) {
+                $("#CompanyName").append($("<option></option>").val(itemjson[i].FullName).html(itemjson[i].FullName));
+            });
+            Loading(false);
+        });
+        InitControl();
+        CustomerAutocomplete();
+
+        
+    })
+
+
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.FullName);
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Customer/GetAutoCompleJsonNXJ", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 70%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="ShortName" style="display: none;">' + DataJson[i].ShortName + '</td>';
+                    html += '<td id="Sellpeople" style="display: none;">' + DataJson[i].Sellpeople + '</td>';
+                    html += '<td id="SalesArea" style="display: none;">' + DataJson[i].Sellarea + '</td>';
+                    html += '<td id="DiscountRate" style="display: none;">' + DataJson[i].DiscountRate + '</td>';
+                    html += '<td id="TransitMode" style="display: none;">' + DataJson[i].TransitMode + '</td>';
+                    html += '<td id="PaymentMode" style="display: none;">' + DataJson[i].PaymentMode + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.FullName);
+                });
+
+            });
+        }
+    }
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/DeliveryModule/BY_Delivery/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        $(".ui_state_highlight").attr("disabled", true);
+        AjaxJson("/DeliveryModule/BY_Delivery/SubmitForm2?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class="formTitle">客户编码：</th>
+            <td class="formValue">
+                <input id="CustomerId" type="hidden" />
+                <input id="CustomerCode" type="text" class="txt required" style="width: 95%" datacol="yes" err="客户编码" checkexpession="NotNull" />
+            </td>
+            <th class="formTitle">客户名称：</th>
+            <td class="formValue">
+                <input id="CustomerName" type="text" class="txt" style="width: 95%" disabled />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <input id="DeliveryId" type="hidden" />
+                <input id="CreateDate" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})" style="width: 180px" />
+            </td>
+            <th class='formTitle'>客户地址：</th>
+            <td class='formValue'>
+                <input id="ShipAddress" type="text" class="txt" datacol="yes" err="客户地址" checkexpession="NotNull" />
+            </td>
+            
+        </tr>
+        <tr>
+            <th class='formTitle'>打印时间：</th>
+            <td class='formValue'>
+                <input id="PrintDate" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})" style="width: 180px" />
+            </td>
+            <th class='formTitle'>含税：</th>
+            <td class='formValue'>
+                <span class="item">
+                    <input id="IsInvoice" name="IsEmergency" type="checkbox" style="vertical-align: middle;" />
+                    <label for="IsInvoice" style="vertical-align: middle;">加税</label>
+                </span>&nbsp;
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>送货单号：</th>
+            <td class='formValue'>
+                <input id="DeliveryCode" type="text" class="txt" datacol="yes" err="送货单号" checkexpession="NotNull" disabled />
+            </td>
+            <th class='formTitle'>回单时间：</th>
+            <td class='formValue'>
+
+                <input id="ComeBackDate" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})" style="width: 180px" />
+            </td>
+        </tr>
+        @*  <tr>
+            <th class='formTitle'>联系人电话：</th>
+            <td class='formValue'  >
+                <input id="ContactTel" type="text" class="txt"/>
+            </td>
+           <th class='formTitle'>座机：</th>
+            <td class='formValue'  >
+                <input id="MobileCode" type="text" class="txt" />
+            </td>
+        </tr>
+         <tr>
+            <th class='formTitle'>联系人：</th>
+            <td class='formValue' colspan="3" >
+                <input id="ContactName" type="text" class="txt"/>
+            </td>
+
+        </tr>*@
+        <tr>
+            <th class='formTitle'>制造号：</th>
+            <td class='formValue'>
+                <input id="BuildNum" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>产品型号/品名：</th>
+            <td class='formValue'>
+                <input id="ProductCode" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>配件名称：</th>
+            <td class='formValue'>
+                <input id="BuildName" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>模具名称：</th>
+            <td class='formValue'>
+                <input id="DieName" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>模具图号：</th>
+            <td class='formValue'>
+                <input id="PicCode" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>模具编号：</th>
+            <td class='formValue'>
+                <input id="DieCode" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>备注：</th>
+            <td class="formValue">
+                <input id="Remark" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>原单号/客户单号：</th>
+            <td class="formValue">
+                <input id="CustomerPO" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>司机：</th>
+            <td class="formValue">
+                <input id="Driver" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>运输号：</th>
+            <td class="formValue">
+                <input id="DriverPath" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>原材炉号：</th>
+            <td class="formValue">
+                <input id="luhao" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>主体硬度：</th>
+            <td class="formValue">
+                <input id="HRC" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+
+            <th class='formTitle'>公司：</th>
+            <td class="formValue" >
+                <select id="CompanyName" class="select" style="width: 96%" datacol="yes" err="公司" checkexpession="NotNull"></select>
+            </td>
+            <th class='formTitle'>表面硬度：</th>
+            <td class="formValue">
+                <input id="HV" type="text" class="txt" />
+            </td>
+        </tr>
+    </table>
+</form>

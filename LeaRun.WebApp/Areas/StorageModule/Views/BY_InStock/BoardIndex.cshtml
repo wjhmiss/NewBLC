@@ -1,0 +1,149 @@
+@{
+    ViewBag.Title = "板件入仓";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+        url: "@Url.Content("~/StorageModule/BY_InStock/GridPageBroJson?InStockType=0")",
+        datatype: "json",
+        height: $(window).height() - 109,
+        autowidth: true,
+        colModel: [
+                { label: '入库单ID', name: 'inventoryid', index: 'instockid', width: 0, align: 'left', sortable: true, hidden: true },
+                { label: '采购单号', name: 'steelpurchasecode', index: 'steelpurchasecode', width: 90, align: 'left', sortable: true },
+                { label: '入仓编码', name: 'batchcode', index: 'batchcode', width: 90, align: 'left', sortable: true },
+                { label: '钢种', name: 'steelcode', index: 'steelid', width: 50, align: 'left',sortable: true  },
+                { label: '钢种描述', name: 'steeldescription', index: 'steeldescription', width: 80, align: 'left',sortable: true  },
+                {
+                    label: '类型', name: 'steeltype', index: 'steeltype', width: 50, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "S") {
+                            return "碎料";
+                        }
+                        if (cellvalue == "R") {
+                            return "圆料";
+                        }
+                        if (cellvalue == "F") {
+                            return "条钢";
+                        }
+                    }
+                },
+                { label: '钢板状态', name: 'steelstatus', index: 'steelstatus', width: 50, align: 'left', sortable: true, hidden: true },
+                { label: '件数', name: 'qty', index: 'qty', width: 50, align: 'left', sortable: true, hidden: true },
+                { label: '客户编码', name: 'customercode', index: 'customercode', width: 50, align: 'left', sortable: true },
+                { label: '客户名称', name: 'customername', index: 'customername', width: 100, align: 'left', sortable: true },
+
+                { label: '厚/直径', name: 'thick', index: 'thick', width: 50, align: 'left', sortable: true },
+                { label: '宽', name: 'weigh', index: 'weigh', width: 50, align: 'left',sortable: true  },
+                { label: '长', name: 'length', index: 'length', width: 50, align: 'left', sortable: true },
+                { label: '孔径', name: 'boresize', index: 'boresize', width: 50, align: 'left', sortable: true },
+                { label: '理论重量', name: 'theoryweight', index: 'theoryweight', width: 50, align: 'left',sortable: true  },
+                { label: '实际重量', name: 'weight', index: 'weight', width: 50, align: 'left',sortable: true  },
+                { label: '单价', name: 'price', index: 'price', width: 50, align: 'left',sortable: true  },
+                { label: '备注', name: 'remark', index: 'remark', width: 120, align: 'left',sortable: true  },
+                {
+                    label: '进仓时间', name: 'instockdate', index: 'instockdate', width: 80, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd HH:mm:ss');
+                    }
+                },
+                {
+                    label: '创建时间', name: 'createdate', index: 'createdate', width: 80, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd HH:mm:ss');
+                    }
+                },
+                { label: '创建用户', name: 'createusername', index: 'createusername', width: 80, align: 'left',sortable: true  },
+        ],
+        viewrecords: true,
+        rowNum: 30,
+        rowList: [30, 50, 100, 500, 5000],
+        pager: "#gridPager",
+        sortname: 'createdate',
+        sortorder: 'desc',
+        rownumbers: true,
+        shrinkToFit: false,
+        altRows: false,
+        altclass: 'altclass',
+        gridview: true,
+        multiselect:true,
+        ondblClickRow: function (rowid, iRow, iCol, e) {
+            btn_detail();
+        }
+    });
+}
+    //新增
+    function btn_add() {
+        var url = "/StorageModule/BY_InStock/BoardForm"
+        openDialog(url, "Form", "板件入仓", 650, 230, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "instockid");
+        if (IsChecked(KeyValue)) {
+            var url = "/StorageModule/BY_InStock/BoardForm?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "板件入仓", 650, 230, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "instockid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/StorageModule/BY_InStock/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //明细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "instockid");
+        if (IsChecked(KeyValue)) {
+            var url = "/StorageModule/BY_InStock/BoardForm?KeyValue=" + KeyValue;
+            Dialog(url, "Detail", "板件入仓", 650, 230, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+
+    function btn_confirm() {
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                s = s + myrow.inventoryid+","
+            }
+            AjaxJsonNoMassge("/StorageModule/BY_InStock/SubmitBoardForm1", { ids: s }, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                windowload();
+            });
+        }
+    }
+</script>
+
+<div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+    <div class="tools_bar" style="margin-top: 1px; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+    </div>
+    <div id="grid_List" class="topline" style="margin-top: 1px;">
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>

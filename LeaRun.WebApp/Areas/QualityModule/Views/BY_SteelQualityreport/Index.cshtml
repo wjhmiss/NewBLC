@@ -1,0 +1,220 @@
+@{
+    ViewBag.Title = "BY_SteelQualityreport";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        GetGrid();
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+        url: "@Url.Content("~/QualityModule/BY_SteelQualityreport/GridPageJson1")",
+        datatype: "json",
+        height: $(window).height() - 149,
+        autowidth: true,
+        colModel: [
+                { label: 'SteelQualityreportId', name: 'SteelQualityreportId', index: 'SteelQualityreportId', hidden: true },
+                { label: '编号', name: 'SteelQualityreportCode', index: 'SteelQualityreportCode', width: 0, align: 'left', sortable: true },
+                {
+                    label: '日期', name: 'CreateDate', index: 'CreateDate', width: 80, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowobject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+                { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 100, align: 'left', sortable: true },
+                
+                { label: '客户ID', name: 'CustomerId', index: 'CustomerId', hidden: true },
+                { label: '客户编号', name: 'CustomerCode', index: 'CustomerCode', hidden: true },
+                { label: '钢材信息主键', name: 'SteelId', index: 'SteelId', hidden: true },
+                { label: '钢材编码', name: 'SteelCode', index: 'SteelCode', hidden: true },
+                { label: '钢材名称', name: 'SteelName', index: 'SteelName', width: 80, align: 'left',sortable: true  },
+                { label: '原炉号', name: 'StoveCode', index: 'StoveCode', width: 80, align: 'left', sortable: true },
+                { label: '母炉号', name: 'ParentStoveCode', index: 'ParentStoveCode', width: 80, align: 'left', sortable: true },
+                { label: '产地', name: 'PlaceOrigin', index: 'PlaceOrigin', width: 80, align: 'left',sortable: true  },
+                { label: '对应标准', name: 'Standard', index: 'Standard', width: 80, align: 'left', sortable: true },
+                { label: '冶炼方法', name: 'ForgingMethod', index: 'ForgingMethod', width: 80, align: 'left', sortable: true },
+                { label: '交货状态', name: 'DeliveryStatus', index: 'DeliveryStatus', width: 80, align: 'left', sortable: true },
+                { label: '加工用途', name: 'ProcessingeUse', index: 'ProcessingeUse', width: 80, align: 'left', sortable: true },
+                { label: '尺寸', name: 'Size', index: 'Size', width: 100, align: 'left', sortable: true },
+                { label: '件数', name: 'Qty', index: 'Qty', width: 50, align: 'left',sortable: true  },
+                { label: '重量', name: 'Weight', index: 'Weight', width: 50, align: 'left', sortable: true },
+                { label: '备注', name: 'Remark', index: 'Remark', width: 100, align: 'left',sortable: true  },
+        ],
+        viewrecords: true,
+        rowNum: 30,
+        rowList: [30, 50, 100, 500, 5000],
+        pager: "#gridPager",
+        sortname: 'CreateDate',
+        sortorder: 'desc',
+        rownumbers: true,
+        shrinkToFit: false,
+        gridview: true,
+        ondblClickRow: function (rowid, iRow, iCol, e) {
+            btn_edit();
+        },
+        subGrid: true,
+        subGridOptions: {
+            "plusicon": "ui-icon-triangle-1-e",
+            "minusicon": "ui-icon-triangle-1-s",
+            "openicon": "ui-icon-arrowreturn-1-e"
+        },
+        subGridRowExpanded: function (subgrid_id, row_id) {
+            var rowData = $("#gridTable").jqGrid('getRowData', row_id);
+            var Condition = [{
+                SteelQualityreportId: rowData["SteelQualityreportId"]
+            }]
+
+            var subgrid_table_id, pager_id;
+            subgrid_table_id = subgrid_id + "_t";
+            pager_id = "p_" + subgrid_table_id;
+            $("#" + subgrid_id).html("<table id='" + subgrid_table_id + "' class='scroll'></table><div id='" + pager_id + "' class='scroll'></div>");
+            jQuery("#" + subgrid_table_id).jqGrid({
+                url: "@Url.Content("~/QualityModule/BY_SteelQualityreportList/GetListJson1")?SteelQualityreportId=" + rowData["SteelQualityreportId"],
+                    datatype: "json",
+                    height: $(window).height() / 2 - 115,
+                    autowidth: true,
+                    colModel: [
+                        { label: 'BY_SteelQualityreportListId', name: 'BY_SteelQualityreportListId', hidden: true },
+                { label: 'QuotationDetailId', name: 'QuotationDetailId', hidden: true },
+                { label: '序号', name: 'SortCode', width: 40, align: 'center' },
+                { label: '生产编号', name: 'OrderCodeLine', align: 'center', width: 120, editable: true },
+                { label: "规格", name: "Size", align: 'center', width: 100, editable: true },
+                { label: "件数", name: "Qty", width: 60, align: 'center', editable: true },
+                { label: '重量', name: 'Weight', width: 60, align: 'center', editable: true },
+                { label: '模号', name: 'CustomerProduct', width: 100, align: 'center', editable: true },
+                { label: '备注', name: 'ExecRemark', width: 100, align: 'center', editable: true },
+                    ],
+                    viewrecords: true,
+                    rowNum: 30,
+                    rowList: [30, 50, 100, 500, 5000],
+                    pager: "#" + pager_id,
+                    sortname: 'CreateDate',
+                    sortorder: 'asc',
+                    rownumbers: true,
+                    shrinkToFit: false,
+                    altRows: false,
+                    altclass: 'altclass',
+                    gridview: true,
+                });
+            }
+    });
+}
+    //新增
+    function btn_add() {
+        var url = "/QualityModule/BY_SteelQualityreport/Form"
+        openDialogFName(url, "Form", "新增", 1070, 600, "保存", "打印", function (iframe) {
+            top.frames[iframe].AcceptClick()
+        }, function (iframe) {
+            top.frames[iframe].btn_Print();
+        });
+
+
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "SteelQualityreportId");
+        if (IsChecked(KeyValue)) {
+            var url = "/QualityModule/BY_SteelQualityreport/Form?KeyValue=" + KeyValue;
+            openDialogFName(url, "Form", "新增", 1070, 600, "保存", "打印", function (iframe) {
+                top.frames[iframe].AcceptClick()
+            }, function (iframe) {
+                top.frames[iframe].btn_Print();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "SteelQualityreportId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/QualityModule/BY_SteelQualityreport/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+        
+    }
+    function btn_Print() {
+        var SteelQualityreportId = GetJqGridRowValue("#gridTable", "SteelQualityreportId");
+        if (IsChecked(SteelQualityreportId)) {
+            PrintDialog("/QualityModule/BY_SteelQualityreport/Print?SteelQualityreportId=" + SteelQualityreportId, "PrintPage", "打印", 1070, 600, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    function btn_Search() {
+        var Parameter = [{
+            paramName: "SteelQualityreportCode",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+            Logic: "OR",
+            LeftBrace: "("
+        }, {
+            paramName: "CustomerName",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+            Logic: "OR"
+        }, {
+            paramName: "SteelName",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+            Logic: "OR"
+        }, {
+            paramName: "StoveCode",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+            Logic: "OR"
+        }, {
+            paramName: "Size",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+            Logic: "OR"
+        }, {
+            paramName: "PlaceOrigin",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+            Logic: "OR",
+            RightBrace: ")"
+        }]
+
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/QualityModule/BY_SteelQualityreport/GridPageJson1")?ParameterJson=" + escape(JSON.stringify(Parameter)) + "&Size=" + escape($("#Size").val()) + "&StoveCode=" + escape($("#StoveCode").val()) + "&OrderCodeLine=" + escape($("#OrderCodeLine").val()), page: 1 }).trigger('reloadGrid');
+    }
+
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>关键字：</th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 200px" />
+            </td>
+            <th>规格：</th>
+            <td>
+                <input id="Size" type="text" class="txt" style="width: 200px" />
+            </td>
+            <th>模号：</th>
+            <td>
+                <input id="StoveCode" type="text" class="txt" style="width: 200px" />
+            </td>
+             <th>送货单号：</th>
+            <td>
+                <input id="OrderCodeLine" type="text" class="txt" style="width: 200px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>粗料单打印预览</title>
+    @*    <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+    <style>
+        .form-print th {
+            font-size: 8pt;
+            font-family: Arial;
+            font-weight: bold;
+            background-color: #fff;
+            height: 18.6px;
+            line-height: 18.6px;
+            white-space: nowrap;
+            text-align: right;
+            padding-right: 0px;
+        }
+
+        .form-print td {
+            font-size:8pt;
+            font-family: Arial;
+            font-weight: bold;
+            height: 18.6px;
+            line-height: 18.6px;
+            padding-right: 0px;
+        }
+    </style>
+    <script>
+        //初始化
+        $(function () {
+            AjaxJsonNoMassge("/CheckSheetModule/BY_ReimburseSheet/PrintDataJson?StartTime=" + GetQuery('StartTime') + "&EndTime=" + GetQuery("EndTime"), {}, function (data) {
+
+                $("#day").text(GetQuery('StartTime') + "至" + GetQuery("EndTime"));
+                var temp1 = 0;
+                $.each(data.ListData1, function (i) {
+                    var QuotationDetailhtml = "";
+                    QuotationDetailhtml += '<tr>';
+                    QuotationDetailhtml += '     <td style="text-align:center;">' + GetQuery('StartTime') + '</td>';
+                    QuotationDetailhtml += '     <td style="text-align:center;">收款</td>';
+                    QuotationDetailhtml += '     <td style="text-align:center;">' + data.ListData1[i].customername + '</td>';
+                    QuotationDetailhtml += '     <td style="text-align:center;">' + data.ListData1[i].code + '</td>';
+                    QuotationDetailhtml += '     <td style="text-align:center;">' + data.ListData1[i].gettype + '-' + data.ListData1[i].opions + '</td>';
+                    QuotationDetailhtml += '     <td style="text-align:center;">' + data.ListData1[i].getmoney + '</td>';
+                    QuotationDetailhtml += '</tr>';
+                    $("#tb_QuotationDetail2").append(QuotationDetailhtml);
+                    if (!!data.ListData1[i].customername) {
+                        temp1 += Number(data.ListData1[i].getmoney);
+                    }
+                    
+                });
+                $("#F1").text(temp1.toFixed(2));
+
+                //var temp2 = 0;
+                //$.each(data.ListData2, function (i) {
+                //    var QuotationDetailhtml = "";
+                //    QuotationDetailhtml += '<tr>';
+                //    QuotationDetailhtml += '     <td style="text-align:center;">' + GetQuery('StartTime') + '</td>';
+                //    QuotationDetailhtml += '     <td style="text-align:center;">' + data.ListData2[i].customername + '</td>';
+                //    QuotationDetailhtml += '     <td style="text-align:center;">' + data.ListData2[i].deliverycode + '</td>';
+                //    QuotationDetailhtml += '     <td style="text-align:center;">' + data.ListData2[i].totalamount + '</td>';
+                //    QuotationDetailhtml += '</tr>';
+                //    $("#tb_QuotationDetail2").append(QuotationDetailhtml);
+                //    temp2 += Number(data.ListData2[i].totalamount);
+                //});
+                //$("#F2").text(temp2.toFixed(2));
+
+                var temp3 = 0;
+                $.each(data.ListData3, function (i) {
+                    var QuotationDetailhtml = "";
+                    QuotationDetailhtml += '<tr>';
+                    QuotationDetailhtml += '     <td style="text-align:center;">' + GetQuery('StartTime') + '</td>';
+                    QuotationDetailhtml += '     <td style="text-align:center;">付款</td>';
+                    QuotationDetailhtml += '     <td style="text-align:center;">' + data.ListData3[i].workername + '</td>';
+                    QuotationDetailhtml += '     <td style="text-align:center;">' + data.ListData3[i].payname + '</td>';
+                    QuotationDetailhtml += '     <td style="text-align:center;">' + data.ListData3[i].paytype + '</td>';
+                    QuotationDetailhtml += '     <td style="text-align:center;">' + data.ListData3[i].totalamount + '</td>';
+                    QuotationDetailhtml += '</tr>';
+                    $("#tb_QuotationDetail2").append(QuotationDetailhtml);
+                    if (!!data.ListData3[i].customername) {
+                        temp3 += Number(data.ListData3[i].getmoney);
+
+                    }
+                });
+                $("#F3").text(temp3.toFixed(2));
+
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+            MyPreview();
+        }
+    </script>
+</head>
+<body style="overflow-x: hidden;">
+    <div id="my_area" style="background: #fff;">
+        <div style="float: left; position: absolute; padding: 0px 5px 5px 10px;">
+            @*<img style="width: 45px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@
+        </div>
+        <table id="tb_Order" border="0" class="form-print" style="width: 100%;">
+            <tr>
+                <td colspan="4" align="center" style="padding: 2px;"><span style="font-size: 25px; font-weight: bold;">北仑机械锻造厂</span></td>
+            </tr>
+       
+            <tr>
+                <td colspan="4" align="center" style="padding: 2px;"><span style="font-size: 16px; font-weight: bold;" id="day"></span>收支明细</td>
+            </tr>
+            <tr>
+                <td colspan="4" valign="top">
+
+                        收款:<span style="color:red; font-weight: bold;" id="F1"></span>，共付款：<span style="color:red; font-weight: bold;" id="F3"></span>
+                        <table id="tb_QuotationDetail2" border="1" class="form-print" style="width: 100%; border: 1px solid #000; border-collapse: collapse;">
+                            <tr>
+                                <td style="text-align:center;">日期</td>
+                                <td style="text-align:center;">收付</td>
+                                <td style="text-align:center;">客户/使用人</td>
+                                <td style="text-align:center;">单据/事由</td>
+                                <td style="text-align:center;">类别</td>
+                                <td style="text-align:center;">金额</td>
+                            </tr>
+                           
+                        </table>
+
+                   @* <div style="display:inline;float:left;">&nbsp;&nbsp;</div>
+
+                    <div style="display:inline;float:left;width: 48%;">
+                        当天收款:<span style="color:red; font-weight: bold;" id="F1"></span>
+                        <table id="tb_QuotationDetail1" border="1" class="form-print" style="width: 100%; border: 1px solid #000; border-collapse: collapse;">
+                            <tr>
+                               <td  style="text-align:center;">客户</td>
+                                <td style="text-align:center;">单据</td>
+                                <td style="text-align:center;">应收</td>
+                                <td style="text-align:center;">已收款</td>
+                                <td style="text-align:center;">类别</td>
+                            </tr>
+                            
+                        </table>
+                    </div>*@
+                    
+                    
+                                        @*<div style="display:inline;float:left;">&nbsp;&nbsp;</div>
+
+                    <div  style="display:inline;float:left;width: 35%;">
+                        当天收往日款:<span style="color:red; font-weight: bold;" id="F3"></span>
+                        <table id="tb_QuotationDetail3" border="1" class="form-print" style="width: 100%; border: 1px solid #000; border-collapse: collapse;">
+                            <tr>
+                                 <td  style="text-align:center;">客户</td>
+                                <td style="text-align:center;">类别</td>
+                                <td style="text-align:center;">单据</td>
+                                <td style="text-align:center;">已收款</td>
+                            </tr>
+                           
+                        </table>
+                    </div>*@
+                </td>
+            </tr>
+           
+        </table>
+    </div>
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_PAGESIZE(1, "139mm", "191mm", "")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        LODOP.PREVIEW();
+        //LODOP.PRINTA();
+        window.setTimeout(function () {closeDialog();}, 500);
+        //if (LODOP.PRINTA()) {
+        //    LODOP.PRINT();
+        //    tipDialog("打印成功", 3, 1);
+        //    top.frames[tabiframeId()].windowload();
+        //    window.setTimeout(function () {closeDialog();}, 500);
+
+        //}
+        //else
+        //    //alert("");
+        //    tipDialog("放弃打印！", 3, 1);
+
+    };
+</script>
+</html>

@@ -1,0 +1,89 @@
+@{
+    ViewBag.Title = "Base_CustomerRequery》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CommonModule/Base_CustomerRequery/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <table class="form">
+        <tr>
+            <th class='formTitle'>CustomerRequeryID：</th>
+            <td class='formValue'>
+                <label id="CustomerRequeryID" />
+            </td>
+            <th class='formTitle'>客户主键：</th>
+            <td class='formValue'>
+                <label id="CustomerId" />
+            </td>
+            <th class='formTitle'>KLRequery：</th>
+            <td class='formValue'>
+                <label id="KLRequery" />
+            </td>
+            <th class='formTitle'>XMRequery：</th>
+            <td class='formValue'>
+                <label id="XMRequery" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>DepartName：</th>
+            <td class='formValue'>
+                <label id="DepartName" />
+            </td>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue'>
+                <label id="Remark" />
+            </td>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <label id="Enabled" />
+            </td>
+            <th class='formTitle'>排序码：</th>
+            <td class='formValue'>
+                <label id="SortCode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>删除标记：</th>
+            <td class='formValue'>
+                <label id="DeleteMark" />
+            </td>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <label id="CreateDate" />
+            </td>
+            <th class='formTitle'>创建用户主键：</th>
+            <td class='formValue'>
+                <label id="CreateUserId" />
+            </td>
+            <th class='formTitle'>创建用户：</th>
+            <td class='formValue'>
+                <label id="CreateUserName" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>修改时间：</th>
+            <td class='formValue'>
+                <label id="ModifyDate" />
+            </td>
+            <th class='formTitle'>修改用户主键：</th>
+            <td class='formValue'>
+                <label id="ModifyUserId" />
+            </td>
+            <th class='formTitle'>修改用户：</th>
+            <td class='formValue'>
+                <label id="ModifyUserName" />
+            </td>
+        </tr>
+    </table>
+</form>

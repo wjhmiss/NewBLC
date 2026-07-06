@@ -1,0 +1,747 @@
+﻿@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(document).ready(function () {
+        CustomerGrid();
+    });
+    //查询
+    function btn_Search() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CommonModule/Customer/GridPageListJson")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+    }
+    //加载客户列表
+    function CustomerGrid() {
+        var SelectRowIndx = 1;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/Customer/GridPageListJson")",
+            datatype: "json",
+            height: 200,
+            autowidth: true,
+            colModel: [
+                    { label: '客户主键', name: 'customerid', index: 'customerid', width: 0, align: 'left', sortable: true, hidden: true },
+                    { label: '客户编号', name: 'code', index: 'code', width: 80, align: 'left', sortable: true },
+                    { label: '客户名称', name: 'fullname', index: 'fullname', width: 200, align: 'left', sortable: true },
+                    { label: '客户简称', name: 'shortname', index: 'shortname', width: 80, align: 'left', sortable: true },
+                    { label: '类型', name: 'processingalgorithm', index: 'processingalgorithm', width: 80, align: 'left', sortable: true },
+                    { label: '客户分类', name: 'category', index: 'category', width: 80, align: 'center', sortable: true },
+                    { label: '运输方式', name: 'transitmode', index: 'transitmode', width: 80, align: 'center', sortable: true },
+                    { label: '账期', name: 'paymentmode', index: 'paymentmode', width: 80, align: 'center', sortable: true },
+                    { label: '邮编', name: 'postcode', index: 'postcode', width: 60, align: 'center', sortable: true },
+                    { label: '销售大区', name: 'sellregion', index: 'sellregion', width: 80, align: 'center', sortable: true },
+                    { label: '销售区域', name: 'sellarea', index: 'sellarea', width: 80, align: 'center', sortable: true },
+                    { label: '销售人员', name: 'sellpeople', index: 'sellpeople', width: 80, align: 'center', sortable: true },
+                     {
+                         label: '创建时间', name: 'createdate', index: 'createdate', width: 120, align: 'left', sortable: true,
+                         formatter: function (cellvalue, options, rowObject) {
+                             return formatDate(cellvalue, 'yyyy-MM-dd');
+                         }
+                     },
+                     {
+                         label: '修改时间', name: 'modifydate', index: 'modifydate', width: 120, align: 'left', sortable: true,
+                         formatter: function (cellvalue, options, rowObject) {
+                             return formatDate(cellvalue, 'yyyy-MM-dd');
+                         }
+                     },
+                    //{
+                    //    label: '总折扣率', name: 'DiscountRate', index: 'DiscountRate', width: 80, align: 'center', sortable: true,
+                    //    formatter: function (cellvalue, options, rowObject) {
+                    //        return "<span style=\"color: red; font-weight: bold;\">" + cellvalue + "%</span>";
+                    //    }
+                    //},
+                    //{
+                    //    label: '有效时间 从', name: 'DiscountRateStartTime', index: 'DiscountRateStartTime', width: 110, align: 'center', sortable: true,
+                    //    formatter: function (cellvalue, options, rowObject) {
+                    //        return formatDate(cellvalue, 'yyyy-MM-dd') + " 00:00";
+                    //    }
+                    //},
+                    //{
+                    //    label: '有效时间 至', name: 'DiscountRateEndTime', index: 'DiscountRateEndTime', width: 110, align: 'center', sortable: true,
+                    //    formatter: function (cellvalue, options, rowObject) {
+                    //        return formatDate(cellvalue, 'yyyy-MM-dd') + " 23:59";
+                    //    }
+                    //}
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                var CustomerId = GetJqGridRowValue("#gridTable", "customerid");
+                var rrradio = $("input[name=checkbox]:checked").val();
+                $("#Process_gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CommonModule/CustomerPrice/GridProcessList")?CustomerId=" + CustomerId + "&rrradio=" + rrradio + "&SteelCode=" + escape($("#SteelCode2").val()) }).trigger('reloadGrid');
+                $("#Materials_gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CommonModule/CustomerPrice/GridMaterialsList")?CustomerId=" + CustomerId + "&SteelCode=" + escape($("#SteelCode").val()) }).trigger('reloadGrid');
+                $("#Manage_gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CommonModule/CustomerPrice/GridManageList")?CustomerId=" + CustomerId }).trigger('reloadGrid');
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            },
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                btn_edit();
+            }
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "customerid");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/Customer/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑客户信息", 770, 550, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //新增
+    function btn_add() {
+        var url = "/CommonModule/Customer/Form"
+        openDialog(url, "Form", "新增客户信息", 770, 550, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "customerid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/Customer/Delete', delparm, KeyValue.split(",").length);
+            btn_Search();
+        }
+    }
+    //设置总折扣率
+    function btn_SetDiscount() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "customerid");
+        var ShortName = GetJqGridRowValue("#gridTable", "ShortName");
+        if (KeyValue) {
+            var url = "/CommonModule/CustomerPrice/SetDiscount?KeyValue=" + KeyValue;
+            openDialog(url, "SetDiscount", "设置总折扣率【" + ShortName + "】", 400, 190, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        } else {
+            alertDialog("请选择一行客户", 0);
+        }
+    }
+    //刷新
+    function windowload() {
+        var actived = $('.bd .actived').attr('id');
+        if (actived == "TabProcessDiscount") {
+            $("#Process_gridTable").trigger("reloadGrid"); //重新载入
+        } else if (actived == "TabMaterialsDiscount") {
+            $("#Materials_gridTable").trigger("reloadGrid"); //重新载入
+        } else if (actived == "TabManageDiscount") {
+            $("#Manage_gridTable").trigger("reloadGrid"); //重新载入
+        }
+    }
+    /*加工费折扣begin===================*/
+    $(function () {
+        $("#Detail_button").css({ top: $(".bd").offset().top + 2 });
+        ProcessDiscountGrid();
+        //新增明细一行
+        $("#lr-add-Row").click(function () {
+            var CustomerId = GetJqGridRowValue("#gridTable", "customerid");
+            var ShortName = GetJqGridRowValue("#gridTable", "ShortName");
+            if (!CustomerId) {
+                alertDialog("请选择一行客户", 0);
+                return false;
+            }
+            var actived = $('.bd .actived').attr('id');
+            if (actived == "TabProcessDiscount") {
+                openDialog("/CommonModule/CustomerPrice/ProcessForm?CustomerId=" + CustomerId, "ProcessForm", "新增加工费折扣【" + ShortName + "】", 650, 300, function (iframe) { top.frames[iframe].AcceptClick(); });
+            } else if (actived == "TabMaterialsDiscount") {
+                openDialog("/CommonModule/CustomerPrice/MaterialsForm?CustomerId=" + CustomerId, "MaterialsForm", "新增材料费折扣【" + ShortName + "】", 650, 300, function (iframe) { top.frames[iframe].AcceptClick(); });
+            } else if (actived == "TabManageDiscount") {
+                openDialog("/CommonModule/CustomerPrice/ManageForm?CustomerId=" + CustomerId, "ManageForm", "新增热处理费折扣【" + ShortName + "】", 650, 300, function (iframe) { top.frames[iframe].AcceptClick(); });
+            }
+        })
+        //编辑明细一行
+        $("#lr-edit-Row").click(function () {
+            var ShortName = GetJqGridRowValue("#gridTable", "ShortName");
+            var actived = $('.bd .actived').attr('id');
+            if (actived == "TabProcessDiscount") {
+                var CustomerProcessId = GetJqGridRowValue("#Process_gridTable", "CustomerProcessId");
+                if (!CustomerProcessId) {
+                    alertDialog("请选择一行加工费折扣", 0);
+                    return false;
+                }
+                openDialog("/CommonModule/CustomerPrice/ProcessForm?KeyValue=" + CustomerProcessId, "ProcessForm", "编辑加工费折扣【" + ShortName + "】", 650, 300, function (iframe) { top.frames[iframe].AcceptClick(); });
+            } else if (actived == "TabMaterialsDiscount") {
+                var CustomerMaterialsId = GetJqGridRowValue("#Materials_gridTable", "CustomerMaterialsId");
+                if (!CustomerMaterialsId) {
+                    alertDialog("请选择一行材料费折扣", 0);
+                    return false;
+                }
+                openDialog("/CommonModule/CustomerPrice/MaterialsForm?KeyValue=" + CustomerMaterialsId, "MaterialsForm", "编辑材料费折扣【" + ShortName + "】", 650, 300, function (iframe) { top.frames[iframe].AcceptClick(); });
+            } else if (actived == "TabManageDiscount") {
+                var CustomerManageId = GetJqGridRowValue("#Manage_gridTable", "CustomerManageId");
+                if (!CustomerManageId) {
+                    alertDialog("请选择一行热处理费折扣", 0);
+                    return false;
+                }
+                openDialog("/CommonModule/CustomerPrice/ManageForm?KeyValue=" + CustomerManageId, "ManageForm", "编辑热处理费折扣【" + ShortName + "】", 650, 300, function (iframe) { top.frames[iframe].AcceptClick(); });
+            }
+        })
+        //删除明细一行
+        $("#lr-delete-Row").click(function () {
+            var actived = $('.bd .actived').attr('id');
+            if (actived == "TabProcessDiscount") {
+                var CustomerProcessId = GetJqGridRowValue("#Process_gridTable", "CustomerProcessId");
+                if (!CustomerProcessId) {
+                    alertDialog("请选择一行加工费折扣", 0);
+                    return false;
+                }
+                var delparm = 'KeyValue=' + CustomerProcessId;
+                delConfig('/CommonModule/CustomerPrice/DeleteProcess', delparm);
+            } else if (actived == "TabMaterialsDiscount") {
+                var CustomerMaterialsId = GetJqGridRowValue("#Materials_gridTable", "CustomerMaterialsId");
+                if (!CustomerMaterialsId) {
+                    alertDialog("请选择一行材料费折扣", 0);
+                    return false;
+                }
+                var delparm = 'KeyValue=' + CustomerMaterialsId;
+                delConfig('/CommonModule/CustomerPrice/DeleteMaterials', delparm);
+            } else if (actived == "TabManageDiscount") {
+                var CustomerManageId = GetJqGridRowValue("#Manage_gridTable", "CustomerManageId");
+                if (!CustomerManageId) {
+                    alertDialog("请选择一行热处理费折扣", 0);
+                    return false;
+                }
+                var delparm = 'KeyValue=' + CustomerManageId;
+                delConfig('/CommonModule/CustomerPrice/DeleteManage', delparm);
+            }
+        })
+    })
+    //加工费折扣表格
+    function ProcessDiscountGrid() {
+        var SelectRowIndx = 1;
+        $("#Process_gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/CustomerPrice/GridProcessList")",
+            datatype: "json",
+            height: $(window).height() - 430,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'YuanSteel', hidden: true },
+                { label: '主键', name: 'MaoSteel', hidden: true },
+                { label: '主键', name: 'GuangSteel', hidden: true },
+                { label: '主键', name: 'JingSteel', hidden: true },
+                { label: '主键', name: 'LiftingHole', hidden: true },
+                { label: '主键', name: 'GasCuttingSteel', hidden: true },
+                { label: '主键', name: 'CustomerProcessId', hidden: true },
+                {
+                    label: '类型', name: 'GuangSteel', index: 'GuangSteel', width: 100,
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = rowObject.YuanSteel == 1 ? "圆钢," : "";
+                        str += rowObject.MaoSteel == 1 ? "毛料," : "";
+                        str += rowObject.GuangSteel == 1 ? "光板," : "";
+                        str += rowObject.JingSteel == 1 ? "精板," : "";
+                        str += rowObject.GasCuttingSteel == 1 ? "气割," : "";
+                        str += rowObject.LiftingHole == 1 ? "吊孔," : "";
+                        str += rowObject.MandXSteel == 1 ? "铣磨," : "";
+                        str += rowObject.MorXSteel == 1 ? "磨/铣," : "";
+                        str += rowObject.BSteel == 1 ? "铣边," : "";
+                        str += rowObject.JBSteel == 1 ? "精铣边," : "";
+                        str += rowObject.JKCost == 1 ? "圆锯工费," : "";
+                        str += rowObject.JKCost1 == 1 ? "板气割费," : "";
+                        str += rowObject.DDCost == 1 ? "切角," : "";
+                        return str;
+                    }
+                },
+                
+                { label: '钢种', name: 'SteelName', index: 'SteelName', width: 60, align: 'center' },
+                { label: '条件', name: 'WhereQ', hidden: true },
+                { label: '条件', name: 'WhereQty', hidden: true },
+                {
+                    label: '条件', name: '', index: '', width: 100,
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = rowObject.WhereQ;
+                        str += rowObject.WhereQty;
+                        return str;
+                    }
+                },
+                { label: '加工费', name: 'Price', index: 'Price', width: 60, align: 'center' },
+                 { label: 'ScaleFrom', name: 'KGfrom', hidden: true },
+                { label: 'ScaleTo', name: 'KGto', hidden: true },
+                {
+                    label: '比例', name: '', index: '', width: 75, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return rowObject.ScaleFrom + "至" + rowObject.ScaleTo + "倍";
+                    }
+                },
+                {
+                    label: '计算与或', name: 'OrOr', index: 'OrOr', width: 60, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = "";
+                        if (!cellvalue) {
+                            str = "与";
+                        }
+                        else {
+                            str = "或";
+                        }
+                        return str;
+                    }
+                },
+                {
+                    label: '厚', name: 'PachyStart', index: 'PachyStart', width: 120, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = rowObject.PachyStart +" 至 ";
+                        str += rowObject.PachyEnd
+                        if (rowObject.IsOutThick == "0") {
+                            str += "(内)";
+                        }
+                        else {
+                            str += "(外)";
+                        }
+                        return str;
+                    }
+                },
+                { label: '厚 至', name: 'PachyEnd', index: 'PachyEnd', width: 60, align: 'center', hidden: true },
+                {
+                    label: '宽 ', name: 'WidthStart', index: 'WidthStart', width: 120, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = rowObject.WidthStart + " 至 ";
+                        str += rowObject.WidthEnd
+                        if (rowObject.IsOutWidth == "0") {
+                            str += "(内)";
+                        }
+                        else {
+                            str += "(外)";
+                        }
+                        return str;
+                    }
+                },
+                { label: '宽 至', name: 'WidthEnd', index: 'WidthEnd', width: 60, align: 'center', hidden: true },
+                { label: '长 由', name: 'LengthStart', index: 'LengthStart', width: 60, align: 'center', hidden: true },
+                {
+                    label: '长 ', name: 'LengthEnd', index: 'LengthEnd', width: 120, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = rowObject.LengthStart + " 至 ";
+                        str += rowObject.LengthEnd
+                        if (rowObject.IsOutLength == "0") {
+                            str += "(内)";
+                        }
+                        else {
+                            str += "(外)";
+                        }
+                        return str;
+                    }
+                },
+                
+                  { label: 'KGfrom', name: 'KGfrom', hidden: true },
+                { label: 'KGto', name: 'KGto', hidden: true },
+                {
+                    label: '重量', name: '', index: '', width: 75, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return rowObject.KGfrom + "至" + rowObject.KGto+"KG";
+                    }
+                },
+                { label: 'QtyStart', name: 'QtyStart', hidden: true },
+                { label: 'QtyEnd', name: 'QtyEnd', hidden: true },
+                {
+                    label: '数量', name: '', index: '', width: 75, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        return rowObject.QtyStart + "至" + rowObject.QtyEnd + "件";
+                    }
+                },
+
+                {
+                    label: '客来料', name: 'CustMaterial', index: 'CustMaterial', width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                
+                {
+                    label: '有效', name: 'Enabled', index: 'Enabled', width: 45, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                        if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                    }
+                },
+                {
+                    label: '说明', name: 'Remark', index: 'Remark', width: 100,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                },
+                {
+                    label: '创建时间', name: 'CreateDate', index: 'CreateDate', width: 80,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+                { label: '修改人', name: 'ModifyUserName', index: 'ModifyUserName', width: 60, align: 'center' },
+                {
+                    label: '修改时间', name: 'ModifyDate', index: 'ModifyDate', width: 80,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+            ],
+            pager: "false",
+            rowNum: 1000,
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                $("#lr-edit-Row").click();
+            },
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+    }
+
+    /*加工费折扣end=====================*/
+
+
+    /*材料费折扣begin===================*/
+    //材料费折扣表格
+    function MaterialsDiscountGrid() {
+        var SelectRowIndx = 1;
+        var CustomerId = GetJqGridRowValue("#gridTable", "customerid");
+        $("#Materials_gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/CustomerPrice/GridMaterialsList")?CustomerId=" + CustomerId,
+            datatype: "json",
+            height: $(window).height() - 430,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'CustomerMaterialsId', hidden: true },
+                { label: '主键', name: 'MaoSteel', hidden: true },
+                { label: '主键', name: 'GuangSteel', hidden: true },
+                { label: '主键', name: 'JingSteel', hidden: true },
+                {
+                    label: '类型', name: 'SteelType', index: 'SteelType', width: 85, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = rowObject.YuanSteel == 1 ? "圆钢," : "";
+                        str += rowObject.MaoSteel == 1 ? "毛料," : "";
+                        str += rowObject.GuangSteel == 1 ? "光板," : "";
+                        str += rowObject.JingSteel == 1 ? "精板," : "";
+                        str += rowObject.GasCuttingSteel == 1 ? "气割," : "";
+                        str += rowObject.LiftingHole == 1 ? "吊孔," : "";
+                        str += rowObject.MandXSteel == 1 ? "铣磨," : "";
+                        str += rowObject.MorXSteel == 1 ? "磨/铣," : "";
+                        str += rowObject.BSteel == 1 ? "铣边," : "";
+                        str += rowObject.JBSteel == 1 ? "精铣边," : "";
+                        str += rowObject.JKCost == 1 ? "圆锯工费," : "";
+                        str += rowObject.JKCost1 == 1 ? "板锯工费," : "";
+
+                        return str;
+                    }
+                },
+                { label: '钢材编码', name: 'SteelCode', index: 'SteelCode', width: 100, hidden: true },
+                { label: '钢材名称', name: 'SteelName', index: 'SteelName', width: 100 },
+                { label: '客户品名', name: 'ProductName', index: 'ProductName', width: 100 },
+                 { label: '条件', name: 'WhereQ', hidden: true },
+                { label: '条件', name: 'WhereQty', hidden: true },
+                {
+                    label: '条件', name: '', index: '', width: 100, hidden: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = rowObject.WhereQ;
+                        str += rowObject.WhereQty;
+                        return str;
+                    }
+                },
+                { label: '材料费', name: 'Price', index: 'Price', width: 60, align: 'center' },
+                { label: '单位', name: 'Unit', index: 'Unit', width: 60, align: 'center' },
+                {
+                    label: '计算与或', name: 'OrOr', index: 'OrOr', width: 60, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = "";
+                        if (!cellvalue) {
+                            str = "与";
+                        }
+                        else {
+                            str = "或";
+                        }
+                        return str;
+                    }
+                },
+                {
+                    label: '厚 ', name: 'PachyStart', index: 'PachyStart', width: 120, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = rowObject.PachyStart + " 至 ";
+                        str += rowObject.PachyEnd
+                        if (rowObject.IsOutThick == "0") {
+                            str += "(内)";
+                        }
+                        else {
+                            str += "(外)";
+                        }
+                        return str;
+                    }
+                },
+                { label: '厚 至', name: 'PachyEnd', index: 'PachyEnd', width: 60, align: 'center', hidden: true },
+                {
+                    label: '宽 ', name: 'WidthStart', index: 'WidthStart', width: 120, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = rowObject.WidthStart + " 至 ";
+                        str += rowObject.WidthEnd
+                        if (rowObject.IsOutWidth == "0") {
+                            str += "(内)";
+                        }
+                        else {
+                            str += "(外)";
+                        }
+                        return str;
+                    }
+                },
+                { label: '宽 至', name: 'WidthEnd', index: 'WidthEnd', width: 60, align: 'center', hidden: true },
+                {
+                    label: '长 ', name: 'LengthStart', index: 'LengthStart', width: 120, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = rowObject.LengthStart + " 至 ";
+                        str += rowObject.LengthEnd
+                        if (rowObject.IsOutLength == "0") {
+                            str += "(内)";
+                        }
+                        else {
+                            str += "(外)";
+                        }
+                        return str;
+                    }
+                },
+                { label: '长 至', name: 'LengthEnd', index: 'LengthEnd', width: 60, align: 'center', hidden: true },
+                  {
+                      label: '余量(长宽厚)', name: '余量', width: 80,
+                      formatter: function (cellvalue, options, rowObject) {
+                          return rowObject.AddLength + "*" + rowObject.AddWeigh + "*" + rowObject.AddThick;
+                      }
+                  },
+                {
+                    label: '说明', name: 'Remark', index: 'Remark', width: 100,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                },
+                {
+                    label: '创建时间', name: 'CreateDate', index: 'CreateDate', width: 100,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+                 { label: '修改人', name: 'ModifyUserName', index: 'ModifyUserName', width: 60, align: 'center' },
+                {
+                    label: '修改时间', name: 'ModifyDate', index: 'ModifyDate', width: 80,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+            ],
+            pager: "false",
+            rowNum: 1000,
+            sortname: 'SteelCode,CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                $("#lr-edit-Row").click();
+            },
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+    }
+    /*材料费折扣end=====================*/
+
+    /*热处理费折扣begin=================*/
+    //热处理费折扣表格
+    function ManageDiscountGrid() {
+        var SelectRowIndx = 1;
+        var CustomerId = GetJqGridRowValue("#gridTable", "customerid");
+        $("#Manage_gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/CustomerPrice/GridManageList")?CustomerId=" + CustomerId,
+            datatype: "json",
+            height: $(window).height() - 430,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'CustomerManageId', hidden: true },
+                { label: '工艺编码', name: 'CraftTypeCode', index: 'CraftTypeCode', width: 100 },
+                { label: '工艺名称', name: 'CraftTypeName', index: 'CraftTypeName', width: 100 },
+                { label: '单位', name: 'Unit', index: 'Unit', width: 60, align: 'center' },
+                { label: '单价', name: 'Price', index: 'Price', width: 60, align: 'center' },
+                { label: '钢种', name: 'SteelCode', index: 'SteelCode', width: 60, align: 'center' },
+
+                {
+                    label: '说明', name: 'Remark', index: 'Remark', width: 100,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                },
+                {
+                    label: '创建时间', name: 'CreateDate', index: 'CreateDate', width: 100,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd') ;
+                    }
+                },
+                 { label: '修改人', name: 'ModifyUserName', index: 'ModifyUserName', width: 60, align: 'center' },
+                {
+                    label: '修改时间', name: 'ModifyDate', index: 'ModifyDate', width: 80,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+            ],
+            pager: "false",
+            rowNum: 1000,
+            rownumbers: true,
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            shrinkToFit: false,
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                $("#lr-edit-Row").click();
+            },
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+    }
+    /*热处理费折扣end===================*/
+
+    function OverrideTabchange(id) {
+        var CustomerId = GetJqGridRowValue("#gridTable", "customerid");
+        if (!CustomerId) {
+            alertDialog("请选择一行客户", 0);
+        } else {
+            Tabchange(id);
+            if (id == "ProcessDiscount") {
+                MaterialsDiscountGrid();
+                var rrradio = $("input[name=checkbox]:checked").val();
+                $("#Process_gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CommonModule/CustomerPrice/GridProcessList")?CustomerId=" + CustomerId + "&rrradio=" + rrradio + "&SteelCode=" + escape($("#SteelCode2").val()) }).trigger('reloadGrid');
+            } else if (id == "MaterialsDiscount") {
+                MaterialsDiscountGrid();
+                $("#Materials_gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CommonModule/CustomerPrice/GridMaterialsList")?CustomerId=" + CustomerId + "&SteelCode=" + escape($("#SteelCode").val()) }).trigger('reloadGrid');
+            } else if (id == "ManageDiscount") {
+                ManageDiscountGrid()
+                $("#Manage_gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CommonModule/CustomerPrice/GridManageList")?CustomerId=" + CustomerId }).trigger('reloadGrid');
+            }
+        }
+    }
+    function ShowMaterials() {
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px; " id="QueryParameter">
+        <tr>
+            <th>客户：</th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 200px" />
+            </td>
+            <td>
+                <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkboxAS" id="Priced"  />
+                        <label for="Priced">已维护</label>
+                    </span>
+                <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkboxAS1" id="noPriced"  />
+                        <label for="noPriced">未维护</label>
+                    </span>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>
+<div class="bd" style="border-bottom: none; margin: 1px;">
+    <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+        <div class="tab_list_top" style="position: absolute">
+            <div id="TabProcessDiscount" class="tab_list bd actived" onclick="OverrideTabchange('ProcessDiscount')">
+                <input id="SteelCode2" type="text" class="txt" style="width: 50px;border:solid 1px; height:20px;float:left;" onkeyup="OverrideTabchange('ProcessDiscount')" />
+                <span class="item" style="width: 15%;display:inline;" >
+                    <input type="radio" name="checkbox"  id="all21"  value="" checked="checked"/>
+                    <label for="all21">加工费全部</label>
+                </span>
+                <span class="item" style="width: 15%;display:inline;" >
+                    <input type="radio" name="checkbox"  id="GuangSteel" value="GuangSteel" />
+                    <label for="GuangSteel">光板</label>
+                </span>
+                <span class="item" style="width: 15%;display:inline;" >
+                    <input type="radio" name="checkbox"  id="JingSteel" value="JingSteel" />
+                    <label for="JingSteel">精板</label>
+                </span>
+                 @*<span class="item" style="width: 20%;display:inline;" >
+                    <input type="radio" name="checkbox"  id="JKCost" value="JKCost" />
+                    <label for="JKCost">锯工</label>
+                </span>
+                <span class="item" style="width: 20%;display:inline;" >
+                    <input type="radio" name="checkbox"  id="JKCost1" value="JKCost1" />
+                    <label for="JKCost1">气割</label>
+                </span>*@
+                <span class="item" style="width: 20%;display:inline;" >
+                    <input type="radio" name="checkbox"  id="DDCost" value="DDCost" />
+                    <label for="DDCost">切角</label>
+                </span>
+            </div>
+            <div id="TabMaterialsDiscount" class="tab_list bd " onclick="OverrideTabchange('MaterialsDiscount');">材料费
+<input id="SteelCode" type="text" class="txt" style="width: 50px;border:solid 1px; height:20px;" onkeyup="OverrideTabchange('MaterialsDiscount');" />
+</div>
+            <div id="TabManageDiscount" class="tab_list bd " onclick="OverrideTabchange('ManageDiscount');">热处理费设置</div>
+            
+            
+        </div>
+    </div>
+</div>
+<div id="Detail_button" style="height: 32px; padding-top: 0px; position: absolute; right: 3px;">
+    <div id="lr-add-Row" class="nui-toolbar-item nui-btn-right">
+        <span class="nui-btn-text">新增</span>
+    </div>
+    <div id="lr-edit-Row" class="nui-toolbar-item nui-btn-right nui-btn-left">
+        <span class="nui-btn-text">编辑</span>
+    </div>
+    <div id="lr-delete-Row" class="nui-toolbar-item nui-btn-left">
+        <span class="nui-btn-text">删除</span>
+    </div>
+</div>
+<div class="ScrollBar topline" style="margin: 1px; overflow: hidden; border-bottom: none;">
+    <!--加工费折扣-->
+    <div id="ProcessDiscount" class="tabPanel">
+        <table id="Process_gridTable"></table>
+    </div>
+    <!--材料费折扣-->
+    <div id="MaterialsDiscount" class="tabPanel" style="display: none;">
+        <table id="Materials_gridTable"></table>
+    </div>
+    <!--热处理费折扣-->
+    <div id="ManageDiscount" class="tabPanel" style="display: none;">
+        <table id="Manage_gridTable"></table>
+    </div>
+</div>
+

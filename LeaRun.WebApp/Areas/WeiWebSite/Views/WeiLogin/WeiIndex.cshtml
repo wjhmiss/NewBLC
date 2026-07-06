@@ -1,0 +1,123 @@
+﻿@{
+    ViewBag.Title = "首页";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+<link rel="stylesheet" type="text/css" href="~/Content/Scripts/Mobile/templates/mobile/css/idangerous.swiper.css" />
+    <script type="text/javascript" charset="utf-8" src="~/Content/Scripts/Mobile/templates/mobile/js/idangerous.swiper-2.1.min.js"></script>
+<script>
+        //初始化
+    $(function () {
+        var mySwiper = new Swiper('.swiper-container', {
+            calculateHeight: true,
+            resizeReInit: true,
+            pagination: ".pagination",
+            autoplay: 5000,
+            paginationClickable: true
+        });
+        $("#main_footer a.home").addClass("pressed");
+    })
+</script>
+
+<div id="mainPanel" class="panel" data-header="main_header" data-footer="main_footer">
+    <!--首页幻灯片-->
+    <div id="slider" class="swiper-container">
+        <div class="swiper-wrapper">
+            <div class="swiper-slide">
+                <img src="~/Content/Scripts/Mobile/templates/mobile/images/banner1.jpg" />
+            </div>
+            <div class="swiper-slide">
+                <img src="~/Content/Scripts/Mobile/templates/mobile/images/banner2.jpg" />
+            </div>
+            <div class="swiper-slide">
+                <img src="~/Content/Scripts/Mobile/templates/mobile/images/banner3.jpg" />
+            </div>
+        </div>
+        <div class="pagination"></div>
+    </div>
+    <!--/首页幻灯片-->
+    <!--首页图标导航-->
+    <div class="nav-list">
+        <ul>
+            <li>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/InstockIndex")" data-ignore="true">
+                    <img src="~/Content/Scripts/Mobile/templates/mobile/images/icons/query.png">
+                    <span>库存查询</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/InputQuot")" data-ignore="true">
+                    <img src="~/Content/Scripts/Mobile/templates/mobile/images/icons/xiadan.png">
+                    <span>快速下单</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryQuot")" data-ignore="true">
+                    <img src="~/Content/Scripts/Mobile/templates/mobile/images/icons/hetong.png">
+                    <span>合同查询</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryOrder")" data-ignore="true">
+                    <img src="~/Content/Scripts/Mobile/templates/mobile/images/icons/jindu.png">
+                    <span>生产进度</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryDelivery")" data-ignore="true">
+                    <img src="~/Content/Scripts/Mobile/templates/mobile/images/icons/songhuo.png">
+                    <span>发运单</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryCheckSheet")" data-ignore="true">
+                    <img src="~/Content/Scripts/Mobile/templates/mobile/images/icons/duizhang.png">
+                    <span>对账单</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryPlan")" data-ignore="true">
+                    <img src="~/Content/Scripts/Mobile/templates/mobile/images/icons/jihua.png">
+                    <span>生产计划</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryReport")" data-ignore="true">
+                    <img src="~/Content/Scripts/Mobile/templates/mobile/images/icons/baobiao.png">
+                    <span>统计报表</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryCustomers")" data-ignore="true">
+                    <img src="~/Content/Scripts/Mobile/templates/mobile/images/icons/kehuziliao.png">
+                    <span>客户资料</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/UserCenter")" data-ignore="true">
+                    <img src="~/Content/Scripts/Mobile/templates/mobile/images/icons/user.png">
+                    <span>会员中心</span>
+                </a>
+            </li>
+            <li>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/Contact")" data-ignore="true">
+                    <img src="~/Content/Scripts/Mobile/templates/mobile/images/icons/msg.png">
+                    <span>联系方式</span>
+                </a>
+            </li>
+            <li>
+                <a href="tel:15012791005" data-ignore="true">
+                    <img src="~/Content/Scripts/Mobile/templates/mobile/images/icons/tel.png">
+                    <span>电话</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!--/首页图标导航-->
+
+
+
+    <!--版权信息-->
+     @Html.Partial("_PartialMobileBottom")
+    <!--/版权信息-->
+
+</div>

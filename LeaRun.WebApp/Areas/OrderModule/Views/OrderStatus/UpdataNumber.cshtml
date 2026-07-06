@@ -1,0 +1,45 @@
+﻿@{
+    ViewBag.Title = "修改数量";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        $("#lbl_present").text(GetQuery('present'));
+    })
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+            var postData = {
+                OrderDetailId: GetQuery('OrderDetailId'),
+                Qty: $("#Qty").val()
+            }
+            AjaxJson("/OrderModule/OrderStatus/SubmitUpdataNumber?OQty=" + $("#lbl_present").text() + "&Weight=" + GetQuery('Weight'), postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].$("#gridTable_Detail").trigger("reloadGrid");
+                window.setTimeout(function () {closeDialog();}, 500);
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>当前数量：</th>
+            <td class='formValue'>
+                <label id="lbl_present">0</label>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>修改数量：</th>
+            <td class='formValue'>
+                <input id="Qty" onfocus="IsNumber(this.id);" datacol="yes" err="修改数量" checkexpession="NotNull" type="text" class="txt" />
+            </td>
+        </tr>
+    </table>
+</form>

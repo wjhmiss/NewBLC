@@ -1,0 +1,100 @@
+@{
+    ViewBag.Title = "BY_SteelQualityreportList";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        GetGrid();
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+        url: "@Url.Content("~/QualityModule/BY_SteelQualityreportList/GridPageJson")",
+        datatype: "json",
+        height: $(window).height() - 149,
+        autowidth: true,
+        colModel: [
+                { label: 'BY_SteelQualityreportListId', name: 'BY_SteelQualityreportListId', index: 'BY_SteelQualityreportListId', width: 0, align: 'left',sortable: true  },
+                { label: 'OrderDetailId', name: 'OrderDetailId', index: 'OrderDetailId', width: 0, align: 'left',sortable: true  },
+                { label: '厚度', name: 'Thick', index: 'Thick', width: 0, align: 'left', sortable: true },
+                { label: '宽', name: 'Weigh', index: 'Weigh', width: 0, align: 'left', sortable: true },
+                { label: '长', name: 'Length', index: 'Length', width: 0, align: 'left', sortable: true },
+                { label: '数量', name: 'Qty', index: 'Qty', width: 0, align: 'left',sortable: true  },
+                { label: '理论重量', name: 'Weight', index: 'Weight', width: 0, align: 'left',sortable: true  },
+                { label: '客户货品号', name: 'CustomerProduct', index: 'CustomerProduct', width: 0, align: 'left',sortable: true  },
+                { label: '执行备注信息', name: 'ExecRemark', index: 'ExecRemark', width: 0, align: 'left',sortable: true  },
+                { label: '有效', name: 'Enabled', index: 'Enabled', width: 0, align: 'left',sortable: true  },
+                { label: '排序码', name: 'SortCode', index: 'SortCode', width: 0, align: 'left',sortable: true  },
+                { label: '删除标记', name: 'DeleteMark', index: 'DeleteMark', width: 0, align: 'left',sortable: true  },
+                { label: '创建时间', name: 'CreateDate', index: 'CreateDate', width: 0, align: 'left',sortable: true  },
+                { label: '创建用户主键', name: 'CreateUserId', index: 'CreateUserId', width: 0, align: 'left',sortable: true  },
+                { label: '创建用户', name: 'CreateUserName', index: 'CreateUserName', width: 0, align: 'left',sortable: true  },
+                { label: '修改时间', name: 'ModifyDate', index: 'ModifyDate', width: 0, align: 'left',sortable: true  },
+                { label: '修改用户主键', name: 'ModifyUserId', index: 'ModifyUserId', width: 0, align: 'left',sortable: true  },
+                { label: '修改用户', name: 'ModifyUserName', index: 'ModifyUserName', width: 0, align: 'left',sortable: true  },
+        ],
+        viewrecords: true,
+        rowNum: 30,
+        rowList: [30, 50, 100, 500, 5000],
+        pager: "#gridPager",
+        sortname: 'CreateDate',
+        sortorder: 'desc',
+        rownumbers: true,
+        shrinkToFit: false,
+        gridview: true,
+    });
+}
+    //新增
+    function btn_add() {
+        var url = "/QualityModule/BY_SteelQualityreportList/Form"
+        openDialog(url, "Form", "新增BY_SteelQualityreportList", 770, 395, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "BY_SteelQualityreportListId");
+        if (IsChecked(KeyValue)) {
+            var url = "/QualityModule/BY_SteelQualityreportList/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑BY_SteelQualityreportList", 770, 395, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "BY_SteelQualityreportListId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/QualityModule/BY_SteelQualityreportList/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>关键字：</th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 200px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

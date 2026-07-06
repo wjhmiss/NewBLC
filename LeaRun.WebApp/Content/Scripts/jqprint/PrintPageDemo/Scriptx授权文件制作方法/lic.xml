@@ -1,0 +1,19 @@
+<LICENSE
+	GUID="{DDAA1B6D-0527-4C9D-87AF-4126D517E7FA}"
+	PUBLISHER="gooda &equi; Co Ltd"
+	COMMERCIAL="true"
+	URL="http://www.gooda.com"
+	FROM="12/1/2008" TO="12/31/2049"
+	REVISION="0"
+	AUTO="false"
+	AUTOUPGRADE="true"
+	>
+		<TITLE INFO="info.htm" URL="http://www.meadroid.com/scriptx/">ScriptX Evaluation</TITLE>
+		<DOMAINS ZONES="15">
+			<DOMAIN NAME="111.111.111.111"/>
+			<DOMAIN NAME="www.meadroid.com"/>
+			<DOMAIN NAME="localhost"/>
+			<DOMAIN NAME="file://" ZONES="1"/>
+		</DOMAINS>
+		<PERMISSION PRINTING="true" RAWPRINTING="true" MAXIPTCORE="true" MAXIPTEXTENDED="true" />
+</LICENSE>

@@ -1,0 +1,847 @@
+﻿@{
+    ViewBag.Title = "销售汇总表";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/Workday/kalendarjqueryyyyy")
+@Styles.Render("~/Content/Scripts/Workday/kalendarcss")
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    var tempred = "";
+    var tempred1 = "";
+    //查询
+    function btn_Search() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CheckSheetModule/BY_CheckSheet/SaleDetailPageJson")?Year=" + $("#year").find("select[name='year']").val() + "&Customer=" + escape($("#Customer").val()) + "&type=" + escape($("#Type").val()) + "&IsComfirm=" + $("#IsComfirm").prop("checked"), page: 1 }).trigger('reloadGrid');
+    }
+    function checkYuqi(montho, paytype) {
+        var now = new Date();
+        if (!paytype) {
+            return false;
+        }
+        var month = Number(now.getMonth());
+        if (paytype.indexOf("30") >=0) {
+            if (month - montho > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        if (paytype.indexOf("60") >= 0) {
+            if (month - montho > 1) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        if (paytype.indexOf("90") >= 0) {
+            if (month - montho > 2) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        if (paytype.indexOf("120") >= 0) {
+            if (month - montho > 3) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        if (paytype.indexOf("150") >= 0) {
+            if (month - montho > 4) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        if (paytype.indexOf("180") >= 0) {
+            if (month - montho > 5) {
+                return true;
+            }
+            else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx = 0;
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CheckSheetModule/BY_CheckSheet/SaleDetailPageJson")?Year=" + $("#year").find("select[name='year']").val(),
+            datatype: "json",
+            height: $(window).height() - 148,
+            autowidth: true,
+            colModel: [
+                { label: '收款类型', name: 'type', index: 'type', width: 60, align: 'center', frozen: true},
+                { label: '客户编号', name: 'customercode', index: 'customercode', width: 60, align: 'center', frozen: true},
+                { label: '客户名称', name: 'customername', index: 'customername', width: 100, align: 'center', frozen: true },
+                { label: '付款类型', name: 'paymentmode', index: 'paymentmode', width: 100, align: 'center', frozen: true},
+                    {
+                        label: '应收', name: 'monthtotal1', index: 'monthtotal1', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+
+                            if (Number(rowObject.monthnoget1) > 0 && checkYuqi(1, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget1) < 1 && Number(cellvalue) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '已收', name: 'monthgeted1', index: 'monthgeted1', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget1) > 0 && checkYuqi(1, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget1) < 1 && Number(rowObject.monthtotal1) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '未收', name: 'monthnoget1', index: 'monthnoget1', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(cellvalue) > 0 && checkYuqi(1, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(cellvalue) < 1 && Number(rowObject.monthtotal1) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+
+                        }
+                    },
+
+                    {
+                        label: '应收', name: 'monthtotal2', index: 'monthtotal2', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget2) > 0 && checkYuqi(2, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget2) < 1 && Number(cellvalue) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '已收', name: 'monthgeted2', index: 'monthgeted2', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget2) > 0 && checkYuqi(2, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget2) < 1 && Number(rowObject.monthtotal2) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '未收', name: 'monthnoget2', index: 'monthnoget2', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(cellvalue) > 0 && checkYuqi(2, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(cellvalue) < 1 && Number(rowObject.monthtotal2) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+
+                    {
+                        label: '应收', name: 'monthtotal3', index: 'monthtotal3', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget3) > 0 && checkYuqi(3, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget3) < 1 && Number(cellvalue) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '已收', name: 'monthgeted3', index: 'monthgeted3', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget3) > 0 && checkYuqi(3, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget3) < 1 && Number(rowObject.monthtotal3) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '未收', name: 'monthnoget3', index: 'monthnoget3', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(cellvalue) > 0 && checkYuqi(3, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(cellvalue) < 1 && Number(rowObject.monthtotal3) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+
+                    {
+                        label: '应收', name: 'monthtotal4', index: 'monthtotal4', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget4) > 0 && checkYuqi(4, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget4) < 1 && Number(cellvalue) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '已收', name: 'monthgeted4', index: 'monthgeted4', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget4) > 0 && checkYuqi(4, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget4) < 1 && Number(rowObject.monthtotal4) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '未收', name: 'monthnoget4', index: 'monthnoget4', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(cellvalue) > 0 && checkYuqi(4, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(cellvalue) < 1 && Number(rowObject.monthtotal4) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+
+                    {
+                        label: '应收', name: 'monthtotal5', index: 'monthtotal5', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget5) > 0 && checkYuqi(5, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget5) < 1 && Number(cellvalue) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '已收', name: 'monthgeted5', index: 'monthgeted5', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget5) > 0 && checkYuqi(5, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget5) < 1 && Number(rowObject.monthtotal5) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '未收', name: 'monthnoget5', index: 'monthnoget5', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(cellvalue) > 0 && checkYuqi(5, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(cellvalue) < 1 && Number(rowObject.monthtotal5) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+
+                    {
+                        label: '应收', name: 'monthtotal6', index: 'monthtotal6', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget6) > 0 && checkYuqi(6, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget6) < 1 && Number(cellvalue) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '已收', name: 'monthgeted6', index: 'monthgeted6', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget6) > 0 && checkYuqi(6, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget6) < 1 && Number(rowObject.monthtotal6) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '未收', name: 'monthnoget6', index: 'monthnoget6', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(cellvalue) > 0 && checkYuqi(6, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(cellvalue) < 1 && Number(rowObject.monthtotal6) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+
+                    {
+                        label: '应收', name: 'monthtotal7', index: 'monthtotal7', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget7) > 0 && checkYuqi(7, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget7) < 1 && Number(cellvalue) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '已收', name: 'monthgeted7', index: 'monthgeted7', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget7) > 0 && checkYuqi(7, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget7) < 1 && Number(rowObject.monthtotal7) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '未收', name: 'monthnoget7', index: 'monthnoget7', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(cellvalue) > 0 && checkYuqi(7, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(cellvalue) < 1 && Number(rowObject.monthtotal7) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+
+                    {
+                        label: '应收', name: 'monthtotal8', index: 'monthtotal8', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget8) > 0 && checkYuqi(8, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget8) < 1 && Number(cellvalue) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '已收', name: 'monthgeted8', index: 'monthgeted8', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget8) > 0 && checkYuqi(8, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget8) < 1 && Number(rowObject.monthtotal8) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '未收', name: 'monthnoget8', index: 'monthnoget8', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(cellvalue) > 0 && checkYuqi(8, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(cellvalue) < 1 && Number(rowObject.monthtotal8) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+
+                    {
+                        label: '应收', name: 'monthtotal9', index: 'monthtotal9', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget9) > 0 && checkYuqi(9, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget9) < 1 && Number(cellvalue) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '已收', name: 'monthgeted9', index: 'monthgeted9', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget9) > 0 && checkYuqi(9, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget9) < 1 && Number(rowObject.monthtotal9) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '未收', name: 'monthnoget9', index: 'monthnoget9', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(cellvalue) > 0 && checkYuqi(9, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(cellvalue) < 1 && Number(rowObject.monthtotal9) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+
+                    {
+                        label: '应收', name: 'monthtotal10', index: 'monthtotal10', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget10) > 0 && checkYuqi(10, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget10) < 1 && Number(cellvalue) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '已收', name: 'monthgeted10', index: 'monthgeted10', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget10) > 0 && checkYuqi(10, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget10) < 1 && Number(rowObject.monthtotal10) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '未收', name: 'monthnoget10', index: 'monthnoget10', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(cellvalue) > 0 && checkYuqi(10, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(cellvalue) < 1 && Number(rowObject.monthtotal10) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+
+                    {
+                        label: '应收', name: 'monthtotal11', index: 'monthtotal11', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget11) > 0 && checkYuqi(11, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget11) < 1 && Number(cellvalue) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '已收', name: 'monthgeted11', index: 'monthgeted11', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget11) > 0 && checkYuqi(11, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget11) < 1 && Number(rowObject.monthtotal11) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '未收', name: 'monthnoget11', index: 'monthnoget11', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(cellvalue) > 0 && checkYuqi(11, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(cellvalue) < 1 && Number(rowObject.monthtotal11) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+
+                    {
+                        label: '应收', name: 'monthtotal12', index: 'monthtotal12', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget12) > 0 && checkYuqi(12, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget12) < 1 && Number(cellvalue) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '已收', name: 'monthgeted12', index: 'monthgeted12', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnoget12) > 0 && checkYuqi(12, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnoget12) < 1 && Number(rowObject.monthtotal12) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '未收', name: 'monthnoget12', index: 'monthnoget12', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(cellvalue) > 0 && checkYuqi(12, rowObject.paymentmode)) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(cellvalue) < 1 && Number(rowObject.monthtotal12) > 0) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '应收', name: 'monthtotalall', index: 'monthtotalall', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnogetall) > 0) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnogetall) < 1) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '已收', name: 'monthgetedall', index: 'monthgetedall', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(rowObject.monthnogetall) > 0) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(rowObject.monthnogetall) < 1) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '未收', name: 'monthnogetall', index: 'monthnogetall', width: 60, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (Number(cellvalue) > 0) {
+                                tempred += options.pos + "," + options.rowId + ";";
+                            }
+                            if (Number(cellvalue) < 1) {
+                                tempred1 += options.pos + "," + options.rowId + ";";
+                            }
+                            if (!cellvalue) return 0;
+
+                            return cellvalue;
+                        }
+                    },
+                    
+            ],
+            pager: false,
+            viewrecords: true,
+            rowNum: 9999,
+            rowList: [30, 50, 100, 500, 5000],
+            //pager: "#gridPager",
+            sortname: 'customercode',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: false,
+            altclass: 'altclass',
+            gridview: true,
+            footerrow: true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                //合计
+                $(this).footerData("set", {
+                    "customername": "合计",
+                    "monthtotal1": FormatCurrency($("#gridTable").getCol('monthtotal1', false, 'sum')),
+                    "monthgeted1": FormatCurrency($("#gridTable").getCol('monthgeted1', false, 'sum')),
+                    "monthnoget1": FormatCurrency($("#gridTable").getCol('monthnoget1', false, 'sum')),
+
+                    "monthtotal2": FormatCurrency($("#gridTable").getCol('monthtotal2', false, 'sum')),
+                    "monthgeted2": FormatCurrency($("#gridTable").getCol('monthgeted2', false, 'sum')),
+                    "monthnoget2": FormatCurrency($("#gridTable").getCol('monthnoget2', false, 'sum')),
+
+                    "monthtotal3": FormatCurrency($("#gridTable").getCol('monthtotal3', false, 'sum')),
+                    "monthgeted3": FormatCurrency($("#gridTable").getCol('monthgeted3', false, 'sum')),
+                    "monthnoget3": FormatCurrency($("#gridTable").getCol('monthnoget3', false, 'sum')),
+
+                    "monthtotal4": FormatCurrency($("#gridTable").getCol('monthtotal4', false, 'sum')),
+                    "monthgeted4": FormatCurrency($("#gridTable").getCol('monthgeted4', false, 'sum')),
+                    "monthnoget4": FormatCurrency($("#gridTable").getCol('monthnoget4', false, 'sum')),
+
+                    "monthtotal5": FormatCurrency($("#gridTable").getCol('monthtotal5', false, 'sum')),
+                    "monthgeted5": FormatCurrency($("#gridTable").getCol('monthgeted5', false, 'sum')),
+                    "monthnoget5": FormatCurrency($("#gridTable").getCol('monthnoget5', false, 'sum')),
+
+                    "monthtotal6": FormatCurrency($("#gridTable").getCol('monthtotal6', false, 'sum')),
+                    "monthgeted6": FormatCurrency($("#gridTable").getCol('monthgeted6', false, 'sum')),
+                    "monthnoget6": FormatCurrency($("#gridTable").getCol('monthnoget6', false, 'sum')),
+
+                    "monthtotal7": FormatCurrency($("#gridTable").getCol('monthtotal7', false, 'sum')),
+                    "monthgeted7": FormatCurrency($("#gridTable").getCol('monthgeted7', false, 'sum')),
+                    "monthnoget7": FormatCurrency($("#gridTable").getCol('monthnoget7', false, 'sum')),
+
+                    "monthtotal8": FormatCurrency($("#gridTable").getCol('monthtotal8', false, 'sum')),
+                    "monthgeted8": FormatCurrency($("#gridTable").getCol('monthgeted8', false, 'sum')),
+                    "monthnoget8": FormatCurrency($("#gridTable").getCol('monthnoget8', false, 'sum')),
+
+                    "monthtotal9": FormatCurrency($("#gridTable").getCol('monthtotal9', false, 'sum')),
+                    "monthgeted9": FormatCurrency($("#gridTable").getCol('monthgeted9', false, 'sum')),
+                    "monthnoget9": FormatCurrency($("#gridTable").getCol('monthnoget9', false, 'sum')),
+
+                    "monthtotal10": FormatCurrency($("#gridTable").getCol('monthtotal10', false, 'sum')),
+                    "monthgeted10": FormatCurrency($("#gridTable").getCol('monthgeted10', false, 'sum')),
+                    "monthnoget10": FormatCurrency($("#gridTable").getCol('monthnoget10', false, 'sum')),
+
+                    "monthtotal11": FormatCurrency($("#gridTable").getCol('monthtotal11', false, 'sum')),
+                    "monthgeted11": FormatCurrency($("#gridTable").getCol('monthgeted11', false, 'sum')),
+                    "monthnoget11": FormatCurrency($("#gridTable").getCol('monthnoget11', false, 'sum')),
+
+                    "monthtotal12": FormatCurrency($("#gridTable").getCol('monthtotal12', false, 'sum')),
+                    "monthgeted12": FormatCurrency($("#gridTable").getCol('monthgeted12', false, 'sum')),
+                    "monthnoget12": FormatCurrency($("#gridTable").getCol('monthnoget12', false, 'sum')),
+
+                    "monthtotalall": FormatCurrency($("#gridTable").getCol('monthtotalall', false, 'sum')),
+                    "monthgetedall": FormatCurrency($("#gridTable").getCol('monthgetedall', false, 'sum')),
+                    "monthnogetall": FormatCurrency($("#gridTable").getCol('monthnogetall', false, 'sum')),
+                });
+
+                var strred = tempred.trim(';').split(';');
+                for (i = 0; i < strred.length; i++) {
+                    if (strred[i].split(',')[1] != "" && strred[i].split(',')[0] != "") {
+                        this.rows[strred[i].split(',')[1]].cells[strred[i].split(',')[0]].bgColor = "#FF3333";
+
+                    }
+                }
+                var strred1 = tempred1.trim(';').split(';');
+                for (i = 0; i < strred1.length; i++) {
+                    if (strred1[i].split(',')[1] != "" && strred1[i].split(',')[0] != "") {
+                        this.rows[strred1[i].split(',')[1]].cells[strred1[i].split(',')[0]].bgColor = "#00AA00";
+
+                    }
+                }
+                tempred = "";
+                tempred1 = "";
+                //for (var i = this.rows.length - 1; i > 0; i--) {
+                //    this.rows[i].cells[4].bgColor = "#FF3333";
+                //}
+
+            }
+   
+        
+        });
+        
+        //表头合并
+        $("#gridTable").jqGrid('setGroupHeaders', {
+            useColSpanStyle: true,
+            groupHeaders: [
+              { startColumnName: 'monthtotal1', numberOfColumns: 3, titleText: '一月份' },
+              { startColumnName: 'monthtotal2', numberOfColumns: 3, titleText: '二月份' },
+              { startColumnName: 'monthtotal3', numberOfColumns: 3, titleText: '三月份' },
+              { startColumnName: 'monthtotal4', numberOfColumns: 3, titleText: '四月份' },
+              { startColumnName: 'monthtotal5', numberOfColumns: 3, titleText: '五月份' },
+              { startColumnName: 'monthtotal6', numberOfColumns: 3, titleText: '六月份' },
+              { startColumnName: 'monthtotal7', numberOfColumns: 3, titleText: '七月份' },
+              { startColumnName: 'monthtotal8', numberOfColumns: 3, titleText: '八月份' },
+              { startColumnName: 'monthtotal9', numberOfColumns: 3, titleText: '九月份' },
+              { startColumnName: 'monthtotal10', numberOfColumns: 3, titleText: '十月份' },
+              { startColumnName: 'monthtotal11', numberOfColumns: 3, titleText: '十一月份' },
+              { startColumnName: 'monthtotal12', numberOfColumns: 3, titleText: '十二月份' },
+              { startColumnName: 'monthtotalall', numberOfColumns: 3, titleText: '总计' }
+            ]
+        });
+        jQuery("#gridTable").jqGrid('setFrozenColumns');
+    }
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "销售汇总表");
+       
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+    function btn_Export1() {
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "@Url.Content("~/CheckSheetModule/BY_CheckSheet/DownLoadExcel")";
+            Loading(false);
+        }, 200);
+    }
+</script>
+<div class="leftline rightline topline QueryArea" style="margin: 1px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;" id="QueryParameter">
+        <tr>
+            <th>时间：</th>
+            <td>
+                <div id='wrap' style="float: inherit; width: 100%">
+                </div>
+            </td>
+            <th >客户编码或名称：</th>
+            <td>
+                <input id="Customer"  type="text" class="txt" style="width: 95%" />
+            </td>
+            <th>单据类型：</th>
+            <td>
+                <select id="Type" class="select" style="width: 80px">
+                    <option value="">全部</option>
+                    <option value="送货收款">送货收款</option>
+                    <option value="其他收款">其他收款</option>
+                </select>
+            </td>
+             <th>已月结确认：</th>
+            <td>
+                                <span class="item" style="cursor: pointer;">
+                                    <input type="checkbox" class="checkbox" name="checkbox" id="IsComfirm"  />
+                                    <label for="IsComfirm">已月结确认</label></span>
+                            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+            <td>
+                <input id="btn_export" type="button" class="btnSearch" value="列表导出" onclick="btn_Export()" />
+            </td>
+            <td>
+                <input id="btn_export2" type="button" class="btnSearch" value="月统计导出" onclick="btn_Export1()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+    <style>
+        .altclass {
+            background: #fffccc;
+        }
+
+        .ui-jqgrid tr.ui-row-ltr td {
+            border-bottom: 1px solid #ccc;
+        }
+
+        .ui-jqgrid .ui-jqgrid-htable th {
+            line-height: 15px;
+        }
+
+            .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+                background: none;
+            }
+
+        .editable {
+            height: 22px;
+            background-color: #fff;
+        }
+    </style>
+</div>

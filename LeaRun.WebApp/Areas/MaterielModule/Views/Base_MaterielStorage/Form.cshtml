@@ -1,0 +1,165 @@
+@{
+    ViewBag.Title = "库存》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        InitControl();
+        document.onkeydown = enterInput;
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/MaterielModule/Base_MaterielStorage/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    function enterInput() {
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+        if (e && e.keyCode == 13) {//回车
+            window.event.keyCode = 9;
+            if ($(tar).attr('id') == "Remark") {
+                AcceptClick();
+            }
+            return;
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/MaterielModule/Base_MaterielStorage/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            location.href = location.href;
+            //window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>物料id：</th>
+            <td class='formValue'>
+                <input id="MaterielStorageId" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>物料id：</th>
+            <td class='formValue'>
+                <input id="MaterielId" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>物料号：</th>
+            <td class='formValue'>
+                <input id="MaterielCode" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>物料类型：</th>
+            <td class='formValue'>
+                <input id="MaterielType" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>尺寸：</th>
+            <td class='formValue'>
+                <input id="MaterielSize" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>单位：</th>
+            <td class='formValue'>
+                <input id="Unit" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>供应商ID：</th>
+            <td class='formValue'>
+                <input id="CustomerId" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>供应商编号：</th>
+            <td class='formValue'>
+                <input id="CustomerCode" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>供应商名称：</th>
+            <td class='formValue'>
+                <input id="CustomerName" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>单价：</th>
+            <td class='formValue'>
+                <input id="PricePer" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>数量：</th>
+            <td class='formValue'>
+                <input id="Qty" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>总金额：</th>
+            <td class='formValue'>
+                <input id="TotalAmount" maxlength=18 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>报警库存：</th>
+            <td class='formValue'>
+                <input id="AlarmNumber" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue'>
+                <input id="Remark" maxlength=200 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <input id="Enabled" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>排序码：</th>
+            <td class='formValue'>
+                <input id="SortCode" maxlength=10 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>删除标记：</th>
+            <td class='formValue'>
+                <input id="DeleteMark" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <input id="CreateDate" maxlength=23 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>创建用户主键：</th>
+            <td class='formValue'>
+                <input id="CreateUserId" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>创建用户：</th>
+            <td class='formValue'>
+                <input id="CreateUserName" maxlength=200 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>修改时间：</th>
+            <td class='formValue'>
+                <input id="ModifyDate" maxlength=23 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>修改用户主键：</th>
+            <td class='formValue'>
+                <input id="ModifyUserId" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>修改用户：</th>
+            <td class='formValue'>
+                <input id="ModifyUserName" maxlength=200 type="text" class="txt"   />
+            </td>
+        </tr>
+    </table>
+</form>

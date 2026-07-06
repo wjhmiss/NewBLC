@@ -1,0 +1,65 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>个性化皮肤设置</title>
+    <!--框架必需start-->
+@*    <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/cookie/jquery.cookie.js"></script>*@
+            @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+     @Scripts.Render("~/Content/Scripts/cookie/cookiejquery")
+    <!--框架必需end-->
+    <script>
+        $(function () {
+            InitControl();
+        })
+        //得到一个对象实体
+        function InitControl() {
+            AjaxJson("/MachineModule/BY_Machine/SetForm", { KeyValue: "LED" }, function (data) {
+                    SetWebControls(data);
+                });
+        }
+        function AcceptClick() {
+            AjaxJson("/MachineModule/BY_Machine/SubmitForm?KeyValue=LED", { OrderCodeLine: $("#OrderCodeLine").val() }, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                window.setTimeout(function () {closeDialog();}, 500);
+            });
+        }
+    </script>
+</head>
+<body style="margin: 1px;">
+    <div class="bd" style="border-bottom: none; margin-top: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div class="tab_list bd actived">每日出货计划</div>
+            </div>
+        </div>
+    </div>
+    <div class="border" style="border-top: none; padding: 20px;">
+        <textarea id="OrderCodeLine"  rows="12" style="width:100%"></textarea>
+
+    </div>
+    <input id="btnSearch" type="button" class="btnSearch" value="保存" onclick="AcceptClick()" />
+</body>
+</html>
+<style>
+    .skinSelect {
+        float: left;
+        width: 55px;
+        height: 46px;
+        margin-left: 20px;
+        margin-right: 20px;
+        margin-top: 20px;
+        display: block;
+        position: relative;
+        cursor: pointer;
+        -moz-border-radius: 5px;
+        -webkit-border-radius: 5px;
+        border-radius: 5px;
+        box-shadow: 0 0 15px #ccc;
+    }
+</style>

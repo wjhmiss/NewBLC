@@ -1,0 +1,162 @@
+@{
+    ViewBag.Title = "原材料入仓品质信息";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    function windowload() {
+        window.location.reload();
+    }
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/QualityModule/BY_InStockQuality/GridPageListJson")?StartTime=" + $("#StartTime").val() + "&EndTime=" + $("#EndTime").val() + "&BillCode=" + escape($("#BillCode").val()) + "&SteelCode=" + escape($("#SteelCode").val()) + "&InStockQualityCode=" + escape($("#InStockQualityCode").val()) + "&CreateUserName=" + escape($("#CreateUserName").val()),
+            datatype: "json",
+            height: $(window).height() - 149,
+            autowidth: true,
+            colModel: [
+                    { label: '入仓品质ID', name: 'instockqualityid', index: 'instockqualityid', width: 0, align: 'left', sortable: true, hidden: true },
+                    { label: '品检编码', name: 'instockqualitycode', index: 'instockqualitycode', width: 80, align: 'left', sortable: true },
+                    { label: '钢材编号', name: 'billcode', index: 'billcode', width: 60, align: 'left', sortable: true },
+                    { label: '钢种', name: 'steelcode', index: 'steelcode', width: 50, align: 'left', sortable: true },
+                    { label: '状态', name: 'steelstatus', index: 'steelstatus', width: 50, align: 'left', sortable: true },
+                    { label: '类型', name: 'steeltype', index: 'steeltype', width: 50, align: 'left', sortable: true },
+                    { label: '产地', name: 'placeorigin', index: 'placeorigin', width: 50, align: 'left', sortable: true },
+                    { label: '厚度', name: 'thick', index: 'thick', width: 50, align: 'left', sortable: true },
+                    { label: '宽度', name: 'weigh', index: 'weigh', width: 50, align: 'left', sortable: true },
+                { label: '长度', name: 'length', index: 'length', width: 50, align: 'left', sortable: true },
+
+                    { label: '重量', name: 'weight', index: 'weight', width: 50, align: 'left', sortable: true },
+                    {
+                        label: '入仓日期', name: 'instockdate', index: 'instockdate', width: 65, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '炉号', name: 'stovecode', index: 'stovecode', width: 50, align: 'left', sortable: true },
+                    { label: '外观及尺寸', name: 'facadesize', index: 'facadesize', width: 50, align: 'left', sortable: true },
+                    { label: '表面硬度', name: 'surfacehardness', index: 'surfacehardness', width: 50, align: 'left', sortable: true },
+                    { label: '锯口面硬度', name: 'kerfhardness', index: 'kerfhardness', width: 50, align: 'left', sortable: true },
+                    { label: '硬度检测人', name: 'hardnesschecker', index: 'hardnesschecker', width: 50, align: 'left', sortable: true },
+                    { label: '火花鉴别', name: 'sparkdiscern', index: 'sparkdiscern', width: 50, align: 'left', sortable: true },
+                    { label: '探伤级别', name: 'findlevel', index: 'findlevel', width: 50, align: 'left', sortable: true },
+                    { label: '探伤检测人', name: 'findcheckuser', index: 'findcheckuser', width: 50, align: 'left', sortable: true },
+                    { label: '综合判定', name: 'multijudge', index: 'multijudge', width: 50, align: 'left', sortable: true },
+                    { label: '异议编号', name: 'diffcode', index: 'diffcode', width: 50, align: 'left', sortable: true },
+                    { label: '其它检验项目', name: 'otheritem', index: 'otheritem', width: 100, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'instockdate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                btn_edit();
+            }
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "instockqualityid");
+        if (IsChecked(KeyValue)) {
+            var url = "/QualityModule/BY_InStockQuality/InStockQualityInput?KeyValue=" + KeyValue;
+            Dialog(url, "InStockQualityInput", "原材料入仓品质信息编辑", 1000, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "instockqualityid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/QualityModule/BY_InStockQuality/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //明细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "instockqualityid");
+        if (IsChecked(KeyValue)) {
+            var url = "/QualityModule/BY_InStockQuality/Detail?KeyValue=" + KeyValue;
+            Dialog(url, "Detail", "原材料入仓品质信息明细", 820, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+    //
+    //查询
+    function btn_Search() {
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/QualityModule/BY_InStockQuality/GridPageListJson")?StartTime=" + $("#StartTime").val() + "&EndTime=" + $("#EndTime").val() + "&BillCode=" + escape($("#BillCode").val()) + "&SteelCode=" + escape($("#SteelCode").val()) + "&InStockQualityCode=" + escape($("#InStockQualityCode").val()) + "&CreateUserName=" + escape($("#CreateUserName").val()), page: 1 }).trigger('reloadGrid');
+    }
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "原材料品检单信息");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>开单日期：</th>
+            <td>
+                <input id="StartTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetDate(-7)" style="width: 100px" onfocus="var endDate=$dp.$('EndTime');WdatePicker({onpicked:function(){EndTime.focus();},maxDate:'#F{$dp.$D(\'EndTime\')}'})" />
+            </td>
+            <td>-</td>
+            <td>
+                <input id="EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetDate(1)" style="width: 100px" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'StartTime\')}'})" />
+            </td>
+            <th>材料编号：</th>
+            <td>
+                <input id="BillCode" maxlength="50" type="text" class="txt" style="width:80px;"/>
+            </td>
+            <th>钢种：</th>
+            <td>
+                <input id="SteelCode" maxlength="50" type="text" class="txt" style="width:80px;"/>
+            </td>
+            <th>品检编码：</th>
+            <td>
+                <input id="InStockQualityCode" maxlength="50" type="text" class="txt" style="width:80px;"/>
+            </td>
+            <th>入单人：</th>
+            <td>
+                <input id="CreateUserName" maxlength="50" type="text" class="txt" style="width:80px;"/>
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+            <td>
+                <input id="btnExport" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

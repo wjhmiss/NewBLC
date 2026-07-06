@@ -1,0 +1,201 @@
+@{
+    ViewBag.Title = "客户信息管理";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //查询
+    function btn_Search() {
+        var Parameter = [{
+            paramName: "Code",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+            Logic: "OR",
+            LeftBrace: "("
+        }, {
+            paramName: "ShortName",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+            Logic: "OR",
+        }, {
+            paramName: "FullName",
+            paramValue: $("#keywords").val(),
+            Operation: "Like",
+            Logic: "AND",
+            RightBrace: ")"
+        }, {
+            paramName: "ProcessingAlgorithm",
+            paramValue: $("#A1").prop("checked") == true ? "门市" : "1",
+            Operation: "Equal",
+            Logic: "OR",
+            LeftBrace: "("
+        }
+        , {
+            paramName: "ProcessingAlgorithm",
+            paramValue: $("#A2").prop("checked") == true ? "同行" : "2",
+            Operation: "Equal",
+            Logic: "OR"
+        }
+        , {
+            paramName: "ProcessingAlgorithm",
+            paramValue: $("#A3").prop("checked") == true ? "客户" : "3",
+            Operation: "Equal",
+            Logic: "OR",
+            
+        }, {
+            paramName: "ProcessingAlgorithm",
+            paramValue: $("#A4").prop("checked") == true ? "外协" : "4",
+            Operation: "Equal",
+            Logic: "AND",
+            RightBrace: ")"
+        }]
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CommonModule/Customer/GridPageJson1")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+    var SelectRowIndx = 1;
+    //加载表格
+    function GetGrid() {
+        
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/Customer/GridPageJson1")",
+            datatype: "json",
+            height: $(window).height() - 149,
+            autowidth: true,
+            colModel: [
+                    { label: '客户主键', name: 'customerid', index: 'customerid', width: 0, align: 'left', sortable: true, hidden: true },
+                { label: '所属公司', name: 'companyname', index: 'companyname', width: 80, align: 'left', sortable: true },
+                    { label: '客户编号', name: 'code', index: 'code', width: 80, align: 'left', sortable: true },
+                    { label: '客户名称', name: 'fullname', index: 'fullname', width: 200, align: 'left', sortable: true },
+                    { label: '客户简称', name: 'shortname', index: 'shortname', width: 80, align: 'left', sortable: true },
+                     {
+                         label: '含税', name: 'isinvoice', index: 'isinvoice', width: 45, align: 'center',
+                         formatter: function (cellvalue, options, rowObject) {
+                             if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                             if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                         }
+                     },
+                    { label: '类型', name: 'processingalgorithm', index: 'processingalgorithm', width: 80, align: 'left', sortable: true },
+                    { label: '客户分类', name: 'category', index: 'category', width: 80, align: 'center', sortable: true },
+                    { label: '账期', name: 'paymentmode', index: 'paymentmode', width: 80, align: 'center', sortable: true },
+                    { label: '运输方式', name: 'transitmode', index: 'transitmode', width: 60, align: 'center', sortable: true },
+                    { label: '销售大区', name: 'sellregion', index: 'sellregion', width: 80, align: 'center', sortable: true },
+                    { label: '销售区域', name: 'sellarea', index: 'sellarea', width: 80, align: 'center', sortable: true },
+                { label: '销售人员', name: 'sellpeople', index: 'sellpeople', width: 80, align: 'center', sortable: true }, 
+                { label: '额度', name: 'xymoney', index: 'xymoney', width: 80, align: 'center', sortable: true }, 
+                    //{ label: '备注', name: 'Remark', index: 'Remark', width: 200, align: 'left', sortable: true },
+                    //{
+                    //    label: '有效', name: 'Enabled', index: 'Enabled', width: 45, align: 'center', sortable: true,
+                    //    formatter: function (cellvalue, options, rowObject) {
+                    //        if (cellvalue == '1') return "<img src='../../Content/Images/checkokmark.gif'/>";
+                    //        if (cellvalue == '0') return "<img src='../../Content/Images/checknomark.gif'/>";
+                    //    }
+                    //},
+                    {
+                        label: '创建时间', name: 'createdate', index: 'createdate', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '创建用户', name: 'createusername', index: 'createusername', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '修改时间', name: 'modifydate', index: 'modifydate', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '修改用户', name: 'modifyusername', index: 'modifyusername', width: 80, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                btn_edit();
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+    }
+    //新增
+    function btn_add() {
+        var url = "/CommonModule/Customer/Form"
+        openDialog(url, "Form", "新增客户信息", 770, 650, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "customerid");
+        if (IsChecked(KeyValue)) {
+            var url = "/CommonModule/Customer/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑客户信息", 770, 650, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "customerid");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CommonModule/Customer/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>关键字：</th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 200px"  onkeyup="btn_Search();"  />
+            </td>
+            <td>
+                <span class="item" style="cursor: pointer;">
+                                    <input type="checkbox" class="checkbox" name="checkbox" id="A1" checked="checked" />
+                                    <label for="A1">门市</label></span>
+                <span class="item" style="cursor: pointer;">
+                                    <input type="checkbox" class="checkbox" name="checkbox" id="A2" checked="checked" />
+                                    <label for="A2">同行</label></span>
+                <span class="item" style="cursor: pointer;">
+                                    <input type="checkbox" class="checkbox" name="checkbox" id="A3" checked="checked" />
+                                    <label for="A3">客户</label></span>
+                <span class="item" style="cursor: pointer;">
+                                    <input type="checkbox" class="checkbox" name="checkbox" id="A4" checked="checked" />
+                                    <label for="A4">外协</label></span>
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()"/>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

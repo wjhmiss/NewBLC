@@ -1,0 +1,410 @@
+@{
+    ViewBag.Title = "发运单明细》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var deliveryid = GetQuery('deliveryid');
+    var linecode = GetQuery('linecode');
+    var KeyValue = GetQuery('KeyValue');
+    var customerid = GetQuery('customerid');
+    
+    var Calc = 0;
+    var Qty = 0;
+    var count = 0;
+    $(function () {
+        document.onkeydown = enterInput;
+        $("#WriteDate").val('@DateTime.Now.ToString("yyyy-MM-dd")');
+        InitControl();
+    })
+    function enterInput() {
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+        if (e && e.keyCode == 13) {//回车
+            AcceptClick(tar);
+            return;
+        }
+        //if (event.keyCode == 38) {//上
+        //    if ($(tar).attr('id') == "Weight") {
+
+        //    }
+        //    else if ($(tar).attr('id') == "MaterialPrice") {
+        //        $("#Weight").select();
+        //    }
+        //    else if ($(tar).attr('id') == "WorkPrice") {
+        //        $("#MaterialPrice").select();
+        //    }
+        //    else if ($(tar).attr('id') == "DDCostPer") {
+        //        $("#WorkPrice").focus();
+        //    }
+        //    else if ($(tar).attr('id') == "SortCode") {
+        //        $("#DDCostPer").select();
+        //    }
+        //    else if ($(tar).attr('id') == "SalesAmount") {
+        //        $("#SortCode").select();
+        //    }
+        //    else if ($(tar).attr('id') == "ProductName") {
+        //        $("#SalesAmount").select();
+        //    }
+        //    else if ($(tar).attr('id') == "CustomerProduct") {
+        //        $("#ProductName").select();
+        //    }
+        //    else if ($(tar).attr('id') == "Remark") {
+        //        $("#CustomerProduct").select();
+        //    }
+        //    else {
+        //        $("#Remark").select();
+        //    }
+
+        //}
+        //if (event.keyCode == 40) {//下
+        //    if ($(tar).attr('id') == "Weight") {
+        //        $("#MaterialPrice").select();
+        //    }
+        //    else if ($(tar).attr('id') == "MaterialPrice") {
+        //        $("#WorkPrice").select();
+        //    }
+        //    else if ($(tar).attr('id') == "WorkPrice") {
+        //        $("#DDCostPer").select();
+        //    }
+        //    else if ($(tar).attr('id') == "DDCostPer") {
+        //        $("#SortCode").select();
+        //    }
+        //    else if ($(tar).attr('id') == "SortCode") {
+        //        $("#SalesAmount").select();
+        //    }
+        //    else if ($(tar).attr('id') == "SalesAmount") {
+        //        $("#ProductName").select();
+        //    }
+        //    else if ($(tar).attr('id') == "ProductName") {
+        //        $("#CustomerProduct").select();
+        //    }
+        //    else if ($(tar).attr('id') == "CustomerProduct") {
+        //        $("#Remark").select();
+        //    }
+        //    else if ($(tar).attr('id') == "Remark") {
+        //    }
+        //    else {
+        //        $("#Weight").select();
+        //    }
+        //}
+    }
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!deliveryid || !!KeyValue) {
+            window.setTimeout(function () {
+                AjaxJson("/DeliveryModule/BY_DeliveryDetail/SetForm1", { deliveryid: deliveryid, linecode: linecode, KeyValue: KeyValue }, function (data) {
+                    Qty = data.Qty;
+                    KeyValue = data.DeliveryDetailId;
+                    SetWebControls(data);
+
+                    if (!!data.Weigh) {
+                        $("#Size").val(data.Thick + "*" + data.Weigh + "*" + data.Length + " - " + data.Qty);
+                    }
+                    else {
+                        $("#Size").val("Φ" + data.Thick + "*" + data.Length + " - " + data.Qty);
+                    }
+
+                    if (!!linecode) {
+                        $("#Qty").attr('disabled', 'disabled');
+                        $("#Qty").prop('disabled', true);
+                    }
+                    else {
+                        $("#Qty").attr('disabled', '');
+                        $("#Qty").prop('disabled', false);
+                    }
+
+                });
+
+
+                AjaxJsonNoMassge("/CommonModule/Customer/GetEntity", { keywords: customerid }, function (DataJson) {
+                    Calc = DataJson.Calc;
+                });
+            }, 200);
+        }
+    }
+    //保存事件
+    function AcceptClick(tar) {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        //if (count == 0) {
+        //    CalcMoney();
+        //}
+        //
+        var postData = GetWebControls("#form1");
+        AjaxJsonNoMassge("/DeliveryModule/BY_DeliveryDetail/SubmitDeliveryForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            top.frames[tabiframeId()].windowload1();
+            if (!linecode) {
+                window.setTimeout(function () {closeDialog();}, 500);
+                return;
+            }
+            linecode = Number(data.Attribute) + 1;
+            AjaxJsonNoMassge("/DeliveryModule/BY_DeliveryDetail/SetForm1", { deliveryid: deliveryid, linecode: linecode }, function (data) {
+                top.frames[tabiframeId()].windowload();
+                if (!data) {
+                    window.setTimeout(function () {closeDialog();}, 500);
+                    return;
+                }
+                Qty = data.Qty;
+                KeyValue = data.DeliveryDetailId;
+                SetWebControls(data);
+                if (!!data.Weigh) {
+                    $("#Size").val(data.Thick + "*" + data.Weigh + "*" + data.Length + " - " + data.Qty);
+                }
+                else {
+                    $("#Size").val("Φ" + data.Thick + "*" + data.Length + " - " + data.Qty);
+                }
+                if (!Qty) {
+                    window.setTimeout(function () {closeDialog();}, 500);
+                    return;
+                }
+                $(tar).select();
+                count = 0;
+            });
+        });
+    }
+    //计算金额
+    function CalcMoney() {
+
+        if ($("#JJtype").val() != "按件数") {
+            $("#HeatAmount").val((Number($("#HeatPrice").val()) * Number($("#Weight").val())).toFixed(2));
+            if (Calc == 0 || $("#OrderType").val() == "毛料生产") {
+                $("#MaterialAmount").val((Number($("#MaterialPrice").val()) * Number($("#Weight").val())).toFixed(2));
+            }
+            else {
+                $("#MaterialAmount").val((Number($("#MaterialPrice").val()) * Number($("#TheoryWeight").val())).toFixed(2));
+            }
+
+        }
+        else {
+            $("#MaterialAmount").val((Number($("#MaterialPrice").val()) * Number($("#Qty").val())).toFixed(2));
+            $("#HeatAmount").val((Number($("#HeatPrice").val()) * Number($("#Qty").val())).toFixed(2));
+        }
+
+
+        $("#WorkAmount").val((Number($("#WorkPrice").val()) * Number(Qty)).toFixed(2));
+        $("#DDCost").val((Number($("#DDCostPer").val()) * Number(Qty)).toFixed(2));
+
+        $("#MianCost").val((Number($("#MianCostArea").val()) * Number(Qty) * Number($("#MianCostPer").val())).toFixed(2));
+        $("#BianCost").val((Number($("#BianCostLong").val()) * Number(Qty) * Number($("#BianCostPer").val())).toFixed(2));
+
+        $("#JKCost").val(($("#JKCostPer").val()) * Number(Qty));
+
+        if (Number($("#TheoryWeight").val()) > Number($("#WorkWeight").val())) {
+            $("#SmallAmount").val((Number($("#SmallCost").val()) * Number($("#TheoryWeight").val())).toFixed(2));
+
+        }
+        else {
+            $("#SmallAmount").val((Number($("#SmallCost").val()) * Number($("#WorkWeight").val())).toFixed(2));
+
+        }
+
+        $("#SalesAmount").val((Number($("#HeatAmount").val()) + Number($("#MianCost").val()) + Number($("#BianCost").val()) + Number($("#MaterialAmount").val()) + Number($("#WorkAmount").val()) + Number($("#DDCost").val()) + Number($("#JKCost").val()) + Number($("#SmallAmount").val())).toFixed(2));
+    }
+    function calcSalesAmount() {
+        $("#SalesAmount").val((Number($("#HeatAmount").val()) + Number($("#MianCost").val()) + Number($("#BianCost").val()) + Number($("#MaterialAmount").val()) + Number($("#WorkAmount").val()) + Number($("#DDCost").val()) + Number($("#JKCost").val()) + Number($("#SmallAmount").val())).toFixed(2));
+
+    }
+    function addcount() {
+        //count = count + 1;
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>行号：</th>
+            <td class='formValue'>
+                <input id="LineCode" maxlength="10" type="text" class="txt" disabled />
+                <input id="" type="hidden" />
+                <input id="MianCostArea" type="hidden" />
+                <input id="BianCostLong" type="hidden" />
+                <input id="OrderType" type="hidden" />
+                <input id="WorkWeight" type="hidden" />
+                <input id="Size" type="hidden" />
+            </td>
+            <th class='formTitle'>厚/直径：</th>
+            <td class='formValue'>
+                <input id="Thick" maxlength="18" type="text" class="txt" datacol="yes" err="厚/直径" checkexpession="Double" />
+                孔径：
+                <input id="BoreSize" maxlength="18" type="text" class="txt" datacol="yes" err="孔径" checkexpession="Double" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>宽：</th>
+            <td class='formValue'>
+                <input id="Weigh" maxlength="18" type="text" class="txt" datacol="yes" err="宽" checkexpession="Double" />
+
+            </td>
+
+            <th class='formTitle'>长：</th>
+            <td class='formValue'>
+                <input id="Length" maxlength="18" type="text" class="txt" datacol="yes" err="长" checkexpession="Double" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>品名：</th>
+            <td class='formValue'>
+                <input id="ProductName" type="text" class="txt" datacol="yes" err="品名" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle'>送货备注：</th>
+            <td class='formValue'>
+                <input id="ShipDescription" maxlength="200" type="text" class="txt" />
+            </td>
+
+        </tr>
+
+
+        <tr>
+            <th class='formTitle'>材料单价：</th>
+            <td class='formValue'>
+                <input id="MaterialPrice" maxlength="18" type="text" class="txt" datacol="yes" err="材料单价" checkexpession="Double" onkeyup="CalcMoney()" />
+
+            </td>
+
+            <th class='formTitle'>材料金额：</th>
+            <td class='formValue'>
+                <input id="MaterialAmount" maxlength="18" type="text" class="txt" onkeyup="calcSalesAmount()" datacol="yes" err="重量" checkexpession="Double" />
+            </td>
+        </tr>
+        <tr>
+
+            <th class='formTitle'>加工单价(kg)：</th>
+            <td class='formValue'>
+                <input id="SmallCost" maxlength="18" type="text" class="txt" datacol="yes" err="加工单价" checkexpession="Double" onkeyup="CalcMoney()" style="width:25%;float:left;" />
+
+            </td>
+            <th class='formTitle'>加工金额：</th>
+            <td class='formValue'>
+                <input id="SmallAmount" maxlength="18" type="text" class="txt" onkeyup="calcSalesAmount()" datacol="yes" err="重量" checkexpession="Double" />
+            </td>
+        </tr>
+        <tr>
+
+            <th class='formTitle'>小件单价(件)：</th>
+            <td class='formValue'>
+                <input id="WorkPrice" maxlength="18" type="text" class="txt" datacol="yes" err="加工单价" checkexpession="Double" onkeyup="CalcMoney()" style="width:25%;float:left;" />
+
+            </td>
+            <th class='formTitle'>小件金额：</th>
+            <td class='formValue'>
+                <input id="WorkAmount" maxlength="18" type="text" class="txt" onkeyup="calcSalesAmount()" datacol="yes" err="重量" checkexpession="Double" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>切角单价/件：</th>
+            <td class='formValue'>
+                <input id="DDCostPer" maxlength="18" type="text" class="txt" datacol="yes" err="加工单价" checkexpession="Double" onkeyup="CalcMoney()" style="width:25%;float:left;" />
+            </td>
+            <th class='formTitle'>切角费：</th>
+            <td class='formValue'>
+                <input id="DDCost" maxlength="18" type="text" class="txt" onkeyup="calcSalesAmount()" datacol="yes" err="重量" checkexpession="Double" />
+            </td>
+        </tr>
+
+        <tr>
+            <th class='formTitle'>面积单价：</th>
+            <td class='formValue'>
+                <input id="MianCostPer" type="text" class="txt" onkeyup="addcount();CalcMoney()" datacol="yes" err="面积单价" checkexpession="Double" />
+            </td>
+            <th class='formTitle'>面积总额：</th>
+            <td class='formValue'>
+                <input id="MianCost" type="text" class="txt" onkeyup="calcSalesAmount()" datacol="yes" err="重量" checkexpession="Double" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>边单价：</th>
+            <td class='formValue'>
+                <input id="BianCostPer" type="text" class="txt" onkeyup="addcount();CalcMoney()" datacol="yes" err="边单价" checkexpession="Double" />
+            </td>
+            <th class='formTitle'>边总额：</th>
+            <td class='formValue'>
+                <input id="BianCost" type="text" class="txt" onkeyup="calcSalesAmount()" datacol="yes" err="重量" checkexpession="Double" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>热处理单价：</th>
+            <td class='formValue'>
+                <input id="HeatPrice" type="text" class="txt" onkeyup="addcount();CalcMoney()" datacol="yes" err="热处理单价" checkexpession="Double" />
+            </td>
+            <th class='formTitle'>热处理总额：</th>
+            <td class='formValue'>
+                <input id="HeatAmount" type="text" class="txt" onkeyup="calcSalesAmount()" datacol="yes" err="重量" checkexpession="Double" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>锯工单价：</th>
+            <td class='formValue'>
+                <input id="JKCostPer" type="text" class="txt" onkeyup="addcount();CalcMoney()" datacol="yes" err="锯工单价" checkexpession="Double" />
+            </td>
+            <th class='formTitle'>锯弓费：</th>
+            <td class='formValue'>
+                <input id="JKCost" type="text" class="txt" onkeyup="calcSalesAmount()" datacol="yes" err="重量" checkexpession="Double" />
+            </td>
+        </tr>
+
+
+
+        <tr>
+            <th class='formTitle'>数量：</th>
+            <td class='formValue'>
+                <input id="Qty" type="text" class="txt" datacol="yes" err="数量" checkexpession="Double" onkeyup="CalcMoney()" disabled />
+            </td>
+
+            <th class='formTitle'>总额：</th>
+            <td class='formValue'>
+                <input id="SalesAmount" type="text" class="txt" onkeyup="addcount();" disabled />
+            </td>
+
+
+        </tr>
+        <tr>
+            <th class='formTitle'>毛量：</th>
+            <td class='formValue'>
+                <input id="Weight" maxlength="18" type="text" class="txt" datacol="yes" err="重量" checkexpession="Double" onkeyup="CalcMoney()" />
+            </td>
+            <th class='formTitle'>净重：</th>
+            <td class='formValue'>
+                <input id="TheoryWeight" maxlength="18" type="text" class="txt" datacol="yes" err="净重" checkexpession="Double" onkeyup="CalcMoney()" />
+            </td>
+
+
+        </tr>
+
+        <tr>
+            <th class='formTitle'>配件号：</th>
+            <td class='formValue'>
+                <input id="ProjectCode" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>模号：</th>
+            <td class='formValue'>
+                <input id="CustomerProduct" type="text" class="txt" />
+            </td>
+
+
+            @*<th class='formTitle'>序号：</th>
+            <td class='formValue'>
+                <input id="SortCode" type="text" class="txt" />
+            </td>*@
+        </tr>
+        <tr>
+            <th class='formTitle'>计算类型：</th>  @*配件号*@
+            <td class='formValue'>
+                <select id="JJtype" class="txtselect" datacol="yes" err="计算类型" checkexpession="NotNull" onchange="CalcMoney();">
+                    <option value="按公斤" selected="selected">按公斤</option>
+                    <option value="按件数">按件数</option>
+                </select>
+            </td>
+
+        </tr>
+        <tr>
+
+            <td class='formValue' colspan="4">
+                <label style="color:red">提醒：如果总额为0，且备注为取消，将不在送货单中显示！</label>
+            </td>
+        </tr>
+    </table>
+</form>

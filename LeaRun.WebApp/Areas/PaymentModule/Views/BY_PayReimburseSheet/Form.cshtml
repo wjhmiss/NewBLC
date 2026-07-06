@@ -1,0 +1,1699 @@
+@{
+    ViewBag.Title = "付款管理》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/jqgrid/jqgridjquery")
+@Styles.Render("~/Content/Scripts/jqgrid/css/jqgridcss")
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        CustomerAutocomplete();
+        BindDropItem("#BankNum", "银行名称", "==请选择==");
+        setType();
+
+
+        window.setTimeout(function () {
+            GetGrid();
+            dispalydiv();
+        }, 200);
+    })
+    function InitControl() {
+        if ($("#Type0").val() == "收款") {
+            getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "收款类型", FullName: $("#Type1").val() }, function (data1) {
+                $("#Type2").empty()
+                var itemjson1 = eval("(" + data1 + ")");
+                $.each(itemjson1, function (i) {
+                    $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                });
+            });
+        }
+        else {
+            getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "CostType", FullName: $("#Type1").val() }, function (data1) {
+                $("#Type2").empty()
+                var itemjson1 = eval("(" + data1 + ")");
+                $.each(itemjson1, function (i) {
+                    $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                });
+            });
+        }
+    }
+    var temp = 0;
+    function setType() {
+        InitControl();
+        if ($("#Type0").val() == "收款") {
+            $("#Type1").empty()
+            BindDropItemT2("#Type1", "#Type2", "收款类型", "==请选择==");
+            InitControl();
+
+        }
+        else {
+            $("#Type1").empty()
+            BindDropItemT2("#Type1", "#Type2", "CostType", "==请选择==");
+            InitControl();
+
+        }
+    }
+    function setZRMoney() {
+        if ($("#GETMoney").val() != "" && $("#Opions").val() == "应付款") {
+            $("#ZRMoney").val((temp - Number($("#GETMoney").val())).toFixed(2));
+        }
+    }
+    function setFF() {
+        if ($("#CheckCodeGenMoney").val().indexOf('-') >= 0) {
+            if (!!Number($("#GETMoney").val())) {
+                $("#GETMoney").val(-Math.abs($("#GETMoney").val()));
+
+            }
+            else {
+                $("#GETMoney").val("");
+
+            }
+        }
+        setZRMoney();
+    }
+
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+
+        $("#RequiredMoney").val(Number($("#GETMoney").val()) + Number($("#ZRMoney").val()))
+
+
+
+        //if (Number($("#RequiredMoney").val()) != temp && $("#Opions").val() == "应付款") {
+        //    $("#GETMoney").select();
+        //    tipDialog("实付金额+折让金额应等于可付金额！", 3, 0);
+        //    return false;
+        //}
+        if ($("#Opions").val() != "应付款") {
+            $("#Code").val("");
+            $("#ZRMoney").val(0);
+            if ($("#CustomerCode").val() == "" && !$("#AN5").prop("checked")) {
+                tipDialog("请选择供应商", 3, 0);
+                $("#CustomerCode").select();
+                return false;
+            }
+        }
+        if ($("#GETMoney").val() == "0") {
+            tipDialog("请输入获取金额！", 3, 0);
+            $("#GETMoney").select();
+            return false;
+        }
+        if ($("#Code").val() == "" && $("#Opions").val() == "应付款") {
+            tipDialog("请选择单号！", 3, 0);
+            $("#Code").select();
+            return false;
+        }
+
+        if (!checkCustomerName() && $("#Opions").val() == "应付款") {
+            tipDialog("请选择相同供应商单号！", 3, 0);
+            return false
+        }
+        //if (temp <= 0) {
+        //    tipDialog("此单号已付清，不需多付！", 3, 0);
+        //    $("#GETMoney").select();
+        //    return false;
+        //}
+
+        var postData = GetWebControls("#form1");
+        AjaxJson("/PaymentModule/BY_PayReimburseSheet/SubmitFormCost?Code1=" + $("#Code").val() + "&CodeType=" + escape($("#Opions").val()), postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            //location.href = location.href;
+            //window.setTimeout(function () {closeDialog();}, 500);
+            $("#Code").val("");
+            $("#CheckCodeGenMoney").val("");
+            $("#GETMoney").val(0);
+            $("#RequiredMoney").val(0);
+            $("#GetType").val("现金");
+            $("#Opions").val("应付款");
+            $("#ZRMoney").val(0);
+            $("#Remark").val("");
+            dispalydiv();
+        });
+    }
+
+    function checkCustomerName() {
+        var selr = jQuery('#gridTable1').jqGrid('getGridParam', 'selarrrow');
+        var CustomerCode = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable1').jqGrid('getRowData', selr[i]);
+                if (i == 0) {
+                    CustomerCode = myrow.CustomerCode;
+                }
+                if (myrow.CustomerCode != CustomerCode) {
+                    return false;
+                }
+            }
+        }
+
+        selr = jQuery('#gridTable2').jqGrid('getGridParam', 'selarrrow');
+        CustomerCode = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable2').jqGrid('getRowData', selr[i]);
+                if (i == 0) {
+                    CustomerCode = myrow.CustomerCode;
+                }
+                if (myrow.CustomerCode != CustomerCode) {
+                    return false;
+                }
+            }
+        }
+
+
+        selr = jQuery('#gridTable3').jqGrid('getGridParam', 'selarrrow');
+        CustomerCode = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable3').jqGrid('getRowData', selr[i]);
+                if (i == 0) {
+                    CustomerCode = myrow.CustomerCode;
+                }
+                if (myrow.CustomerCode != CustomerCode) {
+                    return false;
+                }
+            }
+        }
+
+
+        selr = jQuery('#gridTable4').jqGrid('getGridParam', 'selarrrow');
+        CustomerCode = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable4').jqGrid('getRowData', selr[i]);
+                if (i == 0) {
+                    CustomerCode = myrow.CustomerCode;
+                }
+                if (myrow.CustomerCode != CustomerCode) {
+                    return false;
+                }
+            }
+        }
+
+        selr = jQuery('#gridTable7').jqGrid('getGridParam', 'selarrrow');
+        CustomerCode = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable7').jqGrid('getRowData', selr[i]);
+                if (i == 0) {
+                    CustomerCode = myrow.CustomerCode;
+                }
+                if (myrow.CustomerCode != CustomerCode) {
+                    return false;
+                }
+            }
+        }
+        selr = jQuery('#gridTable8').jqGrid('getGridParam', 'selarrrow');
+        CustomerCode = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable8').jqGrid('getRowData', selr[i]);
+                if (i == 0) {
+                    CustomerCode = myrow.CustomerCode;
+                }
+                if (myrow.CustomerCode != CustomerCode) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.CustomerName);
+            $("#CustomerId").val(data.CustomerId);
+            dispalydiv();
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Base_Supplier/GetAutoForSupAndCus", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].SupplierId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="CustomerName" style="width: 40%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="PaymentMode" style="width: 30%;">' + DataJson[i].Remark + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.CustomerName);
+                    $("#CustomerId").val(data.CustomerId);
+                    dispalydiv();
+                });
+            });
+        }
+    }
+    function GetGrid() {
+
+        GetGrid1();
+        GetGrid2();
+        GetGrid3();
+        GetGrid4();
+        GetGrid5();
+        GetGrid6();
+
+        GetGrid7();
+        GetGrid8();
+
+    }
+    function dispalydiv() {
+        $("#Code").val("")
+        $("#GETMoney").val(0);
+        $("#ZRMoney").val(0);
+        $("#CheckCodeGenMoney").val("")
+
+
+        if ($("#AN1").prop("checked")) {
+            $("#div1").show();
+            $("#div2").hide();
+            $("#div3").hide();
+            $("#div4").hide();
+            $("#div5").hide();
+            $("#div7").hide();
+            $("#div8").hide();
+
+        }
+
+        if ($("#AN2").prop("checked")) {
+            $("#div2").show();
+            $("#div1").hide();
+            $("#div3").hide();
+            $("#div4").hide();
+            $("#div5").hide();
+            $("#div7").hide();
+            $("#div8").hide();
+        }
+        if ($("#AN3").prop("checked")) {
+            $("#div3").show();
+            $("#div2").hide();
+            $("#div1").hide();
+            $("#div4").hide();
+            $("#div5").hide();
+            $("#div7").hide();
+            $("#div8").hide();
+        }
+        if ($("#AN4").prop("checked")) {
+            $("#div4").show();
+            $("#div2").hide();
+            $("#div3").hide();
+            $("#div1").hide();
+            $("#div5").hide();
+            $("#div7").hide();
+            $("#div8").hide();
+        }
+        if ($("#AN5").prop("checked")) {
+            $("#div5").show();
+            $("#div2").hide();
+            $("#div3").hide();
+            $("#div4").hide();
+            $("#div1").hide();
+            $("#div7").hide();
+            $("#div8").hide();
+            $("#CustomerCode").val("");
+            $("#CustomerName").val("");
+            $("#CustomerId").val("");
+        }
+
+        if ($("#AN7").prop("checked")) {
+            $("#div5").hide();
+            $("#div2").hide();
+            $("#div3").hide();
+            $("#div4").hide();
+            $("#div1").hide();
+            $("#div7").show();
+            $("#div8").hide();
+        }
+        if ($("#AN8").prop("checked")) {
+            $("#div5").hide();
+            $("#div2").hide();
+            $("#div3").hide();
+            $("#div4").hide();
+            $("#div1").hide();
+            $("#div7").hide();
+            $("#div8").show();
+        }
+        btn_Search1();
+        btn_Search2();
+        btn_Search3();
+        btn_Search4();
+        btn_Search5();
+        btn_Search6();
+        btn_Search7();
+        btn_Search8();
+    }
+
+    //加载表格
+    //查询
+    function btn_Search1() {
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null) and Status = 1",
+                Operation: "SQL",
+            }
+            ]
+        }
+        else {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " and  CustomerId = '" + $("#CustomerId").val() + "' AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status = 1",
+                Operation: "SQL",
+            }
+            ]
+        }
+
+        $("#gridTable1").jqGrid('setGridParam', { url: "@Url.Content("~/OrderModule/Base_SteelDDBeout/GridPageJson1")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+
+
+
+    function GetGrid1() {
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status = 1",
+                Operation: "SQL",
+            }
+            ]
+        }
+        else {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " and  CustomerId = '" + $("#CustomerId").val() + "' AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status = 1",
+                Operation: "SQL",
+            }
+            ]
+        }
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable1").jqGrid({
+            url: "@Url.Content("~/OrderModule/Base_SteelDDBeout/GridPageJson1")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            datatype: "json",
+            height: $(window).height() - 335,
+            autowidth: true,
+            colModel: [
+                    { label: '申请单号', name: 'Base_SteelDDBeoutCode', index: 'Base_SteelDDBeoutCode', width: 100, align: 'left', sortable: true },
+                    { label: '类型', name: 'TypeJC', index: 'TypeJC', width: 100, align: 'left', sortable: true },
+                { label: '物料id', name: 'Base_SteelDDBeoutId', index: 'Base_SteelDDBeoutId', hidden: true },
+                { label: '供应商名称', name: 'CustomerCode', index: 'CustomerCode', width: 100, align: 'left', sortable: true, hidden: true },
+                { label: '助记码', name: 'MnemonicCode', index: 'MnemonicCode', width: 100, align: 'left', sortable: true, hidden: true },
+                { label: '供应商名称', name: 'CustomerName', index: 'CustomerName', width: 100, align: 'left', sortable: true },
+                { label: '总金额', name: 'TotalAmount', index: 'TotalAmount', width: 80, align: 'left', sortable: true },
+                { label: '已付金额', name: 'GetedAmount', index: 'PayedAmount', width: 80, align: 'left', sortable: true },
+                {
+                    label: '剩余金额', name: 'NoAmount', index: 'NoAmount', width: 50, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return (Number(rowObject.TotalAmount) - Number(rowObject.GetedAmount)).toFixed(2)
+                    }
+                },
+                {
+                    label: '备注', name: 'Remark', index: 'Remark', width: 120, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                },
+
+                { label: 'Status', name: 'Status', index: 'Status', width: 120, align: 'left', sortable: true, hidden: true },
+                {
+                    label: '申请人', name: 'CreateUserName', index: 'CreateDate', width: 100, align: 'left', sortable: true
+                },
+                {
+                    label: '申请时间', name: 'CreateDate', index: 'CreateDate', width: 100, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+                
+            ],
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 999, 999, 999],
+            
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            footerrow: true,
+            gridview: true,
+            onSelectRow: function () {
+                var CheckCompanyCode = GetJqGridRowValue("#gridTable1", "Base_SteelDDBeoutCode");
+                var getedamount = SumGetJqGridRowValue("#gridTable1", "NoAmount");
+
+                $("#Code").val(CheckCompanyCode)
+                $("#GETMoney").val(0);
+                $("#ZRMoney").val(0);
+                $("#CheckCodeGenMoney").val("此单还剩：" + getedamount.toFixed(2))
+                temp = getedamount.toFixed(2);
+            },
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "CustomerName": "合计",
+                    "TotalAmount": FormatCurrency($("#gridTable1").getCol('TotalAmount', false, 'sum')),
+                    "GetedAmount": FormatCurrency($("#gridTable1").getCol('GetedAmount', false, 'sum')),
+                    "NoAmount": FormatCurrency($("#gridTable1").getCol('NoAmount', false, 'sum')),
+
+                });
+            },
+            multiselect: true,
+        });
+    }
+
+    //查询
+    function btn_Search2() {
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status = 1",
+                Operation: "SQL",
+            }
+            ]
+        }
+        else {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " and  CustomerId = '" + $("#CustomerId").val() + "' AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status = 1",
+                Operation: "SQL",
+            }
+            ]
+        }
+        $("#gridTable2").jqGrid('setGridParam', { url: "@Url.Content("~/OrderModule/Base_SteelDDPerchase/GridPageJson1")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid2() {
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status = 1",
+                Operation: "SQL",
+            }
+            ]
+        }
+        else {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " and  CustomerId = '" + $("#CustomerId").val() + "' AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status = 1",
+                Operation: "SQL",
+            }
+            ]
+        }
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable2").jqGrid({
+            url: "@Url.Content("~/OrderModule/Base_SteelDDPerchase/GridPageJson1")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            datatype: "json",
+            height: $(window).height() - 335,
+            autowidth: true,
+            colModel: [
+                    { label: '申请单号', name: 'Base_SteelDDPerchaseCode', index: 'Base_SteelDDPerchaseCode', width: 100, align: 'left', sortable: true },
+                    { label: '类型', name: 'TypeJC', index: 'TypeJC', width: 100, align: 'left', sortable: true },
+                { label: '物料id', name: 'Base_SteelDDPerchaseId', index: 'Base_SteelDDPerchaseId', hidden: true },
+                { label: '助记码', name: 'MnemonicCode', index: 'MnemonicCode', width: 100, align: 'left', sortable: true, hidden: true },
+                { label: '供应商名称', name: 'CustomerCode', index: 'CustomerCode', width: 100, align: 'left', sortable: true, hidden: true },
+                { label: '供应商名称', name: 'CustomerName', index: 'CustomerName', width: 100, align: 'left', sortable: true },
+                { label: '总金额', name: 'TotalAmount', index: 'TotalAmount', width: 80, align: 'left', sortable: true },
+                { label: '已付金额', name: 'GetedAmount', index: 'PayedAmount', width: 80, align: 'left', sortable: true },
+                {
+                    label: '剩余金额', name: 'NoAmount', index: 'NoAmount', width: 50, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return (Number(rowObject.TotalAmount) - Number(rowObject.GetedAmount)).toFixed(2)
+                    }
+                },
+                {
+                    label: '备注', name: 'Remark', index: 'Remark', width: 120, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                },
+
+                { label: 'Status', name: 'Status', index: 'Status', width: 120, align: 'left', sortable: true, hidden: true },
+                {
+                    label: '申请人', name: 'CreateUserName', index: 'CreateDate', width: 100, align: 'left', sortable: true
+                },
+                {
+                    label: '申请时间', name: 'CreateDate', index: 'CreateDate', width: 100, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+
+            ],
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 999, 999, 999],
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            footerrow: true,
+            gridview: true,
+            onSelectRow: function () {
+                var CheckCompanyCode = GetJqGridRowValue("#gridTable2", "Base_SteelDDPerchaseCode");
+                var getedamount = SumGetJqGridRowValue("#gridTable2", "NoAmount");
+
+                $("#Code").val(CheckCompanyCode)
+                $("#GETMoney").val(0);
+                $("#ZRMoney").val(0);
+                $("#CheckCodeGenMoney").val("此单还剩：" + getedamount.toFixed(2))
+                temp = getedamount.toFixed(2);
+            },
+            gridComplete: function () {
+
+                //合计
+                $(this).footerData("set", {
+                    "CustomerName": "合计",
+                    "TotalAmount": FormatCurrency($("#gridTable2").getCol('TotalAmount', false, 'sum')),
+                    "GetedAmount": FormatCurrency($("#gridTable2").getCol('GetedAmount', false, 'sum')),
+                    "NoAmount": FormatCurrency($("#gridTable2").getCol('NoAmount', false, 'sum')),
+                });
+            },
+            multiselect: true,
+        });
+    }
+
+
+    //加载表格
+    //查询
+    function btn_Search3() {
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: "  AND TotalAmount - GetedAmount !=0 ",
+                Operation: "SQL",
+            }
+            ]
+        }
+        else {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " and  CustomerId = '" + $("#CustomerId").val() + "' AND TotalAmount - GetedAmount !=0 ",
+                Operation: "SQL",
+            }
+            ]
+        }
+
+        $("#gridTable3").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/BY_PayCheckSheel/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+    function GetGrid3() {
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: "  AND TotalAmount - GetedAmount !=0 ",
+                Operation: "SQL",
+            }
+            ]
+        }
+        else {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " and  CustomerId = '" + $("#CustomerId").val() + "' AND TotalAmount - GetedAmount !=0 ",
+                Operation: "SQL",
+            }
+            ]
+        }
+
+        var SelectRowIndx = 0;
+        $("#gridTable3").jqGrid({
+            url: "@Url.Content("~/PaymentModule/BY_PayCheckSheel/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            datatype: "json",
+            height: $(window).height() - 335,
+            autowidth: true,
+            colModel: [
+                { label: '对账单ID', name: 'PayCheckSheetId', index: 'PayCheckSheetId', hidden: true },
+                { label: '对账单', name: 'PayCheckSheetCode', index: 'PayCheckSheetCode', width: 60, align: 'left', sortable: true },
+                { label: '供应商编号', name: 'CustomerCode', index: 'CustomerCode', width: 60, align: 'left', sortable: true, hidden: true },
+                { label: '供应商名称', name: 'CustomerName', index: 'CustomerName', width: 120, align: 'left', sortable: true },
+                { label: '对账单年月', name: 'YearMonth', index: 'YearMonth', width: 80, align: 'left', sortable: true },
+                { label: '总金额', name: 'TotalAmount', index: 'TotalAmount', width: 80, align: 'left', sortable: true },
+                { label: '已付金额', name: 'GetedAmount', index: 'PayedAmount', width: 80, align: 'left', sortable: true },
+                {
+                    label: '剩余金额', name: 'NoAmount', index: 'NoAmount', width: 50, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return (Number(rowObject.TotalAmount) - Number(rowObject.GetedAmount)).toFixed(2)
+                    }
+                },
+                { label: '发票金额', name: 'InvoiceMoney', index: 'InvoiceMoney', width: 80, align: 'left', sortable: true },
+               { label: '发票号', name: 'InvoiceNum', index: 'InvoiceNum', width: 80, align: 'left', sortable: true },
+               {
+                   label: '发票日期', name: 'InvoiceDate', index: 'InvoiceDate', width: 80, align: 'left', sortable: true,
+                   formatter: function (cellvalue, options, rowObject) {
+                       return formatDate(cellvalue, 'yyyy-MM-dd');
+                   }
+               },
+                {
+                    label: '完结', name: 'IsComfirm', index: 'IsComfirm', width: 50, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == "1") {
+                            return "是"
+                        }
+                        return "否"
+                    }
+                },
+
+            ],
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 999, 999, 999],
+            sortname: 'InvoiceDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            footerrow: true,
+            gridview: true,
+            onSelectRow: function () {
+                var CheckCompanyCode = GetJqGridRowValue("#gridTable3", "PayCheckSheetCode");
+                var getedamount = SumGetJqGridRowValue("#gridTable3", "NoAmount");
+
+                $("#Code").val(CheckCompanyCode)
+                $("#GETMoney").val(0);
+                $("#ZRMoney").val(0);
+                $("#CheckCodeGenMoney").val("此单还剩：" + getedamount.toFixed(2))
+                temp = getedamount.toFixed(2);
+            },
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "PayCheckSheetCode": "合计",
+                    "TotalAmount": FormatCurrency($("#gridTable3").getCol('TotalAmount', false, 'sum')),
+                    "GetedAmount": FormatCurrency($("#gridTable3").getCol('GetedAmount', false, 'sum')),
+                    "NoAmount": FormatCurrency($("#gridTable3").getCol('NoAmount', false, 'sum')),
+
+                });
+            },
+            multiselect: true,
+        });
+    }
+
+
+
+
+    //查询
+    function btn_Search4() {
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status = 1",
+                Operation: "SQL",
+            }
+            ]
+        }
+        else {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " and  CustomerId = '" + $("#CustomerId").val() + "' AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status = 1",
+                Operation: "SQL",
+            }
+            ]
+        }
+
+        $("#gridTable4").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/Base_MaterielPurchase/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid4() {
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status = 1 ",
+                Operation: "SQL",
+            }
+            ]
+        }
+        else {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " and  CustomerId = '" + $("#CustomerId").val() + "' AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status = 1 ",
+                Operation: "SQL",
+            }
+            ]
+        }
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable4").jqGrid({
+            url: "@Url.Content("~/PaymentModule/Base_MaterielPurchase/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            datatype: "json",
+            height: $(window).height() - 335,
+            autowidth: true,
+            colModel: [
+                    { label: '物料id', name: 'MaterielPurchaseId', index: 'MaterielPurchaseId', hidden: true },
+                    { label: '物料id', name: 'MaterielId', index: 'MaterielId', hidden: true },
+                    { label: '物料号', name: 'MaterielCode', index: 'MaterielCode', width: 80, align: 'left', sortable: true, hidden: true },
+                    { label: '供应商ID', name: 'CustomerId', index: 'CustomerId', hidden: true },
+                    { label: '供应商编号', name: 'CustomerCode', index: 'CustomerCode', hidden: true },
+                    { label: '报警库存', name: 'AlarmNumber', index: 'AlarmNumber', width: 60, align: 'left', sortable: true, hidden: true },
+                    { label: '申请单号', name: 'MaterielPurchaseCode', index: 'MaterielPurchaseCode', width: 100, align: 'left', sortable: true },
+                    { label: '供应商名称', name: 'CustomerName', index: 'CustomerName', width: 100, align: 'left', sortable: true },
+                    { label: '物料名称', name: 'MaterielName', index: 'MaterielName', width: 100, align: 'left', sortable: true },
+                    { label: '单价', name: 'PricePer', index: 'PricePer', width: 60, align: 'left', sortable: true },
+                    { label: '数量', name: 'Qty', index: 'Qty', width: 60, align: 'left', sortable: true },
+                    { label: '总金额', name: 'TotalAmount', index: 'TotalAmount', width: 60, align: 'left', sortable: true },
+                { label: '已付金额', name: 'GetedAmount', index: 'GetedAmount', width: 80, align: 'left', sortable: true },
+                {
+                    label: '剩余金额', name: 'NoAmount', index: 'NoAmount', width: 50, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return (Number(rowObject.TotalAmount) - Number(rowObject.GetedAmount)).toFixed(2)
+                    }
+                },
+                    { label: '申请人姓名', name: 'WorkerName', index: 'WorkerName', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '申请时间', name: 'CreateDate', index: 'CreateDate', width: 0, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+
+            ],
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 999, 999, 999],
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            footerrow: true,
+            gridview: true,
+            onSelectRow: function () {
+                var CheckCompanyCode = GetJqGridRowValue("#gridTable4", "MaterielPurchaseCode");
+                var getedamount = SumGetJqGridRowValue("#gridTable4", "NoAmount");
+
+                $("#Code").val(CheckCompanyCode)
+                $("#GETMoney").val(0);
+                $("#ZRMoney").val(0);
+                $("#CheckCodeGenMoney").val("此单还剩：" + getedamount.toFixed(2))
+                temp = getedamount.toFixed(2);
+            },
+            gridComplete: function () {
+
+                //合计
+                $(this).footerData("set", {
+                    "PayCheckSheetCode": "合计",
+                    "TotalAmount": FormatCurrency($("#gridTable4").getCol('TotalAmount', false, 'sum')),
+                    "GetedAmount": FormatCurrency($("#gridTable4").getCol('GetedAmount', false, 'sum')),
+                    "NoAmount": FormatCurrency($("#gridTable4").getCol('NoAmount', false, 'sum')),
+                    "Qty": FormatCurrency($("#gridTable4").getCol('Qty', false, 'sum')),
+                });
+            },
+            multiselect: true,
+        });
+    }
+
+    //加载表格
+    //查询
+    function btn_Search5() {
+
+        var Parameter = [{
+            paramName: "SQL",
+            paramValue: " AND TotalAmount - GetedAmount !=0  and Status = 1  ",
+            Operation: "SQL",
+        }
+        ]
+        $("#gridTable5").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/Base_PaySheet/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+    function GetGrid5() {
+        var Parameter = [{
+            paramName: "SQL",
+            paramValue: " AND TotalAmount - GetedAmount !=0  and Status = 1 ",
+            Operation: "SQL",
+        }
+        ]
+        var SelectRowIndx = 0;
+        $("#gridTable5").jqGrid({
+            url: "@Url.Content("~/PaymentModule/Base_PaySheet/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            datatype: "json",
+            height: $(window).height() - 335,
+            autowidth: true,
+            colModel: [
+                { label: '选项0', name: 'Type0', index: 'Type0', width: 60, },
+                 { label: '选项1', name: 'Type1', index: 'Type1', width: 50, },
+                    { label: '选项2', name: 'Type2', index: 'Type2', width: 60, },
+                    { label: '付款id', name: 'PaySheetId', index: 'PaySheetId', hidden: true },
+                    { label: '付款号', name: 'PaySheetCode', index: 'PaySheetCode', width: 100, align: 'left', sortable: true },
+                      {
+                          label: '事由时间', name: 'UseDate', index: 'UseDate', width: 100, align: 'left', sortable: true,
+                          formatter: function (cellvalue, options, rowObject) {
+                              return formatDate(cellvalue, 'yyyy-MM-dd');
+                          }
+                      },
+                    {
+                        label: '明细', name: 'Remark', index: 'Remark', width: 100, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");;
+
+                            }
+                            return "";
+                        }
+                    },
+                    { label: '总金额', name: 'TotalAmount', index: 'TotalAmount', width: 80, align: 'left', sortable: true },
+                { label: '已付金额', name: 'GetedAmount', index: 'GetedAmount', width: 80, align: 'left', sortable: true },
+                {
+                    label: '剩余金额', name: 'NoAmount', index: 'NoAmount', width: 50, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return (Number(rowObject.TotalAmount) - Number(rowObject.GetedAmount)).toFixed(2)
+                    }
+                },
+                    { label: '员工姓名', name: 'WorkerName', index: 'WorkerName', width: 100, align: 'left', sortable: true },
+                    { label: '申报部门', name: 'DepartmentName', index: 'DepartmentName', width: 120, align: 'left', sortable: true },
+                    {
+                        label: '审核状态', name: 'Status', index: 'Status', width: 60, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return cellvalue == "0" ? "否" : "是";
+                        }
+                    },
+
+                    { label: '申报部门', name: 'Type1', index: 'Type1', },
+                    { label: '申报部门', name: 'Type2', index: 'Type2', },
+            ],
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 999, 999, 999],
+            sortname: 'UseDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            footerrow: true,
+            gridview: true,
+            onSelectRow: function () {
+                var CheckCompanyCode = GetJqGridRowValue("#gridTable5", "PaySheetCode");
+                var getedamount = SumGetJqGridRowValue("#gridTable5", "NoAmount");
+
+                $("#Code").val(CheckCompanyCode)
+                $("#GETMoney").val(0);
+                $("#ZRMoney").val(0);
+                $("#CheckCodeGenMoney").val("此单还剩：" + getedamount.toFixed(2))
+                temp = getedamount.toFixed(2);
+
+                var Type0 = GetJqGridRowValue("#gridTable5", "Type0");
+                var Type1 = GetJqGridRowValue("#gridTable5", "Type1");
+                var Type2 = GetJqGridRowValue("#gridTable5", "Type2");
+
+                if (Type0 == "收款") {
+                    $("#Type0").val(Type0);
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: "收款类型" }, function (data) {
+                        var itemjson = eval("(" + data + ")");
+                        $("#Type1").empty()
+                        $("#Type1").append($("<option></option>").val("").html("全部"));
+                        $.each(itemjson, function (i) {
+                            $("#Type1").append($("<option></option>").val(itemjson[i].Code).html(itemjson[i].FullName));
+                        });
+                        $("#Type1").val(Type1);
+                    });
+
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "收款类型", FullName: Type1 }, function (data1) {
+                        var itemjson1 = eval("(" + data1 + ")");
+                        $("#Type2").empty()
+                        $("#Type2").append($("<option></option>").val("").html("全部"));
+                        $.each(itemjson1, function (i) {
+                            $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                        });
+                        $("#Type2").val(Type2);
+                    });
+                }
+                else {
+                    $("#Type0").val(Type0);
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: "CostType" }, function (data) {
+                        var itemjson = eval("(" + data + ")");
+                        $("#Type1").empty()
+                        $("#Type1").append($("<option></option>").val("").html("全部"));
+                        $.each(itemjson, function (i) {
+                            $("#Type1").append($("<option></option>").val(itemjson[i].Code).html(itemjson[i].FullName));
+                        });
+                        $("#Type1").val(Type1);
+                    });
+
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "CostType", FullName: Type1 }, function (data1) {
+                        var itemjson1 = eval("(" + data1 + ")");
+                        $("#Type2").empty()
+                        $("#Type2").append($("<option></option>").val("").html("全部"));
+                        $.each(itemjson1, function (i) {
+                            $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                        });
+                        $("#Type2").val(Type2);
+                    });
+
+                }
+
+
+            },
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "PaySheetCode": "合计",
+                    "TotalAmount": FormatCurrency($("#gridTable5").getCol('TotalAmount', false, 'sum')),
+                    "GetedAmount": FormatCurrency($("#gridTable5").getCol('GetedAmount', false, 'sum')),
+                    "NoAmount": FormatCurrency($("#gridTable5").getCol('NoAmount', false, 'sum')),
+                }, false);
+            },
+            multiselect: true,
+        });
+    }
+
+
+    function btn_Search6() {
+
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "CanUseMoney",
+                paramValue: 0,
+                Operation: "NotEqual",
+                Logic: "AND"
+            }, {
+                paramName: "Opions",
+                paramValue: "预付款",
+                Operation: "Equal",
+                Logic: "AND"
+            }]
+        }
+        else {
+            Parameter = [{
+                paramName: "CanUseMoney",
+                paramValue: 0,
+                Operation: "NotEqual",
+                Logic: "AND"
+            }, {
+                paramName: "CustomerId",
+                paramValue: $("#CustomerId").val(),
+                Operation: "Equal",
+                Logic: "AND"
+            }, {
+                paramName: "Opions",
+                paramValue: "预付款",
+                Operation: "Equal",
+                Logic: "AND"
+            }]
+        }
+
+        $("#gridTable6").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/BY_PayReimburseSheet/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+
+
+
+    function GetGrid6() {
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "CanUseMoney",
+                paramValue: 0,
+                Operation: "NotEqual",
+                Logic: "AND"
+            }, {
+                paramName: "Opions",
+                paramValue: "预付款",
+                Operation: "Equal",
+                Logic: "AND"
+            }]
+        }
+        else {
+            Parameter = [{
+                paramName: "CanUseMoney",
+                paramValue: 0,
+                Operation: "NotEqual",
+                Logic: "AND"
+            }, {
+                paramName: "CustomerId",
+                paramValue: $("#CustomerId").val(),
+                Operation: "Equal",
+                Logic: "AND"
+            }, {
+                paramName: "Opions",
+                paramValue: "预付款",
+                Operation: "Equal",
+                Logic: "AND"
+            }]
+        }
+        var SelectRowIndx = 0;
+        $("#gridTable6").jqGrid({
+            url: "@Url.Content("~/PaymentModule/BY_PayReimburseSheet/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            datatype: "json",
+            height: $(window).height() - 500,
+            autowidth: true,
+            colModel: [
+                    { label: '申请单ID', name: 'PayReimburseSheetID', index: 'PayReimburseSheetID', width: 0, align: 'left', sortable: true, hidden: true },
+                    { label: '单号', name: 'PayReimburseSheetCode', index: 'PayReimburseSheetCode', width: 120, align: 'left', sortable: true, hidden: true },
+                { label: '供应商名称', name: 'CustomerCode', index: 'CustomerCode', width: 100, align: 'left', sortable: true, hidden: true },
+                    { label: '供应商名称', name: 'CustomerName', index: 'CustomerName', width: 120, align: 'left', sortable: true },
+
+                    {
+                        label: '单号类型', name: 'Opions', index: 'Opions', width: 80, align: 'left', sortable: true, hidden: true
+                    },
+                    {
+                        label: '金额', name: 'GETMoney', index: 'GETMoney', width: 50, align: 'left', sortable: true
+                    },
+                    {
+                        label: '可用金额', name: 'CanUseMoney', index: 'CanUseMoney', width: 50, align: 'left', sortable: true
+                    },
+                    {
+                        label: '备注', name: 'Remark', index: 'Remark', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");;
+
+                            }
+                            return "";
+                        }
+                    },
+                    {
+                        label: '付款日期', name: 'RequiredDate', index: 'RequiredDate', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    {
+                        label: '操作', name: 'orderstatus', index: 'orderstatus', width: 60, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowobject) {
+                            return "<a  style='color:red;cursor:pointer' onclick='ReturnMoney(\"" + rowobject.PayReimburseSheetID + "\")'>退款</a>";
+                        }
+                    },
+                    {
+                        label: '操作', name: 'orderstatus', index: 'orderstatus', width: 60, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowobject) {
+                            return "<a  style='color:red;cursor:pointer' onclick='PayMoney(\"" + rowobject.PayReimburseSheetID + "\",\"" + rowobject.CanUseMoney + "\",\"" + rowobject.CustomerCode + "\")'>支付</a>";
+                        }
+                    },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            footerrow: false,
+            gridComplete: function () {
+
+            },
+            onSelectRow: function () {
+            },
+        });
+    }
+
+
+
+    //加载表格
+    //查询
+    function btn_Search7() {
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status =1 ",
+                Operation: "SQL",
+            }
+            ]
+        }
+        else {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " and  CustomerId = '" + $("#CustomerId").val() + "' AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status =1",
+                Operation: "SQL",
+            }
+            ]
+        }
+        $("#gridTable7").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/Base_SteelPurchase/GridPageJson1")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+
+
+
+    function GetGrid7() {
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status =1",
+                Operation: "SQL",
+            }
+            ]
+        }
+        else {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " and  CustomerId = '" + $("#CustomerId").val() + "' AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status =1",
+                Operation: "SQL",
+            }
+            ]
+        }
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable7").jqGrid({
+            url: "@Url.Content("~/PaymentModule/Base_SteelPurchase/GridPageJson1")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            datatype: "json",
+            height: $(window).height() - 335,
+            autowidth: true,
+            colModel: [
+                    { label: '申请单号', name: 'SteelPurchaseCode', index: 'SteelPurchaseCode', width: 100, align: 'left', sortable: true },
+
+                { label: '物料id', name: 'SteelPurchaseId', index: 'SteelPurchaseId', hidden: true },
+                { label: '助记码', name: 'MnemonicCode', index: 'MnemonicCode', width: 100, align: 'left', sortable: true, hidden: true },
+                { label: '供应商名称', name: 'CustomerCode', index: 'CustomerCode', width: 100, align: 'left', sortable: true, hidden: true },
+                { label: '供应商名称', name: 'CustomerName', index: 'CustomerName', width: 100, align: 'left', sortable: true },
+                { label: '总金额', name: 'TotalAmount', index: 'TotalAmount', width: 80, align: 'left', sortable: true },
+                { label: '已付金额', name: 'GetedAmount', index: 'PayedAmount', width: 80, align: 'left', sortable: true },
+                {
+                    label: '剩余金额', name: 'NoAmount', index: 'NoAmount', width: 50, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return (Number(rowObject.TotalAmount) - Number(rowObject.GetedAmount)).toFixed(2)
+                    }
+                },
+                { label: '支付方式', name: 'PayType', index: 'PayType', width: 80, align: 'left', sortable: true },
+                { label: '申请人姓名', name: 'WorkerName', index: 'WorkerName', width: 80, align: 'left', sortable: true },
+                { label: '申报部门', name: 'DepartmentName', index: 'DepartmentName', width: 120, align: 'left', sortable: true },
+
+                {
+                    label: '备注', name: 'Remark', index: 'Remark', width: 120, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                },
+                {
+                    label: '申请时间', name: 'CreateDate', index: 'CreateDate', width: 100, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+
+            ],
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 999, 999, 999],
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            footerrow: true,
+            gridview: true,
+            onSelectRow: function () {
+                var SteelPurchaseCode = GetJqGridRowValue("#gridTable7", "SteelPurchaseCode");
+                var NoAmount = SumGetJqGridRowValue("#gridTable7", "NoAmount");
+
+                $("#Code").val(SteelPurchaseCode)
+                $("#GETMoney").val(0);
+                $("#ZRMoney").val(0);
+                $("#CheckCodeGenMoney").val("此单还剩：" + NoAmount.toFixed(2))
+                temp = NoAmount.toFixed(2);
+            },
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "CustomerName": "合计",
+                    "TotalAmount": FormatCurrency($("#gridTable7").getCol('TotalAmount', false, 'sum')),
+                    "GetedAmount": FormatCurrency($("#gridTable7").getCol('GetedAmount', false, 'sum')),
+                    "NoAmount": FormatCurrency($("#gridTable7").getCol('NoAmount', false, 'sum')),
+                }, false);
+            },
+            multiselect: true,
+        });
+    }
+
+
+
+
+
+    //加载表格
+    //查询
+    function btn_Search8() {
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: "  AND TotalAmount - GetedAmount !=0  and Status =1 ",
+                Operation: "SQL",
+            }
+            ]
+        }
+        else {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " and  CustomerId = '" + $("#CustomerId").val() + "' AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status =1 ",
+                Operation: "SQL",
+            }
+            ]
+        }
+        $("#gridTable8").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/Base_PayCompany/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+
+
+
+    function GetGrid8() {
+        var Parameter;
+        if ($("#CustomerCode").val() == "") {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: "  AND TotalAmount - GetedAmount !=0  and Status =1 ",
+                Operation: "SQL",
+            }
+            ]
+        }
+        else {
+            Parameter = [{
+                paramName: "SQL",
+                paramValue: " and  CustomerId = '" + $("#CustomerId").val() + "' AND TotalAmount - GetedAmount !=0 and (PayCheckSheetCode = '' or PayCheckSheetCode is null)  and Status =1 ",
+                Operation: "SQL",
+            }
+            ]
+        }
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable8").jqGrid({
+            url: "@Url.Content("~/PaymentModule/Base_PayCompany/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            datatype: "json",
+            height: $(window).height() - 335,
+            autowidth: true,
+            colModel: [
+                { label: '选项0', name: 'Type0', index: 'Type0', width: 60, },
+                 { label: '选项1', name: 'Type1', index: 'Type1', width: 50, },
+                    { label: '选项2', name: 'Type2', index: 'Type2', width: 60, },
+                    { label: '物料id', name: 'PayCompanyId', index: 'PayCompanyId', hidden: true },
+                    { label: '供应商编号', name: 'CustomerCode', index: 'CustomerCode', width: 100, align: 'left', sortable: true, hidden: true },
+                    { label: '付款单号', name: 'PayCompanyCode', index: 'PayCompanyCode', width: 100, align: 'left', sortable: true },
+                    { label: '供应商名称', name: 'CustomerName', index: 'CustomerName', width: 100, align: 'left', sortable: true },
+                    { label: '关联单号', name: 'Code', index: 'Code', width: 100, align: 'left', sortable: true },
+                    { label: '付款事项', name: 'PayName', index: 'PayName', width: 100, align: 'left', sortable: true },
+                    { label: '单价', name: 'PricePer', index: 'PricePer', width: 60, align: 'left', sortable: true },
+                    { label: '数量', name: 'Qty', index: 'Qty', width: 60, align: 'left', sortable: true },
+                    { label: '总金额', name: 'TotalAmount', index: 'TotalAmount', width: 60, align: 'left', sortable: true },
+                { label: '已付金额', name: 'GetedAmount', index: 'PayedAmount', width: 80, align: 'left', sortable: true },
+                {
+                    label: '剩余金额', name: 'NoAmount', index: 'NoAmount', width: 50, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return (Number(rowObject.TotalAmount) - Number(rowObject.GetedAmount)).toFixed(2)
+                    }
+                },
+                    { label: '支付方式', name: 'PayType', index: 'PayType', width: 80, align: 'left', sortable: true },
+                    { label: '申请员工姓名', name: 'WorkerName', index: 'WorkerName', width: 80, align: 'left', sortable: true },
+                    { label: '申报部门', name: 'DepartmentName', index: 'DepartmentName', width: 120, align: 'left', sortable: true },
+                    {
+                        label: '申请时间', name: 'CreateDate', index: 'CreateDate', width: 100, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    {
+                        label: '备注', name: 'Remark', index: 'Remark', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");;
+
+                            }
+                            return "";
+                        }
+                    },
+                {
+                    label: '剩余金额', name: 'NoAmount', index: 'NoAmount', width: 50, align: 'left', sortable: true, hidden: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return (Number(rowObject.TotalAmount) - Number(rowObject.GetedAmount)).toFixed(2)
+                    }
+                },
+            ],
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 999, 999, 999],
+            
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            onSelectRow: function () {
+                var PayCompanyCode = GetJqGridRowValue("#gridTable8", "PayCompanyCode");
+                var getedamount = SumGetJqGridRowValue("#gridTable8", "NoAmount");
+
+                $("#Code").val(PayCompanyCode)
+                $("#GETMoney").val(0);
+                $("#ZRMoney").val(0);
+                $("#CheckCodeGenMoney").val("此单还剩：" + getedamount.toFixed(2))
+                temp = getedamount.toFixed(2);
+
+
+                var Type0 = GetJqGridRowValue("#gridTable8", "Type0");
+                var Type1 = GetJqGridRowValue("#gridTable8", "Type1");
+                var Type2 = GetJqGridRowValue("#gridTable8", "Type2");
+
+                if (Type0 == "收款") {
+                    $("#Type0").val(Type0);
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: "收款类型" }, function (data) {
+                        var itemjson = eval("(" + data + ")");
+                        $("#Type1").empty()
+                        $("#Type1").append($("<option></option>").val("").html("全部"));
+                        $.each(itemjson, function (i) {
+                            $("#Type1").append($("<option></option>").val(itemjson[i].Code).html(itemjson[i].FullName));
+                        });
+                        $("#Type1").val(Type1);
+                    });
+
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "收款类型", FullName: Type1 }, function (data1) {
+                        var itemjson1 = eval("(" + data1 + ")");
+                        $("#Type2").empty()
+                        $("#Type2").append($("<option></option>").val("").html("全部"));
+                        $.each(itemjson1, function (i) {
+                            $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                        });
+                        $("#Type2").val(Type2);
+                    });
+                }
+                else {
+                    $("#Type0").val(Type0);
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: "CostType" }, function (data) {
+                        var itemjson = eval("(" + data + ")");
+                        $("#Type1").empty()
+                        $("#Type1").append($("<option></option>").val("").html("全部"));
+                        $.each(itemjson, function (i) {
+                            $("#Type1").append($("<option></option>").val(itemjson[i].Code).html(itemjson[i].FullName));
+                        });
+                        $("#Type1").val(Type1);
+                    });
+
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "CostType", FullName: Type1 }, function (data1) {
+                        var itemjson1 = eval("(" + data1 + ")");
+                        $("#Type2").empty()
+                        $("#Type2").append($("<option></option>").val("").html("全部"));
+                        $.each(itemjson1, function (i) {
+                            $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                        });
+                        $("#Type2").val(Type2);
+                    });
+
+                }
+            },
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "CustomerCode": "合计",
+                    "TotalAmount": FormatCurrency($("#gridTable8").getCol('TotalAmount', false, 'sum')),
+                    "GetedAmount": FormatCurrency($("#gridTable8").getCol('GetedAmount', false, 'sum')),
+                    "NoAmount": FormatCurrency($("#gridTable8").getCol('NoAmount', false, 'sum')),
+                }, false);
+            },
+            multiselect: true,
+        });
+    }
+
+    function PayMoney(KeyValue, CanUseMoney, CustomerCode) {
+        if (IsChecked(KeyValue)) {
+            var s = "";
+            var type = "";
+            var totalmoneys = 0;
+
+            var selr = jQuery('#gridTable1').jqGrid('getGridParam', 'selarrrow');
+            if (selr.length) {
+                for (var i = 0; i < selr.length; i++) {
+                    var myrow = jQuery('#gridTable1').jqGrid('getRowData', selr[i]);
+                    s = s + myrow.Base_SteelDDBeoutCode + ",";
+                    totalmoneys = totalmoneys + Number(myrow.NoAmount);
+                    if (myrow.CustomerCode != CustomerCode) {
+                        tipDialog("请选择相同公司！", 3, 0);
+                        return false;
+                    }
+                }
+                type = "Base_SteelDDBeoutCode";
+            }
+
+            selr = jQuery('#gridTable2').jqGrid('getGridParam', 'selarrrow');
+            if (selr.length) {
+                for (var i = 0; i < selr.length; i++) {
+                    var myrow = jQuery('#gridTable2').jqGrid('getRowData', selr[i]);
+                    s = s + myrow.Base_SteelDDPerchaseCode + ",";
+                    totalmoneys = totalmoneys + Number(myrow.NoAmount);
+                    if (myrow.CustomerCode != CustomerCode) {
+                        tipDialog("请选择相同公司！", 3, 0);
+                        return false;
+                    }
+                }
+                type = "Base_SteelDDPerchaseCode";
+            }
+
+
+            selr = jQuery('#gridTable3').jqGrid('getGridParam', 'selarrrow');
+            if (selr.length) {
+                for (var i = 0; i < selr.length; i++) {
+                    var myrow = jQuery('#gridTable3').jqGrid('getRowData', selr[i]);
+                    s = s + myrow.PayCheckSheetCode + ",";
+                    totalmoneys = totalmoneys + Number(myrow.NoAmount);
+                    if (myrow.CustomerCode != CustomerCode) {
+                        tipDialog("请选择相同公司！", 3, 0);
+                        return false;
+                    }
+                }
+                type = "PayCheckSheetCode";
+            }
+
+
+            selr = jQuery('#gridTable4').jqGrid('getGridParam', 'selarrrow');
+            if (selr.length) {
+                for (var i = 0; i < selr.length; i++) {
+                    var myrow = jQuery('#gridTable4').jqGrid('getRowData', selr[i]);
+                    s = s + myrow.MaterielPurchaseCode + ",";
+                    totalmoneys = totalmoneys + Number(myrow.NoAmount);
+                    if (myrow.CustomerCode != CustomerCode) {
+                        tipDialog("请选择相同公司！", 3, 0);
+                        return false;
+                    }
+                }
+                type = "MaterielPurchaseCode";
+            }
+
+            selr = jQuery('#gridTable7').jqGrid('getGridParam', 'selarrrow');
+            if (selr.length) {
+                for (var i = 0; i < selr.length; i++) {
+                    var myrow = jQuery('#gridTable7').jqGrid('getRowData', selr[i]);
+                    s = s + myrow.SteelPurchaseCode + ",";
+                    totalmoneys = totalmoneys + Number(myrow.NoAmount);
+                    if (myrow.CustomerCode != CustomerCode) {
+                        tipDialog("请选择相同公司！", 3, 0);
+                        return false;
+                    }
+                }
+                type = "SteelPurchaseCode";
+            }
+            selr = jQuery('#gridTable8').jqGrid('getGridParam', 'selarrrow');
+            if (selr.length) {
+                for (var i = 0; i < selr.length; i++) {
+                    var myrow = jQuery('#gridTable8').jqGrid('getRowData', selr[i]);
+                    s = s + myrow.PayCompanyCode + ",";
+                    totalmoneys = totalmoneys + Number(myrow.NoAmount);
+                    if (myrow.CustomerCode != CustomerCode) {
+                        tipDialog("请选择相同公司！", 3, 0);
+                        return false;
+                    }
+                }
+                type = "PayCompanyCode";
+            }
+
+
+            if ($("#AN5").prop("checked")) {
+                tipDialog("内部费用不能使用预付单！", 3, 0);
+                return false;
+            }
+            openDialog("/PaymentModule/BY_PayReimburseSheet/PayMoneyView?KeyValue=" + KeyValue + "&ids=" + s + "&type=" + type + "&totalmoneys=" + totalmoneys + "&CanUseMoney=" + CanUseMoney, "Query", "支付", 550, 160, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        }
+    }
+    function ReturnMoney(KeyValue) {
+        if (IsChecked(KeyValue)) {
+            openDialog("/PaymentModule/BY_PayReimburseSheet/ReturnMoneyView?KeyValue=" + KeyValue, "Query", "退款", 550, 160, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+        }
+    }
+
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+   
+    <table class="form">
+        <tr>
+            <th class='formTitle'>付款类型：</th>
+            <td class='formValue' colspan="5">
+                @*<input id="TotalAmount" type="hidden" />*@
+                <input id="RequiredMoney" type="hidden" />
+                <input id="Type" type="text" class="txt" style="display: none;" />
+                <span class="item" style="cursor: pointer;">
+                    <input type="radio" name="boardType" value="0" id="AN3" checked="checked" onclick="dispalydiv();" />
+                    <label for="AN3">对账发票&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label></span>
+                <span class="item" style="cursor: pointer;">
+                    <input type="radio" name="boardType" value="0" id="AN5"  onclick="dispalydiv();" />
+                    <label for="AN5">员工费用&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label></span>
+                <span class="item" style="cursor: pointer;">
+                    <input type="radio" name="boardType" value="0" id="AN2" onclick="dispalydiv();" />
+                    <label for="AN2">委外采购&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label></span>
+                <span class="item" style="cursor: pointer;">
+                    <input type="radio" name="boardType" value="0" id="AN1" onclick="dispalydiv();" />
+                    <label for="AN1">委外加工&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label></span>
+                <span class="item" style="cursor: pointer;">
+                    <input type="radio" name="boardType" value="0" id="AN4" onclick="dispalydiv();" />
+                    <label for="AN4">物料采购&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label></span>
+
+                <span class="item" style="cursor: pointer;">
+                    <input type="radio" name="boardType" value="0" id="AN7" onclick="dispalydiv();" />
+                    <label for="AN7">钢材采购&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label></span>
+
+                <span class="item" style="cursor: pointer;">
+                    <input type="radio" name="boardType" value="0" id="AN8" onclick="dispalydiv();" />
+                    <label for="AN8">付款申请&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</label></span>
+            </td>
+
+        </tr>
+        
+        <tr style="display:none;">
+            <th class='formTitle'>单号：</th>
+            <td class='formValue' colspan="7">
+                <input id="Code" maxlength="19" type="text" class="txt"  disabled />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>可付款：</th>
+            <td class='formValue'>
+                <input id="CheckCodeGenMoney" maxlength="19" type="text" class="txt" disabled />
+            </td>
+            <th class='formTitle'>收付金额：</th>
+            <td class='formValue'>
+                <input id="GETMoney"   onkeyup="setZRMoney();" onblur="setFF()" maxlength="18" type="text" class="txt required" datacol="yes" err="付款金额" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle'>折让金额：</th>
+            <td class='formValue'>
+                <input id="ZRMoney" onfocus="IsMoney(this.id);" value="0" maxlength="18" type="text" class="txt" datacol="yes" err="折让金额" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle'>类型：</th>
+            <td class='formValue'>
+                <select id="GetType" class="txtselect">
+                    <option value="现金">现金</option>
+                    <option value="银行">银行</option>
+                    <option value="承兑">承兑</option>
+                </select>
+            </td>
+
+        </tr>
+
+        <tr>
+            <th class='formTitle'>付款日期：</th>
+            <td class='formValue'>
+                <input id="RequiredDate" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetTime()" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})" datacol="yes" err="付款日期" checkexpession="NotNull"/>
+            </td>
+            <th class='formTitle'>选项：</th>
+            <td class='formValue'>
+                <select id="Opions" class="txtselect" >
+                    <option value="应付款">应付款</option>
+                    <option value="预付款">预付款</option>
+                </select>
+            </td>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue' >
+                <input id="Remark" type="text" class="txt"/>
+
+            </td>
+            <th class='formTitle'>银行账户：</th>
+            <td class='formValue'>
+                 <select id="BankNum"  class="txtselect" datacol="yes" err="银行账户" checkexpession="NotNull">
+                 </select>
+            </td>
+        </tr>
+
+        <tr>
+            
+            <th class='formTitle'>供应商：</th>
+            <td class='formValue'>
+                <input id="CustomerCode" maxlength="50" type="text" style="width: 55%;" class="txt"  />
+                <input id="CustomerName" maxlength="19" type="text" class="txt" disabled style="width: 40%;" />
+                <input id="CustomerId" type="hidden" />
+
+            </td>
+            <th class='formTitle'>付款项：</th>
+            <td class='formValue' colspan="3" >
+                <select id="Type0" class="txtselect" style="width:30%" onchange="setType();"  datacol="yes" err="收款项0" checkexpession="NotNull">
+                    <option value="付款">付款</option>
+                    <option value="收款">收款</option>
+                </select>
+                <select id="Type1" class="txtselect" style="width:30%"  datacol="yes" err="收款项1" checkexpession="NotNull">
+                </select>
+                <select id="Type2" class="txtselect"  style="width:35%" datacol="yes" err="收款项2" checkexpession="NotNull">
+                </select>
+
+            </td>
+             <td class='formValue' colspan="2">
+                <input id="btnSearch" type="button" class="btnSearch" value="付款" onclick="AcceptClick()" />
+            </td>
+
+        </tr>
+
+    </table>
+   
+
+    <div class="topline rightline" style="margin: 1px; margin-top: -1px;" id="div6">
+            <table id="gridTable6"></table>
+            <div id="gridPager6"></div>
+        </div>
+
+
+     <div class="topline rightline" style="margin: 1px; margin-top: -1px;" id="div1">
+            <table id="gridTable1"></table>
+            <div id="gridPager1"></div>
+        </div>
+        <div class="topline rightline" style="margin: 1px; margin-top: -1px;" id="div2">
+            <table id="gridTable2"></table>
+            <div id="gridPager2"></div>
+        </div>
+        <div class="topline rightline" style="margin: 1px; margin-top: -1px;" id="div3">
+            <table id="gridTable3"></table>
+            <div id="gridPager3"></div>
+        </div>
+    <div class="topline rightline" style="margin: 1px; margin-top: -1px;" id="div4">
+            <table id="gridTable4"></table>
+            <div id="gridPager4"></div>
+        </div>
+        <div class="topline rightline" style="margin: 1px; margin-top: -1px;" id="div5">
+            <table id="gridTable5"></table>
+            <div id="gridPager5"></div>
+        </div>
+
+    <div class="topline rightline" style="margin: 1px; margin-top: -1px;" id="div7">
+            <table id="gridTable7"></table>
+            <div id="gridPager7"></div>
+        </div>
+
+    <div class="topline rightline" style="margin: 1px; margin-top: -1px;" id="div8">
+            <table id="gridTable8"></table>
+            <div id="gridPager8"></div>
+        </div>
+</form>

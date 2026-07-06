@@ -1,0 +1,93 @@
+﻿@{
+    ViewBag.Title = "导出Excel";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+@*<script src="~/Content/Scripts/cookie/jquery.cookie.js"></script>*@
+@Scripts.Render("~/Content/Scripts/cookie/cookiejquery")
+
+
+<script>
+
+
+    $(function () {
+        getAjax("/QuotationModule/AssembleParts/PrintWW", { Base_SteelDDBeoutId: GetQuery('Base_SteelDDBeoutId') }, function (data) {
+            var data1 = eval("(" + data + ")");
+            var JsonData = data1.tempsppps;  
+            $.each(JsonData, function (i) {
+                var titles = JsonData[i].titles.split('*')[0];   //by_quotation.ShortName + "：" + item.QuotationCode + "-" + item.LineCode + "*" + item.Remark;
+                var base_files = JsonData[i].base_files;
+                var htmls = '<div class="btnbartitle"><div style="float: left">' + titles + ' <span class="ModuleName"></span></div></div><div style="height: 180px; overflow: auto;"><ul id="AccessView" class="sys_spec_text">';
+                $.each(base_files, function (j) {
+                    var div = document.createElement("div");
+                    if (typeof base_files[j].Status == "string") {
+                        div.innerHTML = base_files[j].Status;
+                    }
+                    if (div.childNodes.length > 0) {
+                        var objimg = $(div.childNodes[0]);
+                        var src = objimg.attr("src");
+                        if (!src) {
+                            src = objimg.find("img").attr("src");
+                        }
+                        htmls = htmls + "<li  title='" + base_files[j].Id + "'><a id='" + base_files[j].Id + ";" + JsonData[i].titles.split('*')[1] + "' style='height: 160px; width: 160px; '>" + '<img style="height: 160px; width: 160px; " src="' + src + '" /><h1 style="position: absolute;left:10px;bottom:0px;">' + base_files[j].Type  + '</h1>' + "</a><i></i></li>";
+
+                    }
+                });
+                html = htmls + '</ul></div>';
+                $("#boots").append(html);
+            });
+        });
+        $("#boots li").click(function () {
+            if (!$(this).find('a').hasClass('disabled')) {
+                //$('#AccessView li').removeClass("selected");
+                if (!!$(this).hasClass("selected")) {
+                    $(this).removeClass("selected");
+                } else {
+                    $(this).addClass("selected");
+                }
+            }
+        });
+
+        //$("#CheckView").trigger("click");
+    })
+    //确认导出
+    function AcceptClick() {
+        //AjaxJson("/DeliveryModule/BY_Delivery/Update", { KeyValue: GetQuery('KeyValue'), PrintUserId: "1" }, function (data) {
+        var imgs = "";
+        $('#boots .selected a').each(function () { imgs += escape($(this).attr('id') + '!'); });
+        top.frames[tabiframeId()].LJPrint(imgs);
+        window.setTimeout(function () {closeDialog();}, 500);
+        //});
+    }
+
+    function qx() { window.setTimeout(function () {closeDialog();}, 500);}
+
+</script>
+<div class="note-prompt" style="margin: 1px;">
+    请选择委外加工配件的图片。
+</div>
+<div class="border" style="margin: 1px;" id="boots">
+    @*<div class="btnbartitle">
+            <div style="float: left">
+                打印纸张 <span class="ModuleName"></span>
+            </div>
+            <div style="float: right">
+                <label id="CheckView" class="checkAllOff" title="取消">取消</label>
+            </div>
+        </div>
+        <div style="height: 360px; overflow: auto;">
+            <ul id="AccessView1" class="sys_spec_text">
+                <li title='A4'>
+                    <a id='A4' style="height: 160px; width: 160px; ">
+                        <img style="height: 160px; width: 160px; " src="http://localhost:20740/Resource/Document/LJ/0502-0003/115.png?1466353162" /><h1 style="position: absolute;left:10px;bottom:0px;">asdf</h1>
+                    </a><i></i>
+                </li>
+                <li title='A5' class="selected">
+                    <a id='A5'>
+                        <img src="../../Content/Images/Icon16/tag_blue.png">A5
+                    </a><i></i>
+                </li>
+            </ul>
+        </div>*@
+   
+        @*<div class="btnbartitle"><div style="float: left">打印格式 <span class="ModuleName"></span></div></div><div style="height: 360px; overflow: auto;"><ul id="AccessView" class="sys_spec_text"></ul></div>*@
+</div>

@@ -1,0 +1,310 @@
+@{
+    ViewBag.Title = "费用申请单";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        Loadlayout2();
+        window.setTimeout(function () {
+            GetGrid();
+            GetGridYS();
+        }, 200);
+        CustomerAutocomplete();
+
+    })
+
+
+    function Loadlayout2() {
+        if ($('.layout2').length > 0) {
+            $("#layout2").splitter({
+                type: "v",
+                outline: true,
+                sizeLeft: 850,
+                minLeft: 200,
+                minRight: 200,
+                anchorToWindow: true,
+                accessKey: "L",
+            });
+        }
+    }
+
+
+
+
+
+    //加载表格
+    function GetGrid() {
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/PaymentModule/BY_PayReimburseSheet/GridPageJsonLW")",
+            datatype: "json",
+            height: $(window).height() - 100,
+            autowidth: true,
+            colModel: [
+                    {
+                        label: '日期', name: 'BuildDate', index: 'BuildDate', width: 80, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (rowObject.Remark == "合计") {
+                                return "";
+                            }
+                            else {
+                                if (!!cellvalue) {
+                                    return formatDate(cellvalue, 'yyyy-MM-dd');
+
+                                }
+                                return cellvalue;
+                            }
+                        }
+                    },
+                    { label: '账户', name: 'BankNum', index: 'BankNum', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '摘要', name: 'Remark', index: 'Remark', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");
+
+                            }
+                            return "";
+                        }
+                    },
+                    { label: '单号', name: 'Code', index: 'Code', width: 80, align: 'left', sortable: true },
+                    { label: '类型', name: 'GetType', index: 'GetType', width: 80, align: 'left', sortable: true },
+                    { label: '应付金额', name: 'TotalAmount', index: 'TotalAmount', width: 80, align: 'left', sortable: true },
+                    { label: '实付金额', name: 'GetMoney', index: 'GetMoney', width: 80, align: 'left', sortable: true },
+                    { label: '折让', name: 'ZRMoney', index: 'ZRMoney', width: 80, align: 'left', sortable: true },
+                    { label: '余额', name: 'NoGetMoney', index: 'NoGetMoney', width: 80, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 100, 500, 1000],
+            pager: false,
+
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            footerrow: false,
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+
+                $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
+            },
+            onSelectRow: function (rowid, status) {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                rowScrod = $("#" + rowid).position().top;
+
+            },
+        });
+    }
+
+    //加载表格
+    function GetGridYS() {
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTableYS").jqGrid({
+            url: "@Url.Content("~/PaymentModule/BY_PayReimburseSheet/GridPageJsonYS")",
+            datatype: "json",
+            height: $(window).height() - 100,
+            autowidth: true,
+            colModel: [
+                    {
+                        label: '日期', name: 'BuildDate', index: 'BuildDate', width: 80, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (rowObject.Remark == "合计") {
+                                return "";
+                            }
+                            else {
+                                if (!!cellvalue) {
+                                    return formatDate(cellvalue, 'yyyy-MM-dd');
+
+                                }
+                                return cellvalue;
+                            }
+                        }
+                    },
+                    { label: '账户', name: 'BankNum', index: 'BankNum', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '摘要', name: 'Remark', index: 'Remark', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");
+
+                            }
+                            return "";
+                        }
+                    },
+                    { label: '单号', name: 'Code', index: 'Code', width: 80, align: 'left', sortable: true },
+                    { label: '类型', name: 'GetType', index: 'GetType', width: 80, align: 'left', sortable: true },
+                    { label: '应收金额', name: 'TotalAmount', index: 'TotalAmount', width: 80, align: 'left', sortable: true },
+                    { label: '实收金额', name: 'GetMoney', index: 'GetMoney', width: 80, align: 'left', sortable: true },
+                    { label: '折让', name: 'ZRMoney', index: 'ZRMoney', width: 80, align: 'left', sortable: true },
+                    { label: '余额', name: 'NoGetMoney', index: 'NoGetMoney', width: 80, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 100, 500, 1000],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
+
+            },
+            onSelectRow: function (rowid, status) {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                rowScrod = $("#" + rowid).position().top;
+            },
+        });
+    }
+
+
+    //查询
+    function btn_Search() {
+        if ($("#CustomerName").val() == "") {
+            alertDialog("请输入对应供应商！", 0);
+        }
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/BY_PayReimburseSheet/GridPageJsonLW")?CustomerName=" + escape($("#CustomerCode").val()) + "&CreateDate_StartTime=" + $("#CreateDate_StartTime").val() + "&CreateDate_EndTime=" + $("#CreateDate_EndTime").val(), page: 1 }).trigger('reloadGrid');
+        $("#gridTableYS").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/BY_PayReimburseSheet/GridPageJsonYS")?CustomerName=" + escape($("#CustomerCode").val()) + "&CreateDate_StartTime=" + $("#CreateDate_StartTime").val() + "&CreateDate_EndTime=" + $("#CreateDate_EndTime").val(), page: 1 }).trigger('reloadGrid');
+
+    }
+
+    function BCPrintPreview() {
+        var CustomerCode = $("#CustomerCode").val();
+        var CustomerName = $("#CustomerName").val();
+        //JSON.parse('{' + reVal + '}')
+        if (IsChecked(CustomerName)) {
+            PrintDialog("/PaymentModule/BY_CheckSheet/PrintLW?CustomerCode=" + escape($("#CustomerCode").val()) + "&CustomerName=" + escape($("#CustomerName").val()) + "&StartTime=" + $("#CreateDate_StartTime").val() + "&EndTime=" + $("#CreateDate_EndTime").val(), "PrintPage", "对账单打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "应收款明细导出");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+    function btn_Export1() {
+        SetDeriveExcel("#gridTableYS", "预收及退款导出");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+
+    function CustomerAutocomplete() {
+        var $CustomerName = $("#CustomerName");
+        $CustomerName.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerName", function (data) {
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.CustomerName);
+            $("#CustomerId").val(data.CustomerId);
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Base_Supplier/GetAutoForSupAndCus", { keywords: $CustomerName.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].SupplierId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="CustomerName" style="width: 40%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="PaymentMode" style="width: 30%;">' + DataJson[i].Remark + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerName", "300px", "200px", html, function (data) {
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.CustomerName);
+                    $("#CustomerId").val(data.CustomerId);
+                });
+            });
+        }
+    }
+
+    function btn_Pint() {
+    }
+</script>
+
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>日期 从：</th>
+            <td>
+                <input id="CreateDate_StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 80px" />
+            </td>
+            <th style="width: 20px;">至：</th>
+            <td>
+                <input id="CreateDate_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 80px" />
+            </td>
+
+            <th style="width: 40px;">供应商：</th>
+            <td>
+                <input id="CustomerName" type="text" class="txt" style="width: 80px" />
+            </td>
+            <td>
+                <input id="CustomerCode" disabled type="text" class="txt" style="width: 80px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜索" onclick="btn_Search()" />
+                <input id="btn_export" type="button" class="btnSearch" value="应收款明细导出" onclick="btn_Export()" />
+                <input id="btn_export1" type="button" class="btnSearch" value="预收及退款导出" onclick="btn_Export1()" />
+                <input id="btn_dfexport1" type="button" class="btnSearch" value="对账单" onclick="BCPrintPreview()" />
+            </td>
+        </tr>
+    </table>
+</div>
+
+
+
+
+
+
+<div id="layout2" class="layout2">
+    <!--左边-->
+    <div class="layoutPanel layout-west" style="">
+        <div class="btnbartitle">
+            <div>
+                应收款明细
+            </div>
+        </div>
+        <div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+            <table id="gridTable"></table>
+            <div id="gridPager"></div>
+        </div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                预收及退款明细
+            </div>
+        </div>
+        <!--视图-->
+        <table id="gridTableYS"></table>
+        <div id="gridPagerYS"></div>
+    </div>
+</div>

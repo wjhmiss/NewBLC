@@ -1,0 +1,67 @@
+@{
+    ViewBag.Title = "BY_FKReport》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/QualityModule/BY_FKReport/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/QualityModule/BY_FKReport/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+      
+        <tr>
+            <th class='formTitle'>产地：</th>
+            <td class='formValue'>
+                <input id="PlaceOrigin" maxlength=50 type="text" class="txt"   />
+            </td>
+             <th class='formTitle'>钢种：</th>
+            <td class='formValue'>
+                <input id="SteelDescription" maxlength=200 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>Qty：</th>
+            <td class='formValue'>
+                <input id="Qty" maxlength=10 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>炉号：</th>
+            <td class='formValue'>
+                <input id="StoveCode" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        
+        <tr>
+            <th class='formTitle'>备注信息：</th>
+            <td class='formValue' colspan="3">
+                   <textarea id="Remark" class="txtArea" rows="6"></textarea>
+            </td>
+        </tr>
+        
+        <tr>
+        </tr>
+    </table>
+</form>

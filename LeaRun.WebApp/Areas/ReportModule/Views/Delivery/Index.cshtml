@@ -1,0 +1,345 @@
+﻿@{
+    ViewBag.Title = "送货单列印清单";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        BindDropItem("#SteelType", "SteelType", "==请选择==");
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //查询
+    function btn_Search() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/ReportModule/Delivery/GridPageListJson1")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+    }
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+
+
+
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx = 0;
+        var rowScrod = 0;
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ReportModule/Delivery/GridPageListJson1")?Condition=" + escape(Condition),
+            datatype: "json",
+            height: $(window).height() - 170,
+            autowidth: true,
+            colModel: [
+                { label: 'deliveryid', name: 'deliveryid', index: 'deliveryid', hidden: true },
+                {
+                    label: '助记码', name: 'mnemoniccode', index: 'mnemoniccode', width: 80, align: 'center', sortable: true, hidden: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return "'" + cellvalue;
+                    }
+                },
+                {
+                    label: '出货日期', name: 'createdate', index: 'createdate', width: 65, align: 'center', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+                { label: '客户编号', name: 'customercode', index: 'customercode', width: 50, align: 'left', sortable: true },
+                { label: '客户名称', name: 'customername', index: 'customername', width: 120, align: 'left', sortable: true },
+                { label: '送货单号', name: 'deliverycode', index: 'deliverycode', width: 100, align: 'left', sortable: true },
+                { label: '订单行号', name: 'linecode', index: 'linecode', width: 40, align: 'center', sortable: true },
+                { label: '钢种', name: 'steelcode', index: 'steelcode', width: 50, align: 'left', sortable: true },
+                { label: '客户品名', name: 'productname', index: 'productname', width: 60, align: 'left', sortable: true },
+                {
+                    label: "规格(厚宽长)", name: "size", index: "size", width: 100,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!rowObject.weigh) {
+                            return parseFloat(rowObject.thick) + "*" + parseFloat(rowObject.weigh) + "*" + parseFloat(rowObject.length);
+                        }
+                        else {
+                            return "Φ" + rowObject.thick + "*" + rowObject.length;
+                        }
+                    }
+                },
+                { label: '厚度', name: 'thick', index: 'thick', width: 50, align: 'center', sortable: true, hidden: true },
+                { label: '宽度', name: 'weigh', index: 'weigh', width: 50, align: 'center', sortable: true, hidden: true },
+                { label: '长度', name: 'length', index: 'length', width: 50, align: 'center', sortable: true, hidden: true },
+                { label: '数量', name: 'qty', index: 'qty', width: 40, align: 'center', sortable: true },
+
+                {
+                    label: '补料', name: 'freebill', index: 'freebill', width: 60, align: 'center', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == 1) {
+                            return "补料";
+                        }
+                        return "";
+
+                    }
+                },
+                {
+                    label: '客来料', name: 'custmaterial', index: 'custmaterial', width: 60, align: 'center', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (cellvalue == 1) {
+                            return "客来料";
+                        }
+                        return "";
+
+                    }
+                },
+
+
+                { label: '重量', name: 'weight', index: 'weight', width: 50, align: 'center', sortable: true },
+                { label: '材料单价', name: 'materialprice', index: 'materialprice', width: 50, align: 'center', sortable: true },
+                { label: '材料费', name: 'materialamount', index: 'materialamount', width: 50, align: 'center', sortable: true },
+                { label: '热处理单价', name: 'heatprice', index: 'heatprice', width: 50, align: 'center', sortable: true },
+                { label: '热处理费', name: 'heatamount', index: 'heatamount', width: 50, align: 'center', sortable: true },
+                {
+                    label: '加工明细(量*单价=总)', name: 'process', index: 'process', width: 250, align: 'center', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return HtmlUtil.htmlDecode(cellvalue);
+                    }
+                },
+                { label: '加工费总计', name: 'workamount', index: 'workamount', width: 50, align: 'center', sortable: true },
+                { label: '送货单金额', name: 'salesamount', index: 'salesamount', width: 50, align: 'center', sortable: true },
+
+                { label: '理论', name: 'weight5', index: 'weight5', width: 50, align: 'center', sortable: true },
+                { label: '过磅(再加5%损耗)', name: 'gweight', index: 'gweight', width: 100, align: 'center', sortable: true },
+                { label: '材料费单价', name: 'materialcostper', index: 'materialcostper', width: 50, align: 'center', sortable: true },
+                { label: '材料费', name: 'materialcost', index: 'materialcost', width: 50, align: 'center', sortable: true },
+                { label: '热处理单价', name: 'heatcostper', index: 'heatcostper', width: 50, align: 'center', sortable: true },
+                { label: '热处理费', name: 'heatcost', index: 'heatcost', width: 50, align: 'center', sortable: true },
+                {
+                    label: '加工明细(量*单价=总)', name: 'process2', index: 'process2', width: 250, align: 'center', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return HtmlUtil.htmlDecode(cellvalue);
+                    }
+                },
+                {
+                    label: '加工费总计', name: 'workcost', index: 'workcost', width: 50, align: 'center', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return (cellvalue < 0) ? "未完成" : cellvalue;
+                    }
+},
+                {
+                    label: '总成本', name: 'a', index: 'a', width: 50, align: 'center', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return rowObject.materialcost + rowObject.heatcost + rowObject.workcost;
+                    } },
+
+                {
+                    label: '实际营收', name: 'b', index: 'b', width: 50, align: 'center', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (rowObject.materialcost + rowObject.heatcost + rowObject.workcost > 0) {
+                            return rowObject.salesamount - (rowObject.materialcost + rowObject.heatcost + rowObject.workcost);
+
+                        }
+                        return "未完成";
+
+                    }
+},
+                { label: '销售人员', name: 'sellpeople', index: 'sellpeople', width: 70, align: 'center', sortable: true },
+            ],
+            pagination: true,
+            viewrecords: true,
+            rowNum: 200,
+            rowList: [200, 500, 2000, 3000, 5000],
+            pager: "#gridPager",
+            sortname: 'createdate,deliverycode,linecode',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: false,
+            altclass: 'altclass',
+            gridview: true,
+            footerrow: true,
+            onSelectRow: function (rowid, status) {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                rowScrod = $("#" + rowid).position().top;
+            },
+            gridComplete: function () {
+
+                $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
+                var data = $("#gridTable").jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    var item = i + 1;
+                    if (Number(data[i].salesamount) - (Number(data[i].materialcost) + Number(data[i].heatcost) + Number(data[i].workcost) ) < 0) {
+                        $("#" + item).find('td').css("background-color", "red");
+                    }
+                }
+
+
+
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                //合计
+                $(this).footerData("set", {
+                    "salesarea": "合计",
+                    "qty": FormatCurrency($("#gridTable").getCol('qty', false, 'sum')),
+                    "materialamount": FormatCurrency($("#gridTable").getCol('materialamount', false, 'sum')),
+                    "weight5": FormatCurrency($("#gridTable").getCol('weight5', false, 'sum')),
+                    "weight": FormatCurrency($("#gridTable").getCol('weight', false, 'sum')),
+
+                    "workamount": FormatCurrency($("#gridTable").getCol('workamount', false, 'sum')),
+                    "salesamount": FormatCurrency($("#gridTable").getCol('salesamount', false, 'sum')),
+                    "totalcost": FormatCurrency($("#gridTable").getCol('totalcost', false, 'sum')),
+                    "yingli": FormatCurrency($("#gridTable").getCol('yingli', false, 'sum')),
+                    "heatworkcost": FormatCurrency($("#gridTable").getCol('heatworkcost', false, 'sum')),
+
+                });
+            }
+        });
+        //表头合并
+        $("#gridTable").jqGrid('setGroupHeaders', {
+            useColSpanStyle: true,
+            groupHeaders: [
+                { startColumnName: 'weight', numberOfColumns: 8, titleText: '营收' },
+                { startColumnName: 'weight5', numberOfColumns: 9, titleText: '成本' }
+
+            ]
+        });
+    }
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "送货单列印清单");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+    function btn_Change() {
+        confirmDialog("提示", "可能等待较长时间，确定同步最新成本设置吗？", function (r) {
+            if (r) {
+                Loading(true, "正在提交数据...");
+                window.setTimeout(function () {
+                    var Condition = GetParameterJson("QueryParameter");
+                    AjaxJson("/DeliveryModule/InventoryComfirm/CostUpdate", "", function (data) {
+                        tipDialog(data.Message, 3, data.Code);
+                        windowload();
+                    });
+                }, 200);
+            }
+        });
+    }
+    function btn_ChangeS() {
+        var deliveryid = GetJqGridRowValue("#gridTable", "deliveryid");
+        var linecode = GetJqGridRowValue("#gridTable", "linecode");
+        if (IsChecked(deliveryid)) {
+            confirmDialog("提示", "确定同步最新成本设置吗？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        var Condition = GetParameterJson("QueryParameter");
+                        AjaxJson("/DeliveryModule/InventoryComfirm/CostUpdate1?deliveryid=" + deliveryid + "&linecode=" + linecode, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    function btn_Set() {
+        var deliveryid = GetJqGridRowValue("#gridTable", "deliveryid");
+        var linecode = GetJqGridRowValue("#gridTable", "linecode");
+        if (IsChecked(deliveryid)) {
+            var url = "/DeliveryModule/BY_DeliveryDetail/SetCostForm?deliveryid=" + deliveryid + "&linecode=" + linecode;
+            openDialog(url, "Form", "某行变更状态", 800, 320, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    function btn_Summery() {
+        var url = "/ReportModule/Delivery/FormSummary";
+        openDialog(url, "FormSummary", "统计", 750, 360, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+</script>
+<div class="leftline rightline topline QueryArea" style="margin: 1px; margin-bottom: 0px;">
+    <table class="form-find" id="QueryParameter" style="height: 45px;">
+        <tr>
+            <th>创建日期 从：</th>
+            <td>
+                <input id="CreateDate_StartTime" type="text" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()"  class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" /></td>
+            
+            <th>创建日期 至：</th>
+            <td>
+                <input id="CreateDate_EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />
+            </td>
+            
+            
+            <th>钢种：</th>
+            <td>
+                <input id="SteelCode" type="text" class="txt" style="width: 100px" /></td>
+                        <th>规格：</th>
+            <td>
+                <input id="Size" type="text" class="txt" style="width: 100px" />
+            </td>
+             <th>客户品名：</th>
+            <td>
+                <input id="ProductName" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>销售员：</th>
+            <td>
+                <input id="salesman" type="text" class="txt" style="width: 100px" />
+            </td>
+             <td>
+                <select id="Simple" class="select" style="width: 80px">
+                    <option value="1">全部单类</option>
+                    <option value="2">粗料单</option>
+                    <option value="3">精料单</option>
+                    <option value="4">其他</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th>客户：</th>
+            <td>
+                <input id="CustomerCode" type="text" class="txt" style="width: 100px" /></td>
+            <td>
+                <select id="BillType" class="select" style="width: 80px">
+                    <option value="3">送货单号</option>
+                    <option value="1">加工单号</option>
+                    <option value="2">合同编号</option>
+                </select>
+            </td>
+            <td>
+                <input id="OrderCode" type="text" class="txt" style="width: 100px" />
+            </td>
+           
+            <th >类型：</th>
+            <td >
+                <select id="LType" class="select" style="width: 100px">
+                    <option value="">全部</option>
+                    <option value="GC">钢材</option>
+                    <option value="LJ">配件</option>
+                    <option value="RCL">热处理</option>
+                </select>
+            </td>
+            <th>助记码：</th>
+            <td>
+                <input id="MnemonicCode" type="text" class="txt" style="width: 100px" />
+            </td>
+            <td>
+                <span class="item" style="cursor: pointer;">
+                    <input type="checkbox" class="checkbox" name="checkbox" id="WorkTypeA" />
+                    <label for="WorkTypeA">亏损</label>
+                </span>
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜索" onclick="btn_Search()" /></td>
+            <td colspan="13" style="width:500px">
+                <input id="btn_export" type="button" class="btnSearch" value="导出" onclick="btn_Export()" />
+                @*<input id="btn_set" type="button" class="btnSearch" value="设置" onclick="btn_Set()" />*@
+                @*<input id="btn_change" type="button" class="btnSearch" value="单条同步" onclick="btn_ChangeS()" />
+                <input id="btn_change1" type="button" class="btnSearch" value="全部同步" onclick="btn_Change()" />*@
+                @*<input id="btn_Summery" type="button" class="btnSearch" value="汇总统计" onclick="btn_Summery()" />*@
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

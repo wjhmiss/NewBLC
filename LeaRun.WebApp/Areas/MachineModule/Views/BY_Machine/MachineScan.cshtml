@@ -1,0 +1,68 @@
+﻿@{
+    ViewBag.Title = "MachineScan";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        BindDropItem("#MachineCode", "Machine", "==请选择==");
+        InitControl();
+        ScanOrder();
+        $("#MachineCode").change(function () {
+            $("#MachineName").val($('#MachineCode option:selected').text());
+        });
+
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/MachineModule/BY_Machine/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        
+    }
+
+    //订单扫描事件
+    function ScanOrder() {
+        $(document).keypress(function (e) {
+            //回车键事件
+            if (e.which == 13) {
+                if ($("#OrderCodeLine").val() == "") {
+                    return false;
+                }
+                
+                var postData = GetWebControls("#form1");
+                AjaxJsonNoMassge("/MachineModule/BY_Machine/SubmitScan?KeyValue=" + KeyValue, postData, function (data) {
+                    tipDialog(data.Message, 3, data.Code);
+                    $("#OrderCodeLine").val("")
+                });
+            }
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>设备编号：</th>
+            <td class='formValue'>
+                <select id="MachineCode" class="txtselect" style="width: 96%" datacol="yes" err="设备编号" checkexpession="NotNull" disabled>
+                </select>
+                <input id="MachineName" maxlength="200" type="text" class="txt" style="display: none;" />
+            </td>
+
+        </tr>
+        <tr>
+            <th class='formTitle'>工单号：</th>
+            <td class='formValue'>
+                <input id="OrderCodeLine" class="txt BarCode" maxlength="50" type="text" class="txt"  onfocus="ScanOrder();"  />
+            </td>
+
+        </tr>
+
+    </table>
+</form>

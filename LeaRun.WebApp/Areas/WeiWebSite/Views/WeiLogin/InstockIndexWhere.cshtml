@@ -1,0 +1,99 @@
+﻿@{
+    ViewBag.Title = "仓库";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+<script type="text/javascript" src="~/Content/Scripts/Mobile/scripts/jquery/Validform_Datatype.js"></script>
+<script type="text/javascript" src="~/Content/Scripts/Mobile/scripts/jquery/Validform_v5.3.2.js"></script>
+<script type="text/javascript">
+    $(document).ready(function (e) {
+       
+        BindDropSteelCode("#SteelCode", "==请选择==");
+        $("#btnSubmit").click(function () {
+
+            var MaterialType = $("input[name=radio_test]:checked").val();
+            var SteelCode = $("#SteelCode").val()
+            var Thick = $("#Thick").val();
+            var Weigh = $("#Weigh").val();
+            var Length = $("#Length").val();
+            var alarmck = $("input[name=radio_test1]:checked").val();
+            if ((Thick != "" && !Number(Thick)) || (Weigh != "" && !Number(Weigh)) || (Length != "" && !Number(Length))) {
+                tipDialog("错误：厚度,宽度长度必须为数字型", -1);
+                $(this).attr("disabled", false);
+                $(this).val("重新提交");
+                return false;
+            }
+            location.href = "@Url.Content("~/WeiWebSite/WeiLogin/InstockIndex")?MaterialType=" + MaterialType + "&SteelCode=" + escape(SteelCode) + "&Thick=" + Thick + "&Weigh=" + Weigh + "&Length=" + Length + "&alarmck=" + alarmck;
+
+        });
+
+
+    });
+
+    function locationInputQuot() {
+        location.href = "@Url.Content("~/WeiWebSite/WeiLogin/InstockIndex")";
+    }
+
+
+
+</script>
+<!--分类筛选-->
+<div id="categoryPanel" class="panel" data-footer="none">
+    <header>
+        <a onclick="history.back(-1)" class="backButton">返回</a>
+        <h1>库存条件筛选</h1>
+        <a onclick="$.ui.toggleSideMenu()" class="menuButton"></a>
+    </header>
+
+    <ul class="category-bar">
+        <!--大类-->
+
+        <li>
+            <h2><a href="javascript:;" data-ignore="true">加工类型</a></h2>
+            <p>
+                <!--小类-->
+                <div style="display: inline-block; float: left; width: 33.33%;">
+                    <input id="radio_1" type="radio" name="radio_test" value="-1" checked><label for="radio_1">全部</label>
+                </div>
+                <div style="display: inline-block; float: left; width: 33.33%;">
+                    <input id="radio_2" type="radio" name="radio_test" value="0"><label for="radio_2">大板</label>
+                </div>
+                <div style="display: inline-block; float: left; width: 33.33%;">
+                    <input id="radio_3" type="radio" name="radio_test" value="1"><label for="radio_3">碎料</label>
+                </div>
+                <!--/小类-->
+            </p>
+        </li>
+        <li>
+            <h2><a href="javascript:;" data-ignore="true">钢种</a></h2>
+            <p>
+                <select name="SteelCode" id="SteelCode" datatype="*" sucmsg=" ">
+                </select>
+                <input id="SteelId" type="hidden" />
+            </p>
+        </li>
+        <li>
+            <h2><a href="javascript:;" data-ignore="true">厚、宽、长</a></h2>
+            <p>
+                <input name="Thick" id="Thick" type="text" maxlength="50" value="" style="width: 31.33%;" datatype="/^(([1-9]+)|([0-9]+\.[0-9]{1,2}))$/" sucmsg=" " errormsg="请输入不超过小数点后两位的数字" />
+                <input name="Weigh" id="Weigh" type="text" maxlength="50" value="" style="width: 31.33%;" datatype="/^(([1-9]+)|([0-9]+\.[0-9]{1,2}))$/" sucmsg=" " errormsg="请输入不超过小数点后两位的数字" />
+                <input name="Length" id="Length" type="text" maxlength="50" value="" style="width: 31.33%;" datatype="/^(([1-9]+)|([0-9]+\.[0-9]{1,2}))$/" sucmsg=" " errormsg="请输入不超过小数点后两位的数字" />
+            </p>
+        </li>
+        <li>
+            <h2><a href="javascript:;" data-ignore="true">是否报警</a></h2>
+            <p>
+                <div style="display: inline-block; float: left; width: 50%;">
+                    <input id="radio_4" type="radio" name="radio_test1" value="checked"><label for="radio_4">是</label>
+                </div>
+                <div style="display: inline-block; float: left; width: 50%;">
+                    <input id="radio_5" type="radio" name="radio_test1" value="0"><label for="radio_5">否</label>
+                </div>
+            </p>
+        </li>
+
+        <div >
+            <input id="btnSubmit" name="btnSubmit" type="submit" value="查  询" class="btn orange full" />
+        </div>
+        <!--/大类-->
+    </ul>
+</div>

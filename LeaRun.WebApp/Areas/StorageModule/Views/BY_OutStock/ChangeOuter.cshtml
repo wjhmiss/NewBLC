@@ -1,0 +1,112 @@
+﻿@{
+    ViewBag.Title = "修改数量";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        $("#lbl_present").text(GetQuery('outstockid'));
+        BatchCodeAutocomplete();
+        InitControl();
+        SetSteelControl();
+    })
+    //批号自动补全
+    function BatchCodeAutocomplete() {
+        var $BatchCode = $("#BatchCode");
+        $BatchCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("BatchCode", function (data) {
+            $("#BatchCode").val(data.BatchCode);
+            SetSteelControl();
+        });
+        //获取数据源 $("#BatchCode").val()
+        function DataSource() {
+            AjaxJson("/StorageModule/BY_Inventory/GetListJsonforReplace", { BatchCode: "", InventoryType: "1", batchcodereplace: GetQuery('steelcode') }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="BatchCode" >' + DataJson[i].BatchCode + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("BatchCode", $BatchCode.width() + "px", "110px", html, function (data) {
+                    $("#BatchCode").val(data.BatchCode);
+                    SetSteelControl();
+                });
+            });
+        }
+    }
+    //得到一个对象实体
+    function SetSteelControl() {
+        if (!GetQuery($("#BatchCode").val())) {
+            AjaxJson("/StorageModule/BY_Inventory/GetEntityJson", { BatchCode: $("#BatchCode").val(), ChildBatch: "0×0×0" }, function (data) {
+                $("#Weightss").html(Number($.trim(data.Weight).replace("&nbsp;", "")).toFixed(2));
+            });
+        }
+    }
+    function InitControl() {
+        if (!!GetQuery('outstockid')) {
+            AjaxJson("/StorageModule/BY_OutStock/SetForm", { KeyValue: GetQuery('outstockid') }, function (data) {
+                SetWebControls(data);
+                $("#BatchCode").val(GetQuery('steelcode'));
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        if (Number($("#Weightss").html()) < Number($("#Weight").val())) {
+            alert("库存不够扣数！");
+            return;
+        }
+        Loading(true, "正在提交数据...");
+        $(".ui_state_highlight").attr("disabled", true);
+        window.setTimeout(function () {
+            var postData = {
+                OutStockId: GetQuery('outstockid'),
+                Qty: $("#Qty").val(),
+                Weight: $("#Weight").val(),
+                steelcode1: GetQuery('steelcode'),
+                steelcode2: $("#BatchCode").val()
+            }
+            AjaxJson("/StorageModule/BY_OutStock/ChangeOuterSubmit", postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].$("#gridTable").trigger("reloadGrid");
+                window.setTimeout(function () {closeDialog();}, 500);
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle' >修改数量：</th>
+            <td class='formValue' >
+                <input id="Qty" onfocus="IsNumber(this.id);" datacol="yes" err="数量" checkexpession="NotNull" type="text" class="txt" disabled />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle' >修改重量：</th>
+            <td class='formValue' >
+                <input id="Weight" onfocus="IsMoney(this.id);" datacol="yes" err="重量" checkexpession="NotNull" type="text" class="txt" />
+            </td>
+        </tr>
+                <tr>
+            <th class="formTitle">批次号：
+            </th>
+            <td class="formValue">
+                <input id="BatchCode" maxlength="50" type="text" class="txt" />(可用库存：<label id="Weightss"></label>)
+            </td>
+           
+        </tr>
+    </table>
+</form>

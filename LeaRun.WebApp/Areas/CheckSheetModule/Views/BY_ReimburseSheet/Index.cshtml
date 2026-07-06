@@ -1,0 +1,668 @@
+@{
+    ViewBag.Title = "费用申请单";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        BindDropItem("#BankNum", "银行名称", "==请选择==");
+        setType();
+
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    function setType() {
+        if ($("#Type0").val() == "收款") {
+            BindDropItemT2index("#Type1", "#Type2", "收款类型", "==请选择==");
+
+        }
+        else {
+            BindDropItemT2index("#Type1", "#Type2", "CostType", "==请选择==");
+        }
+    }
+    function btn_audit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "ReimburseSheetID");
+        var Status = GetJqGridRowValue("#gridTable", "Status");
+        //if (IsComfirm == "是" ) {
+        //    tipDialog("已审核，不能多次审核", 3, -1);
+        //    return;
+        //}
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要审核通过？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/CheckSheetModule/BY_ReimburseSheet/Audit?KeyValue=" + KeyValue, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+
+    }
+    //加载表格
+    function GetGrid() {
+        var Parameter = [{
+            paramName: "ReimburseSheetCode",
+            paramValue: "is",
+            Operation: "Null",
+        }]
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CheckSheetModule/BY_ReimburseSheet/GridPageJson11")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            datatype: "json",
+            height: $(window).height() - 200,
+            autowidth: true,
+            colModel: [
+                    { label: '申请单ID', name: 'ReimburseSheetID', index: 'ReimburseSheetID', width: 0, align: 'left', sortable: true, hidden: true },
+                    { label: '单号', name: 'ReimburseSheetCode', index: 'ReimburseSheetCode', width: 120, align: 'left', sortable: true, hidden: true },
+                    { label: '助记码', name: 'MnemonicCode', index: 'MnemonicCode', width: 120, align: 'left', sortable: true, hidden: true },
+                    { label: '报价单号', name: 'QuotationCode', index: 'QuotationCode', width: 120, align: 'left', sortable: true, hidden: true },
+                    { label: 'CanUseMoney', name: 'CanUseMoney', index: 'CanUseMoney', width: 120, align: 'left', sortable: true, hidden: true },
+                    {
+                        label: '收款项', name: 'Type0', index: 'Type0', width: 50, align: 'left', sortable: true
+                    },
+                    {
+                        label: '收款项1', name: 'Type1', index: 'Type1', width: 80, align: 'left', sortable: true
+                    },
+                    {
+                        label: '收款项2', name: 'Type2', index: 'Type2', width: 80, align: 'left', sortable: true
+                    },
+                    {
+                        label: '单号类型', name: 'Opions', index: 'Opions', width: 80, align: 'left', sortable: true
+                    },
+                    { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 120, align: 'left', sortable: true },
+                    { label: '人员', name: 'WorkerName', index: 'WorkerName', width: 80, align: 'left', sortable: true },
+                    { label: '部门', name: 'DepartmentName', index: 'DepartmentName', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '类型', name: 'GetType', index: 'GetType', width: 80, align: 'left', sortable: true
+                    },
+                     {
+                         label: '类型', name: 'LType', index: 'LType', width: 50, align: 'left', sortable: true,
+                         formatter: function (cellvalue, options, rowObject) {
+                             if (cellvalue == "RCL") {
+                                 return "热处理";;
+                             }
+                             else {
+                                 return "钢材";;
+
+                             }
+                         }
+                     },
+                    { label: '关联单号', name: 'Code', index: 'Code', width: 120, align: 'left', sortable: true },
+                    { label: '发票号', name: 'InvoiceNum', index: 'InvoiceNum', width: 120, align: 'left', sortable: true },
+                    {
+                        label: '计价金额', name: 'TotalAmount', index: 'TotalAmount', width: 50, align: 'left', sortable: true, hidden: true
+                    },
+                    {
+                        label: '实收金额', name: 'GETMoney', index: 'GETMoney', width: 50, align: 'left', sortable: true
+                    },
+                    { label: '折让金额', name: 'ZRMoney', index: 'ZRMoney', width: 50, align: 'left', sortable: true, },
+                    {
+                        label: '剩余金额', name: 'NotGetMoney', index: 'NotGetMoney', width: 50, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (rowObject.Opions=="预收款") {
+                                return rowObject.CanUseMoney;
+                            }
+                            else {
+                                return cellvalue;
+                            }
+                        }
+                    },
+                    { label: '折让备注', name: 'ZRRemark', index: 'ZRRemark', width: 50, align: 'left', sortable: true, },
+                    { label: '收款人', name: 'RequiredMan', index: 'RequiredMan', width: 60, align: 'left', sortable: true },
+                    {
+                        label: '收款日期', name: 'RequiredDate', index: 'RequiredDate', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '收款银行', name: 'BankNum', index: 'BankNum', width: 120, align: 'left', sortable: true },
+
+                    {
+                        label: '单据备注', name: 'Remark1', index: 'Remark1', width: 100, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");
+                            }
+                            return "";
+                        }
+                    },
+                     {
+                         label: '备注', name: 'Remark', index: 'Remark', width: 100, align: 'left', sortable: true,
+                         formatter: function (cellvalue, options, rowObject) {
+                             if (!!cellvalue) {
+                                 return cellvalue.replace(/,/g, "，");
+                             }
+                             return "";
+                         }
+                     },
+                    { label: '审核人', name: 'AuditMan', index: 'AuditMan', width: 60, align: 'left', sortable: true, hidden: true },
+                    {
+                        label: '状态', name: 'Status', index: 'Status', width: 50, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (cellvalue == "1") {
+                                return "审核通过";
+                            }
+                            if (cellvalue == "-1") {
+                                return "拒绝";
+                            }
+                            if (cellvalue == "0") {
+                                return "未审核";
+                            }
+                        }, hidden: true
+                    },
+                    { label: '备注', name: 'AuditRemark', index: 'AuditRemark', width: 240, align: 'left', sortable: true, hidden: true }
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                btn_edit();
+            },
+            footerrow: true,
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                //合计
+                $(this).footerData("set", {
+                    "Opions": "合计",
+                    "TotalAmount": FormatCurrency($("#gridTable").getCol('TotalAmount', false, 'sum')),
+                    "GETMoney": FormatCurrency($("#gridTable").getCol('GETMoney', false, 'sum')),
+                    "ZRMoney": FormatCurrency($("#gridTable").getCol('ZRMoney', false, 'sum')),
+
+                    "NotGetMoney": FormatCurrency($("#gridTable").getCol('NotGetMoney', false, 'sum')),
+
+                });
+                var data = $("#gridTable").jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    var item = i + 1;
+                    if (data[i].Status == "审核通过") {
+                        $("#" + item).find('td').css("background-color", "#008800");
+                    }
+                }
+
+                $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
+            },
+            onSelectRow: function (rowid, status) {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                rowScrod = $("#" + rowid).position().top;
+
+            },
+            subGrid: true,
+            subGridOptions: {
+                "plusicon": "ui-icon-triangle-1-e",
+                "minusicon": "ui-icon-triangle-1-s",
+                "openicon": "ui-icon-arrowreturn-1-e"
+            },
+            subGridRowExpanded: function (subgrid_id, row_id) {
+                var rowData = $("#gridTable").jqGrid('getRowData', row_id);
+                var Parameter = [{
+                    paramName: "ReimburseSheetCode",
+                    paramValue: rowData["ReimburseSheetID"],
+                    Operation: "Equal",
+                    Logic: "AND"
+                }]
+                var subgrid_table_id, pager_id;
+                subgrid_table_id = subgrid_id + "_t";
+                pager_id = "p_" + subgrid_table_id;
+                $("#" + subgrid_id).html("<table id='" + subgrid_table_id + "' class='scroll'></table><div id='" + pager_id + "' class='scroll'></div>");
+                jQuery("#" + subgrid_table_id).jqGrid({
+                    url: "@Url.Content("~/CheckSheetModule/BY_ReimburseSheet/GridPageJson11")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+                    datatype: "json",
+                    height: $(window).height() - 250,
+                    width: 189,
+                    autowidth: true,
+                    colModel: [
+                        { label: '申请单ID', name: 'ReimburseSheetID', index: 'ReimburseSheetID', width: 0, align: 'left', sortable: true, hidden: true },
+                    { label: '单号', name: 'ReimburseSheetCode', index: 'ReimburseSheetCode', width: 120, align: 'left', sortable: true, hidden: true },
+                    { label: '助记码', name: 'MnemonicCode', index: 'MnemonicCode', width: 120, align: 'left', sortable: true, hidden: true },
+                    { label: '报价单号', name: 'QuotationCode', index: 'QuotationCode', width: 120, align: 'left', sortable: true, hidden: true },
+                    { label: 'CanUseMoney', name: 'CanUseMoney', index: 'CanUseMoney', width: 120, align: 'left', sortable: true, hidden: true },
+                    {
+                        label: '收款项', name: 'Type0', index: 'Type0', width: 50, align: 'left', sortable: true, hidden: true
+                    },
+                    {
+                        label: '收款项1', name: 'Type1', index: 'Type1', width: 80, align: 'left', sortable: true, hidden: true
+                    },
+                    {
+                        label: '收款项2', name: 'Type2', index: 'Type2', width: 80, align: 'left', sortable: true, hidden: true
+                    },
+                    {
+                        label: '单号类型', name: 'Opions', index: 'Opions', width: 80, align: 'left', sortable: true, hidden: true
+                    },
+                    { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 120, align: 'left', sortable: true },
+                    {
+                        label: '类型', name: 'GetType', index: 'GetType', width: 80, align: 'left', sortable: true
+                    },
+                    { label: '关联单号', name: 'Code', index: 'Code', width: 120, align: 'left', sortable: true },
+                    { label: '发票号', name: 'InvoiceNum', index: 'InvoiceNum', width: 120, align: 'left', sortable: true },
+                    {
+                        label: '计价金额', name: 'TotalAmount', index: 'TotalAmount', width: 50, align: 'left', sortable: true
+                    },
+                    {
+                        label: '实收金额', name: 'GETMoney', index: 'GETMoney', width: 50, align: 'left', sortable: true
+                    },
+                    { label: '折让金额', name: 'ZRMoney', index: 'ZRMoney', width: 50, align: 'left', sortable: true, },
+                    {
+                        label: '剩余金额', name: 'NotGetMoney', index: 'NotGetMoney', width: 50, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (rowObject.Opions == "预收款") {
+                                return rowObject.CanUseMoney;
+                            }
+                            else {
+                                return cellvalue;
+                            }
+                        }
+                    },
+                    { label: '收款人', name: 'RequiredMan', index: 'RequiredMan', width: 60, align: 'left', sortable: true },
+                    {
+                        label: '收款日期', name: 'RequiredDate', index: 'RequiredDate', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '收款银行', name: 'BankNum', index: 'BankNum', width: 120, align: 'left', sortable: true },
+
+                    {
+                        label: '备注', name: 'Remark', index: 'Remark', width: 300, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");
+                            }
+                            return "";
+                        }
+                    },
+
+                    { label: '创建人', name: 'CreateUserName', index: 'CreateUserName', width: 60, align: 'left', sortable: true, hidden: true },
+                    { label: '审核人', name: 'AuditMan', index: 'AuditMan', width: 60, align: 'left', sortable: true, hidden: true },
+                    {
+                        label: '状态', name: 'Status', index: 'Status', width: 50, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (cellvalue == "1") {
+                                return "审核通过";
+                            }
+                            if (cellvalue == "-1") {
+                                return "拒绝";
+                            }
+                            if (cellvalue == "0") {
+                                return "未审核";
+                            }
+                        }, hidden: true
+                    },
+                    { label: '备注', name: 'AuditRemark', index: 'AuditRemark', width: 240, align: 'left', sortable: true, hidden: true },
+                    {
+                        label: '操作', name: 'orderstatus', index: 'orderstatus', width: 60, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowobject) {
+                            return "<a  style='color:red;cursor:pointer' onclick='Deletereid(\"" + rowobject.ReimburseSheetID + "\")'>删除</a>";
+                        }
+                    },
+                    ],
+                    viewrecords: true,
+                    rowNum: 999,
+                    rowList: [999, 999, 999, 999, 999],
+                    pager: false,
+                    shrinkToFit: false,
+                    rownumbers: true,
+                    sortname: 'SortCode',
+                    sortorder: 'asc',
+                    gridview: true,
+                    ondblClickRow: function (rowid, iRow, iCol, e) {
+
+                    },
+                });
+            }
+
+
+
+
+
+        });
+    }
+
+    function Deletereid(KeyValue) {
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CheckSheetModule/BY_ReimburseSheet/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+
+
+    //查询
+    function btn_Search() {
+        var tempstatus = "";
+        if ($("#Status").prop("checked")) {
+            tempstatus = 0;
+        }
+        if ($("#Status1").prop("checked")) {
+            tempstatus = 1;
+        }
+        if ($("#Status1").prop("checked") && $("#Status").prop("checked")) {
+            tempstatus = "";
+        }
+
+
+        //var Parameter = [{
+        //    paramName: "ReimburseSheetCode",
+        //    paramValue: "is",
+        //    Operation: "Null",
+        //}]
+
+        //Parameter.push({
+        //    paramName: "r.RequiredDate",
+        //    paramValue: $("#CreateDate_StartTime").val(),
+        //    Operation: "GreaterThan",
+        //    Logic: "AND"
+        //});
+
+
+        var Parameter = [{
+            paramName: "ReimburseSheetCode",
+            paramValue: "is",
+            Operation: "Null",
+            Logic: "AND"
+        }];
+        if (!!$("#CreateDate_StartTime").val()) {
+            Parameter.push({
+                paramName: "r.RequiredDate",
+                paramValue: $("#CreateDate_StartTime").val(),
+                Operation: "GreaterThan",
+                Logic: "AND"
+            })
+        }
+        if (!!$("#CreateDate_EndTime").val()) {
+            Parameter.push({
+                paramName: "r.RequiredDate",
+                paramValue: $("#CreateDate_EndTime").val(),
+                Operation: "LessThan",
+                Logic: "AND"
+            })
+        }
+        
+        if (!!$("#WorkerName").val()) {
+            Parameter.push({
+                paramName: "r.WorkerName",
+                paramValue: escape($("#WorkerName").val()),
+                Operation: "Like",
+                Logic: "AND"
+            })
+        }
+
+        if (!!$("#Code").val()) {
+            Parameter.push({
+                paramName: "r.Code",
+                paramValue: $("#Code").val(),
+                Operation: "Like",
+                Logic: "OR",
+                LeftBrace: "("
+            })
+            Parameter.push({
+                paramName: "r.InvoiceNum",
+                paramValue: $("#Code").val(),
+                Operation: "Like",
+                Logic: "AND",
+                RightBrace: ")"
+            })
+        }
+
+
+        if (!!$("#CustomerName").val()) {
+            Parameter.push({
+                paramName: "r.CustomerName",
+                paramValue: escape($("#CustomerName").val()),
+                Operation: "Like",
+                Logic: "OR",
+                LeftBrace: "("
+            })
+            Parameter.push({
+                paramName: "r.CustomerCode",
+                paramValue: escape($("#CustomerName").val()),
+                Operation: "Like",
+                Logic: "AND",
+                RightBrace: ")"
+            })
+        }
+
+
+        if (!!$("#LType").val()) {
+            Parameter.push({
+                paramName: "r.LType",
+                paramValue: escape($("#LType").val()),
+                Operation: "Equal",
+                Logic: "AND"
+            })
+        }
+
+        if (!!$("#CreateUserName").val()) {
+            Parameter.push({
+                paramName: "r.CreateUserName",
+                paramValue: escape($("#CreateUserName").val()),
+                Operation: "Like",
+                Logic: "AND"
+            })
+        }
+
+        if (!!$("#Opions").val()) {
+            Parameter.push({
+                paramName: "r.Opions",
+                paramValue: escape($("#Opions").val()),
+                Operation: "Equal",
+                Logic: "AND"
+            })
+        }
+        if (!!$("#BankNum").val()) {
+            Parameter.push({
+                paramName: "r.BankNum",
+                paramValue: escape($("#BankNum").val()),
+                Operation: "Like",
+                Logic: "AND"
+            })
+        }
+
+        if (!!$("#Type0").val()) {
+            Parameter.push({
+                paramName: "r.Type0",
+                paramValue: escape($("#Type0").val()),
+                Operation: "Equal",
+                Logic: "AND"
+            })
+        }
+
+        if (!!$("#Type1").val()) {
+            Parameter.push({
+                paramName: "r.Type1",
+                paramValue: escape($("#Type1").val()),
+                Operation: "Equal",
+                Logic: "AND"
+            })
+        }
+
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CheckSheetModule/BY_ReimburseSheet/GridPageJson11")?ParameterJson=" + JSON.stringify(Parameter), page: 1 }).trigger('reloadGrid');
+    }
+    //新增
+    function btn_add() {
+        var url = "/CheckSheetModule/BY_ReimburseSheet/Form?Type=-1"
+        openDialog(url, "Form", "新增费用申请单", 770, 395, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //新增
+    function btn_add1() {
+        var url = "/CheckSheetModule/BY_ReimburseSheet/Form1?Type=1"
+        Dialog(url, "Form", "新增收账单", 1200, 650, function (iframe) {
+            //top.frames[iframe].AcceptClick()
+        });
+
+    }
+    //编辑
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "ReimburseSheetID");
+        var Status = GetJqGridRowValue("#gridTable", "Status");
+        if (Status == "审核通过") {
+            tipDialog("已审核，不能修改", 3, -1);
+            return;
+        }
+        //if (Type == "收款单") {
+        if (IsChecked(KeyValue)) {
+            var url = "/CheckSheetModule/BY_ReimburseSheet/Form?Type=1&KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑收款单", 770, 395, function (iframe) {
+                top.frames[iframe].AcceptClick();
+                windowload();
+            });
+        }
+        //}
+        //else {
+        //    if (IsChecked(KeyValue)) {
+        //        var url = "/CheckSheetModule/BY_ReimburseSheet/Form?Type=-1&KeyValue=" + KeyValue;
+        //        openDialog(url, "Form", "编辑费用申请单", 770, 395, function (iframe) {
+        //            top.frames[iframe].AcceptClick();
+        //        });
+        //    }
+        //}
+
+    }
+    //审核
+    //function btn_audit() {
+
+
+@*        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s1 = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                if (myrow.AuditMan != "" && "@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "超级管理员") {
+                    tipDialog("操作失败：部分已审核，不可再次审核！!", 3, 0);
+                    return false;
+                }
+                s1 = s1 + myrow.ReimburseSheetID + ",";
+            }
+            s1 = s1.trim(',');
+            confirmDialog("提示", "确定要审核通过？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/CheckSheetModule/BY_ReimburseSheet/AuditCost?Status=1" + "&ReimburseSheetIDs=" + s1, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }*@
+    //}
+    //删除
+    function btn_delete() {
+        var Status = GetJqGridRowValue("#gridTable", "Status");
+        if (Status == "审核通过") {
+            tipDialog("已审核，不能修改", 3, -1);
+            return;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "ReimburseSheetID");
+
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/CheckSheetModule/BY_ReimburseSheet/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "其他付款报表");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+    function BCPrintPreview() {
+        PrintDialog("/CheckSheetModule/BY_ReimburseSheet/BankPrint?Starttime= " + $("#Starttime").val() + "&Endtime= " + $("#Endtime").val(), "PrintPage", "统计报表", 1050, 750, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <td>日期 从：
+                <input id="CreateDate_StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 80px" />
+           至：
+                <input id="CreateDate_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 80px" />
+           人员：
+                <input id="WorkerName" type="text" class="txt" style="width: 80px" />
+            关联/发票号：
+                <input id="Code" type="text" class="txt" style="width: 80px" />
+            客户：
+                <input id="CustomerName" type="text" class="txt" style="width: 80px" />
+            收款银行：
+                <select id="BankNum" class="select">
+                    <option value="">全部</option>
+                </select>
+           类型：
+                <select id="LType" class="select">
+                    <option value="">全部</option>
+                    <option value="GC">钢材</option>
+                    <option value="LJ">配件</option>
+                    <option value="RCL">热处理</option>
+                </select>
+           选项：
+                <select id="Opions" class="select" onchange="">
+                    <option value="">全部</option>
+                    <option value="应收款">应收款</option>
+                    <option value="预收款">预收款</option>
+                </select>
+            @*<td>
+                <span class="item" style="cursor: pointer;">
+                    <input type="checkbox" class="checkbox" name="checkbox" id="Status" />
+                    <label for="Status">未审核</label>
+                </span>
+                <span class="item" style="cursor: pointer;">
+                    <input type="checkbox" class="checkbox" name="checkbox" id="Status1" />
+                    <label for="Status1">已审核</label>
+                </span>
+            </td>*@
+               选项：
+                 <select id="Type0" class="select" style="width:60px;" onchange="setType();"  >
+                    <option value="">全部</option>
+                    <option value="收款">收款</option>
+                    <option value="付款">付款</option>
+                </select>
+                <select id="Type1" class="select" style="width:80px;">
+                </select>
+                <select id="Type2" class="select" style="width:80px;" >
+                </select>
+
+                操作人：
+                <input id="CreateUserName" type="text" class="txt" style="width: 80px" />
+
+
+                <input id="btnSearch" type="button" class="btnSearch" value="搜索" onclick="btn_Search()" />
+                <input id="btn_export" type="button" class="btnSearch" value="导出" onclick="btn_Export()" />
+                @*<input id="btnPrint" type="button" class="btnSearch" value="收款统计" onclick="BCPrintPreview()" />*@
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

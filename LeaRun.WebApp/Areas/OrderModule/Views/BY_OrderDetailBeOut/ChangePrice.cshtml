@@ -1,0 +1,69 @@
+@{
+    ViewBag.Title = "BY_OrderDetailBeOut》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    var QuotationDetailId = GetQuery('QuotationDetailId');//主键
+    var OrderDetailId = GetQuery('OrderDetailId');//主键
+    var WeightFact = GetQuery('WeightFact') == "" ? 0 : GetQuery('WeightFact');//主键
+    var MnemonicCode = GetQuery('MnemonicCode');//主键
+
+    var totalQty = 0;
+    var changeNum = 0;
+    $(function () {
+        
+        
+    })
+    
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/OrderModule/BY_OrderDetailBeOut/SubmitForm1?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <input id="QuotationDetailId" type="hidden" />
+    <input id="OrderDetailOutId" type="hidden" />
+    <input id="OrderDetailId" type="hidden" />
+    <input id="OrderId" type="hidden" />
+    <input id="OrderCode" type="hidden" />
+    <input id="LineCode" type="hidden" />
+    <table class="form">
+        
+        <tr>
+            <th class="formTitle">计价类型：</th>
+            <td class="formValue" colspan="3">
+                <select id="JJtype"   class="txtselect" datacol="yes" err="加工类型" checkexpession="NotNull">
+                    <option value="按平方" selected="selected">按平方</option>
+                           <option value="按公斤" >按公斤</option>
+                           <option value="按件数">按件数</option>
+                        </select></td>
+            
+        </tr>
+        <tr>
+            <th class="formTitle">单价：</th>
+            <td class="formValue" colspan="3">
+                <input id="AreaPrice" onfocus="IsMoney(this.id);"  onfocus="IsMoney(this.id);"  type="text" class="txt" value="0.00" datacol="yes" err="单价" checkexpession="NotNull" /></td>
+        </tr>
+       
+
+    </table>
+    <style>
+        .form .formTitle {
+            width: 120px;
+        }
+    </style>
+</form>
+
+

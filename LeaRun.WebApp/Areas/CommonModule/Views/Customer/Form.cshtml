@@ -1,0 +1,821 @@
+@{
+    ViewBag.Title = "客户信息管理》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<!--jqgrid表格组件start-->
+@*<script src="~/Content/Scripts/jqgrid/jquery-ui-custom.min.js"></script>
+    <script src="~/Content/Scripts/jqgrid/grid.locale-cn.js"></script>
+    <link href="~/Content/Scripts/jqgrid/css/jqgrid.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jqgrid/jqGrid.js"></script>*@
+@Scripts.Render("~/Content/Scripts/jqgrid/jqgridjquery")
+@Styles.Render("~/Content/Scripts/jqgrid/css/jqgridcss")
+
+
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js?ver=@DateTime.Now.Ticks"></script>
+
+
+
+<link href="~/Content/Scripts/imgGreate/00540/kao/css/index.css" rel="stylesheet" />
+<script src="~/Content/Scripts/imgGreate/00540/kao/js/ToolTip.js"></script>
+
+
+<!--表格组件end-->
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+
+    $(function () {
+        getAjax('/CommonModule/Company/ListJson', { ParentId: "0" }, function (data) {
+            $("#CompanyName").append($("<option></option>").val("").html("请选择！"));
+            var itemjson = eval("(" + data + ")");
+            $.each(itemjson, function (i) {
+                $("#CompanyName").append($("<option></option>").val(itemjson[i].FullName).html(itemjson[i].FullName));
+            });
+            Loading(false);
+        });
+        BindCombobox();
+        InitControl();
+        window.setTimeout(function () {
+            GetGrid();
+            GetGrid2();
+        }, 300);
+        $("#CustomerAddress").css('display', 'none');
+        $("#Base_CustomerRequery").css('display', 'none');
+        
+        $('input').customInput();
+    })
+    //初始化绑定下拉框
+    function BindCombobox() {
+        BindDropItem("#Sellpeople", "XSY", "==请选择==");
+        //客户分类
+        BindDropItem("#Category", "CustomerSort", "==请选择==");
+        //运输方式
+        BindDropItem("#TransitMode", "TransitMode", "==请选择==");
+        //账期
+        BindDropItem("#PaymentMode", "PaymentMode", "==请选择==");
+        //所在省
+        $("#Sellregion").append("<option value=''>==请选择==</option>");
+        $("#Sellarea").append("<option value=''>==请选择==</option>");
+        AjaxJson("/Utility/GetProvinceCityListJson", { ParentId: 0 }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Sellregion").append($("<option Code=" + DataJson[i].Code + "></option>").val(DataJson[i].FullName).html(DataJson[i].FullName));
+            });
+        })
+        //所在市
+        $("#Sellregion").change(function () {
+            BindCityId();
+        });
+    }
+    //所在市下拉框
+    function BindCityId() {
+        $("#Sellarea").html("");
+        $("#Sellarea").append("<option value=''>==请选择==</option>");
+        if (!$("#Sellregion").find("option:selected").attr('Code')) {
+            return false;
+        }
+        AjaxJson("/Utility/GetProvinceCityListJson", { ParentId: $("#Sellregion").find("option:selected").attr('Code') }, function (DataJson) {
+            $.each(DataJson, function (i) {
+                $("#Sellarea").append($("<option></option>").val(DataJson[i].FullName).html(DataJson[i].FullName));
+            });
+        })
+    }
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CommonModule/Customer/SetFormForImg", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+                BindCityId();
+                $("#Sellarea").val(data.Sellarea);
+
+
+                $("#imgOrA").html(HtmlUtil.htmlDecode(data.Remark));
+                //$("#Code").prop('disabled', true);
+                //$("#FullName").prop('disabled', true);
+
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+
+        var RowData = {
+            CustomerAddressId: $("[name='CustomerAddressId']").val(),
+            AddressCode: $("[name='AddressCode']").val(),
+            Application: $("[name='Application']").val(),
+            SendPath: $("[name='SendPath']").val(),
+            DetailAddress: $("[name='DetailAddress']").val(),
+            Contact: $("[name='Contact']").val(),
+            Telephone: $("[name='Telephone']").val(),
+            Mobile: $("[name='Mobile']").val(),
+            Fax: $("[name='Fax']").val(),
+            EmailAddress: $("[name='EmailAddress']").val(),
+            MainDefault: $("[name='MainDefault']").val(),
+        }
+        $('#gridTable').jqGrid('setRowData', GetJqGridRowIndx('#gridTable'), RowData, '');
+        if ($("#gridTable").getGridParam("reccount") == 0) {
+            alertDialog("请添加送货地址，如没有，请填写无！", 0);
+            return false;
+        }
+
+        var RowData2 = {
+            DepartName: $("[name='DepartName']").val(),
+            KLRequery: $("[name='KLRequery']").val(),
+            XMRequery: $("[name='XMRequery']").val(),
+        }
+        $('#gridTable2').jqGrid('setRowData', GetJqGridRowIndx('#gridTable2'), RowData2, '');
+
+        var postData = GetWebControlsforCustemar("#form1");
+        postData["CustomerAddressListJson"] = JSON.stringify($("#gridTable").jqGrid("getRowData"));
+        postData["CustomerRequeryListJson"] = JSON.stringify($("#gridTable2").jqGrid("getRowData"));
+        $(".ui_state_highlight").attr("disabled", true);
+        AjaxJson("/CommonModule/Customer/SubmitFormCustomer?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+    /*客户地址begin=================================*/
+    //加载表格
+        var lastsel;
+    function GetGrid() {
+        var lastselpostdate;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CommonModule/Customer/CustomerAddressListJson")?CustomerId=" + KeyValue,
+            datatype: "json",
+            height: 250,
+            width: 489,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'CustomerAddressId', hidden: true },
+                { label: "地址编码", name: "AddressCode", width: 50, editable: true, hidden: true },
+                { label: "部门", name: "Application", width: 70, align: 'center', editable: true},//收货地址:收货地址;
+                { label: "送货路线", name: "SendPath", width: 50, align: 'center', editable: true, edittype: 'select', editoptions: { value: "自提:自提;塔峙:塔峙;霞浦/清水:霞浦/清水;春晓:春晓;大矸:大矸;大港:大港;镇海:镇海;模具园区:模具园区;金华:金华;市区:市区;市外:市外" } },
+                { label: "详细地址", name: "DetailAddress", width: 230, editable: true },
+                { label: '联系人', name: 'Contact', width: 60, align: 'center', editable: true },
+                { label: '电话', name: 'Telephone', width: 90, align: 'center', editable: true },
+                { label: '手机', name: 'Mobile', width: 90, align: 'center', editable: true },
+                { label: '传真', name: 'Fax', width: 90, align: 'center', editable: true, hidden: true },
+                { label: '电子邮件', name: 'EmailAddress', width: 90, align: 'center', editable: true, hidden: true },
+                {
+                    label: '主要', name: 'MainDefault', width: 45, align: 'center', editable: true, edittype: 'select', editoptions: { value: "是:是;否:否" }
+                },
+            ],
+            pager: false,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            rownumbers: true,
+            onSelectRow: function (id) {
+                var postData = {
+                    CustomerAddressId: $("[name='CustomerAddressId']").val(),
+                    AddressCode: $("[name='AddressCode']").val(),
+                    Application: $("[name='Application']").val(),
+                    SendPath: $("[name='SendPath']").val(),
+                    DetailAddress: $("[name='DetailAddress']").val(),
+                    Contact: $("[name='Contact']").val(),
+                    Telephone: $("[name='Telephone']").val(),
+                    Mobile: $("[name='Mobile']").val(),
+                    Fax: $("[name='Fax']").val(),
+                    EmailAddress: $("[name='EmailAddress']").val(),
+                    MainDefault: $("[name='MainDefault']").val(),
+                }
+                if (id && id !== lastsel) {
+                    $('#gridTable').jqGrid('restoreRow', lastsel);
+                    $('#gridTable').jqGrid('editRow', id, true);
+                    $('#gridTable').jqGrid('setRowData', lastsel, postData, '');
+                }
+                lastselpostdate = postData;
+                lastsel = id;
+            }
+        });
+        //新增一行
+        $("#lr-add-Row").click(function () {
+            var index = $("#gridTable").getGridParam("reccount") + 1;
+            var rowdata = {
+                CustomerAddressId: '',
+                AddressCode: '',
+                Application: '',
+                SendPath: '',
+                DetailAddress: '',
+                Contact: '',
+                Telephone: '',
+                Mobile: '',
+                Fax: '',
+                EmailAddress: '',
+                MainDefault: '',
+            }
+            $('#gridTable').jqGrid('restoreRow', index);
+            $('#gridTable').jqGrid('addRowData', index, rowdata, "last");
+            $("#gridTable").setSelection(index);
+
+        });
+        //删除
+        $("#lr-delete-Row").click(function () {
+            var Index = GetJqGridRowIndx("#gridTable");
+            $("#gridTable").jqGrid("delRowData", Index);
+        });
+    }
+    /*客户地址end===================================*/
+
+    function GetGrid2() {
+        var lastsel2;
+        var lastselpostdate2;
+        $("#gridTable2").jqGrid({
+            url: "@Url.Content("~/CommonModule/Customer/CustomerRequeryListJson")?CustomerId=" + KeyValue,
+            datatype: "json",
+            height: 250,
+            width: 489,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'CustomerRequeryID', hidden: true },
+                { label: "部门", name: "DepartName", width: 80, editable: true },
+                { label: "开料备注", name: "KLRequery", width: 300, align: 'left', editable: true, edittype: 'textarea', editoptions: { rows: "5" } },//收货地址:收货地址;
+                { label: "铣磨备注", name: "XMRequery", width: 300, align: 'left', editable: true, edittype: 'textarea', editoptions: { rows: "5"} },
+
+            ],
+            pager: false,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            rownumbers: true,
+            onSelectRow: function (id) {
+                var postData = {
+                    CustomerRequeryID: $("[name='CustomerRequeryID']").val(),
+                    DepartName: $("[name='DepartName']").val(),
+                    KLRequery: $("[name='KLRequery']").val(),
+                    XMRequery: $("[name='XMRequery']").val(),
+                }
+                $('#gridTable2').jqGrid('restoreRow', lastsel2);
+                $('#gridTable2').jqGrid('editRow', id, true);
+                $('#gridTable2').jqGrid('setRowData', lastsel2, postData, '');
+                lastselpostdate2 = postData;
+                lastsel2 = id;
+            }
+        });
+        //新增一行
+        $("#lr-add-Row2").click(function () {
+            var index = $("#gridTable2").getGridParam("reccount") + 1;
+            var rowdata = {
+                CustomerRequeryID: '',
+                DepartName: '',
+                KLRequery: '',
+                XMRequery: '',
+            }
+            $('#gridTable2').jqGrid('restoreRow', index);
+            $('#gridTable2').jqGrid('addRowData', index, rowdata, "last");
+            $("#gridTable2").setSelection(index);
+
+        });
+        //删除
+        $("#lr-delete-Row2").click(function () {
+            var Index = GetJqGridRowIndx("#gridTable2");
+            $("#gridTable2").jqGrid("delRowData", Index);
+        });
+    }
+
+
+    function uploadify123() {
+
+        if (!KeyValue) {
+            alert("请先保存客户信息，之后再上传文件！");
+            return;
+        }
+
+        try {
+            if ($("#uploadify").length > 0) { //注意jquery下检查一个元素是否存在必须使用 .length >0 来判断
+                $("#uploadify").uploadify('destroy');
+            }
+            $("#uploadify").uploadify({
+                uploader: '/Utility/Upload?saveDocument=Customer&filenameid=' + KeyValue,
+                swf: '/Content/Scripts/uploadify/uploadify.swf',
+                buttonText: "上传",
+                height: 24,
+                width: 70,
+                onFallback: function () {
+                    alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+                },
+                onUploadSuccess: function (file, data, response) {
+                    //var DataJson = JSON.parse(data);
+                    //windowload();
+                    //window.location.reload();
+                    if (data == "-1" || !data) {
+                        alert("请先保存客户信息，之后再上传文件！！");
+                    }
+                    else {
+                        InitControl(KeyValue);
+
+                    }
+
+                }
+            });
+        } catch (e) {
+        }
+    }
+
+
+</script>
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+                <div id="TabCustomerAddress" class="tab_list bd " onclick="Tabchange('CustomerAddress');$('#gridTable').setGridWidth($(window).width());">客户地址</div>
+                <div id="TabBase_CustomerRequery" class="tab_list bd " onclick="Tabchange('Base_CustomerRequery');$('#gridTable2').setGridWidth($(window).width());">开料铣磨</div>
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <!--基本信息-->
+        <div id="basic" class="tabPanel">
+            <table class="form">
+                <tr>
+                    <th class='formTitle'>客户编号：</th>
+                    <td class='formValue' colspan="3">
+                        <input id="Code" maxlength="50" type="text" class="txt required" datacol="yes" err="客户编号" checkexpession="NotNull" />
+                    </td>
+                    <th class='formTitle'>客户名称：</th>
+                    <td class='formValue' colspan="3">
+                        <input id="FullName" maxlength="50" type="text" class="txt required" datacol="yes" err="客户名称" checkexpession="NotNull" />
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class='formTitle'>客户简称：</th>
+                    <td class='formValue' colspan="3">
+                        <input id="ShortName" maxlength="200" type="text" class="txt required" datacol="yes" err="客户简称" checkexpession="NotNull" />
+                    </td>
+                    <th class='formTitle'>客户分类：</th>
+                    <td class='formValue' colspan="3">
+                        <select id="Category" class="txtselect" datacol="yes" err="客户分类" checkexpession="NotNull"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class='formTitle'>销售大区：</th>
+                    <td class='formValue' colspan="3">
+                        <select id="Sellregion" class="txtselect"></select>
+                    </td>
+                    <th class='formTitle'>销售区域：</th>
+                    <td class='formValue' colspan="3">
+                        <select id="Sellarea" class="txtselect"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class='formTitle'>销售人员：</th>
+                    <td class='formValue' colspan="3">
+                        <select id="Sellpeople" class="txtselect"></select>
+                    </td>
+                    <th class='formTitle'>距离（km）：</th>
+                    <td class='formValue' colspan="3">
+                        <input id="Awayfrom" maxlength="50" type="text" class="txt" value="0" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class='formTitle'>运输方式：</th>
+                    <td class='formValue' colspan="3">
+                        <select id="TransitMode" class="txtselect"></select>
+                    </td>
+                    <th class='formTitle'>账期：</th>
+                    <td class='formValue' colspan="3">
+                        <select id="PaymentMode" class="txtselect"></select>
+                    </td>
+                </tr>
+                <tr>
+                    <th class='formTitle'>所属公司：</th>
+                    <td class='formValue' colspan="3">
+                        <select id="CompanyName" class="select" style="width: 96%" datacol="yes" err="公司" checkexpession="NotNull"></select>
+
+                    </td>
+                    <th class='formTitle'></th>
+                    <td class='formValue' colspan="3">
+                    </td>
+                </tr>
+                <tr>
+                    <th class='formTitle'>首要联系人：</th>
+                    <td class='formValue'>
+                        <input id="Leader" maxlength="50" type="text" class="txt" />
+                    </td>
+                    <th class='formTitle'>部门职务：</th>
+                    <td class='formValue'>
+                        <input id="LeaderRole" maxlength="50" type="text" class="txt" />
+                    </td>
+                    <th class='formTitle'>对账人：</th>
+                    <td class='formValue'>
+                        <input id="Checker" maxlength="50" type="text" class="txt" />
+                    </td>
+                    <th class='formTitle'>部门职务：</th>
+                    <td class='formValue'>
+                        <input id="CheckRole" maxlength="50" type="text" class="txt" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class='formTitle'>联系人电话：</th>
+                    <td class='formValue'>
+                        <input id="LeaderTele" maxlength="50" type="text" class="txt" />
+                    </td>
+                    <th class='formTitle'>手机号码：</th>
+                    <td class='formValue'>
+                        <input id="LeaderMobile" maxlength="50" type="text" class="txt" />
+                    </td>
+                    <th class='formTitle'>对账邮箱：</th>
+                    <td class='formValue'>
+                        <input id="CheckFaxs" maxlength="50" type="text" class="txt" />
+                    </td>
+                    <th class='formTitle'>QQ/微信：</th>
+                    <td class='formValue'>
+                        <input id="CheckQQ" maxlength="50" type="text" class="txt" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class='formTitle'>联系人邮箱：</th>
+                    <td class='formValue'>
+                        <input id="LeaderMail" maxlength="50" type="text" class="txt" />
+                    </td>
+                    <th class='formTitle'>QQ微信：</th>
+                    <td class='formValue'>
+                        <input id="LeaderQQ" maxlength="50" type="text" class="txt" />
+                    </td>
+                    <th class='formTitle'>对账手机：</th>
+                    <td class='formValue'>
+                        <input id="CheckTele" maxlength="50" type="text" class="txt" />
+                    </td>
+                    <th class='formTitle'>对账座机：</th>
+                    <td class='formValue'>
+                        <input id="CheckMobile" maxlength="50" type="text" class="txt" />
+                    </td>
+                </tr>
+
+                @*                <tr>
+            <th class='formTitle'>其他联系人：</th>
+            <td class='formValue' >
+                <input id="LeaderOther" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>部门职务：</th>
+            <td class='formValue' >
+                <input id="LeaderOtherRole" maxlength="50" type="text" class="txt" />
+            </td>
+             <th class='formTitle'>其他联系人：</th>
+            <td class='formValue' >
+                <input id="CheckOther" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>部门职务：</th>
+            <td class='formValue' >
+                <input id="CheckOtherRole" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>联系人电话：</th>
+            <td class='formValue' >
+                <input id="LeaderOtherTele" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>手机号码：</th>
+            <td class='formValue' >
+                <input id="LeaderOtherMobile" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>联系人电话：</th>
+            <td class='formValue' >
+                <input id="CheckOtherTele" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>手机号码：</th>
+            <td class='formValue' >
+                <input id="CheckOtherMobile" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>关注事项：</th>
+            <td class='formValue' colspan="3">
+                <input id="LeaderRemark" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>关注事项：</th>
+            <td class='formValue' colspan="3">
+                <input id="CheckRemark" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>*@
+                @*<tr>
+            <th class='formTitle'>开户行：</th>
+            <td class='formValue' colspan="3">
+                <input id="BankName" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>税号：</th>
+            <td class='formValue' colspan="3">
+                <input id="TaxNumber" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+
+        <tr>
+            <th class='formTitle'>开户账户：</th>
+            <td class='formValue' colspan="3">
+                <input id="Account" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>对账人：</th>
+            <td class='formValue' colspan="3">
+                <input id="CheckMan" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>对账电话：</th>
+            <td class='formValue' colspan="3">
+                <input id="CheckFax" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>对账传真：</th>
+            <td class='formValue' colspan="3">
+                <input id="CheckTel" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>*@
+                <tr>
+                    <th class='formTitle'>税率：</th>
+                    <td class='formValue' colspan="3">
+                        <input id="TaxRate" maxlength="50" type="text" class="txt" value="0" />
+                    </td>
+                    <th class='formTitle'>管理费：</th>
+                    <td class='formValue' colspan="3">
+                        <input id="ManagementCostRate" maxlength="50" type="text" class="txt" value="0" />
+                    </td>
+                </tr>
+                @*<tr>
+
+            <th class="formTitle">外发普通钢单价：</th>
+            <td class="formValue">
+                <input id="YBeOutAreaPrice" type="text" onfocus="IsMoney(this.id);" class="txt" value="0"  />
+            </td>
+            <th class="formTitle">外发特殊钢单价：</th>
+            <td class="formValue">
+                <input id="RBeOutAreaPrice" type="text" onfocus="IsMoney(this.id);" class="txt" value="0"  />
+            </td>
+        </tr>*@
+                <tr>
+                    @*<th class="formTitle">选项</th>
+            <td class="formValue">
+                <span class="item">
+                    <input id="Usability" name="Usability" type="checkbox" checked="checked" style="vertical-align: middle;" />
+                    <label for="Usability" style="vertical-align: middle;">可用性</label>
+                    &nbsp;&nbsp;
+                </span>
+                <span class="item">
+                    <input id="FullShipping" name="FullShipping" type="checkbox" style="vertical-align: middle;" />
+                    <label for="FullShipping" style="vertical-align: middle;">整单发运</label>
+                </span>
+                <span class="item">
+                    <input id="MaterialLCE" name="MaterialLCE" type="checkbox" style="vertical-align: middle;" />
+                    <label for="MaterialLCE" style="vertical-align: middle;">材质证书</label>
+                    &nbsp;&nbsp;
+                </span>
+                <span class="item">
+                    <input id="InvoiceReprint" name="InvoiceReprint" type="checkbox" style="vertical-align: middle;" />
+                    <label for="InvoiceReprint" style="vertical-align: middle;">货单重印</label>
+                </span>
+                <span class="item">
+                    <input id="Enabled" name="Enabled" type="checkbox" checked="checked" style="vertical-align: middle;" />
+                    <label for="Enabled" style="vertical-align: middle;">有效</label>
+                </span>
+            </td>*@
+                    @*                    <th class="formTitle">密码：
+            </th>
+            <td class="formValue" >
+                <input id="Password" maxlength="50" type="text" class="txt" />
+            </td>*@
+                    <th class='formTitle'>类型：</th>
+                    <td class='formValue' style="padding-left: 5px;" colspan="3">
+                        <select id="ProcessingAlgorithm" class="txtselect">
+                            <option value="客户">客户</option>
+                            <option value="门市">门市</option>
+                            <option value="同行">同行</option>
+                            <option value="外协">外协</option>
+                        </select>
+                    </td>
+                    <th class="formTitle">
+                        信用额度：
+                    </th>
+                    <td class="formValue" colspan="3">
+                        <input id="XYmoney" maxlength="50" type="text" class="txt" onfocus="IsMoney(this.id);" value="500000" />
+                    </td>
+                </tr>
+                @*<tr>
+            <th class="formTitle">毛料加工要求：
+            </th>
+            <td class="formValue">
+                <input id="Mrequire" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class="formTitle">普通钢加工要求：
+            </th>
+            <td class="formValue">
+                <input id="YLrequire" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">特殊钢加工要求：
+            </th>
+            <td class="formValue">
+                <input id="RLrequire" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class="formTitle">精料加工要求：
+            </th>
+            <td class="formValue">
+                <input id="JLrequire" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>毛料打底重量：</th>
+            <td class='formValue'>
+                <input id="LimitWeight" maxlength="50" type="text" class="txt" value="0" onfocus="IsMoney(this.id);" />
+            </td>
+            <th class='formTitle'>毛料打底厚度：</th>
+            <td class='formValue'>
+                <input id="LimitThick" maxlength="50" type="text" class="txt" value="0" onfocus="IsMoney(this.id);"/>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>光板打底重量：</th>
+            <td class='formValue'>
+                <input id="LimitWeightGB" maxlength="50" type="text" class="txt" value="0" onfocus="IsMoney(this.id);" />
+            </td>
+            <th class='formTitle'>光板打底厚度：</th>
+            <td class='formValue'>
+                <input id="LimitThickGB" maxlength="50" type="text" class="txt" value="0" onfocus="IsMoney(this.id);"/>
+            </td>
+        </tr>*@
+                <tr>
+                    <th class='formTitle'>光精保底重量：</th>
+                    <td class='formValue' colspan="3">
+                        <input id="LimitWeight" maxlength="50" type="text" class="txt" value="0" onfocus="IsMoney(this.id);" />
+                    </td>
+                    <th class='formTitle'>含税：</th>
+                    <td class='formValue' colspan="3">
+                        <span class="item">
+                            <input id="IsInvoice" name="IsInvoice" type="checkbox" style="vertical-align: middle;" />
+                            <label for="IsInvoice" style="vertical-align: middle;">含税</label>
+                            &nbsp;&nbsp;
+                        </span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <th class="formTitle">
+                        计价方式：
+                    </th>
+                    <td class="formValue" colspan="3">
+                        <select id="Calc" class="txtselect" datacol="yes" err="计价方式" checkexpession="NotNull">
+                            <option value="0" selected="selected">加余量计价</option>
+                            <option value="1">不加余量计价</option>
+                        </select>
+                    </td>
+                    <th class='formTitle'>加工费保底厚度：</th>
+                    <td class='formValue' colspan="3">
+                        <input id="MiniThick" maxlength="50" type="text" class="txt" value="0" onfocus="IsMoney(this.id);" />
+                    </td>
+                </tr>
+                @*<tr>
+            <th class='formTitle'>毛料厚：</th>
+            <td class='formValue'>
+                <select id="Mfang" class="txtselect">
+                    <option value="二放" selected="selected">二放</option>
+                    <option value="三放">三放</option>
+                </select>
+            </td>
+            <th class='formTitle'>毛长宽：</th>
+            <td class='formValue'>
+                <input id="MCKAdd" maxlength="50" type="text" class="txt" value="10" onfocus="IsMoney(this.id);" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>光料厚：</th>
+            <td class='formValue' >
+                <select id="Gfang" class="txtselect">
+                    <option value="二放" selected="selected">二放</option>
+                    <option value="三放">三放</option>
+                </select>
+            </td>
+            <th class='formTitle'>光长宽：</th>
+            <td class='formValue'>
+                <input id="GCKAdd" maxlength="50" type="text" class="txt" value="10" onfocus="IsMoney(this.id);" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>精料厚：</th>
+            <td class='formValue' >
+               <select id="Jfang" class="txtselect">
+                    <option value="二放" selected="selected">二放</option>
+                    <option value="三放">三放</option>
+                </select>
+            </td>
+            <th class='formTitle'>精长宽：</th>
+            <td class='formValue'>
+                <input id="JCKAdd" maxlength="50" type="text" class="txt" value="0" onfocus="IsMoney(this.id);" />
+            </td>
+        </tr>*@
+                @*<tr>
+            <th class='formTitle'>每单热处理最低收费：</th>
+            <td class='formValue' colspan="7">
+                <input id="HeatLimitMoney" maxlength="50" type="text" class="txt" value="0" onfocus="IsMoney(this.id);" />
+
+            </td>
+
+        </tr>*@
+
+                <tr>
+                    <th class='formTitle'>钢印规则：</th>
+                    <td class='formValue' colspan="7">
+                        <span class="item">
+                            <input id="PrintTypeGS" name="PrintTypeGS" type="checkbox" style="vertical-align: middle;"  checked/>
+                            <label for="PrintTypeGS" style="vertical-align: middle;">公司代号</label>
+                            &nbsp;&nbsp;
+                        </span>
+                        <span class="item">
+                            <input id="PrintTypeMO" name="PrintTypeMO" type="checkbox" style="vertical-align: middle;" checked/>
+                            <label for="PrintTypeMO" style="vertical-align: middle;">模号</label>
+                        </span>
+                        <span class="item">
+                            <input id="PrintTypCode" name="PrintTypCode" type="checkbox" style="vertical-align: middle;" checked/>
+                            <label for="PrintTypCode" style="vertical-align: middle;">配件号</label>
+                        </span>
+                        <span class="item">
+                            <input id="PrintTypeST" name="PrintTypeST" type="checkbox" style="vertical-align: middle;" checked/>
+                            <label for="PrintTypeST" style="vertical-align: middle;">材质</label>
+                        </span>
+                        <span class="item">
+                            <input id="PrintTypeSZ" name="PrintTypeSZ" type="checkbox" style="vertical-align: middle;" checked/>
+                            <label for="PrintTypeSZ" style="vertical-align: middle;">规格</label>
+                        </span>
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">
+                        单价信息：
+                    </th>
+                    <td class="formValue" colspan="7">
+                        <textarea id="PriceMessage" class="txtArea" rows="3"></textarea>
+                    </td>
+
+                </tr>
+                <tr>
+                    <th class="formTitle">
+                        客户基本信息：
+                    </th>
+                    <td class="formValue" colspan="7">
+                        <textarea id="MateRemark" class="txtArea" rows="3"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">
+                        送货单信息：
+                    </th>
+                    <td class="formValue" colspan="7">
+                        <textarea id="DeliveryRemark" class="txtArea" rows="3"></textarea>
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle">
+                        @*加工说明：*@
+                        附件上传：
+                    </th>
+                    <td class="formValue" colspan="7">
+                        @*<textarea id="Remark" class="txtArea" rows="3"></textarea>*@
+                        <input style="display: inline;" id="uploadify" name="uploadify" type="file" onclick="uploadify123()" />
+                        <div id="imgOrA" style="display: inline;"></div>
+
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+        <!--客户地址-->
+        <div id="CustomerAddress" class="tabPanel" style="width: 100%; height: 300px;">
+            <div class="nui-toolbar leftline rightline">
+                <div id="toolbar_a">
+                    <div id="lr-add-Row" class="nui-toolbar-item nui-btn-right">
+                        <span class="nui-btn-text">新增</span>
+                    </div>
+                    <div id="lr-delete-Row" class="nui-toolbar-item nui-btn-left">
+                        <span class="nui-btn-text">删除</span>
+                    </div>
+                </div>
+            </div>
+            <div class="rightline">
+                <table id="gridTable"></table>
+            </div>
+        </div>
+        <!--开料铣磨-->
+        <div id="Base_CustomerRequery" class="tabPanel" style="width: 100%; height: 300px;">
+            <div class="nui-toolbar leftline rightline">
+                <div>
+                    <div id="lr-add-Row2" class="nui-toolbar-item nui-btn-right">
+                        <span class="nui-btn-text">新增</span>
+                    </div>
+                    <div id="lr-delete-Row2" class="nui-toolbar-item nui-btn-left">
+                        <span class="nui-btn-text">删除</span>
+                    </div>
+                </div>
+            </div>
+            <div class="rightline">
+                <table id="gridTable2"></table>
+            </div>
+        </div>
+    </div>
+</form>

@@ -1,0 +1,228 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE11" />
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    <script type="text/javascript">
+        var count = 0;
+
+
+        $(function () {
+            updates();
+            
+        });
+
+
+        function updates() {
+            var Condition = "{\"MnemonicCodes\": \"1\" }";
+            AjaxJsonNoMassge("@Url.Content("~/ReportModule/Production/GridPageListWorkDetail")?Condition=" + escape(Condition), { total: 1, page: 1, records: 0, rows: 3000, sidx: "MnemonicCode,LineCode" }, function (data) {
+                count = data.rows.length;
+                var orderdetail = data.rows
+                $('#items').html("");
+                $.each(orderdetail, function (i) {
+                    var size = "";
+                    if (parseFloat(orderdetail[i].weigh) <= 0) {
+                        var boresize = "";
+                        if (!!orderdetail[i].boresize) {
+                            boresize = "xΦ" + orderdetail[i].boresize;
+                        }
+                        size = "Φ" + parseFloat(orderdetail[i].thick) + boresize + '*' + parseFloat(orderdetail[i].length);
+                    }
+                    else {
+                        size = parseFloat(orderdetail[i].length) + '*' + parseFloat(orderdetail[i].weigh) + '*' + parseFloat(orderdetail[i].thick);
+                    }
+                    if (orderdetail[i].billstatus == "已发运" || orderdetail[i].billstatus == "已完工") {
+                        var OrderDetailhtml = '<tr>';
+                        OrderDetailhtml += '                    <td nowrap class="td1"  style="color:green">' + orderdetail[i].mnemoniccode + '</td>';
+                        OrderDetailhtml += '                    <td nowrap class="td2" style="color:green">' + size + '</td>';
+                        OrderDetailhtml += '                    <td nowrap class="td3" style="color:green">' + orderdetail[i].qty + '</td>';
+                        OrderDetailhtml += '                    <td nowrap class="td4" style="color:green">' + orderdetail[i].billstatus + '</td>';
+                        OrderDetailhtml += '                    <td nowrap class="td5" style="color:green">' + orderdetail[i].k001 + '</td>';
+                        OrderDetailhtml += '                    <td nowrap class="td6" style="color:green">' + orderdetail[i].m003 + '</td>';
+                        OrderDetailhtml += '                </tr>';
+                        $('#items').append(OrderDetailhtml);
+                    }
+                    else {
+                        var OrderDetailhtml = '<tr>';
+                        OrderDetailhtml += '                    <td nowrap class="td1">' + orderdetail[i].mnemoniccode + '</td>';
+                        OrderDetailhtml += '                    <td nowrap class="td2">' + size + '</td>';
+                        OrderDetailhtml += '                    <td nowrap class="td3">' + orderdetail[i].qty + '</td>';
+                        OrderDetailhtml += '                    <td nowrap class="td4">' + orderdetail[i].billstatus + '</td>';
+                        OrderDetailhtml += '                    <td nowrap class="td5">' + orderdetail[i].k001 + '</td>';
+                        OrderDetailhtml += '                    <td nowrap class="td6">' + orderdetail[i].m003 + '</td>';
+                        OrderDetailhtml += '                </tr>';
+                        $('#items').append(OrderDetailhtml);
+                    }
+                    
+                });
+                
+                setTimeout('updates()', 5000 * (count / 5 + 1));
+            });
+        }
+        setTimeout('init_srolltextA1()', 4000);
+    </script>
+    <style type="text/css">
+        body {
+            background-color: black;
+            overflow: hidden;
+        }
+
+        td {
+            font-weight: 600;
+            font-size: 10pt;
+            color: orange;
+        }
+
+        .titletd td {
+            font-size: 11pt;
+            height: 20px;
+            background-color: black;
+            padding: 2px;
+            text-align: center;
+        }
+
+        .datatd td {
+            background-color: black;
+            height: 16px;
+            text-align: center;
+        }
+
+        .td1 {
+            width: 40px;
+            text-align: center;
+        }
+
+        .td2 {
+            width: 80px;
+            text-align: center;
+        }
+
+        .td3 {
+            width: 40px;
+            text-align: center;
+        }
+
+        .td4 {
+            width: 40px;
+            text-align: center;
+        }
+
+        .td5 {
+            width: 40px;
+            text-align: center;
+        }
+
+        .td6 {
+            width: 40px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body style="margin: 0px 0px 0px 0px">
+    <div style="width: 320px; height: 128px; overflow: hidden; border-color: black;">
+        <table border="1" cellspacing="0" cellpadding="0" style="border-color: red; border-collapse: collapse; width: 320px;">
+            <tr>
+                <td>
+                    <table border="0" cellpadding="0" cellspacing="0" bgcolor="black" style="border-color: red; border-collapse: collapse; width: 320px;">
+                        <tr class="titletd">
+                            <td nowrap class="td1" style="width:100px;">杠号</td>
+                            <td nowrap class="td2" style="width:160px;">规格</td>
+                            <td nowrap class="td3">数量</td>
+                            <td nowrap class="td4">状态</td>
+                            <td nowrap class="td5">开料</td>
+                            <td nowrap class="td6">加工</td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <div id="A1">
+                        <div id="A2">
+                            <table  border="1" cellpadding="0" cellspacing="0" bgcolor="black" style="margin-top: -1px; margin-left: -1px; border-color: red; border-collapse: collapse; width: 320px;">
+                                <tbody class="datatd" id="items">
+                                    @*<tr>
+                                        <td nowrap class="td1">10-15-13-1</td>
+                                        <td nowrap class="td2">350.2*450.2*12.50</td>
+                                        <td nowrap class="td3">1</td>
+                                        <td nowrap class="td4">正常生产</td>
+                                        <td nowrap class="td5">19</td>
+                                        <td nowrap class="td6">5</td>
+                                    </tr>*@
+                                   
+
+                                </tbody>
+                            </table>
+
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <script language="JavaScript">
+        function _InitScroll(_S1, _S2, _W, _H, _T) {
+            return "var marqueesHeight" + _S1 + "=" + _H + ";var stopscroll" + _S1 + "=false;var scrollElem" + _S1 + "=document.getElementById('" + _S1 + "');with(scrollElem" + _S1 + "){style.width=" + _W + ";style.height=marqueesHeight" + _S1 + ";style.overflow='hidden';noWrap=true;}scrollElem" + _S1 + ".onmouseover=new Function('stopscroll" + _S1 + "=true');scrollElem" + _S1 + ".onmouseout=new Function('stopscroll" + _S1 + "=false');var preTop" + _S1 + "=0; var currentTop" + _S1 + "=0; var stoptime" + _S1 + "=0;var leftElem" + _S2 + "=document.getElementById('" + _S2 + "');scrollElem" + _S1 + ".appendChild(leftElem" + _S2 + ".cloneNode(true));setTimeout('init_srolltext" + _S1 + "()'," + _T + ");function init_srolltext" + _S1 + "(){scrollElem" + _S1 + ".scrollTop=0;setInterval('scrollUp" + _S1 + "()',50);}function scrollUp" + _S1 + "(){if(stopscroll" + _S1 + "){return;}currentTop" + _S1 + "+=1;if(currentTop" + _S1 + "==(marqueesHeight" + _S1 + "+1)) {stoptime" + _S1 + "+=1;currentTop" + _S1 + "-=1;if(stoptime" + _S1 + "==" + _T / 50 + ") {currentTop" + _S1 + "=0;stoptime" + _S1 + "=0;}}else{preTop" + _S1 + "=scrollElem" + _S1 + ".scrollTop;scrollElem" + _S1 + ".scrollTop +=1;if(preTop" + _S1 + "==scrollElem" + _S1 + ".scrollTop){scrollElem" + _S1 + ".scrollTop=0;scrollElem" + _S1 + ".scrollTop +=1;}}}";
+        }
+        //eval(_InitScroll("A1", "A2", 320, 18 * 7 - 6, 4000));
+
+        var marqueesHeightA1 = (16 * 7 - 10) + "px";
+        var marqueesHeightA1Count = (16 * 7 -10) ;
+        var stopscrollA1 = false;
+        var scrollElemA1 = document.getElementById('A1');
+        with (scrollElemA1)
+        {
+            style.width = 320 + "px";;
+            style.height = marqueesHeightA1;
+            style.overflow = 'hidden';
+            noWrap = true;
+        }
+        scrollElemA1.onmouseover = new Function('stopscrollA1=true');
+        scrollElemA1.onmouseout = new Function('stopscrollA1=false');
+        var preTopA1 = 0;
+        var currentTopA1 = 0;
+        var stoptimeA1 = 0;
+        var leftElemA2 = document.getElementById('A2');
+        scrollElemA1.appendChild(leftElemA2.cloneNode(true));
+        
+        function init_srolltextA1()
+        {
+            scrollElemA1.scrollTop = 0;
+            setInterval('scrollUpA1()', 50);
+        }
+        function scrollUpA1()
+        {
+            if (stopscrollA1)
+            {
+                return;
+            }
+            currentTopA1 += 1;
+            if (currentTopA1 == (marqueesHeightA1Count + 1))
+            {
+                stoptimeA1 += 1;
+                currentTopA1 -= 1;
+                if (stoptimeA1 == 80)
+                {
+                    currentTopA1 = 0;
+                    stoptimeA1 = 0;
+                }
+            }
+            else
+            {
+                preTopA1 = scrollElemA1.scrollTop;
+                scrollElemA1.scrollTop += 1;
+                if (preTopA1 == scrollElemA1.scrollTop)
+                {
+                    scrollElemA1.scrollTop = 0;
+                    scrollElemA1.scrollTop += 1;
+                }
+            }
+        }
+
+
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,244 @@
+@{
+    ViewBag.Title = "物料购买申请";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        //账期
+        BindDropItem("#PayType", "PaymentMode", "==请选择==");
+        BindDropDepartmentName("#DepartmentName");
+
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/PaymentModule/Base_MaterielPurchase/GridPageJsonCost1")",
+            datatype: "json",
+            height: $(window).height() - 153,
+            autowidth: true,
+            colModel: [
+                    { label: '费用类型', name: 'type', index: 'type', width: 100, align: 'left', sortable: true },
+                    { label: '单号', name: 'code', index: 'code', width: 100, align: 'left', sortable: true },
+                    { label: '供应商名称', name: 'customername', index: 'customername', width: 100, align: 'left', sortable: true },
+                    { label: '单价', name: 'priceper', index: 'priceper', width: 60, align: 'left', sortable: true },
+                    { label: '数量', name: 'qty', index: 'qty', width: 60, align: 'left', sortable: true },
+                    { label: '总金额', name: 'TotalAmount', index: 'TotalAmount', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '审核', name: 'status', index: 'status', width: 60, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return cellvalue == "0" ? "否" : "是";
+                        }
+                    },
+                    {
+                        label: '付款', name: 'ispay', index: 'ispay', width: 60, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return cellvalue == "0" ? "否" : "是";
+                        }
+                    },
+                    {
+                        label: '发票', name: 'isinvoice', index: 'isinvoice', width: 60, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return cellvalue == "0" ? "否" : "是";
+                        }
+                    },
+                    { label: '付款类型', name: 'paytype', index: 'paytype', width: 100, align: 'left', sortable: true },
+                    { label: '申请人', name: 'workername', index: 'workername', width: 100, align: 'left', sortable: true },
+                    { label: '申请部门', name: 'departmentname', index: 'departmentname', width: 120, align: 'left', sortable: true },
+                    { label: '备注', name: 'remark', index: 'remark', width: 220, align: 'left', sortable: true },
+                    {
+                        label: '申请时间', name: 'createdate', index: 'createdate', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "code": "合计",
+                    "qty": FormatCurrency($("#gridTable").getCol('qty', false, 'sum')),
+                    "TotalAmount": FormatCurrency($("#gridTable").getCol('TotalAmount', false, 'sum')),
+                });
+            }
+        });
+    }
+
+    //明细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielPurchaseId");
+        if (IsChecked(KeyValue)) {
+            var url = "/PaymentModule/Base_MaterielPurchase/Detail?KeyValue=" + KeyValue;
+            Dialog(url, "Detail", "物料购买申请明细", 820, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+    function btn_Invoice() {
+        var IsInvoice = GetJqGridRowValue("#gridTable", "IsInvoice");
+        if (IsInvoice == "是") {
+            alertDialog("当前报价单已开票", 0);
+            return false;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielPurchaseId");
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要开票？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/Base_MaterielPurchase/Update?IsInvoice=1&MaterielPurchaseId=" + KeyValue, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    function btn_audit() {
+        var Status = GetJqGridRowValue("#gridTable", "Status");
+        if (Status == "是") {
+            alertDialog("当前报价单已审核", 0);
+            return false;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielPurchaseId");
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要审核通过？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/Base_MaterielPurchase/Update?Status=1&MaterielPurchaseId=" + KeyValue, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    function btn_payed() {
+        var IsPay = GetJqGridRowValue("#gridTable", "IsPay");
+        if (IsPay == "是") {
+            alertDialog("当前报价单已付款", 0);
+            return false;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielPurchaseId");
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要付费？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/Base_MaterielPurchase/Update?IsPay=1&MaterielPurchaseId=" + KeyValue, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+
+    //查询
+    function btn_Search() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/Base_MaterielPurchase/GridPageJsonCost1")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+    }
+    function btn_Summery() {
+        var url = "/PaymentModule/Base_MaterielPurchase/FormSummary";
+        openDialog(url, "FormSummary", "统计", 750, 360, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+</script>
+<!--工具栏-->
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;" id="QueryParameter">
+        <tr>
+            <th>创建日期 从：</th>
+            <td>
+                <input id="CreateDate_StartTime" type="text" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()"  class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 120px" />
+                </td>
+            <th>至：</th>
+            <td><input id="CreateDate_EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 120px" />
+            </td>
+
+            <th>供应商名称：</th>
+            <td>
+                <input id="CustomerName" type="text" class="txt" style="width: 120px" /></td>
+
+
+            <th>单据类型：</th>
+            <td>
+                <select id="Type" class="select" style="width: 80px">
+                    <option value="">全部</option>
+                    <option value="其他收款">其他收款</option>
+                    <option value="费用申请">费用申请</option>
+                    <option value="物料购买">物料购买</option>
+                    <option value="钢材购买">钢材购买</option>
+                    <option value="委外加工">委外加工</option>
+                </select>
+            </td>
+            <td>
+                <span class="item" style="cursor: pointer;">
+                    <input type="checkbox" class="checkbox" name="checkbox" id="status" />
+                    <label for="status">未审核</label>
+                </span>
+                <span class="item" style="cursor: pointer;">
+                    <input type="checkbox" class="checkbox" name="checkbox" id="ispay" />
+                    <label for="ispay">未付款</label>
+                </span>
+                <span class="item" style="cursor: pointer;">
+                    <input type="checkbox" class="checkbox" name="checkbox" id="isinvoice" />
+                    <label for="isinvoice">未开票</label>
+                </span>
+            </td>
+            
+        </tr>
+        <tr>
+            <th>单号：</th>
+            <td>
+                <input id="code" type="text" class="txt" style="width: 120px" /></td>
+            <th>付款类型：</th>
+            <td>
+                <select id="PayType" class="select" style="width: 80px">
+                    <option value="">全部</option>
+                </select>
+            </td>
+            <th>申请人：</th>
+            <td>
+                <input id="WorkerName" type="text" class="txt" style="width: 120px" /></td>
+            <th>申请部门：</th>
+            <td>
+                <select id="DepartmentName" class="select" style="width: 100px" >
+                    <option value="">全部</option>
+                </select>
+                </td>
+                <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                    <input id="btn_Summery" type="button" class="btnSearch" value="汇总统计" onclick="btn_Summery()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

@@ -1,0 +1,590 @@
+﻿@{
+    ViewBag.Title = "完工扫描销数";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    var lastsel;
+    $(function () {
+        $("#BarCode").focus();
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+        //$("body").live("keydown", function (e) {
+        //    var e = e ? e : window.event;
+        //    var tar = e.srcElement || e.target;
+        //    if (e.which == 13) {
+        //        if ($(tar).hasClass("BarCode")) {
+        //            //window.event.keyCode = 9;
+        //            //alert($(tar).attr('id'))
+        //            if ($(tar).attr('id') == "Qty") {
+        //                setTimeout('$("#Weight").focus();', 100);
+        //            }
+        //            if ($(tar).attr('id') == "Weight") {
+        //                $("#btn_SaveScanForm").trigger("click");
+                        
+        //                setTimeout('$("#BarCode").select();', 100);
+        //            }
+        //        }
+        //        else {
+        //            btn_Search();
+        //        }
+        //    }
+            
+        //})
+        ScanOrder();
+    })
+    //查询
+    var dataall;
+    function btn_Search() {
+        //if ($("#OrderCode").val() == "") {
+        //    tipDialog("请输入工单号", 3, 0);
+        //    return false;
+        //}
+        lastsel = -1;
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/OrderModule/OrderComplete/GridPageListJson1")?Condition=" + escape(Condition), datatype: "json", page: 1 }).trigger('reloadGrid');
+        //AjaxJson("/OrderModule/OrderStatus/UpdateStatus", { OrderCode: $("#OrderCode").val() }, function (data) {
+        //});
+        window.setTimeout(function () {
+            dataall = $("#gridTable").jqGrid("getRowData");
+        }, 1000);
+    }
+@*    function btn_Search1() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/OrderModule/OrderComplete/GridPageListJson")?Condition=" + escape(Condition), datatype: "json", page: 1 }).trigger('reloadGrid');
+    }*@
+    //加载订单表格
+    function GetGrid() {
+        var weightThorey = 0;
+        
+        var maxqty = 0;
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid({
+            datatype: "local",
+            height: $(window).height() - 150,
+            autowidth: true,
+            colModel: [
+                    { label: '订单明细ID', name: 'orderdetailid', hidden: true },
+                    { label: '订单ID', name: 'orderid', hidden: true },
+                    { label: 'maxqty', name: 'maxqty', index: 'maxqty', hidden: true },
+                    { label: 'theorysheetweight', name: 'theorysheetweight', index: 'theorysheetweight', hidden: true },
+                    
+                    { label: '编码', name: 'mnemoniccode', index: 'mnemoniccode', width: 100, align: 'left', sortable: true },
+                    { label: '订单单号', name: 'ordercode', index: 'ordercode', width: 100, align: 'left', sortable: true, hidden: true },
+                    { label: '行号', name: 'linecode', index: 'linecode', width: 50, align: 'center', sortable: true },
+                    { label: '钢种', name: 'steelcode', index: 'steelcode', width: 50, align: 'left', sortable: true },
+                    { label: '钢种名称', name: 'steeldescription', index: 'steeldescription', width: 50, align: 'left', sortable: true },
+                    { label: '加工类型', name: 'ordertype', index: 'ordertype', width: 80, align: 'left', sortable: true },
+                    { label: '客户名称', name: 'customername', index: 'customername', width: 120, align: 'left', sortable: true },
+                { label: '尺寸(厚宽长)', name: 'steelsize', index: 'steelsize', width: 150, align: 'left', sortable: true },
+                    { label: '订单数量', name: 'allqty', index: 'allqty', width: 100, align: 'left', sortable: true },
+                    { label: '完成数量', name: 'qty', index: 'qty', width: 80, align: 'left', sortable: true, editable: true },
+                    { label: '重量', name: 'weight', index: 'weight', width: 80, align: 'left', sortable: true, editable: true },
+                    { label: '理论重量', name: 'theoryweight', index: 'theoryweight', width: 60, align: 'left', sortable: true },
+
+                    { label: '过磅数量', name: 'qty1', index: 'qty1', width: 50, align: 'left', sortable: true },
+                    { label: '过磅重量', name: 'weight1', index: 'weight1', width: 60, align: 'left', sortable: true },
+                    { label: '要求完工期', name: 'delivery', index: 'delivery', width: 120, align: 'left', sortable: true },
+                    
+            ],
+            viewrecords: true,
+            rowNum: 300,
+            rowList: [300, 500, 800, 5000],
+            pager: "#gridPager",
+            sortname: 'ordercode,linecode',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            cellsubmit: 'clientArray',
+            multiselect: true,
+
+            onSelectRow: function (id) {
+                //weightThorey = Number(GetJqGridValue("#gridTable", id, "theoryweight")) / Number(GetJqGridValue("#gridTable", id, "qty"));
+                maxqty = Number(GetJqGridValue("#gridTable", id, "maxqty"))
+                var postData = {
+                    qty: $("[name='qty']").val(),
+                    weight: $("[name='weight']").val(),
+                }
+                if (id && id !== lastsel) {
+                    $('#gridTable').jqGrid('restoreRow', lastsel);
+                    $('#gridTable').jqGrid('editRow', id, { keys: false });
+                    $('#gridTable').jqGrid('setRowData', lastsel, postData, '');
+                }
+                lastsel = id;
+
+                jQuery("#" + id + "_qty").keyup(function () {
+                    if (maxqty < Number($("#" + id + "_qty").val())) {
+                        alert('最大可消数量为：' + maxqty);
+                        $("#" + id + "_qty").val(maxqty)
+                        $("#gridTable").jqGrid('setRowData', id, { theoryweight: (Number(GetJqGridValue("#gridTable", id, "theorysheetweight")) * Number(maxqty)).toFixed(2) });
+                        return;
+                    }
+                    $("#gridTable").jqGrid('setRowData', id, { theoryweight: (Number(GetJqGridValue("#gridTable", id, "theorysheetweight")) * Number($("#" + id + "_qty").val())).toFixed(2) });
+                    $("#" + id + "_weight").val((Number(GetJqGridValue("#gridTable", id, "theorysheetweight")) * Number($("#" + id + "_qty").val())).toFixed(2))
+                });
+                
+                jQuery("#" + id + "_qty").keyup(function () {
+                    self(id);
+                });
+                jQuery("#" + id + "_weight").keyup(function () {
+                    self(id);
+                });
+
+
+            },
+
+        });
+        //保存
+        $("#lr-save").click(function () {
+            var index = GetJqGridRowIndx("#gridTable");
+            var postData = {
+                qty: $("input[name='qty']").val(),
+                weight: $("input[name='weight']").val()
+            }
+            $('#gridTable').jqGrid('setRowData', index, postData, '');
+            $("#lr-save,#lr-cancel").hide();
+            $(".PartialButton").show();
+            $("#gridTable").trigger("reloadGrid");
+        });
+        //取消
+        $("#lr-cancel").click(function () {
+            $("#gridTable").trigger("reloadGrid");
+            $("#lr-save,#lr-cancel").hide();
+            $(".PartialButton").show();
+        });
+    }
+
+
+    //编辑记录
+    function btn_edit() {
+        var OrderId = GetJqGridRowValue("#gridTable", "sured");
+        if (OrderId == "已确认") {
+            tipDialog("此记录已确认,不能编辑", 3, 0);
+            return false;
+        }
+        var Index = GetJqGridRowIndx("#gridTable");
+        if (Index) {
+            $("#gridTable").jqGrid('editRow', Index);
+            $(".PartialButton").hide();
+            $("#lr-save,#lr-cancel").show();
+        }
+    }
+    //移除一行
+    function btn_remove() {
+        // var OrderId = GetJqGridRowValue("#gridTable", "sured");
+        // if (OrderId == "已确认") {
+        //     tipDialog("此记录已确认,不能移除", 3, 0);
+        //     return false;
+        // }
+        // var Index = GetJqGridRowIndx("#gridTable");
+        // $("#gridTable").jqGrid("delRowData", Index);
+
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var temsp = selr;
+        temsp.sort(compare);
+        if (temsp.length) {
+            for (var i = 0; i < temsp.length;) {
+                $("#gridTable").jqGrid("delRowData", temsp[i]);
+            }
+        }
+
+    }
+    //确认记录
+    function btn_Confirm() {
+        var RowData = {
+            qty: $("[name='qty']").val(),
+            weight: $("[name='weight']").val(),
+        }
+        $('#gridTable').jqGrid('setRowData', GetJqGridRowIndx('#gridTable'), RowData, '');
+
+        var data1 = $("#gridTable").jqGrid("getRowData");
+        if (data1.length < 1) {
+            tipDialog("操作失败：没有明细可以完工消数！", 3, 0);
+            return false;
+        }
+
+        confirmDialog("提示", "是否要确认记录吗？", function (r) {
+            if (r) {
+
+                var OrderComplete = [];
+                var data = $("#gridTable").jqGrid("getRowData");
+                var tempWeight = 0;
+
+                for (var i = 0; i < data.length; i++) {
+                    if (data[i].sured == "已确认") {
+                        tipDialog("此记录已确认,不能确认记录", 3, 0);
+                        return false;
+                    }
+                    else if (data[i].qty == "0") {
+                        tipDialog("其中部分数量为0,不能确认记录", 3, 0);
+                        return false;
+                    }
+                    else if (data[i].weight == "0") {
+                        tipDialog("其中部分重量为0,不能确认记录", 3, 0);
+                        return false;
+                    }
+                    else if (Number(data[i].qty) > Number(data[i].maxqty)) {
+                        tipDialog("部分数量大于最大可消数,不能确认记录", 3, 0);
+                        return false;
+
+                    }
+                    else {
+                        OrderComplete.push({
+                            OrderDetailId: data[i].orderdetailid,
+                            OrderId: data[i].orderid,
+                            Qty: data[i].qty,
+                            TheoryWeight: data[i].theoryweight,
+                            Weight: data[i].weight
+                        })
+                    }
+                    tempWeight += Number(data[i].weight)
+                }
+                if (tempWeight == 0) {
+                    tipDialog("操作失败：毛料重量不能为0！", 3, 0);
+                    return false;
+                } 
+                Loading(true, "正在提交数据...");
+                //window.setTimeout(function () {
+                AjaxJson("/OrderModule/OrderComplete/SubmitOrderComplete", { OrderCompleteJson: JSON.stringify(OrderComplete) }, function (data) {
+                    OrderComplete = [];
+                    tipDialog(data.Message, 3, data.Code);
+                    $("#gridTable").jqGrid("clearGridData");
+                });
+                // }, 200);
+            }
+        });
+    }
+
+
+    function self(id) {
+        var id = Number(id);
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+        if (event.keyCode == 40 || event.keyCode == 13) {//下
+            var aaa = $(tar).attr('id');
+            if (aaa.indexOf("TypeName") >= 0) {
+                return true;
+            }
+            var mun = Number($("#gridTable").getGridParam("reccount"));
+            if (id >= 0 && id < mun) {
+                $("#gridTable").setSelection(id + 1);
+            }
+            else {
+                //$("#lr-add-Row").click();
+            }
+            var irow = id + 1;
+            aaa = irow + aaa.substr(1, aaa.length);
+            window.setTimeout(function () {
+                $("#" + aaa).select();
+            }, 200);
+            return true;
+        }
+        ////if (e && e.keyCode == 13) {//回车
+        ////    //alert($("#gridTable").getGridParam("reccount"));
+        ////    return false;
+        ////}
+        return false;
+    }
+
+    /*扫描录入============================================================*/
+    var OrderComplete = 0;
+    var SheetWeight = 0;
+    var TheorySheetWeight = 0;
+    //订单扫描事件
+    function ScanOrder() {
+        $(document).keypress(function (e) {
+            //回车键事件
+            if (e.which == 13) {
+
+                var tar = e.srcElement || e.target;
+                if ($(tar).attr('id') == "mnemoniccode") {
+                    btn_Search();
+                    return false;
+                }
+                if ($(tar).attr('id') == "BarCode") {
+                    btn_Search();
+                    return false;
+
+                    if ($("#BarCode").val() == "") {
+                        return false;
+                    }
+
+                    AjaxJsonNoMassge("/OrderModule/OrderQuery/GetOrderDetailEntityJsonforGB", { BarCode: $("#BarCode").val() + "--" }, function (data) {
+
+                        if (!data[0] || data.Code == -1) {
+                            $('#BarCode').select();
+                            tipDialog(data.Message, 3, 0);
+                            return;
+                        }
+                        var data = data[0];
+                        //if (data.billstatus == "正常生产" || data.billstatus == "部分完工" || data.billstatus == "部分发运" || data.billstatus == "已完工") {
+                        if (true) {
+                            if (data.qty - data.completeqty <= 0) {
+                                $('#BarCode').select();
+                                tipDialog("订单当前消数数量为0，请先消数！", 3, 0);
+                                return false;
+                            }
+                            OrderComplete = data;
+
+
+
+                            //if (data.ordertype == "毛料生产") 
+                            if (data.weigh <= 0) {
+                                SheetWeight = data.weight / data.qty;
+                                $("#Weight").val(0);
+                                $("#Qty").val(data.qty - data.completeqty);
+                                $("#TheoryWeight").val(FormatCurrency(data.weight * (data.qty - data.completeqty) / data.qty));
+                                $("#Qty_hidden").val(data.qty - data.completeqty);
+                            }
+                            else {
+                                SheetWeight = data.weight / data.qty;
+                                $("#Weight").val(FormatCurrency(SheetWeight * (data.qty - data.completeqty)));
+                                $("#Qty").val(data.qty - data.completeqty);
+                                $("#TheoryWeight").val(FormatCurrency(data.weight * (data.qty - data.completeqty) / data.qty));
+                                $("#Qty_hidden").val(data.qty - data.completeqty);
+                            }
+                            //SheetWeight = data.weight / data.qty;
+                            //$("#Weight").val(FormatCurrency((data.weight * (data.qty - data.completeqty) )/ data.qty));
+
+                            TheorySheetWeight = data.weight / data.qty;
+
+                            if ($("#Qty").val() == 0) {
+                                tipDialog("可消数量为0", 3, 0);
+                                return;
+                            }
+                            //$("#Qty").focus();
+                            setTimeout('$("#btn_SaveScanForm").trigger("click");$("#BarCode").select();', 300);
+
+
+
+                        } else {
+                            $('#BarCode').select();
+                            tipDialog("当前状态为" + data.billstatus + ",只有正常生产才允许消数！", 3, 0);
+                        }
+                    });
+                }
+            }
+        });
+    }
+    //保存扫描表单
+    function SaveScanForm() {
+        if (OrderComplete != "") {
+            if (ScanExists($("#BarCode").val())) {
+                tipDialog("订单号已存在", 3, 0);
+                return false;
+            }
+            //AjaxJson("/OrderModule/OrderQuery/SetForm", { KeyValue: OrderComplete.orderid }, function (data) {
+            //    OrderComplete["Delivery"] = data.Delivery;
+            //});
+
+            @*            AjaxJsonNoMassge("/OrderModule/OrderQuery/UpdateOrderDetail", { OrderDetailId: OrderComplete.orderdetailid, ScaleUser: "@DNS.Utilities.ManageProvider.Provider.Current().UserId" }, function (data) {
+            });*@
+            var steelsize = "";
+            if (parseFloat(OrderComplete.weigh) != 0) {
+                steelsize = parseFloat(OrderComplete.length) + " *" + parseFloat(OrderComplete.weigh) + " *" + parseFloat(OrderComplete.thick);
+            }
+            if (parseFloat(OrderComplete.weigh) == 0) {
+                steelsize = " Φ" + parseFloat(OrderComplete.thick) + " *" + parseFloat(OrderComplete.length);
+            }
+
+            var OrderCode = $("#BarCode").val().split('-');
+            var rowdata = {
+                mnemoniccode: OrderComplete.mnemoniccode,
+                orderdetailid: OrderComplete.orderdetailid,
+                orderid: OrderComplete.orderid,
+                ordercode: OrderCode[0] + "-" + OrderCode[1],
+                linecode: OrderComplete.linecode,
+                boardid: OrderComplete.boardid,
+                boarddescription: OrderComplete.boarddescription,
+                qty: $("#Qty").val(),
+                steelsize: steelsize,
+                theoryweight: $("#TheoryWeight").val(),
+                weight: $("#Weight").val(),
+                steelcode: OrderComplete.steelcode,
+                delivery: OrderComplete.delivery,
+                createdate: '@DNS.Utilities.DateTimeHelper.GetTime()',
+                createusername: '@DNS.Utilities.ManageProvider.Provider.Current().UserName',
+                steeldescription: OrderComplete.steeldescription,
+                customername: OrderComplete.customername,
+                ordertype: OrderComplete.ordertype,
+                maxqty: $("#Qty").val(),
+                qty1: OrderComplete.qty1,
+                weight1: OrderComplete.weight1,
+                TheorySheetWeight: TheorySheetWeight,
+            }
+            var index = $("#gridTable").getGridParam("reccount") + 1;
+            $('#gridTable').jqGrid('addRowData', index, rowdata);
+            OrderComplete = "";
+            //alert(JSON.stringify(rowdata))
+
+            $('#tb_OrderCompleteId').find('input').val('')
+        }
+    }
+    //输入数量
+    function QtyInputevent() {
+        if (Number($("#Qty").val()) > Number($("#Qty_hidden").val())) {
+            $("#Qty").val($("#Qty_hidden").val());
+        }
+        var Weight = $("#Qty").val() * SheetWeight;
+        $("#Weight").val(FormatCurrency(Weight));
+        var TheoryWeight = $("#Qty").val() * TheorySheetWeight;
+        $("#TheoryWeight").val(FormatCurrency(TheoryWeight));
+    }
+    //扫描验证是否已经添加到表格了
+    function ScanExists(LineCode) {
+        var data = $("#gridTable").jqGrid("getRowData");
+        for (var i = 0; i < data.length; i++) {
+            if (LineCode.toUpperCase() == data[i].ordercode + "-" + data[i].linecode) {
+                return true;
+            }
+        }
+        return false;
+    }
+    function btn_query() {
+        openDialog("/OrderModule/OrderComplete/QueryOrder?LType=GC", "QueryOrder", "订单查询", 670, 260, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+
+    function btn_ToFen() {
+        if (!!Number($('#TotalWeights').val())) {
+            var RowData = {
+                qty: $("[name='qty']").val(),
+                weight: $("[name='weight']").val(),
+            }
+            $('#gridTable').jqGrid('setRowData', GetJqGridRowIndx('#gridTable'), RowData, '');
+            var totalwiehgt = 0;
+            var data = $("#gridTable").jqGrid("getRowData");
+            for (var i = 0; i < data.length; i++) {
+                totalwiehgt = totalwiehgt + Number(data[i].theoryweight);
+            }
+            var temweight = 0;
+            for (var i = 0; i < data.length; i++) {
+                if (i == data.length - 1) {
+                    $("#gridTable").jqGrid('setRowData', getRowNum(data[i].orderdetailid), { weight: (Number($('#TotalWeights').val()) - temweight).toFixed(2) });
+
+                }
+                else {
+                    $("#gridTable").jqGrid('setRowData', getRowNum(data[i].orderdetailid), { weight: (Number(data[i].theoryweight) * Number($('#TotalWeights').val()) / totalwiehgt).toFixed(2) });
+
+                }
+                temweight = temweight + Number((Number(data[i].theoryweight) * Number($('#TotalWeights').val()) / totalwiehgt).toFixed(2));
+
+            }
+            $('#TotalWeights').val(0)
+        }
+
+    }
+
+    function getRowNum(orderdetailid) {
+        for (var i = 0; i < dataall.length; i++) {
+            if (dataall[i].orderdetailid == orderdetailid) {
+                return i + 1;
+            }
+        }
+
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+    <div>
+        <a id="lr-save" class="tools_btn" title="保存" style="display: none;"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/table_save.png")) no-repeat 50% 4px;'>保存</b></span></a>
+        <a id="lr-cancel" class="tools_btn" title="取消" style="display: none;"><span><b style='background: url(@Url.Content("~/Content/Images/Icon16/cancel.png")) no-repeat 50% 4px;'>取消</b></span></a>
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table id="QueryParameter" border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>订单单号：</th>
+            <td>
+                <input id="LType" type="hidden" value="GC" />
+                <input id="mnemoniccode" type="text" class="txt" style="width: 120px" />
+            </td>
+ @*            <th>扫描人员：</th>
+            <td>
+                <input id="CreateUserName" type="text" class="txt" style="width: 120px" value="" />
+            </td>
+            <th>扫描日期：</th>
+            <td>
+                <input id="CreateDate_StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 120px" />
+            </td>
+            <td>至&nbsp;&nbsp;
+                <input id="CreateDate_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 120px" />
+            </td>
+           <td>
+                <span class="item" style="cursor: pointer;">
+                    <input type="checkbox" class="checkbox" name="checkbox" id="IsComplete" />
+                    <label for="IsComplete">已完工</label></span>
+
+                <span class="item" style="cursor: pointer;">
+                    <input type="checkbox" class="checkbox" name="checkbox" id="ProductIng" checked  />
+                    <label for="ProductIng">未确认</label></span>
+            </td>*@
+            <td>
+                <input id="btnSearch1" type="button" class="btnSearch" value="查询" onclick="btn_Search()" />
+               @* <input id="btn_Search1" type="button" class="btnSearch" value="未确认查询" onclick="btn_Search1()" />*@
+            </td>
+            <th>毛料合称重量：</th>
+            <td>
+                <input id="TotalWeights" type="text" class="txt" style="width: 120px" value="0" onfocus="IsMoney(this.id);" />
+            </td>
+            <td>
+                <input id="sdfs" type="button" class="btnSearch" value="分配" onclick="btn_ToFen()" />
+               @* <input id="btn_Search1" type="button" class="btnSearch" value="未确认查询" onclick="btn_Search1()" />*@
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>
+<div class="bd" style="border-bottom: none; border-left: none; border-right: none; margin: 1px; margin-left: 0px; margin-right: 0px; display:none">
+    <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+        <div class="tab_list_top" style="position: absolute">
+            <div class="tab_list bd actived">完工扫描</div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; padding-left: 20px;">
+        <br />
+        <table id="tb_OrderCompleteId" border="0" class="form-find" style="height: 45px;">
+            <tr>
+                <td align="right">完工条码：</td>
+                <td>
+                    <input id="BarCode" type="text" class="txt BarCode" style="width: 150px"  onfocus="$('#BarCode').select();" /></td>
+                <td align="right">完工数量：</td>
+                <td>
+                    <input id="Qty_hidden" type="hidden" />
+                    <input id="Qty" onfocus="IsNumber(this.id);" onkeyup="QtyInputevent()" type="text" class="txt BarCode" style="width: 150px" />
+                </td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: red;">1、扫描前先确定光标是否在完工条码位置</span></td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td align="right">重量：</td>
+                <td>
+                    <input id="Weight"  type="text" class="txt BarCode" style="width: 63px" />
+                    <button id="btn_SaveScanForm" type="button" class="btnSearch" onclick="SaveScanForm()">√</button>
+                    <button type="button" class="btnSearch" onclick="$('#tb_OrderCompleteId').find('input').val('')">×</button>
+                </td>
+                <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: red;">2、输入数量（默认为1），按[回传]即可</span></td>
+            </tr>
+            <tr>
+                <td>&nbsp;</td>
+                <td>&nbsp;</td>
+                <td align="right">比重：</td>
+                <td>
+                    <input id="TheoryWeight" type="text" class="txt BarCode" style="width: 63px" disabled />
+                </td>
+                <td></td>
+            </tr>
+        </table>
+    </div>
+</div>

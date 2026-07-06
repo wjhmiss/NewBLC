@@ -1,0 +1,157 @@
+﻿@{
+    ViewBag.Title = "仓库";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+<link href="~/Content/Scripts/Mobile/templates/mobile/css/mobiscroll.custom-2.6.2.min.css" rel="stylesheet" />
+<script src="~/Content/Scripts/Mobile/templates/mobile/js/mobiscroll.custom-2.6.2.min.js"></script>
+<script type="text/javascript">
+    var DeliveryId = GetQuery('DeliveryId');
+
+
+    $(document).ready(function (e) {
+        if (DeliveryId == "") {
+            tipDialog("错误：未能获取发运单信息", -1);
+            location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QueryOrder")";
+            return;
+        }
+        AjaxJsonNoMassge("/DeliveryModule/BY_Delivery/PrintDataJson", { DeliveryId: DeliveryId }, function (data) {
+            var Delivery = data.Delivery;
+            var DeliveryDetail = data.DeliveryDetail;
+            $("#DeliveryCode").html(Delivery.DeliveryCode);
+            $("#OrderCode").html(Delivery.OrderCode);
+            $("#QuotationCode").html(Delivery.QuotationCode);
+            $("#CustomerName").html(Delivery.CustomerName);
+            $("#ContactName").html(Delivery.ContactName);
+            $("#MobileCodeContactTel").html(Delivery.MobileCode + "/" + Delivery.ContactTel);
+            $("#CustomerAddress").html(Delivery.CustomerAddress);
+            $("#Qty").html(data.QtySum);
+            $("#Weight").html(data.WeightSum);
+            $("#TotalAmount").html(data.MaterialAmountSum);
+            $("#CreateDate").html(Delivery.CreateDate);
+            $.each(DeliveryDetail, function (i) {
+                var html = '<div class="wrap-box"><h2>' + DeliveryDetail[i].SteelCode + '</h2><dl>';
+                html += '<dt>金额</dt><dd>' + DeliveryDetail[i].SalesAmount + '</dd></dl><dl>';
+                html += '<dt>数量</dt><dd>' + DeliveryDetail[i].Qty + '</dd></dl><dl>';
+                html += '<dt>厚、宽、长</dt><dd>' + DeliveryDetail[i].Thick + '*' + DeliveryDetail[i].Weigh + '*' + DeliveryDetail[i].Length + '</dd></dl><dl>';
+                html += '<dt>出货重量</dt><dd>' + DeliveryDetail[i].Weight + 'kg</dd></dl><dl>';
+                html += '<dt>公差备注</dt><dd>' + DeliveryDetail[i].Remark + '</dd></dl></div>';
+                $("#listdetail").append(html);
+
+            });
+        });
+
+    });
+
+    function locationInputQuot() {
+        location.href = "@Url.Content("~/WeiWebSite/WeiLogin/QueryDelivery")";
+    }
+
+
+
+</script>
+<!--分类筛选-->
+<div id="categoryPanel" class="panel" data-footer="none">
+    <header>
+        <a onclick="history.back(-1)" class="backButton">返回</a>
+        <h1>发运单明细</h1>
+        <a onclick="$.ui.toggleSideMenu()" class="menuButton"></a>
+    </header>
+    <ul class="category-bar">
+        <li>
+            <h2><a href="javascript:;" data-ignore="true">发运单信息</a></h2>
+        </li>
+    </ul>
+    <div class="wrap-box">
+        <dl>
+            <dt>发运单号</dt>
+            <dd><span id="DeliveryCode"></span></dd>
+        </dl>
+        <dl>
+            <dt>加工单号</dt>
+            <dd><span id="OrderCode"></span></dd>
+        </dl>
+        <dl>
+            <dt>报价单号</dt>
+            <dd><span id="QuotationCode"></span></dd>
+        </dl>
+        <dl>
+            <dt>客户名称</dt>
+            <dd><span id="CustomerName"></span></dd>
+        </dl>
+        <dl>
+            <dt>联系人</dt>
+            <dd><span id="ContactName"></span></dd>
+        </dl>
+        <dl>
+            <dt>电话</dt>
+            <dd><span id="MobileCodeContactTel"></span></dd>
+        </dl>
+        <dl>
+            <dt>地址</dt>
+            <dd><span id="CustomerAddress"></span></dd>
+        </dl>
+        <dl>
+            <dt>总数量</dt>
+            <dd><span id="Qty"></span></dd>
+        </dl>
+        <dl>
+            <dt>总重量</dt>
+            <dd><span id="Weight"></span></dd>
+        </dl>
+        <dl>
+            <dt>总金额</dt>
+            <dd><span id="TotalAmount"></span></dd>
+        </dl>
+        <dl>
+            <dt>创建时间</dt>
+            <dd><span id="CreateDate"></span></dd>
+        </dl>
+    </div>
+    <ul class="category-bar">
+        <li>
+            <h2><a href="javascript:;" data-ignore="true">明细</a></h2>
+        </li>
+    </ul>
+    <div id="listdetail">
+        @*<div class="wrap-box">
+            <h2>P20</h2>
+            <dl>
+                <dt>金额</dt>
+                <dd>5144kg</dd>
+            </dl>
+            <dl>
+                <dt>数量</dt>
+                <dd>20</dd>
+            </dl>
+            <dl>
+                <dt>厚、宽、长</dt>
+                <dd>200 X 500 X 2400</dd>
+            </dl>
+            <dl>
+                <dt>出货重量</dt>
+                <dd>5144kg</dd>
+            </dl>
+            <dl>
+                <dt>公差备注</dt>
+                <dd>厚宽长+0~0.05</dd>
+            </dl>
+        </div>*@
+
+    </div>
+
+    @*    <div class="wrap-box">
+        <h2>应付总金额：<b class="red">￥7322.00</b></h2>
+        <p>运费：￥24.00&nbsp;&nbsp;手续费：￥0.00&nbsp;&nbsp;税费：0.00</p>
+        <p>商品：￥7298.00&nbsp;&nbsp;总积分：500分</p>
+    </div>
+    <div>*@
+
+    <a href="javascript:;" onclick="locationInputQuot();" class="btn full">返 回</a>
+
+</div>
+</div>
+
+
+
+
+

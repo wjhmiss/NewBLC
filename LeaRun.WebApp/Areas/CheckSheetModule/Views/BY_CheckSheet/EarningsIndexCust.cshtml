@@ -1,0 +1,431 @@
+﻿@{
+    ViewBag.Title = "EarningsChart";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/highcharts/highchartsjquery")
+@Scripts.Render("~/Content/Scripts/Workday/kalendarjqueryyyyydd")
+@Styles.Render("~/Content/Scripts/Workday/kalendarcss")
+<script type="text/javascript">
+    $(function () {
+        CustomerAutocomplete();
+        window.setTimeout(function () {
+            Getchart();
+            GetGrid();
+        }, 200);
+
+        $("#month").hide();
+    })
+    function btn_Search1() {
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("/CheckSheetModule/BY_CheckSheet/GetGridPageJsonCust")?starttime=" + $("#StartTime").val() + "&endtime=" + $("#EndTime").val() + "&CustomerId=" + $("#CustomerId").val(), page: 1 }).trigger('reloadGrid');
+    }
+
+    //加载表格
+    function GetGrid() {
+        var starttime = $("#year").find("select[name='year']").val() + "-1-1 00:00:00";
+        var temp = Number($("#year").find("select[name='year']").val()) + 1;
+        var endtime = temp + "-1-1 00:00:00";
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("/CheckSheetModule/BY_CheckSheet/GetGridPageJsonCust")?starttime=" + starttime + "&endtime=" + endtime + "&CustomerId" + $("#CustomerId").val(),
+            datatype: "json",
+            height: $(window).height() - 270,
+            autowidth: true,
+            colModel: [
+
+                    {
+                        label: '出货日期', name: 'createdate', index: 'createdate', width: 80, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '用途', name: 'productname', index: 'productname', width: 100, align: 'left', sortable: true },
+                    { label: '单号', name: 'deliverycode', index: 'deliverycode', width: 100, align: 'left', sortable: true },
+                    {
+                        label: '行号', name: 'linecode', index: 'linecode', width: 40, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!cellvalue) {
+                                return "";
+                            }
+                            return cellvalue;
+                        }
+                    },
+                   
+                {
+                    label: '厚度', name: 'thick', index: 'thick', width: 50, align: 'center', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) {
+                            return "";
+                        }
+                        return cellvalue;
+                    }
+                },
+
+                    {
+                        label: '宽度', name: 'weigh', index: 'weigh', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!cellvalue) {
+                                return "";
+                            }
+                            return cellvalue;
+                        }
+                },
+                {
+                    label: '长度', name: 'length', index: 'length', width: 50, align: 'center', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) {
+                            return "";
+                        }
+                        return cellvalue;
+                    }
+                },
+                  
+
+                    {
+                        label: '数量', name: 'qty', index: 'qty', width: 40, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!cellvalue) {
+                                return "";
+                            }
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '重量', name: 'weight', index: 'weight', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!cellvalue) {
+                                return "";
+                            }
+                            return cellvalue;
+                        }
+                    },
+
+                    {
+                        label: '收入', name: 'salesamount', index: 'salesamount', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!cellvalue) {
+                                return "";
+                            }
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '成本', name: 'totalcost', index: 'totalcost', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!cellvalue) {
+                                return "";
+                            }
+                            return cellvalue;
+                        }
+                    },
+                    {
+                        label: '实际营收', name: 'yingli', index: 'yingli', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!cellvalue) {
+                                return "";
+                            }
+                            return cellvalue;
+                        }
+                    },
+
+            ],
+            pagination: true,
+            viewrecords: true,
+            rowNum: 50,
+            rowList: [50, 100, 500, 1000, 5000],
+            pager: "#gridPager",
+            sortname: 'createdate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: false,
+            altclass: 'altclass',
+            gridview: true,
+            footerrow: true,
+
+            gridComplete: function () {
+                var data = $("#gridTable").jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    var item = i + 1;
+                    if (Number(data[i].yingli) < 0) {
+                        $("#" + item).find('td').css("background-color", "red");
+                    }
+                }
+                //合计
+                $(this).footerData("set", {
+                    "productname": "合计",
+                    "salesamount": FormatCurrency($("#gridTable").getCol('salesamount', false, 'sum')),
+                    "totalcost": FormatCurrency($("#gridTable").getCol('totalcost', false, 'sum')),
+                    "yingli": FormatCurrency($("#gridTable").getCol('yingli', false, 'sum')),
+                });
+            }
+        });
+
+    }
+    function Getchart() {
+        AjaxJson("/CheckSheetModule/BY_CheckSheet/GetchartCust", { Year: $("#year").find("select[name='year']").val(), CustomerId: $("#CustomerId").val() }, function (data) {
+            $('#container').highcharts({
+                chart: {
+                },
+                title: {
+                    text: '客户利润总账'
+                },
+                xAxis: {
+                    categories: data.names //['2015年1月', '2015年2月', '2015年3月', '2015年4月', '2015年5月', '2015年6月', '2015年7月', '2015年8月', '2015年9月', '2015年10月', '2015年11月', '2015年12月']
+                },
+                tooltip: {
+                    formatter: function () {
+                        var s;
+                        if (this.point.name) { // the pie chart                   
+                            s = '' +
+                                this.point.name + ': ' + this.y + ' fruits';
+                        } else {
+                            s = '' +
+                                this.x + ': ' + this.y;
+                        }
+                        return s;
+                    }
+                },
+                series: [{
+                    type: 'column',
+                    name: '总收入',
+                    data: data.EarningsR//[101204, 81204, 121204, 110204, 120204]
+                }, {
+                    type: 'column',
+                    name: '总支出',
+                    data: data.EarningsC//[31136, 31586, 41769, 31867, 35775]
+                }, {
+                    type: 'spline',
+                    name: '盈利',
+                    data: data.EarningsChartDataTotal,//[70068, 49618, 79435, 78337, 84429],
+                    marker: {
+                        lineWidth: 2,
+                        lineColor: Highcharts.getOptions().colors[3],
+                        fillColor: 'white'
+                    }
+                }]
+            });
+        });
+    }
+    Highcharts.theme = {
+        colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+        chart: {
+            backgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                stops: [
+                    [0, 'rgb(255, 255, 255)'],
+                    [1, 'rgb(240, 240, 255)']
+                ]
+            },
+            borderWidth: 2,
+            plotBackgroundColor: 'rgba(255, 255, 255, .9)',
+            plotShadow: true,
+            plotBorderWidth: 1
+        },
+        title: {
+            style: {
+                color: '#000',
+                font: 'bold 16px "Trebuchet MS", Verdana, sans-serif'
+            }
+        },
+        subtitle: {
+            style: {
+                color: '#666666',
+                font: 'bold 12px "Trebuchet MS", Verdana, sans-serif'
+            }
+        },
+        xAxis: {
+            gridLineWidth: 1,
+            lineColor: '#000',
+            tickColor: '#000',
+            labels: {
+                style: {
+                    color: '#000',
+                    font: '11px Trebuchet MS, Verdana, sans-serif'
+                }
+            },
+            title: {
+                style: {
+                    color: '#333',
+                    fontWeight: 'bold',
+                    fontSize: '12px',
+                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+
+                }
+            }
+        },
+        yAxis: {
+            minorTickInterval: 'auto',
+            lineColor: '#000',
+            lineWidth: 1,
+            tickWidth: 1,
+            tickColor: '#000',
+            labels: {
+                style: {
+                    color: '#000',
+                    font: '11px Trebuchet MS, Verdana, sans-serif'
+                }
+            },
+            title: {
+                style: {
+                    color: '#333',
+                    fontWeight: 'bold',
+                    fontSize: '12px',
+                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+                }
+            }
+        },
+        legend: {
+            itemStyle: {
+                font: '9pt Trebuchet MS, Verdana, sans-serif',
+                color: 'black'
+
+            },
+            itemHoverStyle: {
+                color: '#039'
+            },
+            itemHiddenStyle: {
+                color: 'gray'
+            }
+        },
+        labels: {
+            style: {
+                color: '#99b'
+            }
+        },
+
+        navigation: {
+            buttonOptions: {
+                theme: {
+                    stroke: '#CCCCCC'
+                }
+            }
+        }
+    };
+
+    // Apply the theme
+    var highchartsOptions = Highcharts.setOptions(Highcharts.theme);
+
+    function btn_Search() {
+        Getchart();
+        btn_Search1();
+    }
+
+    //客户编码自动补全
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.FullName);
+            $("#PaymentMode").val(data.PaymentMode);
+            btn_Search();
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Customer/GetAutoCompleJson", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 70%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="ShortName" style="display: none;">' + DataJson[i].ShortName + '</td>';
+                    html += '<td id="Sellpeople" style="display: none;">' + DataJson[i].Sellpeople + '</td>';
+                    html += '<td id="SalesArea" style="display: none;">' + DataJson[i].Sellarea + '</td>';
+                    html += '<td id="DiscountRate" style="display: none;">' + DataJson[i].DiscountRate + '</td>';
+                    html += '<td id="TransitMode" style="display: none;">' + DataJson[i].TransitMode + '</td>';
+                    html += '<td id="PaymentMode" style="display: none;">' + DataJson[i].PaymentMode + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.FullName);
+                    $("#PaymentMode").val(data.PaymentMode);
+                    btn_Search();
+                });
+
+            });
+        }
+    }
+
+    function OverrideTabchange(id) {
+        Tabchange(id);
+        //if (id == "Report") {
+        //}
+        //else if (id == "Plato") {
+        //    CreatePlato();
+        //}
+    }
+</script>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            @*<th>日期 从：</th>
+            <td>
+                <input id="StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 100px" />
+            </td>
+            <th>日期 至：</th>
+            <td>
+                <input id="EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 100px" />
+            </td>*@
+            <th>时间：</th>
+            <td>
+                <div id='wrap' style="float: inherit; width: 100%">
+                </div>
+            </td>
+            <th>客户编号：</th>
+            <td>
+                <input id="CustomerCode" maxlength="50" type="text" class="txt" />
+                <input id="CustomerId" type="hidden" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="bd" style="border-bottom: none; margin: 1px;">
+    <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+        <div class="tab_list_top" style="position: absolute">
+            <div id="TabReport" class="tab_list bd actived" onclick="OverrideTabchange('Report');btn_Search();">图标统计</div>
+            <div id="TabPlato" class="tab_list bd " onclick="OverrideTabchange('Plato');btn_Search();">明细统计</div>
+        </div>
+    </div>
+</div>
+<div class="ScrollBar topline" style="margin: 1px; overflow: hidden; border-bottom: none;">
+    <!--报表-->
+    <div id="Report" class="tabPanel" style="margin: 1px; margin-top: -1px;">
+        <div id="container"></div>
+    </div>
+    <!--柏拉图-->
+    <div id="Plato" class="tabPanel" style="margin: 1px; margin-top: -1px; display: none;">
+        <div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+            <table border="0" class="form-find" style="height: 45px;">
+                <tr>
+                    <th>日期 从：</th>
+                    <td>
+                        <input id="StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 100px" />
+                    </td>
+                    <th>日期 至：</th>
+                    <td>
+                        <input id="EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 100px" />
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>

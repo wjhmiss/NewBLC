@@ -1,0 +1,229 @@
+@{
+    ViewBag.Title = "By_InvoiceForDetail";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        GetGrid();
+
+        getAjax('/CommonModule/Company/ListJson', { ParentId: "1" }, function (data) {
+            $("#CompanyName").append($("<option></option>").val("").html("请选择！"));
+            var itemjson = eval("(" + data + ")");
+            $.each(itemjson, function (i) {
+                $("#CompanyName").append($("<option></option>").val(itemjson[i].FullName).html(itemjson[i].FullName));
+            });
+            Loading(false);
+        });
+    })
+    //加载表格
+    function GetGrid() {
+        var Parameter = [{
+            paramName: "DeliveryCode",
+            paramValue: $("#DeliveryCode").val(),
+            Operation: "Like",
+            Logic: "AND",
+        }, {
+            paramName: "CustomerName",
+            paramValue: $("#CustomerName").val(),
+            Operation: "Like",
+            Logic: "AND"
+        }, {
+            paramName: "InvoiceNum",
+            paramValue: $("#InvoiceNum").val(),
+            Operation: "Like",
+            Logic: "AND",
+        }
+            , {
+            paramName: "InvoiceCustomer",
+            paramValue: $("#InvoiceCustomer").val(),
+            Operation: "Like",
+            Logic: "AND",
+        }, {
+            paramName: "InvoiceDate",
+            paramValue: $("#Delivery_StartTime").val(),
+            Operation: "GreaterThan",
+            Logic: "AND"
+        }, {
+            paramName: "InvoiceDate",
+            paramValue: $("#Delivery_EndTime").val(),
+            Operation: "LessThan",
+            Logic: "AND"
+        }
+            , {
+            paramName: "TypeName",
+            paramValue: $("#TypeName").val(),
+            Operation: "Equal",
+            Logic: "AND"
+        }
+
+        ]
+
+
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CheckSheetModule/By_InvoiceForDetail/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)) + "&SteelCode=" + escape($("#SteelCode").val()) + "&Size=" + escape($("#Size").val()),
+            datatype: "json",
+            height: $(window).height() - 129,
+            autowidth: true,
+            colModel: [
+                    { label: 'InvoiceId', name: 'InvoiceId', index: 'InvoiceId', hidden: true },
+                { label: '发运单明细ID', name: 'DeliveryDetailId', index: 'DeliveryDetailId', hidden: true },
+                { label: '公司', name: 'CompanyName', index: 'CompanyName', width: 160 },
+                { label: '关联对账单', name: 'CheckSheetCode', index: 'CheckSheetCode', width: 160 },
+
+                    { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 160 },
+                    {
+                        label: '发票日期', name: 'InvoiceDate', index: 'InvoiceDate', width: 100, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '发票号', name: 'InvoiceNum', index: 'InvoiceNum', width: 80, align: 'left', sortable: true },
+                    { label: '接收单位', name: 'InvoiceCustomer', index: 'InvoiceCustomer', width: 160, align: 'left', sortable: true },
+                    { label: '发票金额', name: 'InvoiceMoney', index: 'InvoiceMoney', width: 60, align: 'left', sortable: true },
+                    { label: '类型', name: 'TypeName', index: 'TypeName', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '备注', name: 'Remark', index: 'Remark', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");;
+
+                            }
+                            return "";
+                        }
+                    },
+                    { label: '创建用户', name: 'CreateUserName', index: 'CreateUserName', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '创建时间', name: 'CreateDate', index: 'CreateDate', width: 100, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '修改用户', name: 'ModifyUserName', index: 'ModifyUserName', width: 80, align: 'left', sortable: true },
+            ],
+            footerrow: true,
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "DeliveryCode": "合计",
+                    "InvoiceMoney": FormatCurrency($("#gridTable").getCol('InvoiceMoney', false, 'sum')),
+
+                });
+            },
+        });
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+    function btn_Search() {
+
+        var Parameter = [{
+            paramName: "DeliveryCode",
+            paramValue: $("#DeliveryCode").val(),
+            Operation: "Like",
+            Logic: "AND",
+        }, {
+            paramName: "CustomerName",
+            paramValue: $("#CustomerName").val(),
+            Operation: "Like",
+            Logic: "AND"
+        }, {
+            paramName: "InvoiceNum",
+            paramValue: $("#InvoiceNum").val(),
+            Operation: "Like",
+            Logic: "AND",
+        }
+        , {
+            paramName: "InvoiceCustomer",
+            paramValue: $("#InvoiceCustomer").val(),
+            Operation: "Like",
+            Logic: "AND",
+        }, {
+            paramName: "InvoiceDate",
+            paramValue: $("#Delivery_StartTime").val(),
+            Operation: "GreaterThan",
+            Logic: "AND"
+        }, {
+            paramName: "InvoiceDate",
+            paramValue: $("#Delivery_EndTime").val(),
+            Operation: "LessThan",
+            Logic: "AND"
+            }
+            , {
+                paramName: "TypeName",
+                paramValue: $("#TypeName").val(),
+                Operation: "Equal",
+                Logic: "AND"
+            }
+            , {
+                paramName: "CompanyName",
+                paramValue: $("#CompanyName").val(),
+                Operation: "Equal",
+                Logic: "AND"
+            }
+        ]
+
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CheckSheetModule/By_InvoiceForDetail/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)) + "&SteelCode=" + escape($("#SteelCode").val()) + "&Size=" + escape($("#Size").val()), page: 1 }).trigger('reloadGrid');
+    }
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "开票明细数据");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+</script>
+<!--工具栏-->
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>公司：</th>
+            <td>
+                <select id="CompanyName" class="select"></select>
+            </td>
+            <th>客户名称：</th>
+            <td>
+                <input id="CustomerName" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>发票时间：</th>
+            <td>
+                <input id="Delivery_StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 100px" />
+                <input id="Delivery_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 100px" />
+
+            </td>
+            <th>发票号：</th>
+            <td>
+                <input id="InvoiceNum" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>发票类型：</th>
+            <td>
+                <input id="TypeName" type="text" class="txt" style="width: 100px" value="实际发票" />
+            </td>
+            <th>接收单位：</th>
+            <td>
+                <input id="InvoiceCustomer" type="text" class="txt" style="width: 100px" />
+            </td>
+
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                <input id="btn_export" type="button" class="btnSearch" value="导出" onclick="btn_Export()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

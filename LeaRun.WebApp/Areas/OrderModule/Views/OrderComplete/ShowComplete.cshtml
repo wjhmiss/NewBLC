@@ -1,0 +1,173 @@
+﻿@{
+    ViewBag.Title = "已完工查询";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        var role = "@DNS.Utilities.ManageProvider.Provider.Current().ObjectId";
+        if (role && role.indexOf("20178431-3604-46b6-a75b-f7ba13548aed") >= 0) {
+            $("#btn_showcusmerName").show();
+        }
+        else {
+            $("#btn_showcusmerName").hide();
+        }
+
+        window.setTimeout(function () {
+            GetGrid();
+            jQuery("#gridTable").setGridParam().hideCol("shortname").trigger("reloadGrid");
+            $("#btn_showcusmerName").toggle(
+      function () {
+          $("#btn_showcusmerName").val("隐藏客户简称");
+          jQuery("#gridTable").setGridParam().showCol("shortname").trigger("reloadGrid");
+
+
+      },
+      function () {
+          $("#btn_showcusmerName").val("显示客户简称");
+          jQuery("#gridTable").setGridParam().hideCol("shortname").trigger("reloadGrid");
+      }
+    );
+        }, 200);
+       
+
+        //加工类型
+        BindDropItem("#OrderType", "ProcessType", "==请选择==");
+    })
+    //查询
+    function btn_Search() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/OrderModule/OrderComplete/CompleteGridPageList")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx = 1;
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/OrderModule/OrderComplete/CompleteGridPageList")?Condition=" + escape(Condition),
+            datatype: "json",
+            height: $(window).height() - 146,
+            autowidth: true,
+            colModel: [
+                 { label: '助记码', name: 'mnemoniccode', index: 'mnemoniccode', width: 100, sortable: true },
+                    { label: '订单单号', name: 'ordercode', index: 'ordercode', width: 100, sortable: true },
+                    { label: '行号', name: 'linecode', index: 'linecode', width: 50, align: 'center', sortable: true },
+                    { label: '加工类型', name: 'ordertype', index: 'ordertype', width: 80, align: 'left', sortable: true },
+                    { label: '客户编号', name: 'customercode', index: 'customercode', width: 80, align: 'left', sortable: true },
+                    { label: '客户简称', name: 'shortname', index: 'shortname', width: 80, align: 'left', sortable: true },
+                    { label: '钢种', name: 'steelcode', index: 'steelcode', width: 60, align: 'left', sortable: true },
+                    { label: '模号', name: 'diecode', index: 'diecode', width: 80, align: 'left', sortable: true, hidden: true },
+                    { label: '尺寸', name: 'size', index: 'size', width: 150, align: 'left', sortable: true },
+                    //{
+                    //    label: '热处理', name: 'technology', index: 'technology', width: 50, align: 'center', sortable: true,
+                    //    formatter: function (cellvalue, options, rowObject) {
+                    //        //if (cellvalue.replace("&nbsp;", "")) return "<img src='../../Content/Images/checkokmark.gif'/>";
+                    //        //else return "<img src='../../Content/Images/checknomark.gif'/>";
+                    //        if (cellvalue.replace("&nbsp;", "")) return "是";
+                    //        else return "否";
+                    //    }
+                    //},
+                    { label: '总数', name: 'totalqty', index: 'uncompleteqty', width: 50, align: 'center', sortable: true },
+                    { label: '已完工数', name: 'qty', index: 'unopenqty', width: 50, align: 'center', sortable: true },
+                    { label: '当前状态', name: 'billstatus', index: 'billstatus', width: 50, align: 'center', sortable: true },
+                    {
+                        label: '落单日期', name: 'createdate', index: 'createdate', width: 65, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '要求完工期', name: 'delivery', index: 'delivery', width: 80, align: 'center', sortable: true },
+                    { label: '过期天数', name: 'overday', index: 'overday', width: 50, align: 'center', sortable: true },
+                    { label: '重量', name: 'weight', index: 'weight', width: 50, align: 'center', sortable: true },
+                    { label: '路线', name: 'shiproute', index: 'shiproute', width: 50, align: 'center', sortable: true },
+                    { label: '备注', name: 'remark', index: 'remark', width: 150, align: 'left', sortable: true }
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'createdate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            altRows: true,
+            altclass: 'altclass',
+            footerrow: true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                //合计
+                $(this).footerData("set", {
+                    "ordercode": "合计",
+                    "totalqty": $("#gridTable").getCol('totalqty', false, 'sum'),
+                    "qty": $("#gridTable").getCol('qty', false, 'sum'),
+                    "weight": $("#gridTable").getCol('weight', false, 'sum')
+                });
+            }
+        });
+
+    }
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "生产报表");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+</script>
+<div class="leftline rightline topline QueryArea" style="margin: 1px; margin-bottom: 0px;">
+    <table class="form-find" id="QueryParameter" style="height: 45px;">
+        <tr>
+            <th>助记编码：</th>
+            <td>
+                <input id="MnemonicCode" type="text" class="txt" style="width: 80px" />
+            </td>
+            <th>订单单号：</th>
+            <td>
+                <input id="OrderCode" type="text" class="txt" style="width: 80px" /></td>
+            <th>销售区域：</th>
+            <td>
+                <input id="SalesArea" type="text" class="txt" style="width: 80px" /></td>
+            <th>加工类型：</th>
+            <td>
+                <select id="OrderType" class="select">
+                    <option value="">全部</option>
+                </select>
+            </td>
+
+
+        </tr>
+        <tr>
+            <th>客户编号：</th>
+            <td>
+                <input id="CustomerCode" type="text" class="txt" style="width: 80px" />
+            </td>
+            <th>客户简称：</th>
+            <td>
+                <input id="ShortName" type="text" class="txt" style="width: 80px" />
+            </td>
+            <th>订单日期：</th>
+            <td>
+                <input id="CreateDate_StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 80px" />
+                至：
+                <input id="CreateDate_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 80px" />
+            </td>
+
+            <td colspan="2">
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                <input id="btn_export" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
+                <input id="btn_showcusmerName" type="button" class="btnSearch" value="显示客户简称" />
+            </td>
+        </tr>
+
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

@@ -1,0 +1,150 @@
+@{
+    ViewBag.Title = "BY_AdjustQuery";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<script type="text/javascript">
+    $(function () {
+        //SteelAutocomplete();
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+        //BatchCodeAutocomplete();
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/PaymentModule/BY_PayReimburseSheet/GridPageListJson")?StartTime=" + $("#StartTime").val() + "&EndTime=" + $("#EndTime").val(),
+            datatype: "json",
+            height: $(window).height() - 149,
+            autowidth: true,
+            colModel: [
+                    { label: '类型', name: 'namelie', index: 'namelie', width: 320, align: 'left', sortable: true },
+                        {
+                            label: ' ', name: 'CustomerName', index: 'CustomerName', width: 80, align: 'left', sortable: true,
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (!cellvalue || rowObject.GETMoney > 0) {
+                                    return '';
+                                }
+                                return "合计：" + cellvalue;
+                            }
+                        },
+                        {
+                            label: ' ', name: 'WorkerName', index: 'WorkerName', width: 80, align: 'left', sortable: true,
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (!cellvalue || rowObject.GETMoney > 0) {
+                                    return '';
+                                }
+                                return "合计：" + cellvalue;
+                            }
+                        },
+                        {
+                            label: '金额', name: 'GETMoney', index: 'GETMoney', width: 60, align: 'left', sortable: true,
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (!cellvalue || cellvalue == "0") {
+                                    return '';
+                                }
+                                return cellvalue;
+                            }
+                        },
+                        { label: '账户', name: 'BankNum', index: 'BankNum', width: 80, align: 'left', sortable: true },
+                        {
+                            label: '时间', name: 'RequiredDate', index: 'RequiredDate', width: 100, align: 'left', sortable: true,
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (formatDate(cellvalue, 'yyyy-MM-dd') == "1999-01-01") {
+                                    return '';
+                                }
+                                return formatDate(cellvalue, 'yyyy-MM-dd');
+                            }
+                        },
+                        { label: '备注', name: 'Remark', index: 'Remark', width: 120, align: 'left', sortable: true , hidden:true},
+                        {
+                            label: '备注', name: 'Remark1', index: 'Remark1', width: 120, align: 'left', sortable: true,
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (!!cellvalue || !!rowObject.Remark) {
+                                    return cellvalue + rowObject.Remark;
+
+                                }
+                                else {
+                                    return "";
+
+                                }
+                            }
+                        },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'RequiredDate',
+            
+            sortorder: 'desc',
+            shrinkToFit: false,
+
+            treeGrid: true,
+            treeGridModel: "nested",
+            ExpandColumn: "namelie",
+
+            //treeGridModel: "adjacency",
+            //ExpandColumn: "CustomerName",
+            treeIcons: { leaf: 'ui-icon-document-b' },
+            treeReader: {
+                left_field: "lft",
+                right_field: "rgt",
+                level_field: "level",
+                leaf_field: "isLeaf",
+                expanded_field: "expanded",
+                loaded: "loaded",
+                icon_field: "icon"
+            },
+        });
+    }
+
+    //查询
+    function btn_Search() {
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/BY_PayReimburseSheet/GridPageListJson")?StartTime=" + $("#StartTime").val() + "&EndTime=" + $("#EndTime").val(), page: 1 }).trigger('reloadGrid');
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "库存信息");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+
+</script>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+
+            @* <th>钢种：</th>
+            <td>
+                <input id="SteelCode" maxlength="50" type="text" class="txt" />
+            </td>*@
+            <th>时间：</th>
+            <td>
+                <input id="StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()" style="width: 120px" />
+                <input id="EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()" style="width: 120px" />
+            </td>
+
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+            @*<td>
+                <input id="btnExport" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
+            </td>*@
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

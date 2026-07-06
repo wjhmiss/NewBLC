@@ -1,0 +1,637 @@
+﻿@{
+    ViewBag.Title = "报价单明细";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键;
+    $(function () {
+        CustomerAutocomplete();
+
+        getAjax('/CommonModule/Company/ListJson', { ParentId: "1" }, function (data) {
+            $("#CompanyName").append($("<option></option>").val("").html("请选择！"));
+            var itemjson = eval("(" + data + ")");
+            $.each(itemjson, function (i) {
+                $("#CompanyName").append($("<option></option>").val(itemjson[i].FullName).html(itemjson[i].FullName));
+            });
+            Loading(false);
+        });
+
+
+        //加工类型
+        BindDropItem("#OrderType", "ProcessType", "==请选择==");
+        //账期
+        BindDropItem("#PaymentMode", "PaymentMode", "==请选择==");
+        //送货方式
+        BindDropItem("#ShipMode", "TransitMode", "==请选择==");
+        InitControl();
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+        AjaxJson("/CommonModule/Customer/GetEntity", { keywords: $("#CustomerId").val() }, function (DataJson) {
+            $("#CPriceMessage").val(DataJson.PriceMessage);
+            $("#CMateRemark").val(DataJson.MateRemark);
+            $("#CRemark").val(DataJson.Remark);
+        });
+        if ($("#MnemonicCode").val()=="") {
+            $("#MnemonicCode").prop('disabled', false);
+        }
+    })
+    //客户编码自动补全
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.FullName);
+            $("#ShortName").val(data.ShortName);
+            $("#SalesMan").val(data.Sellpeople);
+            $("#SalesArea").val(data.SalesArea);
+            if (data.DiscountRate && data.DiscountRate != "null") {
+                $("#LessRate").val(data.DiscountRate);
+            }
+            else {
+                $("#LessRate").val(0);
+            }
+            if (data.IsInvoice == 1) {
+                $("#IsInvoice").prop("checked", true);
+            }
+            else {
+                $("#IsInvoice").prop("checked", false);
+            }
+            $("#ShipMode").val(data.TransitMode);
+            $("#PaymentMode").val(data.PaymentMode);
+            $("#Category").val(data.Category);
+            LoadContactName(data.CustomerId);
+            LoadCustomerRequery(data.CustomerId);
+            $('input').customInput();
+            $("#CompanyName").val(data.CompanyName);
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Customer/GetAutoCompleJson", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 70%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="ShortName" style="display: none;">' + DataJson[i].ShortName + '</td>';
+                    html += '<td id="Sellpeople" style="display: none;">' + DataJson[i].Sellpeople + '</td>';
+                    html += '<td id="SalesArea" style="display: none;">' + DataJson[i].Sellarea + '</td>';
+                    html += '<td id="DiscountRate" style="display: none;">' + DataJson[i].DiscountRate + '</td>';
+                    html += '<td id="TransitMode" style="display: none;">' + DataJson[i].TransitMode + '</td>';
+                    html += '<td id="PaymentMode" style="display: none;">' + DataJson[i].PaymentMode + '</td>';
+                    html += '<td id="Category" style="display: none;">' + DataJson[i].Category + '</td>';
+                    html += '<td id="IsInvoice" style="display: none;">' + DataJson[i].IsInvoice + '</td>';
+                    html += '<td id="CompanyName" style="display: none;">' + DataJson[i].CompanyName + '</td>';
+
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.FullName);
+                    $("#ShortName").val(data.ShortName);
+                    $("#SalesMan").val(data.Sellpeople);
+                    $("#SalesArea").val(data.SalesArea);
+                    if (data.DiscountRate && data.DiscountRate != "null") {
+                        $("#LessRate").val(data.DiscountRate);
+                    }
+                    else {
+                        $("#LessRate").val(0);
+                    }
+                    if (data.IsInvoice == 1) {
+                        $("#IsInvoice").prop("checked", true);
+                    }
+                    else {
+                        $("#IsInvoice").prop("checked", false);
+                    }
+
+                    $("#ShipMode").val(data.TransitMode);
+                    $("#PaymentMode").val(data.PaymentMode);
+                    $("#Category").val(data.Category);
+                    LoadContactName(data.CustomerId);
+                    LoadCustomerRequery(data.CustomerId);
+                    $('input').customInput();
+                    $("#CompanyName").val(data.CompanyName);
+                });
+
+            });
+        }
+        //联系人
+        function LoadContactName(CustomerId) {
+            if (!!CustomerId) {
+                AjaxJson("/CommonModule/Customer/CustomerAddressListJson", { CustomerId: CustomerId }, function (data) {
+                    $("#ShipAddress").html('');
+                    $("#CollectAddress").html('');
+                    var datajson = data.rows;
+                    $.each(datajson, function (i) {
+                            $("#ShipAddress").append($("<option data='" + JSON.stringify(datajson[i]) + "'></option>").val(datajson[i].DetailAddress).html(datajson[i].DetailAddress));
+
+                        if (datajson[i].MainDefault == "是") {
+                            $("#ContactTel").val(datajson[i].Telephone);
+                            $("#ContactFax").val(datajson[i].Fax);
+                            $("#ContactMail").val(datajson[i].EmailAddress);
+                            $("#MobileCode").val(datajson[i].Mobile);
+                            $("#CustomerAddress").val(datajson[i].DetailAddress);
+                            $("#ShipRoute").val(datajson[i].SendPath);
+                            $("#ContactName").val(datajson[i].Contact);
+                            $("#ShipAddress").val(datajson[i].DetailAddress);
+                        }
+
+                    });
+                })
+            }
+        }
+        //发货地址下拉框选择
+        $("#ShipAddress").change(function () {
+            var data = JSON.parse($(this).find("option:selected").attr('data'));
+            $("#ContactTel").val(data.Telephone);
+            $("#ContactFax").val(data.Fax);
+            $("#ContactMail").val(data.EmailAddress);
+            $("#MobileCode").val(data.Mobile);
+            $("#CustomerAddress").val(data.DetailAddress);
+            $("#ShipRoute").val(data.SendPath);
+            $("#ContactName").val(data.Contact);
+            $("#ShipAddress").val(data.DetailAddress);
+        })
+        //部门
+        function LoadCustomerRequery(CustomerId) {
+            if (!!CustomerId) {
+                AjaxJson("/CommonModule/Customer/CustomerRequeryListJson", { CustomerId: CustomerId }, function (data) {
+                    $("#DepartName").html('');
+                    var datajson = data.rows;
+                    $.each(datajson, function (i) {
+                        $("#DepartName").append($("<option data='" + JSON.stringify(datajson[i]) + "'></option>").val(datajson[i].DepartName).html(datajson[i].DepartName));
+                        $("#KLRequery").val(datajson[i].KLRequery);
+                        $("#XMRequery").val(datajson[i].XMRequery);
+                    });
+                })
+            }
+        }
+        $("#DepartName").change(function () {
+            var data = JSON.parse($(this).find("option:selected").attr('data'));
+            $("#KLRequery").val(data.KLRequery);
+            $("#XMRequery").val(data.XMRequery);
+        })
+    }
+    function btn_save() {
+
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在保存数据...");
+        window.setTimeout(function () {
+            var postData = GetWebControls("#form1");
+            AjaxJson("/QuotationModule/QuotationInput/SubmitQuotationInputForm?KeyValue=" + KeyValue, postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                //KeyValue = data.Attribute;
+                //InitControl();
+            });
+        }, 200);
+    }
+    //获取报价单对象
+    function InitControl() {
+        AjaxJson("/QuotationModule/QuotationInput/SetForm", { KeyValue: KeyValue }, function (data) {
+            SetWebControls(data);
+            $("#CheckStatusName").attr('CheckStatus', data.CheckStatus);
+            if (data.CheckStatus == 0) {
+                $("#CheckStatusName").html("(待审核)")
+            } else if (data.CheckStatus == 1) {
+                $("#CheckStatusName").html("(已审核)")
+            } else if (data.CheckStatus == -1) {
+                $("#CheckStatusName").html("(已驳回)")
+            }
+            AjaxJson("/CommonModule/Customer/CustomerAddressListJson", { CustomerId: data.CustomerId }, function (data) {
+                var datajson = data.rows;
+                $.each(datajson, function (i) {
+                        $("#ShipAddress").append($("<option data='" + JSON.stringify(datajson[i]) + "'></option>").val(datajson[i].DetailAddress).html(datajson[i].DetailAddress));
+
+                });
+            })
+            $("#ShipAddress").val(data.ShipAddress);
+            $("#CollectAddress").val(data.CollectAddress);
+
+            AjaxJson("/CommonModule/Customer/CustomerRequeryListJson", { CustomerId: data.CustomerId }, function (data) {
+                $("#DepartName").html('');
+                var datajson = data.rows;
+                $.each(datajson, function (i) {
+                    $("#DepartName").append($("<option data='" + JSON.stringify(datajson[i]) + "'></option>").val(datajson[i].DepartName).html(datajson[i].DepartName));
+                });
+            })
+            $("#DepartName").val(data.DepartName);
+            $("#KLRequery").val(data.KLRequery);
+            $("#XMRequery").val(data.XMRequery);
+
+        });
+    }
+    //审核
+    function btn_audit() {
+        var checkstatus = $("#CheckStatusName").attr('checkstatus');
+        if (checkstatus == "1") {
+            alertDialog("当前报价单已审核了", 0);
+            return false;
+        }
+        if (checkstatus == "-1") {
+            alertDialog("当前报价单已驳回了", 0);
+            return false;
+        }
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要审核此报价单吗？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/QuotationModule/QuotationAudit/SubmitAudit?KeyValue=" + KeyValue, { CheckStatus: 1 }, function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            //confirmDialog("提示", "是否去落单？", function (r) {
+                            //    if (r) {
+                                    AjaxJson("/QuotationModule/QuotationSure/SureConfirm", { KeyValue: KeyValue }, function (data) {
+                                        windowload();
+                                        AddTabMenu("deae33ed-c0c1-4966-9bf7-405e66e6346b", "@Url.Content("~/QuotationModule/QuotationPlaceOrder/Index")", "报价落单确认", "document_check_compatibility.png", true);
+                                    });
+                            //    } else {
+                            //        windowload();
+                            //    }
+                            //});
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    //驳回
+    function btn_turn() {
+        var checkstatus = $("#CheckStatusName").attr('checkstatus');
+        if (checkstatus == "1") {
+            alertDialog("当前报价单已审核了", 0);
+            return false;
+        }
+        if (checkstatus == "-1") {
+            alertDialog("当前报价单已驳回了", 0);
+            return false;
+        }
+        var QuotationCode = GetQuery('QuotationCode');
+        if (IsChecked(KeyValue)) {
+            var url = "/QuotationModule/QuotationAudit/Audit?KeyValue=" + KeyValue + "&BillCode=" + QuotationCode
+            openDialog(url, "Form", "报价单驳回【" + QuotationCode + "】", 450, 150, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //分录
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/QuotationModule/QuotationInput/GridDetail")?QuotationId=" + KeyValue,
+            datatype: "json",
+            height: $(window).height() - 241,
+            autowidth: true,
+            colModel: [
+                { label: '主键', name: 'QuotationDetailId', hidden: true },
+                { label: "行号", name: "LineCode", index: "LineCode", width: 40 },
+                { label: '加工类型', name: "OrderType", width: 50 },
+                { label: '钢材编码', name: 'SteelCode', width: 50 },
+                { label: '钢材名称', name: 'SteelDescription', width: 50 },
+                { label: '品名', name: 'ProductName', width: 90 },
+                { label: '项目编码', name: "ProjectCode", width: 50, hidden: true },
+                { label: '数量', name: "Qty", width: 50 },
+                 { label: '厚(直径)', name: 'Thick', width: 50 },
+                { label: '宽度', name: 'Weigh', width: 50 },
+                { label: '长度', name: 'Length', width: 50 },
+                 { label: '孔径', name: 'BoreSize', width: 50 },
+                { label: '钢材状态', name: 'SteelState', width: 50, hidden: true },
+                { label: '模号', name: 'DieCode', width: 50 },
+
+                { label: '理论重量', name: 'Weight', width: 50 },
+                { label: '材料单价', name: 'MaterialPrice', width: 50 },
+                { label: '材料折扣率', name: 'MaterialLess', width: 50, hidden: true },
+                { label: '材料税后金额', name: 'MaterialAmount', width: 50 },
+                { label: '加工费单价', name: 'WorkPrice', width: 50 },
+                { label: '加工费折扣率', name: 'WorkLess', width: 50, hidden: true },
+                { label: '加工费税后金额', name: 'WorkAmount', width: 50 },
+                { label: '热处理单价', name: 'HeatPrice', width: 50 },
+                { label: '热处理折扣率', name: 'HeatLess', width: 50, hidden: true },
+                { label: '热处理税后金额', name: 'HeatAmount', width: 50 },
+                { label: '金额', name: 'SalesAmount', width: 50 },
+                { label: '送货说明', name: 'ShipDescription', width: 50 },
+                {
+                    label: '备注', name: 'Remark', width: 50,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");;
+
+                        }
+                        return "";
+                    }
+                },
+                { label: '热处理工艺', name: 'Technology', width: 50 },
+                { label: '磨四侧', name: 'IsGrindAngle', width: 50 },
+                { label: '倒角', name: 'IsChamfer', width: 50 },
+            ],
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            rowNum: 1000,
+            gridview: true,
+            // ondblClickRow: function (rowid, iRow, iCol, e) {
+            //     var QuotationDetailId = GetJqGridRowValue("#gridTable", "QuotationDetailId");
+            //     var CustMaterial = $("#CustMaterial").prop("checked") == true ? "1" : "0";
+            //     var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
+            //     var CustomerId = $("#CustomerId").val();
+            //     var url = "/QuotationModule/QuotationInput/DetailForm?KeyValue=" + QuotationDetailId + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill+"&Show=1";
+            //     Dialog(url, "DetailForm", "报价单行查看【" + $("#ShortName").val() + "】", 870, 570, function (iframe) {
+            //         top.frames[iframe].AcceptClick()
+            //     });
+            // }
+
+        });
+    }
+    //刷新
+    function windowload() {
+        InitControl();
+    }
+</script>
+<form id="form1">
+    <div class="leftline rightline" style="margin-left: 1px; margin-right: 1px;">
+       
+        <div>
+            <div style="float:left;padding-left:10px;padding-top:10px;"><input id="btnSearch" type="button" class="btnSearch" value="保  存" onclick="btn_save()" /></div>
+            <div style="font-family: 华文楷体; font-size: x-large; height: 40px; line-height: 40px; text-align: center;">
+                报价单录入&nbsp;<span id="CheckStatusName" checkstatus="" style="color: red; font-family: 华文楷体; font-size: x-large;cursor:pointer;"></span>
+            </div>
+            <div style="position: absolute; top: 60px; right: 5px;width:400px;">
+                <span style="color: red;"></span>
+            </div>
+        </div>
+        <table class="form-bill" id="tb_rderFrom" style="border-top: none;">
+            <tr>
+                <th class="form-bill-th">客户编码：</th>
+                <td class="form-bill-td">
+                    <input id="LType" type="hidden" value="GC" />
+                    <input id="CustomerId" type="hidden" />
+                    <input id="IsMobileInput" type="hidden" />
+                    <input id="SalesArea" type="hidden" />
+                    <input id="ShipClause" type="hidden"/>
+                    <input id="ShipMode" type="hidden"/>
+                    <input id="ContactTel" type="hidden"/>
+                    <input id="MobileCode" type="hidden"/>
+                    <input id="ShipDescription" type="hidden" />
+                    <input id="Category" type="hidden" />
+                    
+                    <input id="ShipRoute" type="hidden" />
+                    <input id="CustomerCode" type="text" class="txt required" style="width: 95%" datacol="yes" err="客户编码" checkexpession="NotNull" />
+                </td>
+                <th class="form-bill-th">客户名称：</th>
+                <td class="form-bill-td">
+                    <input id="CustomerName" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">报价单号：</th>
+                <td class="form-bill-td">
+                    <input id="QuotationCode" readonly type="text" class="txt" style="width: 95%" value="保存后自动生成" />
+                </td>
+                
+                
+                <th class="form-bill-th">联系人：</th>
+                <td class="form-bill-td">
+                    <input id="ContactName" type="text" class="txt" style="width: 95%" />
+                </td>
+
+                 <th class="form-bill-th">账期：</th>
+                <td class="form-bill-td">
+                    <select id="PaymentMode" class="select" style="width: 96%" datacol="yes" err="账期" checkexpession="NotNull"></select>
+                </td>
+                @*<th class="form-bill-th">加工类型：</th>
+                <td class="form-bill-td">
+                    <select id="OrderType" class="select" style="width: 96%" datacol="yes" err="加工类型" checkexpession="NotNull">
+                    </select>
+                </td>*@
+                
+            </tr>
+            <tr>
+
+                <th class="form-bill-th">原单号：</th>
+                <td class="form-bill-td">
+                    <input id="Remark" type="hidden" />
+                    <input id="CustomerPO" type="text" class="txt" style="width: 95%" value="无" />
+                </td>
+                <th class="form-bill-th">公司</th>
+                <td class="form-bill-td">
+                    <select id="CompanyName" class="select" style="width: 96%" datacol="yes" err="公司" checkexpession="NotNull"></select>
+                </td>
+                @*<th class="form-bill-th">制造号：</th>
+        <td class="form-bill-td">
+            <input id="BuildNum" type="text" class="txt" style="width: 95%" />
+        </td>*@
+                <th class="form-bill-th">产品型号：</th>
+                <td class="form-bill-td">
+                    <input id="ProductCode" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">配件名称：</th>
+                <td class="form-bill-td">
+                    <input id="BuildName" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">模具名称：</th>
+                <td class="form-bill-td">
+                    <input id="DieName" type="text" class="txt" style="width: 95%" />
+
+                </td>
+            </tr>
+            <tr>
+                <th class="form-bill-th">交期</th>
+                <td class="form-bill-td">
+                    <input id="Delivery" type="text" class="txt Wdate" value="" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 95%" datacol="yes" err="交期" checkexpession="NotNull"/>
+                </td>
+                <th class="form-bill-th">模具图号：</th>
+                <td class="form-bill-td">
+                    <input id="PicCode" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">模具编号：</th>
+                <td class="form-bill-td">
+                    <input id="DieCode" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">送货地址：</th>
+                <td class="form-bill-td" colspan="3">
+                    <input id="CreateUserName" type="hidden"/>
+                    <input id="ShortName" type="hidden"/>
+                    <select id="ShipAddress" class="select" style="width: 97.8%"  >
+                    </select>
+                </td>
+                
+            </tr>
+            <tr>
+                
+                @*<th class="form-bill-th">联系地址：</th>
+                <td class="form-bill-td" colspan="3">
+                    <input id="CustomerAddress" type="text" class="txt" style="width: 98.2%" />
+                </td>*@
+                <th class="form-bill-th">助记编号：</th>
+                <td class="form-bill-td">
+                    <input id="ContactMail" type="hidden"/>
+                    <input id="MnemonicCode" type="text" class="txt" style="width: 95%"   />
+                </td>
+                <th class="form-bill-th">选项：</th>
+                <td class="form-bill-td"  >
+                    <div style="border-bottom: 1px solid #A8A8A8; padding-bottom: 4px; ">
+                        @*<span class="item">
+            <input id="SteelQualityCert" name="SteelQualityCert" type="checkbox" style="vertical-align: middle;" />
+            <label for="SteelQualityCert" style="vertical-align: middle;">钢材质量证明书</label>
+            &nbsp;&nbsp;                        </span>
+        <span class="item">
+            <input id="QualityCert" name="QualityCert" type="checkbox" style="vertical-align: middle;" />
+            <label for="QualityCert" style="vertical-align: middle;">品质证明书</label>
+        </span>
+        <span class="item">
+            <input id="FactoryCert" name="FactoryCert" type="checkbox" style="vertical-align: middle;" />
+            <label for="FactoryCert" style="vertical-align: middle;">原厂证明书</label>
+            &nbsp;&nbsp;                        </span>
+        <span class="item">
+            <input id="ByPiece" name="ByPiece" type="checkbox" style="vertical-align: middle;" />
+            <label for="ByPiece" style="vertical-align: middle;">按件计价</label>
+            &nbsp;&nbsp;                        </span>*@
+                        <span class="item">
+                            <input id="CustMaterial" name="CustMaterial" type="checkbox" style="vertical-align: middle;" />
+                            <label for="CustMaterial" style="vertical-align: middle;">客来料</label>
+                        </span>
+                        <span class="item">
+                            <input id="FreeBill" name="FreeBill" type="checkbox" style="vertical-align: middle;" />
+                            <label for="FreeBill" style="vertical-align: middle;">补料单</label>
+                        </span>
+                        <span class="item">
+                            <input id="IsInvoice" name="IsEmergency" type="checkbox" style="vertical-align: middle;" checked />
+                            <label for="IsInvoice" style="vertical-align: middle;">加税</label>
+                        </span>
+                        <span class="item">
+                            <input id="IsReturn" name="IsEmergency" type="checkbox" style="vertical-align: middle;" />
+                            <label for="IsReturn" style="vertical-align: middle;">退货单</label>
+                        </span>&nbsp;
+                    </div>
+
+                </td>
+                <th class="form-bill-th">总金额：</th>
+                <td class="form-bill-td">
+                    <input id="TotalAmount" type="text" onfocus="IsMoney(this.id);" class="txt" style="width: 95%" value="0.00" readonly/>
+                </td>
+                <th class="form-bill-th">总数量：</th>
+                <td class="form-bill-td">
+                    <input id="Qty" readonly type="text" class="txt readonly" style="width: 95%;" value="0" />
+                </td>
+                <th class="form-bill-th">销售人员：</th>
+                <td class="form-bill-td">
+                    <input id="SalesMan" type="text" class="txt" style="width: 95%" />
+                </td>
+            </tr>
+            
+
+            <tr>
+                <th class="form-bill-th">部门：</th>
+                <td class="form-bill-td">
+                     <select id="DepartName" class="select" style="width: 97.8%" >
+                    </select>
+                </td>
+               <th class="form-bill-th">开料备注：</th>
+                <td class="form-bill-td" colspan="3">
+                    <input id="KLRequery" type="text" class="txt" style="width: 95%" />
+                </td>
+                <th class="form-bill-th">铣磨备注：</th>
+                <td class="form-bill-td" colspan="3">
+                    <input id="XMRequery" type="text" class="txt" style="width: 95%" />
+                </td>
+            </tr>
+
+
+        </table>
+        <div class="bd" style="border-bottom: none; border-left: none; border-right: none; margin: 1px; margin-left: 0px; margin-right: 0px;">
+            <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                <div class="tab_list_top" style="position: absolute">
+                    <div id="TabProcessDiscount" class="tab_list bd actived">报价单明细</div>
+                </div>
+            </div>
+        </div>
+        <div id="Detail_button" style="height: 32px; padding-top: 0px; position: absolute; right: 3px;">
+            <div id="lr-add-Row" class="nui-toolbar-item nui-btn-right">
+                <span class="nui-btn-text">新增</span>
+            </div>
+            <div id="lr-edit-Row" class="nui-toolbar-item nui-btn-right nui-btn-left">
+                <span class="nui-btn-text">编辑</span>
+            </div>
+            @*<div id="lr-copy-Row" class="nui-toolbar-item nui-btn-right nui-btn-left">
+                <span class="nui-btn-text">复制(F8)</span>
+            </div>*@
+            <div id="lr-insert-Row" class="nui-toolbar-item nui-btn-right nui-btn-left">
+                <span class="nui-btn-text">插入</span>
+            </div>
+            <div id="lr-delete-Row" class="nui-toolbar-item nui-btn-left">
+                <span class="nui-btn-text">删除</span>
+            </div>
+        </div>
+        <div class="topline" id="grid_List">
+            <table id="gridTable"></table>
+            <style>
+                .ui-widget-content {
+                    border-left: none;
+                }
+            </style>
+        </div>
+    </div>
+</form>
+
+<div class="bd" style="border-bottom: none; border-left: none; border-right: none; margin: 1px; margin-left: 0px; margin-right: 0px;">
+            <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                <div class="tab_list_top" style="position: absolute">
+                    <div id="Tabtab1" class="tab_list bd actived" onclick="Tabchange('tab1');">报价单明细</div>
+            <div id="Tabtab2" class="tab_list bd " onclick="Tabchange('tab2');">报价及注意事项</div>
+                </div>
+            </div>
+        </div>
+<div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+         <div id="tab1" class="tabPanel" style="margin: 1px; margin-top: -1px;">
+            <table id="gridTable"></table>
+            <style>
+                .ui-widget-content {
+                    border-left: none;
+                }
+            </style>
+        </div>
+<div id="tab2" class="tabPanel" style="margin: 1px; margin-top: -1px; display: none;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">单价信息：
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea id="CPriceMessage" class="txtArea" rows="15"></textarea>
+                </td>
+
+            </tr>
+            <tr>
+                <th class="formTitle">用料说明：
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea id="CMateRemark" class="txtArea" rows="8"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">说明：
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea id="CRemark" class="txtArea" rows="8"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    
+</div>

@@ -1,0 +1,99 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>注册</title>
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    <style type="text/css">
+        body {
+            background-color: #F7F7F7;
+        }
+
+        .not-support-browser {
+            background-color: #FFFFFF;
+            border: 1px solid #CED0D3;
+            border-radius: 5px;
+            -moz-border-radius: 5px;
+            -webkit-border-radius: 5px;
+            width: 650px;
+            height: 350px;
+            margin: 100px auto;
+            padding: 0px;
+        }
+
+        .not-support-browser-contant {
+            color: #666666;
+            font-size: 18px;
+            margin: 35px 25px;
+            text-align: center;
+        }
+    </style>
+    <script type="text/javascript">
+        function btn_encode() {
+            $.post("/Login/GetEncode", { text: $("#encode").val() }, function (data) {
+                if (data) {
+                    $("#hiencode").html(data);
+                }
+                
+            }, "json");
+        }
+        function btn_decode() {
+            $.post("/Login/GetDecode", { text: $("#decode").val() }, function (data) {
+                if (data) {
+                    $("#hidecode").html(data);
+                }
+                
+            }, "json");
+        }
+        function btn_code128() {
+            $.post("/Login/updateorder", { OrderCode: $("#OrderCode").val() }, function (data) {
+                alert(data);
+
+            }, "json");
+        }
+        function UpdateHeatStatus() {
+            $.post("/Login/UpdateHeatStatus", {}, function (data) {
+                alert(data);
+
+            }, "json");
+        }
+        function InsertSteelCDOE() {
+            $.post("/Login/InsertSteelCDOE", {}, function (data) {
+                alert(data);
+
+            }, "json");
+        }
+        function test() {
+            $.post("/base_file/CLCKCKC", {}, function (data) {
+                alert(data);
+            }, "json");
+        }
+        function test2() {
+            $.post("/BY_OrderDetailProcess/GetOrderInfor", { orderline:'2505-0008-1'}, function (data) {
+                alert(data);
+            }, "json");
+        }
+    </script>
+</head>
+<body>
+    <!-- 内容区 -->
+    <div class="not-support-browser">
+        <div class="not-support-browser-contant">
+            机器注册码：<h1 style="font-size: 18px">@ViewBag.MacInfo</h1>
+            加密：<input id="btencode" type="button" class="btnSearch" value="加密" onclick="btn_encode()" /><input id="encode" type="text" /><h1 style="font-size: 18px" id="hiencode"></h1>
+            解密：<input id="btdecode" type="button" class="btnSearch" value="解密" onclick="btn_decode()" /><input id="decode" type="text" /><h1 style="font-size: 18px" id="hidecode"></h1>
+            <input id="OrderCode" type="text" />
+            <input id="btdecode1" type="button" class="btnSearch" value="条码生成" onclick="btn_code128()" />
+            <input id="btdecod2e" type="button" class="btnSearch" value="UpdateHeatStatus" onclick="UpdateHeatStatus()" />
+            <input id="btdecodses" type="button" class="btnSearch" value="InsertSteelCDOE" onclick="InsertSteelCDOE()" />
+            <input id="test" type="button" class="btnSearch" value="test" onclick="test()" />
+            <input id="test" type="button" class="btnSearch" value="test" onclick="test2()" />
+        </div>
+    </div>
+</body>
+</html>

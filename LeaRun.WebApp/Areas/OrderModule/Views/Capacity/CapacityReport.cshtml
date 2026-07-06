@@ -1,0 +1,114 @@
+﻿@{
+    ViewBag.Title = "产能看板页面";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //查询
+    function btn_Search() {
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/OrderModule/Capacity/CapacityReportListJson")?StartTime=" + $("#StartTime").val() + "&EndTime=" + $("#EndTime").val() }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/OrderModule/Capacity/CapacityReportListJson")?StartTime=" + $("#StartTime").val() + "&EndTime=" + $("#EndTime").val(),
+            datatype: "json",
+            height: $(window).height() - 99,
+            autowidth: true,
+            colModel: [
+                    {
+                        label: '统计日期', name: 'capacitydate', index: 'capacitydate', width: 80, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '单类', name: 'capacitytype', index: 'capacitytype', width: 80, align: 'left', sortable: false },
+                    {
+                        label: '单类描述', name: 'capacitytype', index: 'capacitytype', width: 80, align: 'left', sortable: false,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (cellvalue == "BC") {
+                                return "粗料加工单";
+                            } else {
+                                return "精料加工单";
+                            }
+                        }
+                    },
+                    { label: '产能值', name: 'capacityvalue_a', width: 80, align: 'right', sortable: false },
+                    { label: '已落单', name: 'bookedqty_a', width: 80, align: 'right', sortable: false },
+                    { label: '产能值', name: 'capacityvalue_b', width: 80, align: 'right', sortable: false },
+                    { label: '已落单', name: 'bookedqty_b', width: 80, align: 'right', sortable: false },
+                    { label: '产能值', name: 'capacityvalue_c', width: 80, align: 'right', sortable: false },
+                    { label: '已落单', name: 'bookedqty_c', width: 80, align: 'right', sortable: false },
+                    { label: '产能值', name: 'capacityvalue_d', width: 80, align: 'right', sortable: false },
+                    { label: '已落单', name: 'bookedqty_d', width: 80, align: 'right', sortable: false },
+            ],
+            pager: false,
+            rowNum: 1000000,
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true
+        });
+        //表头合并
+        $("#gridTable").jqGrid('setGroupHeaders', {
+            useColSpanStyle: true,
+            groupHeaders: [
+              { startColumnName: 'capacityvalue_a', numberOfColumns: 2, titleText: 'A时段' },
+              { startColumnName: 'capacityvalue_b', numberOfColumns: 2, titleText: 'B时段' },
+              { startColumnName: 'capacityvalue_c', numberOfColumns: 2, titleText: 'C时段' },
+              { startColumnName: 'capacityvalue_d', numberOfColumns: 2, titleText: 'D时段' }
+            ]
+        });
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+</script>
+<div class="leftline rightline topline QueryArea" style="margin: 1px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>日期 从：</th>
+            <td>
+                <input id="StartTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetDate(-7)" style="width: 120px" onfocus="var endDate=$dp.$('EndTime');WdatePicker({onpicked:function(){EndTime.focus();},maxDate:'#F{$dp.$D(\'EndTime\')}'})" />
+            </td>
+            <td>日期 至</td>
+            <td>
+                <input id="EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetDate(7)" style="width: 120px" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'StartTime\')}'})" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <style>
+        .altclass {
+            background: #fffccc;
+        }
+        .ui-jqgrid tr.ui-row-ltr td {
+            border-bottom: 1px solid #ccc;
+        }
+
+        .ui-jqgrid .ui-jqgrid-htable th {
+            line-height: 15px;
+        }
+
+            .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+                background: none;
+            }
+
+        .editable {
+            height: 22px;
+            background-color: #fff;
+        }
+    </style>
+</div>
+

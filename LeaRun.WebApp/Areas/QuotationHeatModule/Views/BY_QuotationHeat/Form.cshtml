@@ -1,0 +1,479 @@
+﻿@{
+    ViewBag.Title = "BY_QuotationHeat》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+<style>
+    #webcam {
+        border: 1px solid #666666;
+        width: auto;
+        height: auto;
+        float: left;
+    }
+</style>
+<script src="~/Content/Scripts/jQuery-webcam-master/jquery.webcam.min.js"></script>
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    var QuotationHeatCode = "";
+    function AjaxJsonAsync(url, postData, callBack) {
+        try {
+            $.ajax({
+                url: RootPath() + url,
+                timeout: 20 * 1000,
+                type: "post",
+                data: postData,
+                dataType: "json",
+                async: true,
+                success: function (data) {
+                    if (data.Code == "-1") {
+                        Loading(false);
+                        alertDialog(data.Message, -1);
+                    } else {
+                        Loading(false);
+                        callBack(data);
+                    }
+                },
+                error: function (data) {
+                    Loading(false);
+                    alertDialog(data.responseText, -1);
+                }
+            });
+        } catch (e) {
+
+        }
+    }
+
+    $(function () {
+        SteelAutocomplete("SteelCode");
+        CustomerAutocomplete("CustomerCode");
+        BindDropItem("#Technology", "CraftType", "==请选择==");
+        InitControl();
+
+        var w = 600, h = 480;                                          //摄像头配置,创建canvas
+        var pos = 0, ctx = null, saveCB, image = [];
+        var canvas = document.getElementById("canvas");
+        ctx = canvas.getContext("2d");
+        image = ctx.getImageData(0, 0, w, h);
+        $("#webcam").webcam({
+            width: w,
+            height: h,
+            mode: "callback",                       //stream,save，回调模式,流模式和保存模式
+            swffile: "/Content/Scripts/jQuery-webcam-master/jscam600x480.swf",
+            onTick: function (remain) {
+                if (0 == remain) {
+                    $("#status").text("拍照成功!");
+                } else {
+                    $("#status").text("倒计时" + remain + "秒钟...");
+                }
+            },
+            onSave: function (data) {              //保存图像
+                var col = data.split(";");
+                var img = image;
+                for (var i = 0; i < w; i++) {
+                    var tmp = parseInt(col[i]);
+                    img.data[pos + 0] = (tmp >> 16) & 0xff;
+                    img.data[pos + 1] = (tmp >> 8) & 0xff;
+                    img.data[pos + 2] = tmp & 0xff;
+                    img.data[pos + 3] = 0xff;
+                    pos += 4;
+                }
+                if (pos >= 4 * w * h) {
+                    ctx.putImageData(img, 0, 0);      //转换图像数据，渲染canvas
+                    pos = 0;
+                    Imagedata = canvas.toDataURL();//.substring(22); 上传给后台的图片数据
+                    //$("#imgbase64").val(Imagedata);
+                    var postData = GetWebControls("#form1");
+
+                    AjaxJson("/QuotationHeatModule/BY_QuotationHeat/SubmitForm2?KeyValue=" + KeyValue + "&CreateDate=" + escape($("#CreateDate").val()), postData, function (data) {
+                        KeyValue = data.Attribute;
+                        QuotationHeatCode = data.HeatCode;
+                        if (!data.HeatCode) { return; }
+                        //保存img
+                        //tipDialog(data.Message, 3, data.Code);
+                        //window.setTimeout(function () {closeDialog();}, 500);
+                    });
+
+
+                    AjaxJson('/Utility/decodeBase64ToImage?saveDocument=HeatReport&filenameid=' + QuotationHeatCode, { dataURL: Imagedata }, function (data1) {
+                        //InitControl();
+                        var path = "../../Resource/Document/HeatReport/" + QuotationHeatCode + ".jpg?n=" + Math.random();
+                        $("#imgtt").attr('src', path);
+                        tipDialog("图片保存成功", 3, 1);
+                        top.frames[tabiframeId()].windowload();
+
+                    });
+
+
+                }
+            },
+            onCapture: function () {               //捕获图像
+                webcam.save();
+            },
+            debug: function (type, string) {       //控制台信息
+                console.log(type + ": " + string);
+            },
+            onLoad: function () {                   //flash 加载完毕执行
+                console.log('加载完毕！')
+                //var cams = webcam.getCameraList();
+                //for (var i in cams) {
+                //    $("body").append("<p>" + cams[i] + "</p>");
+                //}
+            }
+        });
+
+
+    })
+
+    function nextfunnn() {
+        KeyValue = "";
+        QuotationHeatCode = "";
+        $("#imgtt").attr('src', "");
+
+
+        $("#QuotationHeatId").val("");
+        $("#QuotationHeatCode").val("");
+        $("#Qty").val("1");
+        $("#Weight").val("");
+        $("#ShipDescription").val("*");
+        $("#imgbase64").val("");
+    }
+
+    //客户编码自动补全
+    function CustomerAutocomplete(objectname) {
+        if (!objectname) {
+            return;
+        }
+        var $CustomerCode = $("#" + objectname);
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown(objectname, function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerName").val(data.FullName);
+            $("#CustomerCode").val(data.CustomerCode);
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val("");
+            AjaxJson("/CommonModule/Customer/GetAutoCompleJson", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 70%;">' + DataJson[i].ShortName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete(objectname, "300px", "250px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerName").val(data.FullName);
+                    $("#CustomerCode").val(data.CustomerCode);
+                });
+            });
+        }
+    }
+
+
+    //客户编码自动补全
+    function SteelAutocomplete(objectname) {
+        if (!objectname) {
+            return;
+        }
+        var $SteelCode = $("#" + objectname);
+        $SteelCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown(objectname, function (data) {
+            $("#SteelId").val(data.SteelId);
+            $("#SteelCode").val(data.SteelCode);
+            $("#SteelDescription").val(data.SteelName);
+        });
+        //获取数据源
+        function DataSource() {
+            $("#SteelId").val("");
+            AjaxJson("/CommonModule/Steel/GetAutoCompleJson", { keywords: $SteelCode.val(), type: 1 }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="SteelId" style="display: none;">' + DataJson[i].SteelId + '</td>';
+                    html += '<td id="SteelCode" style="width: 40%;">' + DataJson[i].SteelCode + '</td>';
+                    html += '<td id="SteelName" style="width: 60%;">' + DataJson[i].SteelName + '</td>';
+                    html += '<td id="Density" style="display: none;">' + DataJson[i].Density + '</td>';
+                    html += '<td id="SteelType" style="display: none;">' + DataJson[i].SteelType + '</td>';
+                    html += '<td id="RepalceMl" style="display: none;">' + DataJson[i].RepalceMl + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete(objectname, "150px", "250px", html, function (data) {
+                    $("#SteelId").val(data.SteelId);
+                    $("#SteelCode").val(data.SteelCode);
+                    $("#SteelDescription").val(data.SteelName);
+                });
+            });
+        }
+    }
+
+    function GJAutocomplete(objectname, typee) {
+        if (!objectname) {
+            return;
+        }
+        var $CustomerCode = $("#" + objectname);
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown(objectname, function (data) {
+            if (!!data.FullName) {
+                $CustomerCode.val(data.FullName);
+            }
+            $("#" + nextobject).select();
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson('/CommonModule/DataDictionary/AutocompleteJson', { keywords: $CustomerCode.val(), Code: typee }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="FullName" style="width: 100%;">' + DataJson[i].FullName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete(objectname, "300px", "300px", html, function (data) {
+                    $CustomerCode.val(data.FullName);
+                });
+            });
+        }
+    }
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/QuotationHeatModule/BY_QuotationHeat/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+
+                var path = "../../Resource/Document/HeatReport/" + data.QuotationHeatCode + ".jpg";
+                $("#imgtt").attr('src', path);
+
+            });
+            $("#btnext").hide();
+        }
+        else {
+            $("#btnext").show();
+        }
+        GJAutocomplete("ProductName", "工件名称");
+        //GJAutocomplete("TechnologQuery", "硬度");
+
+
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/QuotationHeatModule/BY_QuotationHeat/SubmitForm2?KeyValue=" + KeyValue + "&CreateDate=" + escape($("#CreateDate").val()), postData, function (data) {
+            KeyValue = data.Attribute;
+            QuotationHeatCode = data.Code;
+            var path = "../../Resource/Document/HeatReport/" + QuotationHeatCode + ".jpg";
+            $("#imgtt").attr('src', path);
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+
+    //获得video摄像头区域
+
+
+
+    function takePhoto() {
+
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+
+        webcam.capture();        //拍照，参数5是倒计时
+
+
+
+
+        //获得Canvas对象
+
+    }
+
+
+
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle' style="height:35px;width:120px;"></th>
+            <td class='formValue'>
+                <button id="btnext" onclick="nextfunnn();" type="button" class="btnSearch" style=" text-align:center; font-weight: bold; font-size: large">下一个</button>
+            </td>
+
+            <th class='formTitle' style="        width: 150px;
+        text-align: right;
+        height: 35px;
+        font-weight: bold;
+        font-size: large">生产编号：</th>
+            <td class='formValue'>
+                <input type="hidden" id="QuotationHeatId" />
+                <input type="hidden" id="imgbase64" />
+                <input id="QuotationHeatCode" maxlength=50 type="text" class="txt" disabled />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle' style="        text-align: right;
+        height: 35px;
+        font-weight: bold;
+        font-size: large">客户名称：</th>
+            <td class='formValue'>
+                <input type="hidden" id="CustomerId" />
+                <input type="hidden" id="CustomerName" />
+                <input id="CustomerCode" maxlength=50 type="text" class="txt" datacol="yes" err="客户名称" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle' style="        height: 35px;
+        text-align: right;
+        height: 35px;
+        font-weight: bold;
+        font-size: large
+">外形尺寸：</th>
+            <td class='formValue'>
+                <input id="Remark" maxlength=50 type="text" class="txt" value="*" />
+            </td>
+
+
+        </tr>
+        <tr>
+            <th class='formTitle' style="        text-align: right;
+        height: 35px;
+        font-weight: bold;
+        font-size: large">重量：</th>
+            <td class='formValue'>
+                <input id="Weight" maxlength=50 type="text" class="txt" onfocus="IsMoney(this.id);" datacol="yes" err="重量" checkexpession="Double" />
+            </td>
+            <th class='formTitle' style="        height: 35px;
+        text-align: right;
+        height: 35px;
+        font-weight: bold;
+        font-size: large
+">工件名称：</th>
+            <td class='formValue'>
+                <input id="ProductName" maxlength=50 type="text" class="txt" datacol="yes" err="工件名称" checkexpession="NotNull" value="配件" />
+            </td>
+
+
+        </tr>
+        <tr>
+            <th class='formTitle' style="        text-align: right;
+        height: 35px;
+        font-weight: bold;
+        font-size: large">热处理要求：</th>
+            <td class='formValue'>
+                <input id="TechnologQuery" maxlength=50 type="text" class="txt" />
+            </td>
+            <th class='formTitle' style="        height: 35px;
+        text-align: right;
+        height: 35px;
+        font-weight: bold;
+        font-size: large
+">数量：</th>
+            <td class='formValue'>
+                <input id="Qty" maxlength=50 type="text" class="txt" onfocus="IsMoney(this.id);" datacol="yes" err="数量" checkexpession="Num" value="1" style="width:40%" />
+                <select id="QtyType" class="txtselect" style="width:40%">
+                    <option id="批">批</option>
+                    <option id="件">件</option>
+                </select>
+            </td>
+
+
+        </tr>
+        <tr>
+            <th class='formTitle' style="        text-align: right;
+        height: 35px;
+        font-weight: bold;
+        font-size: large">热处理类型：</th>
+            <td class='formValue'>
+                <select id="Technology" class="txtselect" datacol="yes" err="热处理类型" checkexpession="NotNull">
+                </select>
+            </td>
+            <th class='formTitle' style="        height: 35px;
+        text-align: right;
+        height: 35px;
+        font-weight: bold;
+        font-size: large
+">日期：</th>
+            <td class='formValue'>
+                <input id="CreateDate" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})" datacol="yes" err="日期" checkexpession="NotNull" value="@DNS.Utilities.DateTimeHelper.GetTime()" />
+            </td>
+
+
+
+        </tr>
+        <tr>
+            <th class='formTitle' style="        text-align: right;
+        height: 35px;
+        font-weight: bold;
+        font-size: large">钢材：</th>
+            <td class='formValue'>
+                <input type="hidden" id="SteelId" />
+                <input type="hidden" id="SteelDescription" />
+                <input id="SteelCode" maxlength=50 type="text" class="txt" datacol="yes" err="钢材" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle' style="        height: 35px;
+        text-align: right;
+        height: 35px;
+        font-weight: bold;
+        font-size: large
+">备注/模号/原单号：</th>
+            <td class='formValue'>
+                <input id="ShipDescription" maxlength=50 type="text" class="txt" style="height:35px;" value="*" />
+            </td>
+
+        </tr>
+
+        <tr>
+            <td colspan="2">
+            </td>
+            <td colspan="2">
+                <button id="snap" onclick="takePhoto()" type="button" class="btnSearch">拍照保存</button>
+            </td>
+
+
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div id="webcam"></div>
+
+            </td>
+            <td colspan="2">
+                <img src="" id="imgtt" />
+                <canvas id="canvas" width="600" height="480" style="display:none;"></canvas>
+            </td>
+
+
+        </tr>
+    </table>
+</form>

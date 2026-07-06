@@ -1,0 +1,247 @@
+@{
+    ViewBag.Title = "发运单明细";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+            GetGrid3();
+            btn_Search();
+        }, 200);
+
+        Loadlayout2();
+
+
+    })
+    function btn_Export1() {
+        SetDeriveExcel("#gridTable", "业务绩效");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+    function btn_Export2() {
+        SetDeriveExcel("#gridTable2", "营业员绩效");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+    function Loadlayout2() {
+        if ($('.layout2').length > 0) {
+            $("#layout2").splitter({
+                type: "v",
+                outline: true,
+                sizeLeft: 650,
+                minLeft: 200,
+                minRight: 200,
+                anchorToWindow: true,
+                accessKey: "L",
+            });
+        }
+    }
+
+
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ReportModule/Delivery/SummeryDetailgrid")",
+            datatype: "json",
+            height: $(window).height() -171,
+            autowidth: true,
+            colModel: [
+                { label: '业务员', name: 'salesman', index: 'salesman', width: 80, align: 'left', sortable: true },
+                { label: '钢种', name: 'steelcode', index: 'steelcode', width: 80, align: 'left', sortable: true },
+                { label: '重量', name: 'weight', index: 'weight', width: 60, align: 'left', sortable: true },
+
+                { label: '金额', name: 'materialamount', index: 'materialamount', width: 60, align: 'left', sortable: true },
+
+            ],
+            viewrecords: true,
+            rowNum: 9999,
+            rowList: [9999, 9999, 9999, 9999, 9999],
+
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "createusername": "合计",
+                    "weight": FormatCurrency($("#gridTable").getCol('weight', false, 'sum')),
+                    "totalamount": FormatCurrency($("#gridTable").getCol('totalamount', false, 'sum')),
+
+                });
+            }
+        });
+    }
+
+    //加载表格
+    function GetGrid2() {
+        $("#gridTable2").jqGrid({
+            url: "@Url.Content("~/ReportModule/Delivery/SummeryDetailgrid2")",
+            datatype: "json",
+            height: $(window).height() - 171,
+            autowidth: true,
+            colModel: [
+                     { label: '营业员', name: 'createusername', index: 'createusername', width: 80, align: 'left', sortable: true },
+                    { label: '钢种', name: 'steeldescription', index: 'steeldescription', width: 80, align: 'left', sortable: true },
+                    { label: '类型', name: 'steeltype', index: 'steeltype', width: 80, align: 'left', sortable: true },
+                    { label: '重量(吨)', name: 'weight', index: 'weight', width: 60, align: 'left', sortable: true },
+                    { label: '金额(万)', name: 'totalamount', index: 'totalamount', width: 60, align: 'left', sortable: true },
+                    { label: '区域', name: 'sellarea', index: 'sellarea', width: 60, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 9999,
+            rowList: [9999, 9999, 9999, 9999, 9999],
+
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            footerrow: true,
+
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "createusername": "合计",
+                    "weight": FormatCurrency($("#gridTable2").getCol('weight', false, 'sum')),
+                    "totalamount": FormatCurrency($("#gridTable2").getCol('totalamount', false, 'sum')),
+
+                });
+            }
+        });
+    }
+
+
+    //加载表格
+    function GetGrid3() {
+        $("#gridTable3").jqGrid({
+            url: "@Url.Content("~/ReportModule/Delivery/SummeryDetailgrid3")" + "?StartTime=" + escape($("#StartTime").val()) + "&EndTime=" + escape($("#EndTime").val()),
+            datatype: "json",
+            height: $(window).height() - 171,
+            autowidth: true,
+            colModel: [
+                { label: '送货司机', name: 'driver', index: 'driver', width: 80, align: 'left', sortable: true },
+                { label: '重量', name: 'weight', index: 'weight', width: 80, align: 'left', sortable: true },
+                { label: '件数', name: 'qty', index: 'qty', width: 80, align: 'left', sortable: true },
+                { label: '距离(km)', name: 'awayfrom', index: 'awayfrom', width: 60, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 9999,
+            rowList: [9999, 9999, 9999, 9999, 9999],
+
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            footerrow: true,
+
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "driver": "合计",
+                    "weight": FormatCurrency($("#gridTable2").getCol('weight', false, 'sum')),
+                    "qty": FormatCurrency($("#gridTable2").getCol('qty', false, 'sum')),
+                    "awayfrom": FormatCurrency($("#gridTable2").getCol('awayfrom', false, 'sum')),
+
+                });
+            }
+        });
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+        $("#gridTable3").trigger("reloadGrid"); //重新载入
+
+    }
+    //查询
+    function btn_Search() {
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/ReportModule/Delivery/SummeryDetailgrid")?Sellpeople=" + escape($("#Sellpeople").val()) + "&CreateUserName=" + escape($("#CreateUserName").val()) + "&StartTime=" + escape($("#StartTime").val()) + "&EndTime=" + escape($("#EndTime").val()) + "&Sellarea=" + escape($("#Sellarea").val()), page: 1 }).trigger('reloadGrid');
+        $("#gridTable3").jqGrid('setGridParam', { url: "@Url.Content("~/ReportModule/Delivery/SummeryDetailgrid3")?Driver=" + escape($("#Driver").val()) + "&StartTime=" + escape($("#StartTime").val()) + "&EndTime=" + escape($("#EndTime").val()), page: 1 }).trigger('reloadGrid');
+    }
+
+</script>
+
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+   
+</div>
+
+<div id="grid_List">
+    <div class="bottomline QueryArea" id="QueryParameter" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+         <table border="0" class="form-find" style="height: 45px;">
+             <tr>
+                 <th>创建日期 从：</th>
+                 <td>
+                     <input id="StartTime" type="text" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />至
+                     <input id="EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />
+                 </td>
+
+                 <th>业务员：</th>
+                 <td>
+                     <input id="Sellpeople" type="text" class="txt" style="width: 100px" />
+                 </td>
+                 <th>营业员：</th>
+                 <td>
+                     <input id="CreateUserName" type="text" class="txt" style="width:100px" />
+                 </td>
+                 <th>销售区域：</th>
+                 <td>
+                     <input id="Sellarea" type="text" class="txt" style="width: 120px" />
+                 </td>
+                 <th>司机：</th>
+                 <td>
+                     <input id="Driver" type="text" class="txt" style="width: 120px" />
+                 </td>
+                 <td>
+                     <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                     <input id="btn_expo2rt" type="button" class="btnSearch" value="业务导出" onclick="btn_Export1()" />
+                     <input id="btn_expo3rt" type="button" class="btnSearch" value="司机导出" onclick="btn_Export3()" />
+                 </td>
+                 @*<td>
+            <input id="btnEdit" type="button" class="btnSearch" value="编 辑" onclick="btn_Edit()" />
+        </td>*@
+             </tr>
+    </table>
+    </div>
+</div>
+
+<div id="layout2" class="layout2">
+    <!--左边-->
+    <div class="layoutPanel layout-west" style=" ">
+        <div class="btnbartitle">
+            <div>
+                业务信息
+            </div>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                司机信息
+            </div>
+        </div>
+        <!--视图-->
+        @*<table id="gridTable2"></table>
+        <div id="gridPager2"></div>*@
+        <table id="gridTable3"></table>
+        <div id="gridPager3"></div>
+    </div>
+</div>

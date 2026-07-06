@@ -1,0 +1,382 @@
+@{
+    ViewBag.Title = "付款对账单";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    function BCPrintPreview() {
+        var PayCheckSheetCode = GetJqGridRowValue("#gridTable", "PayCheckSheetCode");
+        if (IsChecked(PayCheckSheetCode)) {
+            PrintDialog("/PaymentModule/BY_PayCheckSheel/Print?PayCheckSheetCode=" + PayCheckSheetCode, "PrintPage", "付款对账单打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx = 0;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/PaymentModule/BY_PayCheckSheel/GridPageJson")",
+            datatype: "json",
+            height: $(window).height() - 189,
+            autowidth: true,
+            colModel: [
+                    { label: '对账单号', name: 'PayCheckSheetCode', index: 'PayCheckSheetCode', width: 100, align: 'left', sortable: true },
+
+                    { label: '对账单ID', name: 'PayCheckSheetId', index: 'PayCheckSheetId', hidden: true },
+                    { label: '付款对账类型', name: 'PayType', index: 'PayType', width: 100, align: 'left', sortable: true },
+                    { label: '供应商编号', name: 'CustomerCode', index: 'CustomerCode', width: 60, align: 'left', sortable: true },
+                    { label: '供应商名称', name: 'CustomerName', index: 'CustomerName', width: 120, align: 'left', sortable: true },
+                    { label: '对账单年月', name: 'YearMonth', index: 'YearMonth', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '开始时间', name: 'BeginDate', index: 'BeginDate', width: 80, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    {
+                        label: '结束时间', name: 'EndDate', index: 'EndDate', width: 80, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '供应商ID', name: 'CustomerId', index: 'CustomerId', hidden: true },
+
+                    { label: '总金额', name: 'InvoiceMoney', index: 'InvoiceMoney', width: 80, align: 'left', sortable: true },
+                    { label: '发票金额', name: 'TotalAmount', index: 'TotalAmount', width: 80, align: 'left', sortable: true },
+                    { label: '已付金额', name: 'GetedAmount', index: 'PayedAmount', width: 80, align: 'left', sortable: true },
+
+                   { label: '发票号', name: 'InvoiceNum', index: 'InvoiceNum', width: 80, align: 'left', sortable: true },
+                   {
+                       label: '发票日期', name: 'InvoiceDate', index: 'InvoiceDate', width: 80, align: 'left', sortable: true,
+                       formatter: function (cellvalue, options, rowObject) {
+                           return formatDate(cellvalue, 'yyyy-MM-dd');
+                       }
+                   },
+                   { label: '买方', name: 'InvoiceWho', index: 'InvoiceWho', width: 80, align: 'left', sortable: true },
+                   {
+                       label: '备注', name: 'Remark', index: 'Remark', width: 80, align: 'left', sortable: true,
+                       formatter: function (cellvalue, options, rowObject) {
+                           if (!!cellvalue) {
+                               return cellvalue.replace(/,/g, "，");;
+
+                           }
+                           return "";
+                       }
+                   },
+                    {
+                        label: '完结', name: 'IsComfirm', index: 'IsComfirm', width: 50, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (cellvalue == "1") {
+                                return "是"
+                            }
+                            return "否"
+                        }
+                    },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            footerrow: true,
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                $(this).footerData("set", {
+                    "CustomerName": "合计",
+                    "TotalAmount": FormatCurrency($("#gridTable").getCol('TotalAmount', false, 'sum')),
+                    "InvoiceMoney": FormatCurrency($("#gridTable").getCol('InvoiceMoney', false, 'sum')),
+                    "GetedAmount": FormatCurrency($("#gridTable").getCol('GetedAmount', false, 'sum')),
+                });
+                var data = $("#gridTable").jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    var item = i + 1;
+                    if (data[i].IsComfirm == "是") {
+                        $("#" + item).find('td').css("background-color", "#008800");
+                    }
+                }
+            },
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                btn_edit1();
+            },
+            // define the icons in subgrid
+            subGrid: true,
+            subGridOptions: {
+                "plusicon": "ui-icon-triangle-1-e",
+                "minusicon": "ui-icon-triangle-1-s",
+                "openicon": "ui-icon-arrowreturn-1-e"
+            },
+            subGridRowExpanded: function (subgrid_id, row_id) {
+                var rowData = $("#gridTable").jqGrid('getRowData', row_id);
+                var Parameter = [{
+                    paramName: "PayCheckSheetCode",
+                    paramValue: rowData["PayCheckSheetCode"],
+                    Operation: "Equal",
+                }
+                ]
+                var subgrid_table_id, pager_id;
+                subgrid_table_id = subgrid_id + "_t";
+                pager_id = "p_" + subgrid_table_id;
+                $("#" + subgrid_id).html("<table id='" + subgrid_table_id + "' class='scroll'></table><div id='" + pager_id + "' class='scroll'></div>");
+                jQuery("#" + subgrid_table_id).jqGrid({
+                    url: "@Url.Content("~/PaymentModule/Base_SteelPurchase/GridPageJson0")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+                    datatype: "json",
+                    height: $(window).height() / 2 - 115,
+                    autowidth: true,
+                    colModel: [
+                            { label: '助记码', name: 'idid', index: 'idid', width: 100, align: 'left', sortable: true, hidden: true },
+                            { label: '类型', name: 'typename', index: 'typename', width: 100, align: 'left', sortable: true },
+                            { label: '对账单号', name: 'paychecksheetcode', index: 'paychecksheetcode', width: 100, align: 'left', sortable: true },
+                            { label: '单据号', name: 'codecc', index: 'codecc', align: 'left' },
+                            { label: '供应商名称', name: 'customername', index: 'customername', width: 100, align: 'left', sortable: true },
+                            { label: '总金额', name: 'totalamount', index: 'totalamount', width: 80, align: 'left', sortable: true },
+                            { label: '已付金额', name: 'getedamount', index: 'getedamount', width: 80, align: 'left', sortable: true },
+                            { label: '申请人姓名', name: 'workername', index: 'workername', width: 80, align: 'left', sortable: true },
+                            { label: '备注', name: 'remark', index: 'remark', width: 120, align: 'left', sortable: true },
+                            {
+                                label: '时间', name: 'createdate', index: 'createdate', width: 100, align: 'left', sortable: true,
+                                formatter: function (cellvalue, options, rowObject) {
+                                    return formatDate(cellvalue, 'yyyy-MM-dd');
+                                }
+                            },
+                    ],
+                    viewrecords: true,
+                    rowNum: 30,
+                    rowList: [30, 50, 100, 500, 5000],
+                    pager: "#" + pager_id,
+                    sortname: 'createdate',
+                    sortorder: 'desc',
+                    rownumbers: true,
+                    shrinkToFit: false,
+                    altRows: false,
+                    altclass: 'altclass',
+                    gridview: true,
+                });
+            }
+
+        });
+    }
+
+    function btn_invoice() {
+        btn_edit1();
+    }
+    //新增
+    function btn_add() {
+        var url = "/PaymentModule/BY_PayCheckSheel/Form"
+        openDialog(url, "Form", "新增付款对账单", 970, 595, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+
+    //编辑
+    function btn_edit() {
+        var IsComfirm = GetJqGridRowValue("#gridTable", "IsComfirm");
+        if (IsComfirm == "是") {
+            tipDialog("已对账确认，不能修改", 3, -1);
+            return;
+        }
+        var PayCheckSheetId = GetJqGridRowValue("#gridTable", "PayCheckSheetId");
+        var url = "/PaymentModule/BY_PayCheckSheel/Form?PayCheckSheetId=" + PayCheckSheetId;
+        openDialog(url, "Form", "修改对账单", 970, 595, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+
+    //编辑
+    function btn_edit1() {
+
+        //var IsComfirm = GetJqGridRowValue("#gridTable", "IsComfirm");
+        //if (IsComfirm == "是") {
+        //    tipDialog("已对账确认，不能修改", 3, -1);
+        //    return;
+        //}
+        var KeyValue = GetJqGridRowValue("#gridTable", "PayCheckSheetId");
+        if (IsChecked(KeyValue)) {
+            var url = "/PaymentModule/BY_PayCheckSheel/Detail?KeyValue=" + KeyValue;
+            openDialog(url, "Detail", "付款对账单明细", 720, 200, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        var IsComfirm = GetJqGridRowValue("#gridTable", "IsComfirm");
+        if (IsComfirm == "是") {
+            tipDialog("已对账确认，不能修改", 3, -1);
+            return;
+        }
+        var GetedAmount = GetJqGridRowValue("#gridTable", "GetedAmount");
+        if (GetedAmount != 0) {
+            tipDialog("已付款，不能删除，请删除付款记录", 3, -1);
+            return;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "PayCheckSheetId");
+        if (IsDelData(KeyValue)) {
+            delConfig('/PaymentModule/BY_PayCheckSheel/Delete?KeyValue=' + KeyValue, "", 1);
+        }
+    }
+    //明细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "PayCheckSheetId");
+        if (IsChecked(KeyValue)) {
+            var url = "/PaymentModule/BY_PayCheckSheel/Detail?KeyValue=" + KeyValue;
+            Dialog(url, "Detail", "付款对账单明细", 820, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+        
+    }
+    function btn_Search() {
+        var tempstatus = "";
+        if ($("#Status").prop("checked")) {
+            tempstatus = 0;
+        }
+        if ($("#Status1").prop("checked")) {
+            tempstatus = 1;
+        }
+        if ($("#Status1").prop("checked") && $("#Status").prop("checked")) {
+            tempstatus = "";
+        }
+        var Parameter = [{
+            paramName: "IsComfirm",
+            paramValue: tempstatus,
+            Operation: "Equal",
+            Logic: "AND",
+        }
+        , {
+            paramName: "CustomerCode",
+            paramValue: $("#CustomerCode").val(),
+            Operation: "Like",
+            Logic: "OR",
+            LeftBrace: "("
+        }, {
+            paramName: "CustomerName",
+            paramValue: $("#CustomerCode").val(),
+            Operation: "Like",
+            Logic: "AND",
+            RightBrace: ")"
+
+        }, {
+            paramName: "YearMonth",
+            paramValue: $("#YearMonth").val(),
+            Operation: "Equal",
+            Logic: "AND"
+        }, {
+            paramName: "InvoiceNum",
+            paramValue: $("#InvoiceNum").val(),
+            Operation: "Like",
+            Logic: "AND",
+
+        }, {
+            paramName: "InvoiceDate",
+            paramValue: !!$("#StartTime").val() ? $("#StartTime").val() + " 00:00:00" : "",
+            Operation: "GreaterThan",
+            Logic: "AND",
+
+        }, {
+            paramName: "InvoiceDate",
+            paramValue: !!$("#EndTime").val() ? $("#EndTime").val() + " 00:00:00" : "",
+            Operation: "LessThan",
+            Logic: "AND",
+
+        }
+        ]
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/BY_PayCheckSheel/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+    function btn_audit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "PayCheckSheetId");
+        var IsComfirm = GetJqGridRowValue("#gridTable", "IsComfirm");
+        //if (IsComfirm == "是" ) {
+        //    tipDialog("已审核，不能多次审核", 3, -1);
+        //    return;
+        //}
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要审核通过？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/BY_PayCheckSheel/Audit?KeyValue=" + KeyValue, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+        
+    }
+
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "发票记录");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>供应商：</th>
+            <td>
+                <input id="CustomerCode" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>对账年月：</th>
+            <td>
+                <input id="YearMonth" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>发票号：</th>
+            <td>
+                <input id="InvoiceNum" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>发票时间：</th>
+            <td>
+                <input id="StartTime" type="text" class="txt Wdate"  style="width: 100px" onfocus="var endDate=$dp.$('EndTime');WdatePicker({onpicked:function(){EndTime.focus();},maxDate:'#F{$dp.$D(\'EndTime\')}'})" />
+                至
+                <input id="EndTime" type="text" class="txt Wdate"  style="width: 100px" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'StartTime\')}'})" />
+            </td>
+             <td >
+                    <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkbox" id="Status" />
+                        <label for="Status">未审核</label>
+                    </span>
+                  <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkbox" id="Status1"  />
+                        <label for="Status1">已审核</label>
+                    </span>
+                </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                <input id="btnExport" type="button" class="btnSearch" value="导出" onclick="btn_Export()" />
+                <input id="btnPrint" type="button" class="btnSearch" value="打印" onclick="BCPrintPreview()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

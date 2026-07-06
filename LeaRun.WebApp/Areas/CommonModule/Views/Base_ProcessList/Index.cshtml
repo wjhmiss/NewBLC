@@ -1,0 +1,110 @@
+@{
+    ViewBag.Title = "Base_ProcessList";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        BindDropItem("#Prcess", "加工流程", "==请选择==");
+        show();
+
+        //自定义复选框 全选/反选
+        $("#CheckView").click(function () {
+            if (!!$(this).hasClass("checkAllOff")) {
+                $(this).attr('title', '反选');
+                $(this).text('反选');
+                $(this).attr('class', 'checkAllOn');
+                $('#AccessView li').addClass('selected');
+            } else {
+                $(this).attr('title', '全选');
+                $(this).text('全选');
+                $(this).attr('class', 'checkAllOff');
+                $('#AccessView li').removeClass('selected');
+            }
+        })
+        //$("#CheckView").trigger("click");
+    })
+
+    function show() {
+        getAjax("/CommonModule/DataDictionary/BinDingItemsForProcess", { Code: "Operation", Prcess: $("#Prcess").val() }, function (data) {
+            var JsonData = eval("(" + data + ")");
+            $("#AccessView").html("");
+            $.each(JsonData, function (i) {
+                var Value = JsonData[i].FullName;
+                var Key = JsonData[i].FullName;
+                if (!!Value) {
+                    if (!!JsonData[i].Enabled) {
+                        $("#AccessView").append("<li class='selected' title='" + Key + "'><a id='" + Key + "'><img src=\"../../Content/Images/Icon16/tag_blue.png\">" + Value + "</a><i></i></li>");
+                    }
+                    else {
+                        $("#AccessView").append("<li title='" + Key + "'><a id='" + Key + "'><img src=\"../../Content/Images/Icon16/tag_blue.png\">" + Value + "</a><i></i></li>");
+                    }
+
+                }
+            });
+            $("#AccessView li").click(function () {
+                if (!$(this).find('a').hasClass('disabled')) {
+                    if (!!$(this).hasClass("selected")) {
+                        $(this).removeClass("selected");
+                    } else {
+                        $(this).addClass("selected");
+                    }
+                }
+            });
+        });
+    }
+    //加载表格
+    //确认导出
+    function AcceptClick() {
+        var SelectedField = ""; $('#AccessView .selected a').each(function () { SelectedField += $(this).attr('id') + ","; });
+        Loading(true, "正在提交数据...");
+        $(".ui_state_highlight").attr("disabled", true);
+        window.setTimeout(function () {
+            var postData = {
+                SelectedField: SelectedField,
+                Prcess: $("#Prcess").val(),
+                Code: "Operation"
+            }
+            AjaxJson("/CommonModule/DataDictionary/SubmitForPrcess", postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                window.setTimeout(function () {closeDialog();}, 500);
+            });
+        }, 200);
+
+
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+        
+    }
+</script>
+
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>流程：</th>
+            <td class='formValue' >
+                <select id="Prcess" class="select" onchange="show();" >
+                </select>
+            </td>
+            <td>
+                <input id="btnSearchd" type="button" class="btnSearch" value="保存" onclick="AcceptClick()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="border" style="margin: 1px;">
+    <div class="btnbartitle">
+        <div style="float: left">
+            系统视图 <span class="ModuleName"></span>
+        </div>
+        <div style="float: right">
+            <label id="CheckView" class="checkAllOff" title="全选">全选</label>
+        </div>
+    </div>
+    <div style="height: 225px; overflow: auto;">
+        <ul id="AccessView" class="sys_spec_text">
+        </ul>
+    </div>
+</div>

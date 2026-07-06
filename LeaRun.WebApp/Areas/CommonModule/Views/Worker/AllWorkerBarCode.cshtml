@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>打印所有员工条码</title>
+    @*<link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+@*    <script src="~/Content/Scripts/barcode/jquery-barcode.min.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/barcode/barcodejquery")
+
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+    <script>
+        //初始化("~/CommonModule/Worker/GridPageListJson")?DepartId=" + DepartmentId
+        $(function () {
+            AjaxJson("/CommonModule/Worker/GetUsers", { DepartId: GetQuery('DepartId') }, function (data) {
+                var index = 0;
+                var Orderhtml = "";
+                Orderhtml += '<table id="tb_Order" style="width:95%;margin:5px;" borderColor=#000000  cellPadding=1  align=center border=1>';
+                Orderhtml += '';
+
+                $.each(data, function (i) {
+                    if (index == 0) {
+                        Orderhtml += '<tr><td  align="center"><div  barcode="' + data[i].workercode + '"  class="barcodeTarget"></div>' + data[i].workername + '</td>';
+                    }
+
+                    if (index % 3 == 0 && index != 0) {
+                        Orderhtml += '</tr><tr><td  align="center"><div  barcode="' + data[i].workercode + '"  class="barcodeTarget"></div>' + data[i].workername + '</td>';
+
+                    }
+                    if (index % 3 != 0) {
+                        Orderhtml += '<td  align="center"><div  barcode="' + data[i].workercode + '"  class="barcodeTarget"></div>' + data[i].workername + '</td>';
+                    }
+                    if (index == (data.length - 1)) {
+                        Orderhtml += '</tr>';
+                    }
+                    index++;
+                });
+                Orderhtml += '</table>';
+                $("#my_area").append(Orderhtml);
+            });
+            $(".barcodeTarget").each(function () {
+                $(this).barcode($(this).attr('barcode'), "code128", { barWidth: 1.5, barHeight: 30 });
+            });
+        })
+
+
+        //确认打印
+        function AcceptClick() {
+            MyPreview();
+        }
+    </script>
+</head>
+<body>
+    <div style="width: 100%;" align="center"><span style="font-size: 25px; font-weight: bold; width: 100%;">员工条码列表</span></div>
+    <div id="my_area">
+
+    </div>
+
+    
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_PAGESIZE(1, "0", "0", "A5")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        //LODOP.PRINT();
+        LODOP.PREVIEW();
+        window.setTimeout(function () {closeDialog();}, 500);
+        //if (LODOP.PRINTA()) {
+
+
+        //    LODOP.PRINT();
+        //    tipDialog("打印成功", 3, 1);
+        //    window.setTimeout(function () {closeDialog();}, 500);
+
+        //}
+        //else
+        //    //alert("");
+        //    tipDialog("放弃打印！", 3, 1);
+    };
+</script>
+</html>

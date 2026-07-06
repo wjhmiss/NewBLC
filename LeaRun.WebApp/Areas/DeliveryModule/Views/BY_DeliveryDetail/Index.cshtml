@@ -1,0 +1,311 @@
+@{
+    ViewBag.Title = "发运单明细";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        CustomerAutocomplete();
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //客户编码自动补全
+    function CustomerAutocomplete() {
+        var $CustomerName = $("#CustomerName");
+        $CustomerName.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerName", function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.FullName);
+            $("#PaymentMode").val(data.PaymentMode);
+            btn_Search();
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Customer/GetAutoCompleJsonNXJ", { keywords: $CustomerName.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 70%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="ShortName" style="display: none;">' + DataJson[i].ShortName + '</td>';
+                    html += '<td id="Sellpeople" style="display: none;">' + DataJson[i].Sellpeople + '</td>';
+                    html += '<td id="SalesArea" style="display: none;">' + DataJson[i].Sellarea + '</td>';
+                    html += '<td id="DiscountRate" style="display: none;">' + DataJson[i].DiscountRate + '</td>';
+                    html += '<td id="TransitMode" style="display: none;">' + DataJson[i].TransitMode + '</td>';
+                    html += '<td id="PaymentMode" style="display: none;">' + DataJson[i].PaymentMode + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerName", "300px", "200px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.FullName);
+                    $("#PaymentMode").val(data.PaymentMode);
+                    btn_Search();
+                });
+
+            });
+        }
+    }
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/DeliveryModule/BY_DeliveryDetail/GridPageListJson")?LType=GC&DeliveryCode=" + escape($("#DeliveryCode").val()) + "&MnemonicCode=" + escape($("#MnemonicCode").val()) + "&CustomerName=" + escape($("#CustomerName").val()) + "&ProductName=" + escape($("#ProductName").val()) + "&Size=" + escape($("#Size").val()) + "&StartTime=" + escape($("#StartTime").val()) + "&EndTime=" + escape($("#EndTime").val()) + "&LType=" + escape($("#LType").val()),
+            datatype: "json",
+            height: $(window).height() - 131,
+            autowidth: true,
+            colModel: [
+                    { label: '发运单明细ID', name: 'deliverydetailid', hidden: true },
+                { label: 'deliveryid', name: 'deliveryid', hidden: true },
+                { label: '助记编码', name: 'mnemoniccode', index: 'mnemoniccode', width: 100, align: 'left', sortable: true, hidden: true },
+
+                { label: '客户编码', name: 'customercode', index: 'customercode', width: 100, align: 'left' },
+                { label: '客户简称', name: 'shortname', index: 'shortname', width: 100, align: 'left' },
+                { label: '客户名称', name: 'customername', index: 'customername', width: 100, align: 'left', sortable: true },
+                {
+                    label: '发运时间', name: 'createdate', index: 'createdate', width: 100, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+                { label: '发运单号', name: 'deliverycode', index: 'deliverycode', width: 100, align: 'left', sortable: true },
+                { label: '行号', name: 'linecode', index: 'linecode', width: 50, align: 'left', sortable: true },
+                { label: '成品名称', name: 'ljsize', index: 'ljsize', width: 100, align: 'left' },
+                { label: '材料', name: 'steelcode', index: 'steelcode', width: 50, align: 'left' },
+                {
+                    label: '客户品名', name: 'productname', index: 'productname', width: 80, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");
+                        } else {
+                            return "";
+                        }
+                    }
+                },
+                { label: '件数', name: 'qty', index: 'qty', width: 50, align: 'left', sortable: true },
+                {
+                    label: '厚*宽*长', name: 'CustomerProduct', index: 'CustomerProduct', width: 120, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowobject) {
+                        if (rowobject.length == 0) {
+                            return '';
+                        }
+                        if (!!rowobject.weigh) {
+                            return rowobject.length + "*" + rowobject.weigh + "*" + rowobject.thick;
+                        }
+                        else {
+                            return "Φ" + rowobject.thick + "*" + rowobject.length;
+                        }
+                    }
+                },
+                { label: '重量', name: 'weight', index: 'weight', width: 60, align: 'left', sortable: true },
+                { label: '比重', name: 'theoryweight', index: 'theoryweight', width: 60, align: 'left', sortable: true },
+
+
+
+                
+                    
+                    { label: '材料单价', name: 'materialprice', index: 'materialprice', width: 60, align: 'left', sortable: true },
+                    { label: '材料金额', name: 'materialamount', index: 'materialamount', width: 60, align: 'left', sortable: true },
+                    { label: '加工(件)', name: 'workprice', index: 'workprice', width: 60, align: 'left', sortable: true },
+                    { label: '加工(件)金额', name: 'workamount', index: 'workamount', width: 60, align: 'left', sortable: true },
+                    { label: '加工(kg)单价', name: 'smallcost', index: 'smallcost', width: 60, align: 'left', sortable: true },
+                    { label: '加工(kg)金额', name: 'smallamount', index: 'smallamount', width: 60, align: 'left', sortable: true },
+                    { label: '热处理单价', name: 'heatprice', index: 'heatprice', width: 60, align: 'left', sortable: true },
+                    { label: '热处理金额', name: 'heatamount', index: 'heatamount', width: 60, align: 'left', sortable: true },
+                    { label: '锯工费单价', name: 'jkcostper', index: 'jkcostper', width: 60, align: 'left', sortable: true },
+                    { label: '锯工费金额', name: 'jkcost', index: 'jkcost', width: 60, align: 'left', sortable: true },
+                    { label: '切角单价', name: 'ddcostper', index: 'ddcostper', width: 60, align: 'left', sortable: true },
+                    { label: '切角金额', name: 'ddcost', index: 'ddcost', width: 60, align: 'left', sortable: true },
+                { label: '销售额', name: 'salesamount', index: 'salesamount', width: 60, align: 'left', sortable: true },
+
+                { label: '模号', name: 'customerproduct', index: 'customerproduct', width: 100, align: 'left' }, 
+               
+                {
+                    label: '备注', name: 'remark', index: 'remark', width: 120, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");
+                        } else {
+                            return "";
+                        }
+                    }
+                },
+
+
+
+
+                    {
+                        label: '是否审核', name: 'audituserid', index: 'audituserid', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (cellvalue) {
+                                return "<span style='color:blue'>已审核</span>";
+                            } else {
+                                return "<span style='color:red' >未审核</span>";
+                            }
+                        }
+                    },
+                   
+                { label: '完工人', name: 'completeuserid', width: 80 },
+                   {
+                       label: '完工时间', name: 'completedate', index: 'completedate', width: 100, align: 'left', sortable: true,
+                       formatter: function (cellvalue, options, rowObject) {
+                           return formatDate(cellvalue, 'yyyy-MM-dd');
+                    }
+                },
+                { label: '业务员', name: 'salesman', width: 80 },
+                {
+                    label: '送货备注', name: 'shipdescription', index: 'shipdescription', width: 120, align: 'left', sortable: true,
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!!cellvalue) {
+                            return cellvalue.replace(/,/g, "，");
+                        } else {
+                            return "";
+                        }
+                    }
+                },
+                    { label: 'getedamount', name: 'getedamount', index: 'getedamount', hidden: true },
+                    { label: 'csgetedamount', name: 'csgetedamount', index: 'csgetedamount', hidden: true }
+            ],
+            viewrecords: true,
+            rowNum: 10000,
+            rowList: [300, 500, 1000, 5000, 10000],
+            pager: "#gridPager",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            //ondblClickRow: function (rowid, iRow, iCol, e) {
+            //    btn_Edit();
+            //}
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "mnemoniccode": "合计",
+                   
+                    "qty": FormatCurrency($("#gridTable").getCol('qty', false, 'sum')),
+
+                    "weight": FormatCurrency($("#gridTable").getCol('weight', false, 'sum')),
+                    "theoryweight": FormatCurrency($("#gridTable").getCol('theoryweight', false, 'sum')),
+                    "materialamount": FormatCurrency($("#gridTable").getCol('materialamount', false, 'sum')),
+                    "workamount": FormatCurrency($("#gridTable").getCol('workamount', false, 'sum')),
+                    "smallamount": FormatCurrency($("#gridTable").getCol('smallamount', false, 'sum')),
+                    "heatamount": FormatCurrency($("#gridTable").getCol('heatamount', false, 'sum')),
+                    "jkcost": FormatCurrency($("#gridTable").getCol('jkcost', false, 'sum')),
+                    "ddcost": FormatCurrency($("#gridTable").getCol('ddcost', false, 'sum')),
+                    "salesamount": FormatCurrency($("#gridTable").getCol('salesamount', false, 'sum')),
+
+                });
+            },
+        });
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+    //查询
+    function btn_Search() {
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/DeliveryModule/BY_DeliveryDetail/GridPageListJson")?LType=GC&DeliveryCode=" + escape($("#DeliveryCode").val()) + "&MnemonicCode=" + escape($("#MnemonicCode").val()) + "&CustomerName=" + escape($("#CustomerName").val()) + "&ProductName=" + escape($("#ProductName").val()) + "&Size=" + escape($("#Size").val()) + "&StartTime=" + escape($("#StartTime").val()) + "&EndTime=" + escape($("#EndTime").val()) + "&LType=" + escape($("#LType").val()), page: 1 }).trigger('reloadGrid');
+    }
+    //编辑
+    function btn_Edit() {
+        var getedamount = GetJqGridRowValue("#gridTable", "getedamount");
+        var csgetedamount = GetJqGridRowValue("#gridTable", "csgetedamount");
+        if (Number(getedamount) > 0 || Number(csgetedamount) > 0) {
+            alertDialog("当前送货单已收款，不能修改！", 0);
+            return false;
+        }
+
+        var KeyValue = GetJqGridRowValue("#gridTable", "deliverydetailid");
+        var deliveryid = GetJqGridRowValue("#gridTable", "deliveryid");
+        var linecode = GetJqGridRowValue("#gridTable", "linecode");
+
+        if (IsChecked(KeyValue)) {
+            var url = "/DeliveryModule/BY_DeliveryDetail/Form?deliveryid=" + deliveryid + "&linecode=" + linecode;
+            openDialog(url, "Form", "修改发货单", 850, 650, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+
+
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "送货单明细");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+        function btn_Export1() {
+        var Condition = GetParameterJson("QueryParameter");
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "@Url.Content("~/DeliveryModule/BY_DeliveryDetail/DownLoadExcel1")?DeliveryCode=" + escape($("#DeliveryCode").val()) + "&MnemonicCode=" + escape($("#MnemonicCode").val()) + "&CustomerName=" + escape($("#CustomerName").val()) + "&ProductName=" + escape($("#ProductName").val()) + "&Size=" + escape($("#Size").val()) + "&StartTime=" + escape($("#StartTime").val()) + "&EndTime=" + escape($("#EndTime").val()) + "&LType=GC";
+                Loading(false);
+            }, 200);
+        }
+</script>
+
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>创建日期 从：</th>
+            <td>
+         
+                <input id="StartTime" type="text" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()"  class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />至
+            <input id="EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />
+                </td>
+            <th>助记编码：</th>
+            <td>
+                <input id="LType" type="hidden" value="GC" />
+                <input id="MnemonicCode" type="text" class="txt" style="width:100px" />
+            </td>
+            <th>发运单号：</th>
+            <td>
+                <input id="DeliveryCode" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>客户：</th>
+            <td>
+                <input id="CustomerName" type="text" class="txt" style="width: 100px" />
+            </td>
+             <th>品名：</th>
+            <td>
+                <input id="ProductName" type="text" class="txt" style="width: 100px" />
+            </td>
+             <th>规格Φ：</th>
+            <td>
+                <input id="Size" type="text" class="txt" style="width: 100px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                <input id="btn_export" type="button" class="btnSearch" value="导出" onclick="btn_Export()" />
+                @*<input id="btn_export" type="button" class="btnSearch" value="导出" onclick="btn_Export1()" />*@
+
+            </td>
+            @*<td>
+                <input id="btnEdit" type="button" class="btnSearch" value="编 辑" onclick="btn_Edit()" />
+            </td>*@
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

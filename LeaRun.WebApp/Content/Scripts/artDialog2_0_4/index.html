@@ -1,0 +1,157 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<!-- Mirrored from www.mb5u.com/jscode/html/ajax/426_artDialog2_0_4/ by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 10 Jun 2015 11:21:08 GMT -->
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>artDialog demo</title>
+<meta name="keywords" content="javascript对话框,弹出层,窗口,拖动" />
+<meta name="description" content="artDialog是一个轻巧且高度兼容的javascript对话框组件，可让你的网页交互拥有桌面软件般的用户体验" />
+<link id="artDialogSkin" href="skin/aero/aero.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="artDialog.js"></script>
+<link href="_demo/demo.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="_demo/demo.js"></script>
+</head>
+<body>
+<div id="bg"><img src="_demo/bg.jpg" /></div>
+<div id="page">
+  <h1>artDialog <em>v 2.0.4 Beta</em></h1>
+  <fieldset>
+    <legend>简介</legend>
+    <div class="content">
+      <p>artDialog是一个轻巧且高度兼容的javascript对话框组件，可让你的网页交互拥有桌面软件般的用户体验。</p>
+      <p>功能： 支持锁定屏幕(遮罩)、模拟alert和confirm、多窗口弹出、静止定位、支持Ese键关闭对话框、定时关闭、自定义位置、拖动、鼠标调节窗口大小、换肤……</p>
+      <h3>优点</h3>
+      <ol class="love">
+        <li><strong>兼容主流浏览器</strong>: 支持IE6和IE6+, Firefox, chrome, Opera, Safari</li>
+        <li><strong>自适应内容</strong>: 无需预设高宽, 对话框自适应消息内容的大小 <span class="tips">(包括按钮)</span>，并且支持消息框大小拖动调节</li>
+        <li><strong>智能消息对齐</strong>: 如果设置了对话框宽度，文本会自动居中或者居左对齐</li>
+        <li><strong>容错</strong>: 如果定义的宽度高度小于内容大小不会出现错位,</li>
+        <li><strong>智能定位</strong>: 使用自定义坐标的时候智能修正位置，确保其在可视范围 <span class="tips">(适用于弹出菜单)</span></li>
+        <li><strong>拖动流畅</strong>: 不会粘住鼠标也不会拖出浏览器视口导致无法控制</li>
+        <li><strong>轻巧</strong>: js压缩后不到8KB <span class="tips">(在js内嵌了核心兼容布局CSS的情况下)</span></li>
+        <li><strong>制订皮肤</strong>: 九宫格布局, 钩子完善,制作皮肤相当简易, 内置IE6 png 32透明和定位解决方案。</li>
+        <li><strong>IE6无抖动静止定位</strong>: 在IE6下可实现与现代浏览器一样完美静止定位效果</li>
+        <li><strong>IE6遮盖下拉控件支持</strong>: 支持 IE6 下覆盖下拉控件 <span class="tips">(注:半透明皮肤不支持)</span></li>
+      </ol>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend id="d_api">接口</legend>
+    <div class="content">
+	<h3>配置参数</h3>
+    <ul class="api">
+      <li><strong>content</strong>: {消息内容,支持HTML}</li>
+      <li><strong>title</strong>: {标题.默认:'提示'}</li>
+      <li><strong>lock</strong>: {是否锁定屏幕. 默认:false}</li>
+      <li><strong>width</strong>: {宽度,支持em等单位. 默认:'auto'}</li>
+      <li><strong>height</strong>: {高度,支持em等单位. 默认:'auto'}</li>
+      <li><strong>url</strong>: {iframe地址,存在content参数时候,此参数无效}</li>
+      <li><strong>x</strong>: {x坐标,可以使用关键字,如:left/right/center. 默认:'center'}</li>
+      <li><strong>y</strong>: {y坐标,可以使用关键字,如:top/bottom/center. 默认:'center'(并非绝对垂直居中，而是使用的黄金比例)}</li>
+      <li><strong>fixed</strong>: {是否启用静止定位. 默认:false}</li>
+      <li><strong>time</strong>: {多少秒自动关闭}</li>
+      <li><strong>style</strong>: {对话框风格扩展参数,写入自定义className,详情见皮肤css文件的定义,多个用空格隔开}</li>
+      <li><strong>yesText</strong>: {确定按钮文本. 默认:'确定'}</li>
+      <li><strong>noText</strong>: {取消按钮文本. 默认:'取消'}</li>
+      <li><strong>yesClose</strong>: {点击确定按钮是否同时关闭对话框. 默认:true}</li>
+      <li><strong>id</strong>: {给对话框定义id,对话框未关闭就不再会有同名对话框弹出. 例如定义id为'my2'，则内容容器id为'my2Content'}</li>
+    </ul>
+    <h3>形式</h3>
+    <p>artDialog({ 配置参数 }, function(){ 确定按钮回调函数 }, function(){ 取消按钮回调函数 }, function(){ 对话框关闭回调函数 }) 如:</p>
+<pre><code>artDialog(
+        {	
+            content:'欢迎你来到对话框世界！',
+            lock:true,
+            style:'succeed noClose'
+        },
+        function(){
+            alert('你点了确定');
+        },
+        function(){
+            alert('你点了取消');
+        }
+);</code></pre>
+    
+    <div class="runCode">
+    	<pre><textarea rows="3" id="runCode">artDialog({content:'大多情况下只需要一个content参数就能解决问题'})</textarea></pre>
+    	<div class="btn"><button id="runCodeBtn">运行代码</button>
+        <div id="runCodeDiv"></div>
+    	</div>
+    </div>
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend id="d_demo">演示</legend>
+    <div class="content">
+    <ul>
+      <li>
+        <button id="btn1">图片</button>
+      </li>
+      <li>
+        <button id="btn2">外部页面</button>
+      </li>
+      <li>
+        <button id="btn3">动画</button>
+      </li>
+      <li>
+        <button id="btn4">询问</button>
+      </li>
+      <li>
+        <button id="btn5">警告</button>
+      </li>
+      <li>
+        <button id="btn6">弹出菜单</button>
+      </li>
+      <li>
+        <button id="btn7">公告消息</button>
+      </li>
+    </ul>
+    <p> 
+    风格:<!--[if gte IE 7]><!-->
+      <label title="artDialog默认风格">
+        <input name="skin" type="radio" id="skin_0" value="1" checked="checked" />
+        aero</label>
+  
+      <label title="google chrome风格[支持IE6下覆盖下拉控件]">
+        <input type="radio" name="skin" value="2" id="skin_1" />
+        chrome</label>
+ 
+      <label title="facebook风格">
+        <input type="radio" name="skin" value="3" id="skin_2" />
+        facebook</label>
+      <label title="无背景图片">
+        <input type="radio" name="skin" value="4" id="skin_3" />
+        mini</label>
+      <label>
+        <input type="radio" name="skin" value="5" id="skin_4" />
+        more..</label>
+        <div id="skinMenu">
+        	<a id="showBg" href="#">开启背景图片预览半透明效果</a>
+        </div>
+        <!--<![endif]--> 
+  		<!--[if IE 6]>
+        <a href="skin/aero/index.html" target="_blank"l title="artDialog默认风格">aero</a> | <a href="skin/chrome/index.html" target="_blank title="google chrome风格[支持IE6下覆盖下拉控件]"">chrome</a> | <a href="skin/facebook/index.html" target="_blank" title="facebook风格">facebook</a> | <a href="skin/mini/index.html" target="_blank title="无背景图片"">mini</a>
+		<![endif]-->
+    </p>
+    </div>
+  </fieldset>
+  
+  <fieldset>
+    <legend>作者</legend>
+    <div class="content">
+    	<p>artDialog 的设计目标是尽量用CSS与合理的XHTML架构方案解决复杂的兼容问题，提供更为简易的皮肤制作机制，通过切换皮肤以适应更多的交互界面，如下拉菜单、广告、照片幻灯、播放器等。</p>
+    	<p>artDialog v2相对v1版本有很大的提升，在多窗口支持上借鉴了popbox的方法。</p>
+        <p>artDialog v2在解决半透明皮肤支持IE6 (png 32)的时候加载了iepngfix。</p>
+        <p>如果发现问题或者建议请给我发电子邮件。如果你对代码进行了优化，那也请您不吝给我一份吧，让它变得更好。</p>
+        <p>项目主页: <a href="http://code.google.com/p/artdialog/" target="_blank">http://code.google.com/p/artdialog/</a></p>
+   		<p class="about">唐斌, 长期关注于界面与用户体验，欢迎与我交流: <span id="myMail"></span>&nbsp;个人站点: <a href="http://www.planeart.cn/" target="_blank">www.planeArt.cn</a></p>
+    </div>
+  </fieldset>
+  <a id="firebugLite" style="display:block;position:fixed;_position:absolute;z-index:2;top:5pt;right:15pt;width:38px;height:38px;text-indent:-99999em;overflow:hidden;text-align:left;border:2px solid #000;filter:alpha(opacity=60);opacity:0.6;background:url('../../../../../getfirebug.com/releases/lite/1.2/firebug_logo.png') no-repeat 0 0;" href="#" onclick=" firebug=document.createElement('script');firebug.setAttribute('src','../../../../../getfirebug.com/releases/lite/1.2/firebug-lite.js');document.body.appendChild(firebug);(function(){if(window.firebug.version){firebug.init();}else{setTimeout(arguments.callee);}})();void(firebug);this.style.display='none';return false" title="调试页面">firebug</a>
+</div>
+<div style="display:none;"><script type="text/javascript">document.write('<scr'+'ipt src="http://s86.cnzz.com/stat.php?id=1581115&web_id=1581115" type="text/javascript" charset="gb2312"></sc'+'ript>');</script></div> 
+</body>
+
+<!-- Mirrored from www.mb5u.com/jscode/html/ajax/426_artDialog2_0_4/ by HTTrack Website Copier/3.x [XR&CO'2014], Wed, 10 Jun 2015 11:21:11 GMT -->
+</html>

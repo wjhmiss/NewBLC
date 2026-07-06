@@ -1,0 +1,285 @@
+﻿@{
+    ViewBag.Title = "加工费折扣";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    var CustomerId = GetQuery('CustomerId');//客户主键
+    $(function () {
+        BindDropItem("#SteelType", "SteelType", "==请选择==");
+        $("#CustomerId").val(CustomerId);
+        SteelAutocomplete();
+        //单位
+        //BindDropItem("#Unit", "MeasureUnit", "==请选择==");
+        InitControl();
+
+        document.onkeydown = enterInput;
+    })
+
+    function enterInput() {
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+        if (e && e.keyCode == 13) {//回车
+            window.event.keyCode = 9;
+            if ($(tar).attr('id') == "Remark") {
+                AcceptClick();
+            }
+            return;
+        }
+    }
+
+    //钢材编码自动补全
+    function SteelAutocomplete() {
+        var $SteelCode = $("#SteelCode");
+        $SteelCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("SteelCode", function (data) {
+            $("#SteelId").val(data.SteelId);
+            $("#SteelCode").val(data.SteelCode);
+            $("#SteelName").val(data.SteelName);
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/CommonModule/Steel/GetAutoCompleJson", { keywords: $SteelCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="SteelId" style="display: none;">' + DataJson[i].SteelId + '</td>';
+                    html += '<td id="SteelCode" style="width: 25%;">' + DataJson[i].SteelCode + '</td>';
+                    html += '<td id="SteelName" style="width: 25%;">' + DataJson[i].SteelName + '</td>';
+                    html += '<td id="SteelType"  style="display: none;" style="width: 25%;">' + DataJson[i].SteelType + '</td>';
+                    html += '<td id="Price"  style="display: none;" style="width: 25%;">' + DataJson[i].Price + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("SteelCode", "200px", "200px", html, function (data) {
+                    $("#SteelId").val(data.SteelId);
+                    $("#SteelCode").val(data.SteelCode);
+                    $("#SteelName").val(data.SteelName);
+                });
+            });
+        }
+
+    }
+
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CommonModule/CustomerPrice/SetFormProcess", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+                $("#EnabledTimeStart").val(formatDate(data.EnabledTimeStart, 'yyyy-MM-dd'));
+                $("#EnabledTimeStart").val(formatDate(data.EnabledTimeStart, 'yyyy-MM-dd'))
+                $("#ModifyDate").val(formatDate(data.ModifyDate, 'yyyy-MM-dd'))
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        if ($("#SteelCode").val() == "") {
+            $("#SteelId").val("");
+            $("#SteelName").val("");
+        }
+        if (!$("#GuangSteel").prop("checked") && !$("#JingSteel").prop("checked") && !$("#DDCost").prop("checked") && !$("#JKCost").prop("checked")) {
+            alertDialog("操作失败：请勾选加工类型！", 0);
+            return false; 
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/CommonModule/CustomerPrice/SubmitFormProcess?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            //window.setTimeout(function () {closeDialog();}, 500);
+            if (!!KeyValue) {
+                window.setTimeout(function () {closeDialog();}, 500);
+            }
+            else {
+                location.href = location.href;
+            }
+            
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <input type="checkbox" name="checkbox" checked="checked" id="Enabled" style="display:none;" />
+    <table class="form">
+        <tr>
+            <th class='formTitle'>类型：</th>
+            <td class='formValue' >
+               @* <span class="item" style="width: 15%;display:inline;">
+                    <input type="checkbox" name="checkbox"  id="MaoSteel" />
+                    <label for="MaoSteel">毛料</label>
+                </span>*@
+                <span class="item" style="width: 15%;display:inline;">
+                    <input type="checkbox" name="checkbox"  id="GuangSteel" />
+                    <label for="GuangSteel">光板</label>
+                </span>
+                <span class="item" style="width: 15%;display:inline;">
+                    <input type="checkbox" name="checkbox"  id="JingSteel" />
+                    <label for="JingSteel">精板</label>
+                </span>
+               <span class="item" style="width: 20%;display:inline;">
+                    <input type="checkbox" name="checkbox"  id="JKCost" />
+                    <label for="JKCost">锯工</label>
+                </span>
+                @* <span class="item" style="width: 20%;display:inline;">
+                    <input type="checkbox" name="checkbox"  id="JKCost1" />
+                    <label for="JKCost1">气割</label>
+                </span>*@
+                <span class="item" style="width: 20%;display:inline;">
+                    <input type="checkbox" name="checkbox"  id="DDCost" />
+                    <label for="DDCost">切角</label>
+                </span>
+               <input id="CustomerId" type="hidden" />
+            </td>
+            <th class='formTitle'>钢材编码：</th>
+            <td class='formValue' >
+                <input id="SteelId" type="hidden" />
+                <input id="SteelCode" maxlength="50" type="text" class="txt"  style="width:75%;display:inline" />
+                <input id="SteelName" readonly type="text" class="txt readonly" style="width:20%;display:inline" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle' >小件加收(按件)：</th>
+            <td class='formValue' >
+                <select id="WhereQ" class="txt" style="width: 45%;display:inline;" >
+                    <option value ="重量小于等于">重量小于等于</option>
+                </select>
+                 <input id="WhereQty" maxlength="18" onfocus="IsMoney(this.id);" type="text" class="txt" style="width: 45%; border-right: 1px solid #ccc;" />
+            </td>
+            
+              @*<th class='formTitle' >单位：</th>
+            <td class='formValue' >
+                <select id="Unit" class="txt" datacol="yes" err="单位" checkexpession="NotNull" >
+                    <option value="件">件</option>
+                    <option value="公斤">公斤</option>
+                   <option value="四边">四边</option>
+                    <option value="2面">2面</option>
+                    <option value="4面">4面</option>
+                    <option value="6面">6面</option>
+                </select>
+            </td>*@
+            
+        </tr>
+
+        <tr>
+            <th class='formTitle'>长宽比例(按件)从：</th>
+            <td class='formValue'>
+                <input id="ScaleFrom" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" value="0" />
+            </td>
+            <th class='formTitle'>长宽比例至：</th>
+            <td class='formValue'>
+                <input id="ScaleTo" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);"  value="0" style="width: 50%;display:inline;"/>
+            </td>
+        </tr>
+
+        <tr>
+            <th class='formTitle'>重量(按KG)由：</th>
+            <td class='formValue'>
+                <input id="KGfrom" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" value="0" />
+            </td>
+            <th class='formTitle'>重量至：</th>
+            <td class='formValue'>
+                <input id="KGto" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);"  value="0" style="width: 50%;display:inline;"/>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>件数(按KG)由：</th>
+            <td class='formValue'>
+                <input id="QtyStart" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" value="0" />
+            </td>
+            <th class='formTitle'>件数至：</th>
+            <td class='formValue'>
+                <input id="QtyEnd" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);"  value="0" style="width: 50%;display:inline;"/>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>厚(直径(按KG))由：</th>
+            <td class='formValue'>
+                <input id="PachyStart" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" value="0" />
+            </td>
+            <th class='formTitle'>厚(直径)至：</th>
+            <td class='formValue'>
+                <input id="PachyEnd" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" value="0"  style="width: 50%;display:inline;"/>
+                <span class="item" style="width: 40%;display:inline;float:right;">
+                    <input type="checkbox" name="checkbox"  id="IsOutThick" />
+                    <label for="IsOutThick">以外</label>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>宽 由(按KG)：</th>
+            <td class='formValue'>
+                <input id="WidthStart" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);"  value="0" />
+            </td>
+            <th class='formTitle'>宽 至：</th>
+            <td class='formValue'>
+                <input id="WidthEnd" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" value="0"  style="width: 50%;display:inline;"/>
+                <span class="item" style="width: 40%;display:inline;float:right;">
+                    <input type="checkbox" name="checkbox"  id="IsOutWidth" />
+                    <label for="IsOutWidth">以外</label>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>长 由(按KG)：</th>
+            <td class='formValue'>
+                <input id="LengthStart" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" value="0" />
+            </td>
+            <th class='formTitle'>长 至：</th>
+            <td class='formValue'>
+                <input id="LengthEnd" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);"  value="0" style="width: 50%;display:inline;" />
+                <span class="item" style="width: 40%;display:inline;float:right;">
+                    <input type="checkbox" name="checkbox"  id="IsOutLength" />
+                    <label for="IsOutLength">以外</label>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>客来料：</th>
+            <td class='formValue'>
+                <span class="item">
+                    <input type="checkbox" name="checkbox"  id="CustMaterial" />
+                    <label for="CustMaterial">客来料</label>
+                </span>
+            </td>
+            <th class='formTitle'>钢材类型：</th>
+            <td class='formValue'>
+                <select id="SteelType" class="txtselect"></select>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>加工单价：</th>
+            <td class='formValue'>
+                <input id="Price" maxlength="18" onfocus="IsMoney(this.id);" type="text" class="txt" value="0" datacol="yes" err="单价" checkexpession="NotNull" style="width: 90%; border-right: 1px solid #ccc;" />
+                <span style="color: red; font-weight: bold;">￥</span>
+            </td>
+            <th class='formTitle'>计算与或：</th>
+            <td class='formValue' >
+                <span class="item">
+                    <input type="checkbox" name="checkbox"  id="OrOr" />
+                    <label for="OrOr">或者</label>
+                </span>
+            </td>
+           
+        </tr>
+        <tr>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue' colspan="3">
+                <textarea id="Remark" class="txtArea" rows="4"></textarea>
+            </td>
+        </tr>
+        
+    </table>
+</form>

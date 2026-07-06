@@ -1,0 +1,67 @@
+@{
+    ViewBag.Title = "产能表";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //加载表格
+    function GetGrid() {
+        var datajson = "";
+        AjaxJson("/OrderModule/Capacity/GetCapacityListJson", {}, function (data) {
+            datajson = data;
+        });
+        $("#gridTable").jqGrid({
+            datatype: "local",
+            height: $(window).height() - 79,
+            autowidth: true,
+            colModel: [
+                    { label: '加工类型', name: 'CapacityType', width: 80, align: 'center' },
+                    { label: '产能时段', name: 'DayPart', width: 80, align: 'center' },
+                    { label: '产能值', name: 'CapacityValue', width: 80, align: 'center' },
+                    { label: '有效时间从', name: 'StartTime', width: 80, align: 'center' },
+                    { label: '有效时间至', name: 'EndTime', width: 80, align: 'center' },
+            ],
+            viewrecords: true,
+            pager: false,
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true
+        });
+        $('#gridTable').jqGrid('addRowData', 1, { CapacityType: '粗加工', DayPart: 'A', CapacityValue: datajson[0].CapacityValue, StartTime: '8:00', EndTime: '12:00' });
+        $('#gridTable').jqGrid('addRowData', 2, { CapacityType: '粗加工', DayPart: 'B', CapacityValue: datajson[1].CapacityValue, StartTime: '12:00', EndTime: '18:00' });
+        $('#gridTable').jqGrid('addRowData', 3, { CapacityType: '粗加工', DayPart: 'C', CapacityValue: datajson[2].CapacityValue, StartTime: '18:00', EndTime: '00:00' });
+        $('#gridTable').jqGrid('addRowData', 4, { CapacityType: '粗加工', DayPart: 'D', CapacityValue: datajson[3].CapacityValue, StartTime: '00:00', EndTime: '8:00' });
+
+        $('#gridTable').jqGrid('addRowData', 5, { CapacityType: '精加工', DayPart: 'A', CapacityValue: datajson[4].CapacityValue, StartTime: '8:00', EndTime: '12:00' });
+        $('#gridTable').jqGrid('addRowData', 6, { CapacityType: '精加工', DayPart: 'B', CapacityValue: datajson[5].CapacityValue, StartTime: '12:00', EndTime: '18:00' });
+        $('#gridTable').jqGrid('addRowData', 7, { CapacityType: '精加工', DayPart: 'C', CapacityValue: datajson[6].CapacityValue, StartTime: '18:00', EndTime: '00:00' });
+        $('#gridTable').jqGrid('addRowData', 8, { CapacityType: '精加工', DayPart: 'D', CapacityValue: datajson[7].CapacityValue, StartTime: '00:00', EndTime: '8:00' });
+    }
+    //编辑
+    function btn_edit() {
+        var CapacityType = GetJqGridRowValue("#gridTable", "CapacityType");
+        var DayPart = GetJqGridRowValue("#gridTable", "DayPart");
+        var CapacityValue = GetJqGridRowValue("#gridTable", "CapacityValue");
+        if (IsChecked(DayPart)) {
+            var url = "/OrderModule/Capacity/Form?DayPart=" + DayPart + "&CapacityType=" + escape(CapacityType) + "&CapacityValue=" + CapacityValue
+            openDialog(url, "Form", escape("编辑产能"), 450, 200, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="topline rightline topline" style="margin: 1px;">
+    <table id="gridTable"></table>
+</div>

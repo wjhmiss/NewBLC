@@ -1,0 +1,232 @@
+@{
+    ViewBag.Title = "物料领料》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        //物料类型
+        MaterielTypeAutocomplete();
+        WorkerNameAutocomplete();
+        BindDropDepartmentName("#DepartmentName");
+
+        InitControl();
+        document.onkeydown = enterInput;
+    })
+    function enterInput() {
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+        if (e && e.keyCode == 13) {//回车
+            window.event.keyCode = 9;
+            if ($(tar).attr('id') == "Remark") {
+                AcceptClick();
+            }
+            return;
+        }
+    }
+    function MaterielTypeAutocomplete() {
+        var $MaterielName = $("#MaterielName");
+        $MaterielName.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("MaterielName", function (data) {
+            $("#MaterielId").val(data.MaterielId);
+            $("#MaterielName").val(data.MaterielName);
+            $("#MaterielCode").val(data.MaterielCode);
+            $("#MaterielType").val(data.MaterielType);
+            $("#MaterielSize").val(data.MaterielSize);
+            $("#Unit").val(data.Unit);
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.CustomerName);
+
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/MaterielModule/Base_MaterielType/GetAutoCompleJson", { keywords: $MaterielName.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="MaterielId" style="display: none;">' + DataJson[i].MaterielId + '</td>';
+                    html += '<td id="MaterielCode" style="width: 20%;">' + DataJson[i].MaterielCode + '</td>';
+                    html += '<td id="MaterielName" style="width: 30%;">' + DataJson[i].MaterielName + '</td>';
+                    html += '<td id="MaterielType" style="width: 20%;">' + DataJson[i].MaterielType + '</td>';
+                    html += '<td id="MaterielSize" style="width: 20%;">' + DataJson[i].MaterielSize + '</td>';
+                    html += '<td id="Unit" style="display: none;">' + DataJson[i].Unit + '</td>';
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="display: none;">' + DataJson[i].CustomerCode + '</td>';
+                    html += '<td id="CustomerName" style="width: 20%;">' + DataJson[i].CustomerName + '</td>';
+                    html += '<td id="Qty" style="width: 20%;">' + DataJson[i].Qty + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("MaterielName", "400px", "200px", html, function (data) {
+                    $("#MaterielId").val(data.MaterielId);
+                    $("#MaterielName").val(data.MaterielName);
+                    $("#MaterielCode").val(data.MaterielCode);
+                    $("#MaterielType").val(data.MaterielType);
+                    $("#MaterielSize").val(data.MaterielSize);
+                    $("#Unit").val(data.Unit);
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.CustomerName);
+                });
+            });
+        }
+    }
+
+    function WorkerNameAutocomplete() {
+        var $WorkerName = $("#WorkerName");
+        $WorkerName.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("WorkerName", function (data) {
+            if (!!data.WorkerName) {
+                $("#WorkerName").val(data.WorkerName);
+
+            }
+            if (!!data.WorkerCode) {
+                $("#WorkerCode").val(data.WorkerCode);
+
+            }
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/CommonModule/Worker/GetAutoCompleJson", { keywords: $WorkerName.val(), DepartmentName: $("#DepartmentName").val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="WorkerId" style="display: none;">' + DataJson[i].WorkerId + '</td>';
+                    html += '<td id="WorkerCode" style="width: 30%;">' + DataJson[i].WorkerCode + '</td>';
+                    html += '<td id="WorkerName" style="width: 40%;">' + DataJson[i].WorkerName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("WorkerName", $WorkerName.width() + "px", "280px", html, function (data) {
+                    if (!!data.WorkerName) {
+                        $("#WorkerName").val(data.WorkerName);
+
+                    }
+                    if (!!data.WorkerCode) {
+                        $("#WorkerCode").val(data.WorkerCode);
+
+                    }
+                });
+            });
+        }
+    }
+
+
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/MaterielModule/Base_MaterielGet/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/MaterielModule/Base_MaterielGet/SubmitForm1?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            location.href = location.href;
+            //window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>物料名称：</th>
+            <td class='formValue'>
+                <input id="MaterielGetCode" type="hidden"   />
+                <input id="MaterielGetId" type="hidden"   />
+                <input id="MaterielName" maxlength=50 type="text" class="txt" datacol="yes" err="物料名称" checkexpession="NotNull"  />
+                <input id="MaterielId" type="hidden"   />
+            </td>
+            <th class='formTitle'>物料号：</th>
+            <td class='formValue'>
+                <input id="MaterielCode" maxlength=50 type="text" class="txt" disabled   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>物料类型：</th>
+            <td class='formValue'>
+                <input id="MaterielType" maxlength=50 type="text" class="txt" disabled  />
+            </td>
+            <th class='formTitle'>尺寸：</th>
+            <td class='formValue'>
+                <input id="MaterielSize" maxlength=50 type="text" class="txt"  disabled />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>数量：</th>
+            <td class='formValue'>
+                <input id="Qty" maxlength=10 type="text" class="txt" value="1"  onfocus="IsMoney(this.id);" datacol="yes" err="数量" checkexpession="NotNull"    />
+            </td>
+            <th class='formTitle'>单位：</th>
+            <td class='formValue'>
+                <input id="Unit" maxlength=50 type="text" class="txt"   disabled  />
+            </td>
+            
+        </tr>
+        <tr>
+            <th class='formTitle'>供应商编号：</th>
+            <td class='formValue'>
+                <input id="CustomerId"  type="hidden"   />
+                <input id="CustomerCode" maxlength=50 type="text" class="txt"  disabled />
+            </td>
+            <th class='formTitle'>供应商名称：</th>
+            <td class='formValue'>
+                <input id="CustomerName" maxlength=50 type="text" class="txt"  disabled />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>领料部门：</th>
+            <td class='formValue' >
+                <select id="DepartmentName" class="txtselect" style="width: 96%" datacol="yes" err="领料部门" checkexpession="NotNull">
+                     
+                </select>
+            </td>
+            <th class='formTitle'>领料时间：</th>
+            <td class='formValue' >
+                                <input id="CreateDate" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})" style="width: 100px" />
+                
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>备注：</th>
+            <td class="formValue" >
+                <input id="Remark" maxlength=50 type="text" class="txt" />
+                </td>
+            
+            <th class='formTitle'>领料人：</th>
+            <td class='formValue' >
+                
+                <input id="WorkerCode"  type="hidden"   />
+                <input id="WorkerName" maxlength=200 type="text" class="txt" datacol="yes" err="使用人" checkexpession="NotNull"    />
+            </td>
+        </tr>
+        
+    </table>
+</form>

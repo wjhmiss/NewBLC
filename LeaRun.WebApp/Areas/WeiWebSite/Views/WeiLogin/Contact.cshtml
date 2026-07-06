@@ -1,0 +1,51 @@
+﻿@{
+    ViewBag.Title = "用户中心";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+
+<script>
+    //初始化
+    $(function () {
+        $("#afui #navbar a.phone").addClass("pressed");
+    })
+</script>
+
+
+
+<div id="mainPanel" class="panel" data-header="main_header" data-footer="main_footer">
+
+    <!--内容详细-->
+    <div class="meta">
+        <h1 class="meta-tit">联系我们</h1>
+     
+    </div>
+
+    <div class="entry">
+        <p>
+            <strong>软件开发 - 专注钢材行业信息化技术 </strong>
+        </p>
+        <p>
+            <strong>网址：</strong><a href="http://120.24.86.133" target="_blank">http://120.24.86.133</a><br />
+        </p>
+        <p>
+            <strong>所在地区：</strong>广东省深圳市宝安区西乡街道
+        </p>
+        <p>
+            <strong>业务电话：</strong>+86 15012791005
+        </p>
+        <p>
+            <strong>QQ：</strong>229173680     <a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin=229173680&site=qq&menu=yes">点击</a>
+        </p>
+    
+    </div>
+    <!--/内容详细-->
+
+    <!--版权信息-->
+    @Html.Partial("_PartialMobileBottom")
+
+    <!--/版权信息-->
+
+
+
+</div>
+

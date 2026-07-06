@@ -1,0 +1,182 @@
+﻿@{
+    ViewBag.Title = "销售汇总表";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //查询
+    function btn_Search() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/ReportModule/SellSummary/GridPageListJson")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+    }
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx = 1;
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ReportModule/SellSummary/GridPageListJson")?Condition=" + escape(Condition),
+            datatype: "json",
+            height: $(window).height() - 148,
+            autowidth: true,
+            colModel: [
+                    { label: '落单日期', name: 'createdate', index: 'createdate', width: 80, align: 'center' },
+                    { label: '粗料件数', name: 'bcqty', index: 'bcqty', width: 80, align: 'center' },
+                    { label: '粗料重量', name: 'bcweight', index: 'bcweight', width: 80, align: 'center' },
+                    { label: '粗料金额', name: 'bcamount', index: 'bcamount', width: 80, align: 'center' },
+
+                    { label: '精料件数', name: 'bjqty', index: 'bjqty', width: 80, align: 'center' },
+                    { label: '精料重量', name: 'bjweight', index: 'bjweight', width: 80, align: 'center' },
+                    { label: '精料金额', name: 'bjamount', index: 'bjamount', width: 80, align: 'center' },
+                    
+                    { label: '钢材总件数', name: 'qty', index: 'qty', width: 80, align: 'center' },
+                    { label: '钢材总重量', name: 'weight', index: 'weight', width: 80, align: 'center' },
+                    { label: '钢材总金额', name: 'amount', index: 'amount', width: 80, align: 'center' },
+                    
+                    { label: '总重量', name: 'zkchweight', index: 'zkchweight', width: 80, align: 'center' },
+                    { label: '总金额', name: 'zkchamount', index: 'zkchamount', width: 80, align: 'center' },
+                    { label: '总重量', name: 'rdhweight', index: 'rdhweight', width: 80, align: 'center' },
+                    { label: '总金额', name: 'rdhamount', index: 'rdhamount', width: 80, align: 'center' },
+                    { label: '总重量', name: 'qylweight', index: 'qylweight', width: 80, align: 'center' },
+                    { label: '总金额', name: 'qylamount', index: 'qylamount', width: 80, align: 'center' },
+                    { label: '总重量', name: 'tzweight', index: 'tzweight', width: 80, align: 'center' },
+                    { label: '总金额', name: 'tzamount', index: 'tzamount', width: 80, align: 'center' },
+                    { label: '总重量', name: 'cgchweight', index: 'cgchweight', width: 80, align: 'center' },
+                    { label: '总金额', name: 'cgchamount', index: 'cgchamount', width: 80, align: 'center' },
+                    { label: '总重量', name: 'qtweight', index: 'qtweight', width: 80, align: 'center' },
+                    { label: '总金额', name: 'qtamount', index: 'qtamount', width: 80, align: 'center' },
+
+                    { label: '热处理总件数', name: 'rclqty', index: 'rclqty', width: 80, align: 'center' },
+                    { label: '热处理总重量', name: 'rclweight', index: 'rclweight', width: 80, align: 'center' },
+                    { label: '热处理总金额', name: 'rclamount', index: 'rclamount', width: 80, align: 'center' },
+
+
+
+            ],
+            viewrecords: true,
+            rowNum: 9999,
+            rowList: [30, 50, 100, 500, 5000],
+            //pager: "#gridPager",
+            sortname: 'createdate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            footerrow: true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                //合计
+                $(this).footerData("set", {
+                    "createdate": "合计",
+                    "bjqty": FormatCurrency($("#gridTable").getCol('bjqty', false, 'sum')),
+                    "bjamount": FormatCurrency($("#gridTable").getCol('bjamount', false, 'sum')),
+                    "bjweight": FormatCurrency($("#gridTable").getCol('bjweight', false, 'sum')),
+                    "bcqty": FormatCurrency($("#gridTable").getCol('bcqty', false, 'sum')),
+                    "bcamount": FormatCurrency($("#gridTable").getCol('bcamount', false, 'sum')),
+                    "bcweight": FormatCurrency($("#gridTable").getCol('bcweight', false, 'sum')),
+                    "qty": FormatCurrency($("#gridTable").getCol('qty', false, 'sum')),
+                    "amount": FormatCurrency($("#gridTable").getCol('amount', false, 'sum')),
+                    "weight": FormatCurrency($("#gridTable").getCol('weight', false, 'sum')),
+
+                    "zkchweight": FormatCurrency($("#gridTable").getCol('zkchweight', false, 'sum')),
+                    "zkchamount": FormatCurrency($("#gridTable").getCol('zkchamount', false, 'sum')),
+                    "rdhweight": FormatCurrency($("#gridTable").getCol('rdhweight', false, 'sum')),
+                    "rdhamount": FormatCurrency($("#gridTable").getCol('rdhamount', false, 'sum')),
+                    "qylweight": FormatCurrency($("#gridTable").getCol('qylweight', false, 'sum')),
+                    "qylamount": FormatCurrency($("#gridTable").getCol('qylamount', false, 'sum')),
+                    "tzweight": FormatCurrency($("#gridTable").getCol('tzweight', false, 'sum')),
+                    "tzamount": FormatCurrency($("#gridTable").getCol('tzamount', false, 'sum')),
+                    "cgchweight": FormatCurrency($("#gridTable").getCol('cgchweight', false, 'sum')),
+                    "cgchamount": FormatCurrency($("#gridTable").getCol('cgchamount', false, 'sum')),
+                    "qtweight": FormatCurrency($("#gridTable").getCol('qtweight', false, 'sum')),
+                    "qtamount": FormatCurrency($("#gridTable").getCol('qtamount', false, 'sum')),
+                    "rclqty": FormatCurrency($("#gridTable").getCol('rclqty', false, 'sum')),
+                    "rclweight": FormatCurrency($("#gridTable").getCol('rclweight', false, 'sum')),
+                    "rclamount": FormatCurrency($("#gridTable").getCol('rclamount', false, 'sum')),
+
+                });
+            }
+        });
+        //表头合并
+        $("#gridTable").jqGrid('setGroupHeaders', {
+            useColSpanStyle: true,
+            groupHeaders: [
+              { startColumnName: 'bcqty', numberOfColumns: 3, titleText: '粗料' },
+              { startColumnName: 'bjqty', numberOfColumns: 3, titleText: '精/光料' },
+
+              { startColumnName: 'zkchweight', numberOfColumns: 2, titleText: '真空淬火' },
+              { startColumnName: 'rdhweight', numberOfColumns: 2, titleText: '软氮化' },
+              { startColumnName: 'qylweight', numberOfColumns: 2, titleText: '去应力' },
+              { startColumnName: 'tzweight', numberOfColumns: 2, titleText: '调质' },
+              { startColumnName: 'cgchweight', numberOfColumns: 2, titleText: '常规淬火' },
+              { startColumnName: 'qtweight', numberOfColumns: 2, titleText: '其他' },
+
+
+            ]
+        });
+    }
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "销售汇总表");
+       
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+</script>
+<div class="leftline rightline topline QueryArea" style="margin: 1px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;" id="QueryParameter">
+        <tr>
+            <th>落单日期 从：</th>
+            <td>
+                <input id="CreateDate_StartTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()" style="width: 120px" onfocus="var endDate=$dp.$('CreateDate_EndTime');WdatePicker({onpicked:function(){CreateDate_EndTime.focus();},maxDate:'#F{$dp.$D(\'CreateDate_EndTime\')}',dateFmt: 'yyyy-MM-dd'})" />
+            </td>
+            <td>落单日期 至</td>
+            <td>
+                <input id="CreateDate_EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()" style="width: 120px"  onfocus="WdatePicker({minDate:'#F{$dp.$D(\'CreateDate_StartTime\')}',dateFmt: 'yyyy-MM-dd'})" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+            <td>
+                <input id="btn_export" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+    <style>
+        .altclass {
+            background: #fffccc;
+        }
+
+        .ui-jqgrid tr.ui-row-ltr td {
+            border-bottom: 1px solid #ccc;
+        }
+
+        .ui-jqgrid .ui-jqgrid-htable th {
+            line-height: 15px;
+        }
+
+            .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+                background: none;
+            }
+
+        .editable {
+            height: 22px;
+            background-color: #fff;
+        }
+    </style>
+</div>

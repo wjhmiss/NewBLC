@@ -1,0 +1,247 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>精料单打印预览</title>
+    @*    <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+        <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+        <script src="~/Content/Scripts/learunui-framework.js"></script>
+        <script src="~/Content/Scripts/barcode/jquery-barcode.min.js"></script>
+        <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+    @Scripts.Render("~/Content/Scripts/barcode/barcodejquery")
+    @Scripts.Render("~/Content/Scripts/lodop/lodopjquery")
+
+    <script>
+        //初始化
+$(function () {
+    AjaxJson("/OrderModule/OrderPrint/BCPrintListJsonJYForLab", { OrderId: GetQuery('OrderId'), OrderDetails: GetQuery('ids'), QuotationId: GetQuery('QuotationId'), type: GetQuery('type') }, function (data) {
+
+            // AjaxJson("/OrderModule/OrderPrint/BCPrintListJsonJYForLab", { OrderId: GetQuery('OrderId'), OrderDetails: GetQuery('ids') }, function (data) {
+                var OrderEntiy = data.OrderEntiy;
+                var OrderDetail = data.OrderDetail;
+                var QuotationEntiy = data.QuotationEntiy;
+                var Base_Customer = data.Base_Customer;
+                var quotitle = "";
+                if (QuotationEntiy.CustMaterial == "1") {
+                    quotitle = quotitle + "客来料"
+                }
+                if (QuotationEntiy.FreeBill == "1") {
+                    quotitle = quotitle + "免费单"
+                }
+                if (OrderEntiy.OrderCode.substr(0, 1) == "B") {
+                    quotitle = quotitle + "补料单 "
+                }
+                var printed = ""
+                if (OrderEntiy.PrintUserId) {
+                    //$("#reprint").show();
+                    printed = "";
+                }
+                var num = 1;
+                $.each(OrderDetail, function (i) {
+                    var size = "";
+                    if (parseFloat(OrderDetail[i].Weigh) <= 0) {
+                        var BoreSize = "";
+                        if (!!OrderDetail[i].BoreSize) {
+                            BoreSize = "*Φ" + OrderDetail[i].BoreSize;
+                        }
+                        size = "Φ" + parseFloat(OrderDetail[i].Thick) + BoreSize + ' * ' + parseFloat(OrderDetail[i].Length) + " - " + OrderDetail[i].Qty;
+                    }
+                    else {
+                        size = parseFloat(OrderDetail[i].Length) + ' * ' + parseFloat(OrderDetail[i].Weigh) + ' * ' + parseFloat(OrderDetail[i].Thick) + " - " + OrderDetail[i].Qty;
+                    }
+
+                    var OrderDetailhtml = '';
+                    OrderDetailhtml += '<table border="0" class="form-print" style="border-collapse:collapse;page-break-after:always;width:60mm;height:40mm;border:0px solid #000;">';
+                    OrderDetailhtml += '    <tr>';
+                    OrderDetailhtml += '        <td colspan="5" align="center" >';
+
+                    OrderDetailhtml += '<div style=" display:inline;"> <div style="float: center;font-size: 14px; font-weight: bold;display:inline;">宁波市北仑机械锻造厂(迅虎)</div></div>';
+                    OrderDetailhtml += '        </td>';
+                    OrderDetailhtml += '    </tr>';
+                    //OrderDetailhtml += '    <tr >';
+                    //OrderDetailhtml += '        <td colspan="5" align="center" style="line-height: 20px;" >';
+                    //OrderDetailhtml += '            <span style="font-size: 16px;font-weight: bold;">&nbsp;&nbsp;&nbsp;总数:' + data.OrderDetailQty + '(&nbsp;' + num + '/&nbsp;' + OrderDetail.length + ')&nbsp;&nbsp;' + printed + '</span>';
+                    ////OrderDetailhtml += '            <span style="font-size: 20px; font-weight: bold;">' + OrderDetail[i].OrderType + '</span><span style="font-size: 16px;font-weight: bold;">&nbsp;&nbsp;' + QuotationEntiy.ShipRoute + '&nbsp;&nbsp;总数' + OrderEntiy.Qty + '&nbsp;&nbsp;(&nbsp;' + num + '/&nbsp;' + OrderDetail.length + ')&nbsp;&nbsp;' + printed + '</span>';
+                    //OrderDetailhtml += '        </td>';
+                    //OrderDetailhtml += '    </tr>';
+                    //OrderDetailhtml += '    <tr style="font-weight: bold;">';
+                    //OrderDetailhtml += '        <td align="right" style="white-space:nowrap;">助记码：</td>';
+                    //OrderDetailhtml += '        <td style="font-size: 12pt;white-space:nowrap;">' + OrderEntiy.MnemonicCode + ' </td>';
+                    //OrderDetailhtml += '        <td align="right" style="white-space:nowrap;">客户：</td>';
+                    //OrderDetailhtml += '        <td style="font-size: 12pt;white-space:nowrap;">' + OrderEntiy.CustomerCode + '</td>';
+                    //OrderDetailhtml += '        <td style="width:10%;"></td>';
+                    //OrderDetailhtml += '    </tr>';
+
+                    //OrderDetailhtml += '    <tr style=" font-weight: bold;">';
+                    //OrderDetailhtml += '        <td align="right" style="white-space:nowrap;">钢&nbsp;&nbsp;种：</td>';
+                    //OrderDetailhtml += '        <td style="font-size: 10pt;white-space:nowrap;">' + OrderDetail[i].ProductName + '</td>';
+                    //OrderDetailhtml += '        <td align="right" style="white-space:nowrap;">代码：</td>';
+                    //OrderDetailhtml += '        <td style="font-size: 12pt;white-space:nowrap;">' + OrderDetail[i].SteelCode + '</td>';
+                    //OrderDetailhtml += '        <td style="width:10%;"></td>';
+                    //OrderDetailhtml += '    </tr>';
+
+                    OrderDetailhtml += '    <tr >';
+                    OrderDetailhtml += '        <td colspan="5" style="vertical-align:top;">';
+                    OrderDetailhtml += '            <table border="0" class="form-print tb_Order_Detail" style="width: 100%; border: 1px solid #000;border-collapse:collapse;">';
+                    //OrderDetailhtml += '                <tr >';
+                    //OrderDetailhtml += '                    <td style="border: 1px solid #000;width:15%;" align="center" >序号</td>';
+                    //OrderDetailhtml += '                    <td class="topline bottomline rightline" colspan="6" style="width:65%;">长*宽*厚</td>';
+                    //OrderDetailhtml += '                    <td class="topline bottomline rightline" style="width:20%;">比重</td>';
+                    //OrderDetailhtml += '                </tr>';
+                    //OrderDetailhtml += '                <tr  >';
+                    //OrderDetailhtml += '                    <td style="border: 1px solid #000;font-size: 12pt;"  align="center" >' + OrderDetail[i].LineCode + '<BR/>&nbsp;</td>';
+                    //OrderDetailhtml += '                    <td class="topline bottomline rightline"  style=" font-weight: bold;width:75%;font-size: 14pt;" colspan="6" align="center">' + size + '</td>';
+                    //OrderDetailhtml += '                    <td class="topline bottomline rightline"  style=" font-weight: bold;" align="center">' + parseFloat(OrderDetail[i].Weight) + '</td>';
+                    //OrderDetailhtml += '                </tr>';
+                    OrderDetailhtml += '                <tr>';
+                    OrderDetailhtml += '                    <td style="border: 1px solid #000;font-size: 12px;font-weight: bold;width:8mm;" align="center">钢种</td>';
+                    OrderDetailhtml += '                    <td class="topline bottomline rightline"  style="border-left:0px solid #000;font-size: 12px;font-weight: bold;text-align:left;" colspan="7" >' + OrderDetail[i].ProductName + '</td>';
+                    OrderDetailhtml += '                </tr>';
+                    OrderDetailhtml += '                <tr>';
+                    OrderDetailhtml += '                    <td style="border: 1px solid #000;font-size: 12px;font-weight: bold;" align="center">尺寸</td>';
+                    OrderDetailhtml += '                    <td class="topline bottomline rightline"  style="border-left:0px solid #000;font-size: 12px;font-weight: bold;text-align:left;" colspan="7"  >' + size + '</td>';
+                    OrderDetailhtml += '                </tr>';
+                    //OrderDetailhtml += '                <tr  >';
+                    //OrderDetailhtml += '                    <td style="border: 1px solid #000;height:45px;" align="center">加工<BR/>条码</td>';
+                    //OrderDetailhtml += '                    <td class="topline bottomline rightline" colspan="7" valign="middle" style="border-left:0px solid #000;text-align:center;">';
+                    //OrderDetailhtml += '                        <div style="padding-top: 5px;border-collapse: separate;align="center">';
+                    //OrderDetailhtml += '                            <div barcode=' + OrderEntiy.OrderCode + "-" + OrderDetail[i].LineCode + ' class="barcodeTarget"></div>';
+                    //OrderDetailhtml += '                        </div>';
+                    //OrderDetailhtml += '                    </td>';
+                    //OrderDetailhtml += '                </tr>';
+                    OrderDetailhtml += '                <tr  >';
+                    OrderDetailhtml += '                    <td style="border: 1px solid #000;font-size: 12px;font-weight: bold;" align="center" >合同</td>';
+                    if (!QuotationEntiy.CustomerPO) { 
+                        QuotationEntiy.CustomerPO = "";
+                    }
+                    OrderDetailhtml += '                    <td class="topline bottomline rightline" colspan="7" style="text-align:left;font-size: 12px;font-weight: bold;text-align:left;" >' + QuotationEntiy.CustomerPO + '</td>';
+                    OrderDetailhtml += '                </tr>';
+                    OrderDetailhtml += '                <tr  >';
+                    OrderDetailhtml += '                    <td style="border: 1px solid #000;font-size: 12px;font-weight: bold;" align="center" >订单</td>';
+                    OrderDetailhtml += '                    <td class="topline bottomline rightline" colspan="7" style="text-align:left;font-size: 12px;font-weight: bold;text-align:left;"  >' + QuotationEntiy.MnemonicCode + '-' + OrderDetail[i].LineCode + '</td>';
+                    OrderDetailhtml += '                </tr>';
+                    OrderDetailhtml += '                <tr  >';
+                    OrderDetailhtml += '                    <td style="border: 1px solid #000;font-size: 12px;font-weight: bold;" align="center" >模号</td>';
+                    OrderDetailhtml += '                    <td class="topline bottomline rightline" colspan="7" style="text-align:left;font-size: 12px;font-weight: bold;text-align:left;" >' + OrderDetail[i].CustomerProduct + '</td>';
+                    OrderDetailhtml += '                </tr>';
+                    OrderDetailhtml += '                <tr  >';
+                    OrderDetailhtml += '                    <td style="border: 1px solid #000;font-size: 12px;font-weight: bold;" align="center">客户</td>';
+                    OrderDetailhtml += '                    <td class="topline bottomline rightline" colspan="7" style="text-align:left;font-size: 12px;font-weight: bold;text-align:left;">' + QuotationEntiy.CustomerName.split('-')[QuotationEntiy.CustomerName.split('-').length - 1] + '</td>';
+                    OrderDetailhtml += '                </tr>';
+                    OrderDetailhtml += '            </table>';
+                    //OrderDetailhtml += '            <table class="form-print" style="margin-top: 5px;">';
+                    //OrderDetailhtml += '                <tr>';
+                    //OrderDetailhtml += '                    <th>负责人：</th>';
+                    //OrderDetailhtml += '                    <td style="width: 100px;">' + QuotationEntiy.SalesMan + '</td>';
+                    //OrderDetailhtml += '                    <th>开单人：</th>';
+                    //OrderDetailhtml += '                    <td style="width: 100px;">' + QuotationEntiy.CreateUserName + '</td>';
+                    //OrderDetailhtml += '                </tr>';
+                    //OrderDetailhtml += '                <tr>';
+                    //OrderDetailhtml += '                    <th>备&nbsp;&nbsp;注：</th>';
+                    //OrderDetailhtml += '                </tr>';
+                    //OrderDetailhtml += '            </table>';
+
+                    OrderDetailhtml += '        </td>';
+                    OrderDetailhtml += '    </tr>';
+                    OrderDetailhtml += '</table>';
+                    num += 1;
+                    $('#my_area').append(OrderDetailhtml);
+                });
+            });
+            $(".barcodeTarget").each(function () {
+                $(this).barcode($(this).attr('barcode'), "code128", { barWidth: 1.5, barHeight: 20 });
+            });
+        });
+        //确认打印
+        function AcceptClick() {
+            AjaxJson("/OrderModule/OrderPrint/UpdateOrderStatus", { OrderId: GetQuery('OrderId') }, function (data) {
+                MyPreview();
+
+            });
+        }
+    </script>
+</head>
+<body>
+    <div id="my_area" style="background: #fff;">
+
+    </div>
+
+
+
+
+    <script language="javascript" type="text/javascript">
+        function MyPreview() {
+            var LODOP = getLodop();
+            LODOP.PRINT_INIT("打印初始化");
+            //A5:148*210MM    0.36
+            //A6: 105 * 148MM   295*415px
+            LODOP.SET_PRINT_PAGESIZE(1, "600", "400", "")
+            var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+            LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+            LODOP.SET_SHOW_MODE("LANDSCAPE_DEFROTATED", 1);//横向时的正向显示
+            LODOP.PREVIEW();
+            tipDialog("打印成功", 3, 1);
+            //top.frames[tabiframeId()].windowload();
+            closeDialog();
+            //if (LODOP.PRINTA()) {
+            //    LODOP.PRINT();
+            //    tipDialog("打印成功", 3, 1);
+            //    top.frames[tabiframeId()].windowload();
+            //    closeDialog();
+
+            //}
+            //else
+            //    //alert("");
+            //    tipDialog("放弃打印！", 3, 1);
+
+        };
+        function tabiframeId() {
+            var tabs_container = top.$("#tabs_container");
+            return "tabs_iframe_" + tabs_container.find('.selected').attr('id').substr(5);
+        }
+    </script>
+</body>
+<style>
+
+    .form-print th {
+        font-size: 12pt;
+        font-family: Arial;
+        font-weight: bold;
+        background-color: #fff;
+        white-space: nowrap;
+        width: 80px;
+        text-align: right;
+        padding-right: 2px;
+    }
+
+    .form-print td {
+        font-size: 12pt;
+        font-family: Arial;
+        font-weight: bold;
+        padding-right: 2px;
+    }
+
+    .tb_Order_Detail td {
+        border: 1px solid #000;
+    }
+
+    .tb_Order_Detail th {
+        text-align: center;
+    }
+
+    .topline {
+        border-top: 1px solid #000;
+        text-align: center;
+    }
+
+    .rightline {
+        border-right: 1px solid #000;
+    }
+
+    .bottomline {
+        border-bottom: 1px solid #000;
+    }
+</style>
+</html>

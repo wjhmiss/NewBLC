@@ -1,0 +1,172 @@
+@{
+    ViewBag.Title = "发运单";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //加载表格
+    function GetGrid() {
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/DeliveryModule/BY_Delivery/GetGridPageJson1")",
+            datatype: "json",
+            height: $(window).height() - 183,
+            autowidth: true,
+            colModel: [
+
+                        //{
+                        //    label: '类型', name: 'ltype', index: 'ltype', width: 40, align: 'left', sortable: true,
+                        //    formatter: function (cellvalue, options, rowobject) {
+                        //        if (cellvalue == "RCL") {
+                        //            return "热处理"
+                        //        }
+                        //        return "钢材"
+                        //    }
+                        //},
+                        { label: '客户编号', name: 'customercode', index: 'customercode', width: 40, align: 'left', sortable: true },
+                { label: '客户名称', name: 'customername', index: 'customername', width: 100, align: 'left', sortable: true },
+                { label: '账期', name: 'paymentmode', index: 'paymentmode', width: 100, align: 'left', sortable: true },
+                        {
+                            label: '1-30', name: 'amount30', index: 'amount30', width: 100, align: 'left', sortable: true
+                        },
+                        {
+                            label: '30-60', name: 'amount60', index: 'amount60', width: 100, align: 'left', sortable: true
+                        },
+                        {
+                            label: '60-90', name: 'amount90', index: 'amount90', width: 100, align: 'left', sortable: true
+                        },
+                        {
+                            label: '90-180', name: 'amount180', index: 'amount180', width: 100, align: 'left', sortable: true
+                        },
+                        {
+                            label: '180以上', name: 'amount999', index: 'amount999', width: 100, align: 'left', sortable: true
+                        },
+
+                        //{ label: '1-30', name: 'amount30', index: 'amount30', width: 100, align: 'left', sortable: true },
+                        //{ label: '30-60', name: 'amount60', index: 'amount60', width: 100, align: 'left', sortable: true },
+                        //{ label: '60-90', name: 'amount90', index: 'amount90', width: 100, align: 'left', sortable: true },
+                        //{ label: '90-180', name: 'amount180', index: 'amount180', width: 100, align: 'left', sortable: true },
+                        //{ label: '180以上', name: 'amount999', index: 'amount999', width: 100, align: 'left', sortable: true },
+                        //{ label: '收', name: 'amount999', index: 'amount999', width: 100, align: 'left', sortable: true },
+
+
+
+                { label: '货款合计', name: 'amount', index: 'amount', width: 100, align: 'left', sortable: true },
+                {
+                    label: '当前生产中', name: 'ondoing', index: 'ondoing', width: 100, align: 'left', sortable: true
+                },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'amount',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            footerrow: true,
+            gridview: true,
+            onSelectRow: function (rowid, status) {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                rowScrod = $("#" + rowid).position().top;
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                
+                //合计
+                $(this).footerData("set", {
+                    "customername": "合计",
+                    "amount30": FormatCurrency($("#gridTable").getCol('amount30', false, 'sum')),
+                    "amount60": FormatCurrency($("#gridTable").getCol('amount60', false, 'sum')),
+                    "amount90": FormatCurrency($("#gridTable").getCol('amount90', false, 'sum')),
+                    "amount180": FormatCurrency($("#gridTable").getCol('amount180', false, 'sum')),
+                    "amount999": FormatCurrency($("#gridTable").getCol('amount999', false, 'sum')),
+                    "amount": FormatCurrency($("#gridTable").getCol('amount', false, 'sum')),
+                });
+                $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
+            },
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                
+            },
+            
+        });
+    }
+   
+        //刷新
+        function windowload() {
+            $("#gridTable").trigger("reloadGrid"); //重新载入
+
+        }
+        function windowload1() {
+            $("#DetailgridTable").trigger("reloadGrid"); //重新载入
+
+        }
+         
+        //搜索
+        function btn_Search() {
+            var Condition = JSON.stringify(GetWebControls("#QueryParameter", true));
+            var keywords = $("#keywords").val();
+            $("#gridTable").jqGrid('setGridParam', {
+                url: "@Url.Content("~/DeliveryModule/BY_Delivery/GetGridPageJson1")?Condition=" + escape(Condition), page: 1
+            }).trigger('reloadGrid');
+        }
+        
+
+        //导出
+        function btn_Export() {
+            SetDeriveExcel("#gridTable", "客户欠款表");
+
+            Loading(true, "正在处理要导出数据...");
+            window.setTimeout(function () {
+                location.href = "/Utility/GetDeriveExcel";
+                Loading(false);
+            }, 200);
+        }
+        function btn_Export1() {
+            var Condition = GetParameterJson("QueryParameter");
+            Loading(true, "正在处理要导出数据...");
+            window.setTimeout(function () {
+                location.href = "@Url.Content("~/DeliveryModule/BY_Delivery/DownLoadExcel1")?Condition=" + escape(Condition);
+                Loading(false);
+            }, 200);
+        }
+    </script>
+<!--列表-->
+<div class="leftline rightline QueryArea" id="QueryParameter" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <td>
+                @*时间至：
+        <input id="CreateDate_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />
+        业务人员:
+        <input id="Sellpeople" type="text" class="txt" style="width: 100px" />
+        类型:
+        <select id="LType" type="text" class="select" onchange="btn_Search();">
+            <option value="">全部</option>
+            <option value="GC">钢材</option>
+            <option value="LJ">配件</option>
+            <option value="RCL">热处理</option>
+        </select>*@
+
+
+                客户信息:
+                <input id="CustomerCode" type="text" class="txt " style="width: 80px" />
+
+                <input id="btnSearch" type="button" class="btnSearch" value="搜索" onclick="btn_Search()" />
+                <input id="btn_export" type="button" class="btnSearch" value="导出" onclick="btn_Export()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>
+<div class="topline rightline" style="margin: 1px;">
+    <table id="DetailgridTable"></table>
+</div>

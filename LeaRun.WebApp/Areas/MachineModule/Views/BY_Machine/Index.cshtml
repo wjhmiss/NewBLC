@@ -1,0 +1,193 @@
+@{
+    ViewBag.Title = "机床设置";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = "";
+    $(function () {
+
+        GetGrid();
+        SwitchListAndView();
+        $("#li-switch-view").trigger("click");
+    })
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/MachineModule/BY_Machine/GridPageJson")",
+            datatype: "json",
+            height: $(window).height() - 160,
+            autowidth: true,
+            colModel: [
+                    { label: 'id主键', name: 'MachineID', index: 'MachineID', width: 0, align: 'left', sortable: true, hidden: true },
+                    { label: '设备编号', name: 'MachineCode', index: 'MachineCode', width: 70, align: 'left', sortable: true },
+                    { label: '设备名称', name: 'MachineName', index: 'MachineName', width: 70, align: 'left', sortable: true },
+                    { label: 'MachineIP', name: 'MachineIP', index: 'MachineIP', width: 160, align: 'left', sortable: true },
+                    {
+                        label: '创建时间', name: 'CreateDate', index: 'CreateDate', width: 120, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '创建用户', name: 'CreateUserName', index: 'CreateUserName', width: 80, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: '',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            onSelectRow: function (data) {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                KeyValue = GetJqGridRowValue("#gridTable", "MachineID");
+            },
+            gridComplete: function () {
+                LoadViewList();
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            },
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                btn_edit();
+            }
+        });
+    }
+    //新增
+    function btn_add() {
+        var url = "/MachineModule/BY_Machine/Form"
+        openDialog(url, "Form", "新增机床设置", 400, 200, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        //var KeyValue = GetJqGridRowValue("#gridTable", "MachineID");
+        if (IsChecked(KeyValue)) {
+            var url = "/MachineModule/BY_Machine/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑机床设置", 400, 200, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //扫描
+    function btn_scan() {
+        //var KeyValue = GetJqGridRowValue("#gridTable", "MachineID");
+        if (IsChecked(KeyValue)) {
+            var url = "/MachineModule/BY_Machine/MachineScan?KeyValue=" + KeyValue;
+            Dialog(url, "Form", "扫描", 400, 200);
+        }
+    }
+    //删除
+    function btn_delete() {
+        //var KeyValue = GetJqGridRowValue("#gridTable", "MachineID");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/MachineModule/BY_Machine/Delete', delparm, KeyValue.split(",").length);
+        }
+        windowload();
+        SwitchListAndView();
+        KeyValue = "";
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+
+    /*视图begin=========================================================================*/
+    //切换到列表/视图
+    function SwitchListAndView() {
+        $('#grid_View').height($(window).height() - 78)
+        $('.switch-btns li').click(function () {
+            $('.switch-btns li').removeClass('selected');
+            $(this).addClass('selected');
+            if ($(this).attr('id') == 'li-switch-list') {
+                $(this).find('div').addClass('icon-btn-switch-list-select');
+                $("#li-switch-view").find('div').addClass('icon-btn-switch-view');
+                $("#li-switch-view").find('div').removeClass('icon-btn-switch-view-select');
+                $('#grid_List').show();
+                $('#grid_View').hide();
+            }
+            //显示视图
+            if ($(this).attr('id') == 'li-switch-view') {
+                $(this).find('div').addClass('icon-btn-switch-view-select');
+                $("#li-switch-list").find('div').addClass('icon-btn-switch-list');
+                $("#li-switch-list").find('div').removeClass('icon-btn-switch-list-select');
+                $('#grid_List').hide();
+                $('#grid_View').show();
+            }
+        })
+    }
+    //加载视图
+    function LoadViewList() {
+        var data = $("#gridTable").jqGrid("getRowData");
+        var html = "";
+        for (var i = 0; i < data.length; i++) {
+            var Genderimg = "CardphotoD";
+            html += ' <div class="UserCard"  onclick="clickGrid(\'' + data[i].MachineID + '\',this);">';
+            html += '<div class="Cardhead">'
+            html += '     <div style="float: left">机床：' + data[i].MachineName + '</div>'
+            html += '     <div style="float: right">编号：' + data[i].MachineCode + '</div>'
+            html += '</div>'
+            html += '<div>'
+            html += '    <div class="' + Genderimg + '"></div>'
+            html += '    <div class="CardInfo">'
+            html += '       IP：' + data[i].MachineIP + '<br />'
+            html += '       创建人：' + data[i].CreateDate + '<br />'
+            html += '       创建时间：' + data[i].CreateUserName + '<br />'
+            html += '   </div>'
+            html += '</div>'
+            html += '</div>'
+        }
+        $("#grid_View").html(html);
+    }
+
+    function clickGrid(MachineID,object) {
+        KeyValue = MachineID;
+        $(".UserCard").each(function (index, domEle) { 
+            // domEle == this 
+            $(domEle).css("background", "");  
+        });
+        $(object).css("background", "#cccccc");  //style="background:#cccccc;"
+    }
+    /*视图end=========================================================================*/
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+    <div style="padding-top: 6px; padding-right: 5px; ">
+        <ul class="switch-btns" style="float: right;">
+            <li id="li-switch-list" class="selected" style="border: 1px solid #ccc;" title="切换到列表视图">
+                <div class="icon icon-btn-switch-list-select"></div>
+            </li>
+            <li id="li-switch-view" style="border: 1px solid #ccc; border-left: none;" title="切换到大图视图">
+                <div class="icon icon-btn-switch-view"></div>
+            </li>
+        </ul>
+    </div>
+</div>
+<div id="grid_List">
+@*    <div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+        <table border="0" class="form-find" style="height: 45px;">
+            <tr>
+                <th>关键字：</th>
+                <td>
+                    <input id="keywords" type="text" class="txt" style="width: 200px" />
+                </td>
+                <td>
+                    <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                </td>
+            </tr>
+        </table>
+    </div>*@
+    <div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+</div>
+<!--视图-->
+<div id="grid_View" class="ScrollBar">
+</div>

@@ -1,0 +1,58 @@
+﻿@{
+    ViewBag.Title = "报价单操作记录";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script>
+    $(function () {
+        $("#BillCode").text(GetQuery('BillCode'))
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    });
+    //报价单列表
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/QuotationModule/QuotationQuery/QuotationOpearLogListJson")?BillId=" + GetQuery('BillId'),
+            datatype: "json",
+            height: 173,
+            autowidth: true,
+            colModel: [
+                    { label: '主键', name: 'QuotationId', hidden: true },
+                    { label: '操作类型', name: 'OpearType', index: 'OpearType', width: 100, align: 'left', sortable: true },
+                    { label: '员工姓名', name: 'UserName', index: 'UserName', width: 100, align: 'left', sortable: true },
+                    { label: '操作时间', name: 'CreateDate', index: 'CreateDate', width: 200, align: 'left', sortable: true },
+                    {
+                        label: '备注', name: 'Remark', index: 'Remark', width: 100, align: 'left',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");;
+
+                            }
+                            return "";
+                        }
+                    }
+            ],
+            rowNum: 1000,
+            pager: false,
+            sortname: 'CreateDate',
+            sortorder: 'asc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true
+        });
+    }
+</script>
+<div class="leftline rightline topline QueryArea" style="margin: 1px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <td>
+                <label id="BillCode"></label>
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+</div>

@@ -1,0 +1,160 @@
+﻿@{
+    ViewBag.Title = "DetailForm";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+<script type="text/javascript" src="~/Content/Scripts/Conversion.js"></script>
+<script type="text/javascript">
+    var QuotationId = GetQuery('QuotationId');
+    var LineCode = GetQuery('LineCode');
+    $(function () {
+        InitControl();
+        document.onkeydown = enterInput;
+    })
+
+    function enterInput() {
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+
+        if (e && e.keyCode == 13) {//回车
+            AcceptClick();
+        }
+    }
+
+
+    function InitControl() {
+        if (!!GetQuery('QuotationId') && !!GetQuery('LineCode')) {
+            AjaxJsonNoMassge("/QuotationModule/QuotationInput/SetDetailFormByLine", { QuotationId: QuotationId, LineCode: LineCode }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        AjaxJson("/QuotationModule/QuotationInput/SubmitForm1?KeyValue=" + $("#QuotationDetailId").val(), postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            LineCode = Number(LineCode) + 1;
+            AjaxJsonNoMassge("/QuotationModule/QuotationInput/SetDetailFormByLine", { QuotationId: QuotationId, LineCode: LineCode }, function (data) {
+                SetWebControls(data);
+                if (!data.Qty) {
+                    window.setTimeout(function () {closeDialog();}, 500);
+                    return false;
+                }
+            });
+        });
+    }
+</script>
+<div class="note-prompt" style="margin: 1px; color:red;">
+    温馨提示：修改员工加工费时请注意，如果磨面和铣边分开计算时，请在工序查询页面进行修改。 />
+</div>
+<div class="bd" style="border-bottom: none; margin: 1px;">
+    <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+        <div class="tab_list_top" style="position: absolute">
+            <div id="Tabtab1" class="tab_list bd actived" onclick="Tabchange('tab1');">客户统计</div>
+            <div id="Tabtab2" class="tab_list bd " onclick="Tabchange('tab2');">报价及注意事项</div>
+        </div>
+    </div>
+</div>
+<div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+    <div id="tab1" class="tabPanel" style="margin: 1px; margin-top: -1px;">
+        <form id="form1" style="margin: 1px">
+            <div id="message" style="display: none"></div>
+            
+            <input id="QuotationDetailId" type="hidden" />
+            <table class="form">
+                <tr>
+                    <th class="formTitle">余量厚(直径)：</th>
+                    <td class="formValue">
+                        <input id="AddThick" onfocus="IsMoney(this.id);" type="text" class="txt" value="-1" />
+                    </td>
+
+
+                    <th class="formTitle">余量宽度：</th>
+                    <td class="formValue">
+                        <input id="AddWeigh" onfocus="IsMoney(this.id);" type="text" class="txt" value="-1" />
+                    </td>
+                </tr>
+                <tr>
+
+
+                    <th class="formTitle">余量长度：</th>
+                    <td class="formValue">
+                        <input id="AddLength" onfocus="IsMoney(this.id);" type="text" class="txt" value="-1" />
+                    </td>
+
+                    <th class="formTitle">客户合同：</th>
+                    <td class="formValue">
+                        <input id="CustomerProduct" type="text" class="txt" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class="formTitle" >计价类型</th>
+                    <td class="formValue">
+                        @*<span class="item">
+                            <input id="IsChamfer" name="IsChamfer" type="checkbox" style="vertical-align: middle;"   />
+                            <label for="IsChamfer" style="vertical-align: middle;color:red;">倒角</label>
+                            &nbsp;&nbsp;
+                        </span>*@
+                    </td>
+
+
+                    <th class="formTitle" >员工加工费：</th>
+                    <td class="formValue">
+                        <input id="WorkCostForWork" type="text" onfocus="IsMoney(this.id);" class="txt" /></td>
+                </tr>
+                <tr>
+                    <th class="formTitle">品名：</th>
+                    <td class="formValue">
+                        <input id="ProductName" type="text" class="txt" datacol="yes" err="品名" checkexpession="NotNull" /></td>
+
+                    <th class="formTitle">公差备注：</th>
+                    <td class="formValue">
+                        <input id="Remark" type="text" class="txt" /></td>
+                </tr>
+                <tr>
+                    <th class="formTitle">当前行号：</th>
+                    <td class="formValue" colspan="3" style="height: 45px;">
+                        <input id="LineCode" type="text" class="txt" style="font-size: 30px; font-weight: bold; text-align: center; color: #FF0000" readonly />
+                    </td>
+                </tr>
+            </table>
+            <style>
+                .form .formTitle {
+                    width: 120px;
+                }
+            </style>
+        </form>
+    </div>
+    <div id="tab2" class="tabPanel" style="margin: 1px; margin-top: -1px; display: none;">
+        <table class="form">
+            <tr>
+                <th class="formTitle">单价信息：
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea id="CPriceMessage" class="txtArea" rows="15"></textarea>
+                </td>
+
+            </tr>
+            <tr>
+                <th class="formTitle">用料说明：
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea id="CMateRemark" class="txtArea" rows="8"></textarea>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">说明：
+                </th>
+                <td class="formValue" colspan="3">
+                    <textarea id="CRemark" class="txtArea" rows="8"></textarea>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+</div>

@@ -1,0 +1,354 @@
+@{
+    ViewBag.Title = "BY_QuotationHeatBeout》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+
+@Scripts.Render("~/Content/Scripts/jqgrid/jqgridjquery")
+@Styles.Render("~/Content/Scripts/jqgrid/css/jqgridcss")
+
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    var Num = 1;
+    $(function () {
+        //供应商编码自动补全
+        CustomerAutocomplete();
+        //账期
+        BindDropItem("#PayType", "PaymentMode", "==请选择==");
+
+        InitControl();
+        document.onkeydown = enterInput;
+
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+
+    function enterInput() {
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+        //if ((event.keyCode == 37) || (event.keyCode  == 38) || (event.keyCode  == 39) || (event.keyCode  == 40)) {
+        //    window.event.keyCode = 9;
+        //    return;
+        //}
+        //if (event.keyCode == 34) {
+        //    $("#lr-add-Row").click();
+        //    return;
+        //}
+    }
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.FullName);
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Base_Supplier/GetAutoCompleJson", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].SupplierId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 40%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="PaymentMode" style="width: 30%;">' + DataJson[i].Remark + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.FullName);
+                });
+            });
+        }
+    }
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/QuotationHeatModule/BY_QuotationHeatBeout/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+
+            });
+        }
+        if (GetQuery('view') == 1) {
+            $("#form1").find("input,select,label,textarea").attr('disabled', 'disabled');
+            $("#toolbar_a").hide();
+        }
+        else {
+            $("#view").hide();
+        }
+    }
+
+
+
+
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var RowData = {
+            HeatPrice: $("[name='HeatPrice']").val(),
+        }
+        $('#gridTable').jqGrid('setRowData', GetJqGridRowIndx('#gridTable'), RowData, '');
+        //var data = $("#gridTable").jqGrid("getRowData");
+        //for (var i = 0; i < data.length; i++) {
+        //    if ("" == data[i].SteelDescription) {
+        //        tipDialog("钢材编码错误，请检查", 3, -1);
+        //        return;
+        //    }
+        //}
+        //var TotalAmountall = 0;
+        //for (var i = 0; i < data.length; i++) {
+        //    TotalAmountall = TotalAmountall + Number(data[i].TotalAmount);
+        //}
+        //$("#TotalAmount").val(TotalAmountall);
+
+        var postData = GetWebControls("#form1");
+        postData["SteelListJson"] = JSON.stringify($("#gridTable").jqGrid("getRowData"));
+
+        $(".ui_state_highlight").attr("disabled", true);
+        AjaxJson("/QuotationHeatModule/BY_QuotationHeatBeout/SubmitForm1?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+        var lastsel;
+    function GetGrid() {
+        var lastselpostdate;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/QuotationHeatModule/BY_QuotationHeatBeoutDetail/GetListJson1")?QuotationHeatBeoutCode=" + $("#QuotationHeatBeoutCode").val(),
+            datatype: "json",
+            height: $(window).height() - 220,
+            autowidth: true,
+            colModel: [
+                { label: '报价单明细ID', name: 'QuotationHeatId', hidden: true },
+                { label: '序号', name: 'SortCode', width: 40, align: 'center', hidden: true },
+                { label: '生产编号', name: 'QuotationHeatCode', index: 'QuotationHeatCode', width: 60, align: 'left' },
+                { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 80, align: 'left', sortable: true },
+                { label: '材质', name: 'SteelDescription', index: 'SteelDescription', width: 50, align: 'left', sortable: true },
+                { label: '工件名称', name: 'ProductName', index: 'ProductName', width: 80, align: 'left', sortable: true },
+                { label: '外形尺寸', name: 'Remark', index: 'Remark', width: 100, align: 'left', sortable: true },
+                { label: '热处理类别', name: 'Technology', index: 'Technology', width: 60, align: 'left', sortable: true },
+                { label: '技术要求', name: 'TechnologQuery', index: 'TechnologQuery', width: 60, align: 'left', sortable: true },
+                { label: '件数', name: 'Qty', index: 'Qty', width: 40, align: 'left', sortable: true },
+                { label: '重量', name: 'Weight', index: 'Weight', width: 40, align: 'left', sortable: true },
+                { label: '单价', name: 'HeatPrice', index: 'HeatPrice', width: 60, align: 'left', sortable: true, editable: true },
+                { label: '金额', name: 'HeatAmount', index: 'HeatAmount', width: 60, align: 'left'},
+            ],
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 999, 999, 999],
+            pager: false,
+            shrinkToFit: false,
+            rownumbers: true,
+            altRows: false,
+            sortname: 'QuotationHeatCode',
+            sortorder: 'desc',
+            altclass: 'altclass',
+            gridview: true,
+            cellsubmit: 'clientArray',
+            onSelectRow: function (id) {
+                var postData = {
+                    HeatPrice: $("[name='HeatPrice']").val(),
+                }
+                if (id && id !== lastsel) {
+                    $('#gridTable').jqGrid('restoreRow', lastsel);
+                    $('#gridTable').jqGrid('editRow', id, { keys: false });
+                    $('#gridTable').jqGrid('setRowData', lastsel, postData, '');
+                }
+                lastselpostdate = postData;
+                lastsel = id;
+
+                jQuery("#" + id + "_HeatPrice").keyup(function () {
+                    countU(id);
+
+                });
+            },
+            gridComplete: function () {
+                //合计
+
+            }
+
+        });
+        $("#lr-delete-Row").click(function () {
+            var Index = GetJqGridRowIndx("#gridTable");
+            $("#gridTable").jqGrid("delRowData", Index);
+        });
+
+    }
+    function countU(id) {
+        var Weight = Number(GetJqGridValue("#gridTable", id, "Weight"));
+        var HeatPrice = Number($("#" + id + "_HeatPrice").val());
+        $("#gridTable").jqGrid('setRowData', id, { HeatAmount: Weight * HeatPrice });
+
+    }
+    //查询
+    function btn_Quotationquery() {
+        openDialog("/QuotationModule/QuotationQuery/QueryQuotationForSteelP", "Query", "明细查询", 850, 560, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+
+
+    function addforQuo(s) {
+
+        var data = $("#gridTable").jqGrid("getRowData");
+
+
+
+
+        var SortCode = 0;
+        if (!!Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode"))) {
+            SortCode = Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode")) + 1;
+        }
+        else {
+            SortCode = 1;
+        }
+        var index = 0;
+        if (!!$("#gridTable").getGridParam("reccount")) {
+            index = $("#gridTable").getGridParam("reccount") + 1;
+        }
+        else {
+            index = 1;
+        }
+        var entitys = s.split(';');
+        var same = false;
+        for (var i = 0; i < entitys.length; i++) {
+            var items = entitys[i].split(',');
+            //s1 = s1 + myrow.QuotationHeatId + "," + myrow.quotationheatcode + "," + myrow.customercode + "," + myrow.customername + "," + myrow.steeldescription + "," + myrow.productname + "," + myrow.remark
+            //         + "," + myrow.technology + "," + myrow.technologquery + "," + myrow.qty + "," + myrow.weight + "," + myrow.billstatus + ";";
+
+            for (var j = 0; j < data.length; j++) {
+                if (data[j].QuotationHeatId == items[0]) {
+                    same = true;
+                }
+            }
+
+
+            if (same) {
+                same = false;
+                continue
+            }
+
+            var RowData = {
+                SortCode: SortCode + i,
+                QuotationHeatId: items[0],
+                QuotationHeatCode: items[1],
+                CustomerName: items[2],
+                SteelDescription: items[3],
+                ProductName: items[4],
+                Remark: items[5],
+                Technology: items[6],
+                TechnologQuery: items[7],
+                Qty: items[8],
+                Weight: items[9],
+            }
+            $('#gridTable').jqGrid('addRowData', index, RowData, "last");
+            index += 1;
+        }
+
+    }
+    function btn_Quotationquery() {
+        openDialog("/QuotationHeatModule/BY_QuotationHeat/IndexSelect", "Query", "查询", 1050, 660, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">基本信息</div>
+                <div id="TabSteelInof" class="tab_list bd " onclick="Tabchange('SteelInof');">添加钢材</div>
+            </div>
+        </div>
+    </div>
+    <div class="ScrollBar" style="margin: 1px; overflow: hidden;">
+        <div id="basic" class="tabPanel">
+            <table class="form">
+                <tr>
+                    <th class='formTitle'>供应商编号：</th>
+                    <td class='formValue'>
+                        <input id="MnemonicCode" type="hidden" />
+
+                        <input id="QuotationHeatBeoutId" type="hidden" />
+                        <input id="QuotationHeatBeoutCode" type="hidden" />
+
+
+                        <input id="CustomerId" type="hidden" />
+                        <input id="CustomerCode" maxlength="50" type="text" class="txt" datacol="yes" err="供应商编号" checkexpession="NotNull" />
+                    </td>
+                    <th class='formTitle'>供应商名称：</th>
+                    <td class='formValue'>
+                        <input id="CustomerName" maxlength="50" type="text" class="txt" disabled />
+                    </td>
+                </tr>
+                <tr>
+                    <th class='formTitle'>交期：</th>
+                    <td class='formValue'>
+                        <input id="Delivery" value="@DNS.Utilities.DateTimeHelper.GetDate(1)" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})"  datacol="yes" err="采购时间" checkexpession="NotNull" />
+                    </td>
+                    
+                    <th class='formTitle'>采购时间：</th>
+                    <td class='formValue'>
+                        <input id="CreateDate" type="text" value="@DNS.Utilities.DateTimeHelper.GetTime()" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})"  datacol="yes" err="采购时间" checkexpession="NotNull" />
+                    </td>
+                </tr>
+                <tr>
+                    <th class='formTitle'>总金额：</th>
+                    <td class='formValue'  >
+                        <input id="TotalAmount" disabled maxlength="18" type="text" class="txt"/>
+                    </td>
+                     <th class='formTitle'>类型：</th>
+                        <td class='formValue' >
+                            <select id="TypeJC" class="txtselect">
+                                <option value="进仓">进仓</option>
+                                <option value="退货">退货</option>
+                            </select>
+                        </td>
+                </tr>
+
+                <tr>
+                    <th class='formTitle'>备注：</th>
+                    <td class="formValue" colspan="3">
+                        <textarea id="Remark" class="txtArea" rows="5" ></textarea>
+                    </td>
+                </tr>
+
+            </table>
+        </div>
+        <div id="SteelInof" class="tabPanel" style="width: 100%; height: 365px; display: none;">
+            <div class="nui-toolbar leftline rightline">
+                <div id="toolbar_a">
+                    
+                    <div id="lr-delete-Row" class="nui-toolbar-item nui-btn-right">
+                        <span class="nui-btn-text">删除</span>
+                    </div>
+                     <div id="lr-choose-Row" class="nui-toolbar-item nui-btn-left" >
+                    <span class="nui-btn-text" onclick="btn_Quotationquery();" >导入</span>
+                </div>
+                  
+                </div>
+            </div>
+            <div class="rightline">
+                <table id="gridTable"></table>
+                <div id="gridPager"></div>
+            </div>
+        </div>
+    </div> 
+</form>

@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+
+    <p>Using Opera Next or Chrome Canary, use this page to take your picture!</p>
+
+
+
+    <button id="get-access">start streaming</button>
+    <video id="video" autoplay>Start streaming</video>
+    <!--<canvas class="canvas" id="canvas" style="width:680px;height:420px;display:none;"></canvas>-->
+    <button id="getimg" onclick="screenShot()">start streaming</button>
+    <div class="wrap flex flex-row">
+    </div>
+    <script>
+
+        document.querySelector('#get-access').addEventListener('click', async function init(e) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: {
+                        facingMode: { exact: "user" },//'video':{ 'facingMode': "user" }//����ǰ������ͷ����������ͷʹ��video: { facingMode: { exact: "environment" } }
+                        width: 680,
+                        height: 420
+                    }
+                })
+                document.querySelector('video').srcObject = stream
+            } catch (error) {
+                alert(`${error.name}`)
+                console.log(error)
+            }
+        })
+
+       
+        function screenShot() {
+            var videoElement = document.getElementById('video');
+            var canvas = document.createElement('canvas');
+            canvas.width = 420, canvas.height = 680;
+            document.querySelector(".wrap").appendChild(canvas);
+            var ctx = canvas.getContext('2d');
+            ctx.drawImage(videoElement, 0, 0, 420, 680);
+            var dataUrl = canvas.toDataURL('image/png');
+            alert(dataUrl);
+        }
+    </script>
+
+</body>
+</html>

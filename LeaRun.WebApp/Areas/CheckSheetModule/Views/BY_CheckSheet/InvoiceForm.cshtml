@@ -1,0 +1,181 @@
+@{
+    ViewBag.Title = "对账单》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/Workday/kalendarjqueryyyyydd")
+@Styles.Render("~/Content/Scripts/Workday/kalendarcss")
+    @Scripts.Render("~/Content/Scripts/jqgrid/jqgridjquery")
+     @Styles.Render("~/Content/Scripts/jqgrid/css/jqgridcss")
+<script type="text/javascript">
+    var CheckSheetId = GetQuery('CheckSheetId');
+    $(function () {
+        //客户编码自动补全
+        BindDropItem("#ShipGroup", "公司", "==请选择==");
+        InitControl();
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+
+
+    })
+    function InitControl() {
+        if (!!CheckSheetId) {
+            AjaxJson("/CheckSheetModule/BY_CheckSheet/SetForm", { KeyValue: CheckSheetId }, function (data) {
+                SetWebControls(data);
+            });
+            $("#s41").prop("checked", false);
+            $('input').customInput();
+            if (!$("#InvoiceCustomer").val()) {
+                $("#InvoiceCustomer").val($("#CustomerName").val())
+            }
+            //jQuery("#list13").jqGrid('setSelection', "13");
+
+
+        }
+        
+    }
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/DeliveryModule/BY_DeliveryDetail/GridPageListJson1")?CheckSheetId=" + CheckSheetId,
+            datatype: "json",
+            height: $(window).height() - 251,
+            autowidth: true,
+            colModel: [
+                    {
+                        label: '客户品名', name: 'ProductName', index: 'ProductName', width: 130, align: 'left', sortable: true
+                    },
+                    { label: '件数', name: 'Qty', index: 'Qty', width: 60, align: 'left', sortable: true },
+                    
+                    { label: '重量', name: 'Weight', index: 'Weight', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '单价', name: 'MaterialPrice', index: 'MaterialPrice', width: 80, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.toFixed(2);
+                            }
+                            return "";
+                        }
+                    },
+                    { label: '金额', name: 'MaterialAmount', index: 'MaterialAmount', width: 80, align: 'left', sortable: true },
+            ],
+            pager: false,
+            viewrecords: true,
+            rowNum: 9999,
+            rowList: [30, 50, 100, 500, 5000],
+            
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "ProductName": "合计",
+                    "Qty": FormatCurrency($("#gridTable").getCol('Qty', false, 'sum')),
+                    "Weight": FormatCurrency($("#gridTable").getCol('Weight', false, 'sum')),
+                    "MaterialAmount": FormatCurrency($("#gridTable").getCol('MaterialAmount', false, 'sum')),
+
+                });
+            },
+        });
+    }
+
+
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        $(".ui_state_highlight").attr("disabled", true);
+        AjaxJson("/CheckSheetModule/BY_CheckSheet/SubmitForm?KeyValue=" + CheckSheetId, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+            
+        });
+
+       
+    }
+
+
+</script>
+<form id="form1" style="margin: 1px">
+
+
+    <div class="note-prompt" style="margin: 1px;">
+        提示:选择年月后点击生成对账单,如果对账单日期重叠,对账单金额会错误,请选择正确日期后重新生成重叠的前后两个对账单
+    </div>
+    <div class="border" style="margin: 1px;">
+    </div>
+
+    <table  class="form"><tr>
+                <th class='formTitle'>对账单号：</th>
+                <td class='formValue' >
+                    <input id="CheckSheetCode" maxlength="50"   type="text" class="txt" readonly />
+                </td>
+        <th class='formTitle'>月份：</th>
+                <td class='formValue' >
+                    <input id="YearMonth" maxlength="50"   type="text" class="txt" readonly />
+                </td>
+            </tr>
+        <tr>
+                <th class='formTitle'>客户名称：</th>
+                <td class='formValue' >
+                    <input id="CustomerName" maxlength="50"  readonly type="text" class="txt " datacol="yes" />
+                </td>
+            
+                <th class='formTitle'>对账确认金额：</th>
+                <td class='formValue' >
+                    <input id="DTotalAmount" maxlength="50" readonly  type="text" class="txt " datacol="yes"  />
+                </td>
+            </tr>
+        <tr>
+                <th class='formTitle'>对账备注：</th>
+                <td class='formValue' colspan="3" >
+                    <input id="Remark" maxlength="50"  readonly type="text" class="txt " datacol="yes" />
+                </td>
+            
+               
+            </tr>
+    </table>
+    <div id="basic" class="tabPanel">
+        <table class="form">
+            <tr>
+                <th class='formTitle'>发票号：</th>
+                <td class='formValue'>
+                    <input id="InvoiceNum" type="text" class="txt Wdate required"  style="width: 95%" datacol="yes" err="发票号" checkexpession="NotNull" />
+                </td>
+                <th class='formTitle'>发票金额：</th>
+                <td class='formValue'>
+                    <input id="TotalAmount" type="text" onfocus="IsMoney(this.id);"  class="txt Wdate required"  style="width: 95%" datacol="yes" err="发票金额" checkexpession="NotNull" />
+                </td>
+            </tr>
+            <tr>
+                <th class='formTitle'>发票时间：</th>
+                <td class='formValue'>
+                    <input id="InvoiceDate" type="text" datacol="yes" err="发票时间" checkexpession="NotNull"  value="@DNS.Utilities.DateTimeHelper.GetTime()"  class="txt Wdate required" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})" style="width: 95%"  />
+                </td>
+                <th class='formTitle'>发票单位：</th>
+                <td class='formValue'>
+                    <select id="ShipGroup"  class="txtselect" datacol="yes" err="发票单位" checkexpession="NotNull">
+                        </select>
+                </td>
+            </tr>
+            <tr>
+                <th class='formTitle'>收票单位：</th>
+                <td class='formValue' colspan="3">
+                    <input id="InvoiceCustomer" type="text" class="txt required"  style="width: 95%" datacol="yes" err="收票单位" checkexpession="NotNull" />
+                </td>
+                
+            </tr>
+        </table>
+    </div>
+   <div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>
+</form>

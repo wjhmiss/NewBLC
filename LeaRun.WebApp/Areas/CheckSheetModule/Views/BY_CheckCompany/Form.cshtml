@@ -1,0 +1,311 @@
+@{
+    ViewBag.Title = "应收款管理》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+
+        //客户编码自动补全
+        CustomerAutocomplete();
+        InitControl();
+
+    })
+    function setType() {
+        if ($("#Type0").val() == "收款") {
+            $("#Type1").empty()
+            BindDropItemT2("#Type1", "#Type2", "收款类型", "==请选择==");
+
+        }
+        else {
+            $("#Type1").empty()
+            BindDropItemT2("#Type1", "#Type2", "CostType", "==请选择==");
+
+        }
+    }
+    //客户编码自动补全
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.FullName);
+            LoadContactName(data.CustomerId);
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Customer/GetAutoCompleJson", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 70%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="ShortName" style="display: none;">' + DataJson[i].ShortName + '</td>';
+                    html += '<td id="Sellpeople" style="display: none;">' + DataJson[i].Sellpeople + '</td>';
+                    html += '<td id="SalesArea" style="display: none;">' + DataJson[i].Sellarea + '</td>';
+                    html += '<td id="DiscountRate" style="display: none;">' + DataJson[i].DiscountRate + '</td>';
+                    html += '<td id="TransitMode" style="display: none;">' + DataJson[i].TransitMode + '</td>';
+                    html += '<td id="PaymentMode" style="display: none;">' + DataJson[i].PaymentMode + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.FullName);
+                    LoadContactName(data.CustomerId);
+                });
+
+            });
+        }
+        //联系人
+        function LoadContactName(CustomerId) {
+            if (!!CustomerId) {
+                AjaxJson("/CommonModule/Customer/CustomerAddressListJson", { CustomerId: CustomerId }, function (data) {
+                    $("#ShipAddress").html('');
+                    $("#CollectAddress").html('');
+                    var datajson = data.rows;
+                    $.each(datajson, function (i) {
+                        $("#ShipAddress").append($("<option data='" + JSON.stringify(datajson[i]) + "'></option>").val(datajson[i].AddressCode + " " + datajson[i].DetailAddress).html(datajson[i].AddressCode + " " + datajson[i].DetailAddress));
+                        
+                            $("#ContactTel").val(datajson[i].Telephone);
+                            $("#ContactFax").val(datajson[i].Fax);
+                            $("#ContactMail").val(datajson[i].EmailAddress);
+                            $("#MobileCode").val(datajson[i].Mobile);
+                            $("#CustomerAddress").val(datajson[i].DetailAddress);
+                            $("#ShipRoute").val(datajson[i].SendPath);
+                            $("#ContactName").val(datajson[i].Contact);
+                            $("#ShipAddress").val(datajson[i].AddressCode + " " + datajson[i].DetailAddress);
+                       
+                        
+                    });
+                })
+            }
+        }
+    }
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CheckSheetModule/BY_CheckCompany/SetForm", { KeyValue: KeyValue }, function (dataff) {
+                SetWebControls(dataff);
+                $("#TotalAmount").val(Math.abs($("#TotalAmount").val()))
+
+                $("#Type0").val(dataff["Type0"]);
+                if ($("#Type0").val() == "收款") {
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: "收款类型" }, function (data) {
+                        var itemjson = eval("(" + data + ")");
+                        $.each(itemjson, function (i) {
+                            $("#Type1").append($("<option></option>").val(itemjson[i].Code).html(itemjson[i].FullName));
+                        });
+                        $("#Type1").val(dataff["Type1"]);
+                        getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "收款类型", FullName: $("#Type1").val() }, function (data1) {
+                            $("#Type2").empty();
+                            var itemjson1 = eval("(" + data1 + ")");
+                            $.each(itemjson1, function (i) {
+                                $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                            });
+                            $("#Type2").val(dataff["Type2"]);
+                        });
+                        $("#Type1").change(function () {
+                            getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "收款类型", FullName: $("#Type1").val() }, function (data1) {
+                                $("#Type2").empty();
+                                var itemjson1 = eval("(" + data1 + ")");
+                                $.each(itemjson1, function (i) {
+                                    $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                                });
+                            });
+                        });
+                    });
+                }
+                else {
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: "CostType" }, function (data) {
+                        var itemjson = eval("(" + data + ")");
+                        $.each(itemjson, function (i) {
+                            $("#Type1").append($("<option></option>").val(itemjson[i].Code).html(itemjson[i].FullName));
+                        });
+                        $("#Type1").val(dataff["Type1"]);
+                        getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "CostType", FullName: $("#Type1").val() }, function (data1) {
+                            $("#Type2").empty();
+                            var itemjson1 = eval("(" + data1 + ")");
+                            $.each(itemjson1, function (i) {
+                                $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                            });
+                            $("#Type2").val(dataff["Type2"]);
+                        });
+                        $("#Type1").change(function () {
+                            getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "CostType", FullName: $("#Type1").val() }, function (data1) {
+                                $("#Type2").empty();
+                                var itemjson1 = eval("(" + data1 + ")");
+                                $.each(itemjson1, function (i) {
+                                    $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                                });
+                            });
+                        });
+                    });
+                }
+            });
+        }
+        else {
+            if ($("#Type0").val() == "收款") {
+                getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: "收款类型" }, function (data) {
+                    var itemjson = eval("(" + data + ")");
+                    $.each(itemjson, function (i) {
+                        $("#Type1").append($("<option></option>").val(itemjson[i].Code).html(itemjson[i].FullName));
+                    });
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "收款类型", FullName: $("#Type1").val() }, function (data1) {
+                        $("#Type2").empty();
+                        var itemjson1 = eval("(" + data1 + ")");
+                        $.each(itemjson1, function (i) {
+                            $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                        });
+                    });
+                    $("#Type1").change(function () {
+                        getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "收款类型", FullName: $("#Type1").val() }, function (data1) {
+                            $("#Type2").empty();
+                            var itemjson1 = eval("(" + data1 + ")");
+                            $.each(itemjson1, function (i) {
+                                $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                            });
+                        });
+                    });
+                });
+            }
+            else {
+                getAjax('/CommonModule/DataDictionary/BinDingItemsJson', { Code: "CostType" }, function (data) {
+                    var itemjson = eval("(" + data + ")");
+                    $.each(itemjson, function (i) {
+                        $("#Type1").append($("<option></option>").val(itemjson[i].Code).html(itemjson[i].FullName));
+                    });
+                    getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "CostType", FullName: $("#Type1").val() }, function (data1) {
+                        $("#Type2").empty();
+                        var itemjson1 = eval("(" + data1 + ")");
+                        $.each(itemjson1, function (i) {
+                            $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                        });
+                    });
+                    $("#Type1").change(function () {
+                        getAjax('/CommonModule/DataDictionary/BinDingItemsJson1', { Code: "CostType", FullName: $("#Type1").val() }, function (data1) {
+                            $("#Type2").empty();
+                            var itemjson1 = eval("(" + data1 + ")");
+                            $.each(itemjson1, function (i) {
+                                $("#Type2").append($("<option></option>").val(itemjson1[i].FullName).html(itemjson1[i].FullName));
+                            });
+                        });
+                    });
+                });
+            }
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+
+        if ($("#Type0").val() == "收款") {
+            $("#TotalAmount").val(Math.abs($("#TotalAmount").val()))
+        }
+        else {
+            $("#TotalAmount").val(-Math.abs($("#TotalAmount").val()))
+
+        }
+
+        var postData = GetWebControls("#form1");
+        AjaxJson("/CheckSheetModule/BY_CheckCompany/SubmitForm1?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+
+     
+        <tr>
+            <th class="formTitle" >收款客户：</th>
+            <td class="formValue">
+                <input id="CustomerId" type="hidden" />
+                <input id="CustomerCode" type="text" class="txt" style="width: 95%" datacol="yes" err="收款客户" checkexpession="NotNull" />
+            </td>
+            <th class="formTitle" >客户名称：</th>
+            <td class="formValue">
+                <input id="CustomerName"  type="text" class="txt" style="width: 95%" />
+            </td>
+        </tr>
+        <tr>
+            
+            <th class='formTitle'>联系人：</th>
+            <td class='formValue'>
+                <input id="ContactName" maxlength=200 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>手机：</th>
+            <td class='formValue'>
+                <input id="MobileCode" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>联系电话：</th>
+            <td class='formValue'>
+                <input id="ContactTel" maxlength=50 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>传真：</th>
+            <td class='formValue'>
+                <input id="ContactFax" maxlength=50 type="text" class="txt"   />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>客户地址：</th>
+            <td class='formValue'>
+                <input id="CustomerAddress" maxlength=2000 type="text" class="txt"   />
+            </td>
+            <th class='formTitle'>时间：</th>
+            <td class='formValue' >
+                <input id="CreateDate" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})" style="width: 180px"  datacol="yes" err="收款时间" checkexpession="NotNull"  />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>总金额：</th>
+            <td class='formValue' >
+                <input id="TotalAmount" onfocus="IsMoney(this.id);" maxlength=18 type="text" class="txt" datacol="yes" err="金额" checkexpession="NotNull"  />
+            </td>
+            <th class='formTitle'>选项：</th>
+            <td class='formValue'>
+             
+
+                
+                <select id="Type0" class="txtselect" style="width:30%" onchange="setType();"  datacol="yes" err="收款项0" checkexpession="NotNull">
+                    <option value="收款">收款</option>
+                    <option value="付款">付款</option>
+                </select>
+                <select id="Type1" class="txtselect" style="width:30%"  datacol="yes" err="收款项1" checkexpession="NotNull">
+                </select>
+                <select id="Type2" class="txtselect"  style="width:35%" datacol="yes" err="收款项2" checkexpession="NotNull">
+                </select>
+
+            </td>
+        </tr>
+           
+        <tr>
+            <th class='formTitle'>备注：</th>
+            <td class="formValue" colspan="3">
+                    <textarea id="Remark" class="txtArea" rows="8" datacol="yes" err="备注" checkexpession="NotNull"></textarea>
+                </td>
+        </tr>
+      
+    </table>
+</form>

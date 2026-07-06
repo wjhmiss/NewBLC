@@ -1,0 +1,474 @@
+﻿@{
+    ViewBag.Title = "销售汇总表";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<script src="~/Content/Scripts/Workday/kalendaryyyydd1.js"></script>
+@Styles.Render("~/Content/Scripts/Workday/kalendarcss")
+
+<script type="text/javascript">
+    $(function () {
+        CustomerAutocomplete();
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+
+    //客户编码自动补全
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.FullName);
+            $("#PaymentMode").val(data.PaymentMode);
+            btn_Search();
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Customer/GetAutoCompleJsonNXJ", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 70%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="ShortName" style="display: none;">' + DataJson[i].ShortName + '</td>';
+                    html += '<td id="Sellpeople" style="display: none;">' + DataJson[i].Sellpeople + '</td>';
+                    html += '<td id="SalesArea" style="display: none;">' + DataJson[i].Sellarea + '</td>';
+                    html += '<td id="DiscountRate" style="display: none;">' + DataJson[i].DiscountRate + '</td>';
+                    html += '<td id="TransitMode" style="display: none;">' + DataJson[i].TransitMode + '</td>';
+                    html += '<td id="PaymentMode" style="display: none;">' + DataJson[i].PaymentMode + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.FullName);
+                    $("#PaymentMode").val(data.PaymentMode);
+                    btn_Search();
+                });
+
+            });
+        }
+    }
+
+
+    var tempred = "";
+    var tempred1 = "";
+    //查询
+    function btn_Search() {
+        var YearMonth = "";
+        if ($("#month").find("select[name='year']").val() == "12") {
+            YearMonth = "";
+        }
+        else {
+            YearMonth = $("#year").find("select[name='year']").val() + "-" + (Number($("#month").find("select[name='year']").val()) + 1);
+        }
+
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/CheckSheetModule/BY_CheckSheet/SalesummaryList")?StartTime=" + $("#StartTime").val() + "&EndTime=" + $("#EndTime").val() + "&CustomerCode=" + escape($("#CustomerCode").val()) + "&IsComfirm=" + $("#IsComfirm").prop("checked") + "&Sellpeople=" + escape($("#Sellpeople").val()), page: 1 }).trigger('reloadGrid');
+    }
+   
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx = 0;
+        //var YearMonth = "";
+        //if ($("#month").find("select[name='year']").val() == "12") {
+        //    YearMonth = "";
+        //}
+        //else {
+        //    YearMonth = $("#year").find("select[name='year']").val() + "-" + (Number($("#month").find("select[name='year']").val()) + 1);
+        //}
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/CheckSheetModule/BY_CheckSheet/SalesummaryList")?StartTime=" + $("#StartTime").val() + "&EndTime=" + $("#EndTime").val() + "&CustomerCode=" + escape($("#CustomerCode").val()) + "&IsComfirm=" + $("#IsComfirm").prop("checked"),
+            datatype: "json",
+            height: $(window).height() - 148,
+            autowidth: true,
+            colModel: [
+                    { label: '客户名称', name: 'customername', index: 'customername', width: 100, align: 'center' },
+                    { label: '业务员', name: 'salesman', index: 'salesman', width: 60, align: 'center' },
+                    {
+                        label: '材料', name: 'gcbefore', index: 'gcbefore', width: 70, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!cellvalue) {
+                                return "";
+                            }
+                            return cellvalue;
+                        }
+                },
+                {
+                    label: '配件', name: 'ljbefore', index: 'ljbefore', width: 70, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) {
+                            return "";
+                        }
+                        return cellvalue;
+                    }
+                },
+                    {
+                        label: '热处理', name: 'rclbefore', index: 'rclbefore', width: 70, align: 'center',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!cellvalue) {
+                                return "";
+                            }
+                            return cellvalue;
+                        }
+                    },
+                     {
+                         label: '材料', name: 'gcnow', index: 'gcnow', width: 70, align: 'center',
+                         formatter: function (cellvalue, options, rowObject) {
+                             if (!cellvalue) {
+                                 return "";
+                             }
+                             return cellvalue;
+                         }
+                },
+                {
+                    label: '配件', name: 'ljnow', index: 'ljnow', width: 70, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) {
+                            return "";
+                        }
+                        return cellvalue;
+                    }
+                },
+                      {
+                          label: '热处理', name: 'rclnow', index: 'rclnow', width: 70, align: 'center',
+                          formatter: function (cellvalue, options, rowObject) {
+                              if (!cellvalue) {
+                                  return "";
+                              }
+                              return cellvalue;
+                          }
+                      },
+                       {
+                           label: '材料现金', name: 'gcreturn1', index: 'gcreturn1', width: 70, align: 'center',
+                           formatter: function (cellvalue, options, rowObject) {
+                               if (!cellvalue) {
+                                   return "";
+                               }
+                               return cellvalue;
+                           }
+                       },
+                        {
+                            label: '材料承兑', name: 'gcreturn2', index: 'gcreturn2', width: 70, align: 'center',
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (!cellvalue) {
+                                    return "";
+                                }
+                                return cellvalue;
+                            }
+                },
+                {
+                    label: '配件现金', name: 'ljreturn1', index: 'ljreturn1', width: 70, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) {
+                            return "";
+                        }
+                        return cellvalue;
+                    }
+                },
+                {
+                    label: '配件承兑', name: 'ljreturn2', index: 'ljreturn2', width: 70, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) {
+                            return "";
+                        }
+                        return cellvalue;
+                    }
+                },
+                         {
+                             label: '热处理', name: 'rclreturn', index: 'rclreturn', width: 70, align: 'center',
+                             formatter: function (cellvalue, options, rowObject) {
+                                 if (!cellvalue) {
+                                     return "";
+                                 }
+                                 return cellvalue;
+                             }
+                         },
+                          {
+                              label: '合计', name: 'nowreturntotal', index: 'nowreturntotal', width: 70, align: 'center',
+                              formatter: function (cellvalue, options, rowObject) {
+                                  if (!cellvalue) {
+                                      return "";
+                                  }
+                                  return cellvalue;
+                              }
+                          },
+
+                          {
+                              label: '其中折让', name: 'zrmoney', index: 'zrmoney', width: 70, align: 'center',
+                              formatter: function (cellvalue, options, rowObject) {
+                                  if (!cellvalue) {
+                                      return "";
+                                  }
+                                  return cellvalue;
+                              }
+                          },
+
+
+                           {
+                               label: '材料', name: 'gctotal', index: 'gctotal', width: 70, align: 'center',
+                               formatter: function (cellvalue, options, rowObject) {
+                                   if (!cellvalue) {
+                                       return "";
+                                   }
+                                   return cellvalue;
+                               }
+                },
+                {
+                    label: '配件', name: 'ljtotal', index: 'ljtotal', width: 70, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) {
+                            return "";
+                        }
+                        return cellvalue;
+                    }
+                },
+                            {
+                                label: '热处理', name: 'rcltotal', index: 'rcltotal', width: 70, align: 'center',
+                                formatter: function (cellvalue, options, rowObject) {
+                                    if (!cellvalue) {
+                                        return "";
+                                    }
+                                    return cellvalue;
+                                }
+                            },
+                             {
+                                 label: '总欠款', name: 'total', index: 'total', width: 70, align: 'center',
+                                 formatter: function (cellvalue, options, rowObject) {
+                                     if (!cellvalue) {
+                                         return "";
+                                     }
+                                     return cellvalue;
+                                 }
+                             },
+                              {
+                                  label: '材料', name: 'gckpbefore', index: 'gckpbefore', width: 70, align: 'center',
+                                  formatter: function (cellvalue, options, rowObject) {
+                                      if (!cellvalue) {
+                                          return "";
+                                      }
+                                      return cellvalue;
+                                  }
+                },
+                {
+                    label: '配件', name: 'ljkpbefore', index: 'ljkpbefore', width: 70, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) {
+                            return "";
+                        }
+                        return cellvalue;
+                    }
+                },
+                               {
+                                   label: '热处理', name: 'rclkpbefore', index: 'rclkpbefore', width: 70, align: 'center',
+                                   formatter: function (cellvalue, options, rowObject) {
+                                       if (!cellvalue) {
+                                           return "";
+                                       }
+                                       return cellvalue;
+                                   }
+                               },
+                                {
+                                    label: '材料', name: 'gckpnowed', index: 'gckpnowed', width: 70, align: 'center',
+                                    formatter: function (cellvalue, options, rowObject) {
+                                        if (!cellvalue) {
+                                            return "";
+                                        }
+                                        return cellvalue;
+                                    }
+                },
+                {
+                    label: '配件', name: 'ljkpnowed', index: 'ljkpnowed', width: 70, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) {
+                            return "";
+                        }
+                        return cellvalue;
+                    }
+                },
+                                 {
+                                     label: '热处理', name: 'rclkpnowed', index: 'rclkpnowed', width: 70, align: 'center',
+                                     formatter: function (cellvalue, options, rowObject) {
+                                         if (!cellvalue) {
+                                             return "";
+                                         }
+                                         return cellvalue;
+                                     }
+                                 },
+                                  {
+                                      label: '材料', name: 'gckptotal', index: 'gckptotal', width: 70, align: 'center',
+                                      formatter: function (cellvalue, options, rowObject) {
+                                          if (!cellvalue) {
+                                              return "";
+                                          }
+                                          return cellvalue;
+                                      }
+                },
+                {
+                    label: '配件', name: 'ljkptotal', index: 'gckptotal', width: 70, align: 'center',
+                    formatter: function (cellvalue, options, rowObject) {
+                        if (!cellvalue) {
+                            return "";
+                        }
+                        return cellvalue;
+                    }
+                },
+                                   {
+                                       label: '热处理', name: 'rclkptotal', index: 'rclkptotal', width: 70, align: 'center',
+                                       formatter: function (cellvalue, options, rowObject) {
+                                           if (!cellvalue) {
+                                               return "";
+                                           }
+                                           return cellvalue;
+                                       }
+                                   },
+            ],
+            pager: false,
+            viewrecords: true,
+            rowNum: 9999,
+            rowList: [30, 50, 100, 500, 5000],
+            //pager: "#gridPager",
+            sortname: 'customercode',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: false,
+            altclass: 'altclass',
+            gridview: true,
+            footerrow: true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                //合计
+                $(this).footerData("set", {
+                    "customername": "合计",
+                    "gcbefore": FormatCurrency($("#gridTable").getCol('gcbefore', false, 'sum')),
+                    "rclbefore": FormatCurrency($("#gridTable").getCol('rclbefore', false, 'sum')),
+                    "gcnow": FormatCurrency($("#gridTable").getCol('gcnow', false, 'sum')),
+                    "rclnow": FormatCurrency($("#gridTable").getCol('rclnow', false, 'sum')),
+                    "gcreturn1": FormatCurrency($("#gridTable").getCol('gcreturn1', false, 'sum')),
+                    "gcreturn2": FormatCurrency($("#gridTable").getCol('gcreturn2', false, 'sum')),
+                    "rclreturn": FormatCurrency($("#gridTable").getCol('rclreturn', false, 'sum')),
+                    "nowreturntotal": FormatCurrency($("#gridTable").getCol('nowreturntotal', false, 'sum')),
+                    "gctotal": FormatCurrency($("#gridTable").getCol('gctotal', false, 'sum')),
+                    "rcltotal": FormatCurrency($("#gridTable").getCol('rcltotal', false, 'sum')),
+                    "total": FormatCurrency($("#gridTable").getCol('total', false, 'sum')),
+                    "gckpbefore": FormatCurrency($("#gridTable").getCol('gckpbefore', false, 'sum')),
+                    "rclkpbefore": FormatCurrency($("#gridTable").getCol('rclkpbefore', false, 'sum')),
+                    "gckpnowed": FormatCurrency($("#gridTable").getCol('gckpnowed', false, 'sum')),
+                    "rclkpnowed": FormatCurrency($("#gridTable").getCol('rclkpnowed', false, 'sum')),
+                    "gckptotal": FormatCurrency($("#gridTable").getCol('gckptotal', false, 'sum')),
+                    "rclkptotal": FormatCurrency($("#gridTable").getCol('rclkptotal', false, 'sum')),
+                    "zrmoney": FormatCurrency($("#gridTable").getCol('zrmoney', false, 'sum')),
+                });
+
+            }
+
+
+        });
+        //表头合并
+        $("#gridTable").jqGrid('setGroupHeaders', {
+            useColSpanStyle: true,
+            groupHeaders: [
+              { startColumnName: 'gcbefore', numberOfColumns: 3, titleText: '上期余额' },
+              { startColumnName: 'gcnow', numberOfColumns: 3, titleText: '本月销售' },
+              { startColumnName: 'gcreturn1', numberOfColumns: 7, titleText: '本月回款' },
+              { startColumnName: 'gctotal', numberOfColumns: 3, titleText: '本期余额' },
+              { startColumnName: 'gckpbefore', numberOfColumns: 3, titleText: '上期未开' },
+              { startColumnName: 'gckpnowed', numberOfColumns: 3, titleText: '本月已开' },
+              { startColumnName: 'gckptotal', numberOfColumns: 3, titleText: '本期未开' },
+
+            ]
+        });
+    }
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", $("#StartTime").val() + "-" + $("#EndTime").val() + "汇总表");
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+    function btn_Export1() {
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "@Url.Content("~/CheckSheetModule/BY_CheckSheet/DownLoadExcel")";
+            Loading(false);
+        }, 200);
+    }
+</script>
+<div class="leftline rightline topline QueryArea" style="margin: 1px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;" id="QueryParameter">
+        <tr>
+            <th>时间：</th>
+            <td>
+          @*          <div style="overflow: auto;">
+        <div id='wrap' style="float: inherit; width: 100%">
+        </div>
+    </div>*@
+                
+                <input id="StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()" style="width: 120px" />
+            至：
+                <input id="EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()" style="width: 120px" />
+            </td>
+            <th >客户编码或名称：</th>
+            <td>
+                <input id="CustomerCode"  type="text" class="txt" style="width: 95%" />
+            </td>
+            <th >业务员：</th>
+            
+            <td>
+                     <input id="Sellpeople" type="text" class="txt" style="width: 100px" />
+                            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+            <td>
+                <input id="btn_export" type="button" class="btnSearch" value="列表导出" onclick="btn_Export()" />
+            </td>
+            
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+    <style>
+        .altclass {
+            background: #fffccc;
+        }
+
+        .ui-jqgrid tr.ui-row-ltr td {
+            border-bottom: 1px solid #ccc;
+        }
+
+        .ui-jqgrid .ui-jqgrid-htable th {
+            line-height: 15px;
+        }
+
+            .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+                background: none;
+            }
+
+        .editable {
+            height: 22px;
+            background-color: #fff;
+        }
+    </style>
+</div>

@@ -1,0 +1,875 @@
+﻿@{
+    ViewBag.Title = "订单消数称重";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<!--jqgrid表格组件start-->
+@*<script src="~/Content/Scripts/jqgrid/jquery-ui-custom.min.js"></script>
+<script src="~/Content/Scripts/jqgrid/grid.locale-cn.js"></script>
+<link href="~/Content/Scripts/jqgrid/css/jqgrid.css" rel="stylesheet" />
+<script src="~/Content/Scripts/jqgrid/jqGrid.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/jqgrid/jqgridjquery")
+    @Styles.Render("~/Content/Scripts/jqgrid/css/jqgridcss")
+@Scripts.Render("~/Content/Scripts/lhgdialog/lhgdialogjquery")
+<!--表格组件end-->
+<script>
+    var KeyValue = "";
+    var OrderDetailId = "";
+    var Weight = 0;
+    var OrderData;
+    //var EditFlag = 0;//编辑状态
+    //var isEditFlag = 0;//使用修改的数据
+    $(function () {
+        $("body").unbind("onkeydown");
+        document.onkeydown = function (event) {
+            var e = event || window.event || arguments.callee.caller.arguments[0];
+            var tar = e.srcElement || e.target;
+            if (e && e.keyCode == 13) {
+                if ($('.ui_state_highlight').length > 0) {
+                    $('.ui_state_highlight').trigger("click");
+                }
+
+            }
+            //if ($("#O_OperatorID").val() == "") {
+            //    $("#O_OperatorID").select();
+            //}
+        };
+
+        //setInterval("GetScale();", 1000);
+        GetGrid();
+        BatchCodeAutocomplete();
+        ScanOrder();
+        //if ($('#lr-save1').length>0) {
+        var role = "@DNS.Utilities.ManageProvider.Provider.Current().ObjectId";
+        if ((role && role.indexOf("20178431-3604-46b6-a75b-f7ba13548aed") >= 0) || role == "") {
+            $("#gridTable").setColProp("Weight", {
+                editable: true
+            });
+        }
+        //$("#O_OperatorID").select();
+    })
+    var lastcell = 0;
+    var lastrow = 0;
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            datatype: "local",
+            height: $(window).height() - 380,
+            autowidth: true,
+            colModel: [
+                { label: "主键", name: "OrderDetailId", width: 80,  align: 'center', hidden: true },
+                { label: "类型", name: "Type", width: 70,  align: 'center' },
+                { label: "订单编号", name: "OrderCode", width: 120,  align: 'center' },
+                { label: "行号", name: "LineCode", width: 50, align: 'center', hidden: true },
+                { label: "钢种", name: "SteelCode", width: 50, align: 'center' },
+                { label: "钢种名称", name: "SteelDescription", width: 70, align: 'center' },
+                { label: "开料件数", name: "Qty", width: 50, editable: true, align: 'center' },
+                { label: "厚度", name: "Thick", width: 50, align: 'center' },
+                { label: "宽度", name: "Weigh", width: 50, align: 'center' },
+                { label: "长度", name: "Length", width: 50, },
+                { label: "未完工数", name: "UnCompleteQty", width: 50,  align: 'center' },
+                { label: "客户编码", name: "CustomerCode", width: 80,  align: 'center' },
+                { label: "交货期", name: "Delivery", width: 80, align: 'center' },
+                { label: "称重重量", name: "Weight", width: 60,  align: 'center' },
+                { label: "理论重量", name: "TheoryWeight", width: 60,  align: 'center' },
+                { label: "磅重人", name: "ScaleUser", width: 80, align: 'center', hidden: true },
+                { label: "磅重时间", name: "ScaleDate", width: 120,  align: 'center' }
+            ],
+            pager: false,
+            shrinkToFit: false,
+            rownumbers: true,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            cellEdit: true,
+            cellsubmit: 'clientArray',
+            afterEditCell: function (id, name, val, iRow, iCol) {
+                jQuery("#" + iRow + "_Qty").keyup(function () {
+                    var qtya = $(this).val();
+                    var weight = $("#O_Weight").val();
+                    $("#gridTable").jqGrid('setRowData', iRow - 1, { TheoryWeight: Number(qtya) * Number(weight) });
+                    $("#gridTable").jqGrid('setRowData', iRow - 1, { Weight: Number(qtya) * Number(weight) });
+                    $("#OpenQty").val(qtya);
+                });
+                jQuery("#" + iRow + "_Weight").keyup(function () {
+                    var weight = $(this).val();
+                    $("#OpenTotalWeight").val(weight);
+                });
+                lastrow = iRow;
+                lastcell = iCol;
+            }
+        });
+
+
+    }
+    //编辑一行
+    //$("#lr-edit-Row").click(function () {
+    function lreditRow() {
+        var index = GetJqGridRowIndx("#gridTable");
+        if (index) {
+            $("#gridTable").jqGrid('editRow', index);
+            //$("#toolbar_a").hide();
+            //$("#toolbar_b").show();
+            //EditFlag = 1;
+            //isEditFlag = 1;
+        }
+    };
+    //保存
+    //$("#lr-save-Row").click(function () {
+    function lrsaveRow() {
+        //if (!CheckDataValid('#form1')) {
+        //    return false;
+        //}
+        //var index = GetJqGridRowIndx("#gridTable");
+
+        //$('#gridTable').jqGrid('saveRow', index, { url: 'clientArray' });
+        //$("#gridTable").jqGrid('saveRow', index, false, 'clientArray');
+
+        //var qtya = GetJqGridValue("#gridTable", index, "Qty");
+        //var weigha = $("#O_Weight").val();
+        //$("#gridTable").jqGrid('setRowData', index, { TheoryWeight: parseFloat(qtya) * parseFloat(weigha) });
+
+        //$("#toolbar_a").show();
+        //$("#toolbar_b").hide();
+        //EditFlag = 0;
+        $('#gridTable').jqGrid('saveCell', lastrow, lastcell);
+    };
+    //取消
+    //$("#lr-cancel-Row").click(function () {
+    function lrcancelRow() {
+        var Index = GetJqGridRowIndx("#gridTable");
+        $("#gridTable").jqGrid("restoreRow", Index);
+        //$("#toolbar_a").show();
+        //$("#toolbar_b").hide();
+        //EditFlag = 0;
+    };
+    //删除
+    //$("#lr-delete-Row").click(function () {
+    function lrdeleteRow() {
+        var Index = GetJqGridRowIndx("#gridTable");
+        $("#gridTable").jqGrid("delRowData", Index);
+        //$("#toolbar_a").hide();
+        //$("#toolbar_b").show();
+        //EditFlag = 0;
+    };
+    //批号自动补全
+    function BatchCodeAutocomplete() {
+        var $BatchCode = $("#BatchCode");
+        $BatchCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("BatchCode", function (data) {
+            $("#BatchCode").val(data.BatchCode);
+            SetSteelControl();
+        });
+        //获取数据源 $("#BatchCode").val()
+        function DataSource() {
+            AjaxJson("/StorageModule/BY_Inventory/GetListJsonforReplace", { BatchCode: $("#BatchCode").val(), InventoryType: "", batchcodereplace: $("#O_SteelCode").val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="BatchCode" >' + DataJson[i].BatchCode + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("BatchCode", $BatchCode.width() + "px", "200px", html, function (data) {
+                    $("#BatchCode").val(data.BatchCode);
+                    SetSteelControl();
+                });
+            });
+        }
+    }
+
+    //var Density1 = 0;
+    //得到一个对象实体
+    function SetSteelControl() {
+        if (!GetQuery($("#BatchCode").val())) {
+            AjaxJson("/StorageModule/BY_Inventory/GetEntityJson", { BatchCode: $("#BatchCode").val(), ChildBatch: "" }, function (data) {
+                $("#Weight").val(Number($.trim(data.Weight).replace("&nbsp;", "")).toFixed(2));
+                $("#SteelDescription").val($.trim(data.SteelDescription).replace("&nbsp;", ""));
+                if ($.trim(data.MaterialType).replace("&nbsp;", "") == "1") {
+                    $("#BeforeSize").val("");
+                    $("#OpenSize").val("0.00").prop("disabled", true);
+                    $("#OpenQty").prop("disabled", false);
+                    $("#OpenTotalWeight").prop("disabled", false);
+
+                    $("#AfterSize").val("");
+                     GetOThick = 0;
+                     GetOWeigh = 0;
+                     GetOLength = 0;
+                     isSuiliao = 1;
+                }
+                else {
+                    $("#BeforeSize").val(data.Length + "*" + data.Weigh + "*" + data.Thick);
+                    $("#OpenSize").val("0.00").prop("disabled", false);
+                    $("#OpenQty").prop("disabled", false);
+                    $("#OpenTotalWeight").prop("disabled", false);
+
+                    $("#AfterSize").val("");
+                    GetOThick = Number(data.Thick);
+                    GetOWeigh = Number(data.Weigh);
+                    GetOLength = Number(data.Length);
+                    isSuiliao = 0;
+                }
+
+                KeyValue = data.InventoryId;
+                //AjaxJsonNoMassge("/CommonModule/Steel/GetSteelEntity", { SteelId: $.trim(data.SteelId).replace("&nbsp;", "") }, function (steeldata) {
+                //    Density1 = Number(steeldata.Density);
+                //});
+            });
+        }
+    }
+    var isSuiliao = 1;
+    var GetOThick = 0;
+    var GetOWeigh = 0;
+    var GetOLength = 0;
+    var NewLength = 0;
+    function CourtOpenSize() {
+        var OpenSize = Number($("#OpenSize").val());
+        var OpenQty = Number($("#OpenQty").val());
+
+        //单重
+        var O_Weight = Number($("#O_Weight").val());
+        var OpenTotalWeight = Number(O_Weight * OpenQty);
+       // $("#OpenTotalWeight").val(OpenTotalWeight);
+
+
+        NewLength = GetOLength - OpenSize;
+        //NewLength = NewLength - yuliang > 0 ? NewLength - yuliang : 0;
+        $("#AfterSize").val(NewLength + "*" + GetOWeigh + "*" + GetOThick);
+
+        $("#gridTable").jqGrid('setRowData', 0, { Qty: OpenQty });
+        $("#gridTable").jqGrid('setRowData', 0, { TheoryWeight: OpenTotalWeight });
+        $("#gridTable").jqGrid('setRowData', 0, { Weight: $("#OpenTotalWeight").val() });
+    }
+    var Density = 0;
+    //编辑事件
+    function btn_edit() {
+        //var index = GetJqGridRowIndx("#gridTable");
+        //if (index) {
+        //    var rowData = $("#gridTable").jqGrid('getRowData', index);
+        //    $("#BatchCode").val(rowData.OrderCode + "-" + rowData.LineCode);
+        //    AjaxJson("/OrderModule/OrderQuery/GetOrderDetailScaleJson", { BarCode: rowData.OrderCode + "-" + rowData.LineCode }, function (data) {
+
+
+        //        OrderData = data[0];
+        //        OrderDetailId = data.orderdetailid;
+        //        $("#O_SteelCode").val($.trim(data[0].steelcode).replace("&nbsp;", ""));
+        //        $("#O_SteelStatus").val($.trim(data[0].steelstate).replace("&nbsp;", ""));
+        //        $("#O_Thick").val($.trim(data[0].thick).replace("&nbsp;", ""));
+        //        $("#O_Weigh").val($.trim(data[0].weigh).replace("&nbsp;", ""));
+        //        $("#O_Length").val($.trim(data[0].length).replace("&nbsp;", ""));
+        //        $("#O_Qty").val($.trim(data[0].qty).replace("&nbsp;", ""));
+        //        $("#O_Weight").val(Number(rowData.TheoryWeight).toFixed(2));
+        //        $("#O_TotalWeight").val(Number(Number(rowData.TheoryWeight) * Number(data[0].qty)).toFixed(2));
+        //        $("#O_BillCode").select();
+        //        $("#BatchCode").val($.trim(data[0].brokensteel).replace("&nbsp;", ""));
+        //        $("#Weight").val(Number($.trim(data[0].stockweight).replace("&nbsp;", "")).toFixed(2));
+        //    });
+        //}
+        //var index = GetJqGridRowIndx("#gridTable");
+        //Weight = GetJqGridValue("#gridTable", index, "Weight");
+    }
+    //保存事件
+    function btn_save() {
+        if (JSON.stringify(OrderData).length < 10) {
+            return false;
+        }
+        //if (EditFlag == 1) {//不处于编辑状态时不允许重复扫描
+            //$("#lr-save-Row").click();
+            lrsaveRow();
+            //if (JSON.stringify($("#gridTable").jqGrid("getRowData")).indexOf(OrderData.orderdetailid) >= 0) {
+            //    tipDialog("请先！", 3, 0);
+            //    return false;
+            //}
+        //}
+        if ($("#BatchCode").val() == "") {
+            tipDialog1("请选择批次号！", 2, 0);
+            return;
+        }
+        if ($.trim($("#Weight").val()).replace("&nbsp;", "") == "" || $.trim($("#Weight").val()).replace("&nbsp;", "") == "0" || $.trim($("#Weight").val()).replace("&nbsp;", "") == "0.00") {
+            tipDialog1("操作失败：库存为0，请选择其他替代料！", 2, 0);
+            return;
+        }
+        //else {//处于编辑状态时先删除旧行
+        //    EditFlag = 0;
+        //    var Index = GetJqGridRowIndx("#gridTable");
+        //    $("#gridTable").jqGrid("delRowData", Index);
+        //}
+
+        if (isSuiliao == 0) {
+            if (NewLength < 0) {
+                tipDialog1("开料尺寸大于仓库钢材尺寸，请检查！", 2, 0);
+                $("#OpenSize").select();
+                return;
+            }
+            var OpenSize = Number($("#OpenSize").val());
+            if (OpenSize < OrderData.weigh && OpenSize < OrderData.length) {
+                tipDialog1("开料尺寸小于工件尺寸，请检查！", 2, 0);
+                $("#OpenSize").select();
+                return;
+            }
+        }
+
+
+        var orderdetailid = OrderData.orderdetailid;
+        var index = GetJqGridRowIndx("#gridTable");
+        Weight = GetJqGridValue("#gridTable", index, "Weight");
+        var QTY = GetJqGridValue("#gridTable", index, "Qty");
+        TheoryWeight = GetJqGridValue("#gridTable", index, "TheoryWeight");
+
+
+        var temqty = $("#O_Qty").val();
+        if (temqty == "0") {
+            tipDialog1("操作失败：此订单行可以消数件数为0", 2, 0);
+            return false;
+        }
+        if (Number(temqty) < Number(QTY)) {
+            tipDialog1("操作失败：消数件数大于订单行件数！", 2, 0);
+            return false;
+        }
+        if (Weight == "0") {
+            tipDialog1("操作失败：消数重量为零，不允许提交！", 2, 0);
+            return false;
+        }
+
+
+        var InWeight = (Number(OrderData.weight) / Number(OrderData.qty)).toFixed(2);
+        var DiffWeight = 0;
+        if (InWeight < 0.5) {
+            DiffWeight = InWeight * 1.5;
+            if (Math.abs((Weight / QTY) - InWeight) > DiffWeight) {
+                tipDialog1("小于0.5KG,消数重量不能超过理论重量的1.5倍！", 2, 0);
+                return;
+            }
+        }
+        else if (InWeight < 1) {
+            DiffWeight = InWeight * 1.0;
+            if (Math.abs((Weight / QTY) - InWeight) > DiffWeight) {
+                tipDialog1("0.5至1KG,消数重量不能超过理论重量的1.0倍！", 2, 0);
+                return;
+            }
+        }
+        else if (InWeight < 2) {
+            DiffWeight = InWeight * 0.7;
+            if (Math.abs((Weight / QTY) - InWeight) > DiffWeight) {
+                tipDialog1("1至2KG,消数重量不能超过理论重量的0.7倍！", 2, 0);
+                return;
+            }
+        }
+        else if (InWeight < 5) {
+            DiffWeight = InWeight * 0.6;
+            if (Math.abs((Weight / QTY) - InWeight) > DiffWeight) {
+                tipDialog1("2至5KG,消数重量不能超过理论重量的0.6倍！", 2, 0);
+                return;
+            }
+        }
+        else if (InWeight < 10) {
+            DiffWeight = InWeight * 0.5;
+            if (Math.abs((Weight / QTY) - InWeight) > DiffWeight) {
+                tipDialog1("5至10KG,消数重量不能超过理论重量的0.5倍！", 2, 0);
+                return;
+            }
+        }
+        else if (InWeight < 30) {
+            DiffWeight = InWeight * 0.4;
+            if (Math.abs((Weight / QTY) - InWeight) > DiffWeight) {
+                tipDialog1("10至30KG,消数重量不能超过理论重量的0.4倍！", 2, 0);
+                return;
+            }
+        }
+        else if (InWeight < 50) {
+            DiffWeight = InWeight * 0.3;
+            if (Math.abs((Weight / QTY) - InWeight) > DiffWeight) {
+                tipDialog1("30至50KG,消数重量不能超过理论重量的0.3倍！", 2, 0);
+                return;
+            }
+        }
+        else {
+            DiffWeight = InWeight * 0.2;
+            if (Math.abs((Weight / QTY) - InWeight) > DiffWeight) {
+                tipDialog1("大于50KG,消数重量不能超过理论重量的0.2倍！", 2, 0);
+                return;
+            }
+        }
+
+        confirmDialog1("提示", "确认提交吗？", function (r) {
+            if (r) {
+                if (!!$("#BatchCode").val()) {
+                    var postData = {
+                        BatchCode: $("#BatchCode").val(),
+                        SteelCode: $("#O_SteelCode").val(),
+                        Thick: $("#O_Thick").val(),
+                        Weigh: $("#O_Weigh").val(),
+                        Length: $("#O_Length").val(),
+                        Weight: Weight,
+                        TheoryWeight:TheoryWeight,
+                        OrderDetailId: orderdetailid,
+                        Qty: QTY,
+                        OpenSize: Number($("#OpenSize").val())
+                        //OperatorID: $("#O_OperatorID").val()
+                    }
+                    AjaxJsonNoMassge("/StorageModule/BY_OutStock/SubmitScaleForm", postData, function (data) {
+                        tipDialog1(data.Message, 2, data.Code);
+                        if (data.Code == 1) {
+                            $("#O_BillCode").val("");
+                            $("#O_SteelCode").val("");
+                            $("#O_SteelStatus").val("");
+                            $("#O_Thick").val("");
+                            $("#O_Weigh").val("");
+                            $("#O_Length").val("");
+                            $("#O_Qty").val("");
+                            $("#O_Weight").val("");
+                            $("#O_TotalWeight").val("");
+                            $("#O_BillCode").select();
+                            $("#BatchCode").val("");
+                            $("#Weight").val("");
+                            $('#gridTable').jqGrid("clearGridData");
+                        }
+
+                    });
+                }
+            }
+        })
+    }
+    function btn_save1() {
+        if (JSON.stringify(OrderData).length < 10) {
+            return false;
+        }
+        //if (EditFlag == 1) {//不处于编辑状态时不允许重复扫描
+            //$("#lr-save-Row").click();
+            lrsaveRow();
+            //if (JSON.stringify($("#gridTable").jqGrid("getRowData")).indexOf(OrderData.orderdetailid) >= 0) {
+            //    tipDialog("请先！", 3, 0);
+            //    return false;
+            //}
+        //}
+        if ($("#BatchCode").val() == "") {
+            tipDialog1("请选择批次号！", 2, 0);
+            return;
+        }
+        if ($.trim($("#Weight").val()).replace("&nbsp;", "") == "" || $.trim($("#Weight").val()).replace("&nbsp;", "") == "0" || $.trim($("#Weight").val()).replace("&nbsp;", "") == "0.00") {
+            tipDialog1("操作失败：库存为0，请选择其他替代料！", 2, 0);
+            return;
+        }
+        //else {//处于编辑状态时先删除旧行
+        //    EditFlag = 0;
+        //    var Index = GetJqGridRowIndx("#gridTable");
+        //    $("#gridTable").jqGrid("delRowData", Index);
+        //}
+
+        if (isSuiliao == 0) {
+            if (NewLength < 0) {
+                tipDialog1("开料尺寸大于仓库钢材尺寸，请检查！", 2, 0);
+                $("#OpenSize").select();
+                return;
+            }
+            var OpenSize = Number($("#OpenSize").val());
+            if (OpenSize < OrderData.weigh && OpenSize < OrderData.length) {
+                tipDialog1("开料尺寸小于工件尺寸，请检查！", 2, 0);
+                $("#OpenSize").select();
+                return;
+            }
+        }
+
+
+        var orderdetailid = OrderData.orderdetailid;
+        var index = GetJqGridRowIndx("#gridTable");
+        Weight = GetJqGridValue("#gridTable", index, "Weight");
+        var QTY = GetJqGridValue("#gridTable", index, "Qty");
+        TheoryWeight = GetJqGridValue("#gridTable", index, "TheoryWeight");
+
+        var temqty = $("#O_Qty").val();
+        if (temqty == "0") {
+            tipDialog1("操作失败：此订单行可以消数件数为0", 2, 0);
+            return false;
+        }
+        if (Number(temqty) < Number(QTY)) {
+            tipDialog1("操作失败：消数件数大于订单行件数！", 2, 0);
+            return false;
+        }
+        if (Weight == "0" ) {
+            tipDialog1("操作失败：消数重量为零，不允许提交！", 2, 0);
+            return false;
+        }
+        var InWeight = (Number(OrderData.weight) / Number(OrderData.qty)).toFixed(2);
+        var DiffWeight = 0;
+
+        confirmDialog1("提示", "确认提交吗？", function (r) {
+            if (r) {
+                if (!!$("#BatchCode").val()) {
+                    var postData = {
+                        BatchCode: $("#BatchCode").val(),
+                        SteelCode: $("#O_SteelCode").val(),
+                        Thick: $("#O_Thick").val(),
+                        Weigh: $("#O_Weigh").val(),
+                        Length: $("#O_Length").val(),
+                        Weight: Weight,
+                        TheoryWeight: TheoryWeight,
+                        OrderDetailId: orderdetailid,
+                        Qty: QTY,
+                        OpenSize:Number($("#OpenSize").val())
+                        //OperatorID: $("#O_OperatorID").val()
+                    }
+                    AjaxJsonNoMassge("/StorageModule/BY_OutStock/SubmitScaleForm", postData, function (data) {
+                        tipDialog1(data.Message, 2, data.Code);
+                        if (data.Code == 1) {
+                            $("#O_BillCode").val("");
+                            $("#O_SteelCode").val("");
+                            $("#O_SteelStatus").val("");
+                            $("#O_Thick").val("");
+                            $("#O_Weigh").val("");
+                            $("#O_Length").val("");
+                            $("#O_Qty").val("");
+                            $("#O_Weight").val("");
+                            $("#O_TotalWeight").val("");
+                            $("#O_BillCode").select();
+                            $("#BatchCode").val("");
+                            $("#Weight").val("");
+                            $('#gridTable').jqGrid("clearGridData");
+                        }
+
+                    });
+                }
+            }
+        })
+    }
+        //OrderData = null;
+    //订单扫描事件
+    function ScanOrder() {
+
+        $(document).keypress(function (e) {
+            //回车键事件
+            if (e.which == 13) {
+                if ($("#O_BillCode").val() == "") {
+                    $("#O_BillCode").select();
+                    return;
+                }
+                AjaxJsonNoMassge("/OrderModule/OrderQuery/GetOrderDetailScaleJson", { BarCode: $("#O_BillCode").val() + "--" }, function (data) {
+
+                    if (!data[0] || data.Code == -1) {
+                        tipDialog(data.Message, 3, -1);
+                        $("#O_SteelCode").val("");
+                        $("#O_SteelDescription").val("");
+                        $("#O_OrderType").val("");
+                        $("#O_CustomerName").val("");
+                        $("#O_Thick").val("");
+                        $("#O_Weigh").val("");
+                        $("#O_Length").val("");
+                        $("#O_Qty").val("");
+                        $("#O_Weight").val("");
+                        $("#O_TotalWeight").val("");
+                        $("#O_BillCode").select();
+                        $("#BatchCode").val("");
+                        $("#Weight").val("");
+                        $("#BeforeSize").val("");
+                        $("#OpenSize").val("");
+                        $("#AfterSize").val("");
+                        $("#SteelDescription").val("");
+                        $("#ScaleWeight").html("0");
+                        $('#gridTable').jqGrid("clearGridData");
+                        return false;
+                    }
+                    if (data[0].length == 0) {
+                        tipDialog1("操作失败：此无需消数！", 2, 0);
+                        return false;
+                    }
+                    AjaxJsonNoMassge("/CommonModule/Steel/GetSteelEntity", { SteelId: data[0].steelid }, function (steeldata) {
+                        Density = Number(steeldata.Density);
+                    })
+                    //如果没有过磅就按理论
+                    if (data[0].clearqty == 0) {
+                        //data[0].clearqty = Number(data[0].qty) - Number(data[0].openqty);
+                        //data[0].clearweight = (Number(data[0].clearqty) * Number(data[0].weight) / Number(data[0].qty)).toFixed(2)
+                        data[0].clearqty = 0;
+                        data[0].clearweight = 0
+                    }
+                    OrderData = data[0];
+                    //OrderDetailId = data.orderdetailid;
+                    $("#O_SteelCode").val($.trim(data[0].steelcode).replace("&nbsp;", ""));
+                    $("#O_SteelDescription").val($.trim(data[0].steeldescription).replace("&nbsp;", ""));
+                    $("#O_OrderType").val($.trim(data[0].ordertype).replace("&nbsp;", ""));
+                    $("#O_CustomerName").val($.trim(data[0].customername).replace("&nbsp;", ""));
+                    $("#O_Thick").val($.trim(data[0].thick).replace("&nbsp;", ""));
+                    $("#O_Weigh").val($.trim(data[0].weigh).replace("&nbsp;", ""));
+                    $("#O_Length").val($.trim(data[0].length).replace("&nbsp;", ""));
+                    $("#ScaleWeight").html(data[0].clearweight);
+                    if (data[0].openqty) {
+                        $("#O_Qty").val($.trim(data[0].qty - data[0].openqty).replace("&nbsp;", ""));
+                    }
+                    else {
+                        $("#O_Qty").val($.trim(data[0].qty).replace("&nbsp;", ""));
+                    }
+
+                    $("#O_Weight").val((Number(data[0].weight)  / Number(data[0].qty)).toFixed(2));
+                    $("#O_TotalWeight").val(Number(data[0].weight));
+                    $("#O_Qtyed").val($.trim(data[0].qty).replace("&nbsp;", ""));
+
+                    //if (data[0].brokensteel && data[0].brokensteel != "null") {
+                    //    $("#BatchCode").val($.trim(data[0].brokensteel).replace("&nbsp;", ""));
+                    //    $("#Weight").val(Number($.trim(data[0].stockweight).replace("&nbsp;", "")).toFixed(2));
+                    //}
+                    //else {
+                    //    $("#BatchCode").val($.trim(data[0].steelcode).replace("&nbsp;", ""));
+                    //    $("#Weight").val(0);
+                    //}
+                    $("#BatchCode").val($.trim(data[0].steelcode).replace("&nbsp;", ""));
+                    SetSteelControl();
+
+                    $('#gridTable').jqGrid("clearGridData");
+                    var index = 0;
+                    var postData = {
+                        OrderDetailId: OrderData.orderdetailid,
+                        Type: OrderData.ordertype,
+                        OrderCode: OrderData.ordercode,
+                        SteelDescription: OrderData.steeldescription,
+                        LineCode: OrderData.linecode,
+                        SteelCode: OrderData.steelcode,
+                        Qty: data[0].clearqty,
+                        Thick: OrderData.thick,
+                        Weigh: OrderData.weigh,
+                        Length: OrderData.length,
+                        UnCompleteQty: Number(OrderData.qty) - Number(OrderData.completeqty),
+                        CustomerCode: OrderData.customercode,
+                        Delivery: data[0].delivery,
+                        TheoryWeight: (Number(data[0].clearqty) * Number($("#O_Weight").val())).toFixed(2),
+                        Weight: $("#ScaleWeight").html(),
+                        ScaleUser: "@DNS.Utilities.ManageProvider.Provider.Current().UserName",
+            ScaleDate: CurrentTime()
+        }
+                    $('#gridTable').jqGrid('addRowData', index, postData, "first");
+                    $("#gridTable").setSelection(index);
+                    $("#OpenQty").val(data[0].clearqty);
+                    $("#OpenTotalWeight").val(data[0].clearweight);
+
+                    //$("#lr-edit-Row").click();
+                    //lreditRow();
+                    //$("#O_BillCode").select();
+                    setTimeout(btn_save, 200);
+
+                });
+            }
+        });
+    }
+    //获得重量
+    //function GetScale() {
+    //    var ip = "10000";
+    //    AjaxJson("/StorageModule/BY_InStock/GetScale", { ip: ip }, function (data) {
+    //        $("#ScaleWeight").html(data.scale);
+    //        var index = GetJqGridRowIndx("#gridTable");
+    //        if (index && isEditFlag == 0) {
+    //            $("#gridTable").jqGrid('setRowData', index, { Weight: data.scale });
+    //        }
+    //    })
+    //}
+
+</script>
+<form id="form1">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="tools_bar" style="margin-top: 1px; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+    </div>
+    <table>
+        <tr>
+            <td valign="top">
+                <div class="bd" style="border-bottom: none; margin: 1px;">
+                    <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                        <div class="tab_list_top" style="position: absolute">
+                            <div class="tab_list bd actived">订单显示区(输入订单号后按回车/直接扫描订单)</div>
+                        </div>
+                    </div>
+                </div>
+                <table id="Order" class="form">
+                     @*<tr>
+                        <th class="formTitle">员工工号：
+                        </th>
+                        <td class="formValue" colspan="5">
+                            <input id="O_OperatorID" maxlength="50" type="text" class="txt BarCode" onblur="$('#O_BillCode').select();" />
+                        </td>
+                    </tr>*@
+                    <tr>
+                        <th class="formTitle">订单号：
+                        </th>
+                        <td class="formValue" colspan="5">
+                            <input id="O_BillCode" maxlength="50" type="text" class="txt BarCode" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle">钢种：
+                        </th>
+                        <td class="formValue" >
+                            <input id="O_SteelCode" maxlength="50" type="text" class="txt" disabled />
+                        </td>
+                        <th class="formTitle">钢种名称：
+                        </th>
+                        <td class="formValue">
+                            <input id="O_SteelDescription" maxlength="50" type="text" class="txt" disabled />
+                        </td>
+                        <th class="formTitle">客户名称：
+                        </th>
+                        <td class="formValue">
+                            <input id="O_CustomerName" maxlength="50" type="text" class="txt" disabled />
+                        </td>
+                    </tr>
+                    <tr>
+                        
+                        <th class="formTitle">厚度：
+                        </th>
+                        <td class="formValue">
+                            <input id="O_Thick" maxlength="50" type="text" class="txt" disabled />
+                        </td>
+                        <th class="formTitle">宽度：
+                        </th>
+                        <td class="formValue">
+                            <input id="O_Weigh" maxlength="50" type="text" class="txt" disabled />
+                        </td>
+                        <th class="formTitle">长度：
+                        </th>
+                        <td class="formValue">
+                            <input id="O_Length" maxlength="50" type="text" class="txt" disabled />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th class="formTitle">加工类型：
+                        </th>
+                        <td class="formValue">
+                            <input id="O_OrderType" maxlength="50" type="text" class="txt" disabled />
+                        </td>
+                        <th class="formTitle">未消数件数：
+                        </th>
+                        <td class="formValue">
+                            <input id="O_Qty" maxlength="50" type="text" class="txt" disabled />
+                        </td>
+                        <th class="formTitle">单重：
+                        </th>
+                        <td class="formValue">
+                            <input id="O_Weight" maxlength="50" type="text" class="txt" disabled />
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th class="formTitle">出库总重：
+                        </th>
+                        <td class="formValue" >
+                            <input id="O_TotalWeight" maxlength="50" type="text" class="txt" disabled />
+                        </td>
+                        <th class="formTitle">总件数：
+                        </th>
+                        <td class="formValue" colspan="3">
+                            <input id="O_Qtyed" maxlength="50" type="text" class="txt" disabled />
+                        </td>
+                    </tr>
+                </table>
+                <div class="bd" style="border-bottom: none; margin: 1px; margin-left: 0px; margin-right: 0px;">
+                    <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+                        <div class="tab_list_top" style="position: absolute">
+                            <div class="tab_list bd actived">出库显示区(可选替代料)</div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div style="background: #000; color: #fff; width: 400px; height: 199px; float: right;">
+                    <table border="0" class="form-find" style="width: 100%;">
+                        <tr>
+                            <td style="background: #000; color: #fff;"><span style="font-size: 20px;">此订单消数重量：</span>  </td>
+                        </tr>
+                        <tr>
+                            <td style="background: #000; color: #fff; text-align: center; border-top: 2px solid #fff; height: 100%; line-height: 100px;"><span id="ScaleWeight" style="font-size: 82px;">0.00</span></td>
+                        </tr>
+                        <tr>
+                            <td style="background: #000; color: #fff; text-align: center;"><span style="font-size: 14px;">提示：如消数重量与理论重量相差过大，请注意检查！</span></td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
+    <table id="Inventory" class="form">
+        <tr>
+            <th class="formTitle">批次号：
+            </th>
+            <td class="formValue" style="width:100px;">
+                <input id="BatchCode" maxlength="50" type="text" class="txt"  />
+            </td>
+            <th class="formTitle" style="width:100px;">钢种名称：
+            </th>
+            <td class="formValue" style="width:100px;">
+                <input id="SteelDescription" maxlength="50" type="text" class="txt" disabled />
+            </td>
+            <th class="formTitle" style="width:100px;">库存量：
+            </th>
+            <td class="formValue" style="width:100px;">
+                <input id="Weight" maxlength="50" type="text" class="txt" disabled />
+            </td>
+            <th class="formTitle" style="width:150px;">
+                开料前尺寸(厚*宽*长)：
+            </th>
+            <td class="formValue" >
+                <input id="BeforeSize" maxlength="50" type="text" class="txt" disabled />
+            </td>
+            
+        </tr>
+        <tr>
+            <th class="formTitle">开料尺寸：
+            </th>
+            <td class="formValue" >
+                <input id="OpenSize" maxlength="50" type="text" class="txt" onfocus="IsMoney(this.id);" onkeyup="CourtOpenSize();" value="0" />
+            </td>
+            <th class="formTitle">开料件数：
+            </th>
+            <td class="formValue" >
+                <input id="OpenQty" maxlength="50" type="text" class="txt" onfocus="IsMoney(this.id);" onkeyup="CourtOpenSize();" disabled value="0" />
+                <th class="formTitle">开料总重量：
+            </th>
+            <td class="formValue" >
+                <input id="OpenTotalWeight" maxlength="50" type="text" class="txt" onfocus="IsMoney(this.id);" onkeyup="CourtOpenSize();" disabled value="0" />
+       
+            
+            <th class="formTitle">
+                开料后尺寸(厚*宽*长)：
+            </th>
+            <td class="formValue" >
+                <input id="AfterSize" maxlength="50" type="text" class="txt" disabled />
+            </td>
+        </tr>
+    </table>
+    <!--入库-->
+    <div class="bd" style="border-bottom: none; margin: 1px; margin-left: 0px; margin-right: 0px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div class="tab_list bd actived">开料记录</div>
+            </div>
+        </div>
+    </div>
+    <div id="InStock" class="tabPanel">
+@*         <div class="nui-toolbar leftline rightline">
+            <div id="toolbar_a">
+                <div id="lr-edit-Row" class="nui-toolbar-item nui-btn-right">
+                    <span class="nui-btn-text">编辑</span>
+                </div>
+                <div id="lr-delete-Row" class="nui-toolbar-item nui-btn-left">
+                    <span class="nui-btn-text">删除</span>
+                </div>
+            </div>
+            <div id="toolbar_b" style="display: none;">
+                <div id="lr-save-Row" class="nui-toolbar-item nui-btn-right">
+                    <span class="nui-btn-text">保存</span>
+                </div>
+                <div id="lr-cancel-Row" class="nui-toolbar-item nui-btn-left">
+                    <span class="nui-btn-text">取消</span>
+                </div>
+            </div>
+        </div>*@
+        <div class="rightline">
+            <table id="gridTable"></table>
+        </div>
+    </div>
+</form>

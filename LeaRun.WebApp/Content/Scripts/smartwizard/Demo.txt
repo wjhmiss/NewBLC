@@ -1,0 +1,144 @@
+﻿jquery的smartWizard插件常用在一些向导式的，按步骤的功能中，是的用户按照我们设定的步骤进行操作，这样一方面有较好的用户体验，可以将庞大的表格数据分解成多个步骤，是的每个步骤的数据量减少；另一方面流程比较清晰，先做那个下一步做什么都是可控可设定的。
+
+下面说一下如何使用，首先html中引入jquery的smartWizard插件对应的jquery.smartWizard-2.0.js
+
+html中代码如下：
+
+<!--html 中 -->
+<div id="sfxxdj_div" class="swMain">
+	<ul id="sfxxdj_wizard_ul">
+		<li><a href="#sfxxdj_step_1"> <label class="stepNumber">1</label>
+				<span class="stepDesc">选择身份类型</span> </a>
+		</li>
+		<li><a href="#sfxxdj_step_2"> <label class="stepNumber">1</label>
+				<span class="stepDesc">基本信息表</span> </a>
+		</li>
+		<li><a href="#sfxxdj_step_3"> <label class="stepNumber">2</label>
+				<span class="stepDesc">学历情况表</span> </a>
+		</li>
+		<li><a href="#sfxxdj_step_4"> <label class="stepNumber">3</label>
+				<span class="stepDesc">工作情况表</span> </a>
+		</li>
+
+	</ul>
+	<div id="sfxxdj_step_1"  style="overflow: auto;">
+		<table cellpadding="0" cellspacing="0" border="0" class="wi-frm-tbl" style="width:100%; height:500px;line-height:50px">
+			<th valign="top"><h1>请选择身份类型：</h1></br>
+			<h1><input type="radio" name="jjdj_lx" id="jjdj_ctgs" value="1">
+			公司</h1></br>
+			<h1><input type="radio" name="jjdj_lx" id="jjdj_glgs" value="3">
+			个人</h1></th>
+			
+		</table>
+	</div>
+	<div id="sfxxdj_step_2"  style="overflow: auto;">
+	    <!--内容可直接在这加入，如果内容过大可直接载入html -->
+	</div>
+	<div id="sfxxdj_step_3"  style="overflow: auto;">
+	</div>
+	<div id="sfxxdj_step_4"  style="overflow: auto;">
+	</div>
+</div>
+<!-- End SmartWizard Content -->
+js代码如下：
+
+var sfxxdj = {
+	//当点下一步时回调该函数，一般用于当前步骤的校验
+	nextStepCallback : function(stepObj){
+		var step_num= stepObj.attr('rel');
+		switch (step_num) {
+			case '1':
+				if($('input[name=jjdj_lx]:checked').val()>0){
+				    sfxxdj.jjlx = $('input[name=jjdj_lx]:checked').val();
+					if(sfxxdj.jjlx=='1'){
+						$('#sfxxdj_wizard_ul [rel=5]').hide();
+						$('#sfxxdj_step_5').hide();
+					}else{
+						$('#sfxxdj_wizard_ul [rel=2]').hide();
+					}
+					return true;//转下一步
+				}
+				else{
+					alert("请选择基金登记类型！");
+					return false;
+				}
+			case '2':
+				if(sfxxdj.jjlx=='1'&&$("#sfxxdj_jbqkb_jjmc").val()==''){
+					alert("请输入基金名称！");
+					return false;
+				}else{
+					sfxxdj.jjmc=$("#sfxxdj_jbqkb_jjmc").val();
+				}
+				return true;
+			case '3':
+				return true;
+			case '4':
+				return true;
+			case '5':
+				return true;
+			case '6':
+			default:
+				break;
+		}
+		return true;
+	},
+	//当现实该步骤时回调该函数，一般用于当前步骤的初始化
+	showStepCallback : function(stepObj){
+		var step_num= stepObj.attr('rel');
+		switch (step_num) {
+		case '2':
+			break;
+		case '3':
+			break;
+		case '4':
+			$("#jjxmmc").text(sfxxdj.jjmc);
+		    if(sfxxdj.jjlx=="1"){
+				$('#div .actionBar a.buttonFinish').removeClass("buttonDisabled");
+				$('#div .actionBar a.buttonNext').addClass("buttonDisabled");
+			}
+			break;
+		case '5':
+			if(sfxxdj.b4=="0"){
+				settWtjj();
+			}
+			break;
+		case '6':
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+$(function(){
+	//对象初始化，以及设定相关回调时间
+	$('#sfxxdj_div').smartWizard({
+		keyNavigation: false, 
+		onFinish	: sfxxdj.onSubmit,
+		onNextStep	: sfxxdj.nextStepCallback,
+		onShowStep	: sfxxdj.showStepCallback
+	});
+	$( ".actionBar a" ).button();
+	//文件形式初始化各步骤的内容
+	$('#sfxxdj_step_2').html("").load('jbqkb.html');
+	$('#sfxxdj_step_3').html("").load('xlqkb.html');
+	$('#sfxxdj_step_4').html("").load('gzqkb.html');
+}
+网上的参考资料不是很多，我也只是稍微应用了一下，最后说一下我了解的技巧，默认情况下上一步和下一步以及提交按钮需要人工来控制，哪些需要对按钮进行添加移除样式,如下：
+
+$('.actionBar a.buttonFinish').removeClass("buttonDisabled");//提交按钮可用
+$('.actionBar a.buttonFinish').addClass("buttonDisabled");//提交按钮变灰
+$('.actionBar a.buttonNext').removeClass("buttonDisabled");//下一步按钮可用
+$('.actionBar a.buttonNext').addClass("buttonDisabled");//下一步按钮变灰				
+$('.actionBar a.buttonPrevious').removeClass("buttonDisabled");//上一步按钮可用
+$('.actionBar a.buttonPrevious').addClass("buttonDisabled");//上一步按钮变灰
+如何手动激活一个步骤的，或者如何跳过步骤呢？操作如下：
+
+比如直接激活第四步骤可点击：
+
+$('#sfxxdj_wizard_ul [rel=4]').attr("isDone",1);
+$('#sfxxdj_wizard_ul [rel=4]').addClass("done").removeClass("disabled");
+这样不管你进行的是否做到第四步，都可以点击查看第四步的内容。
+比如某些时候我们需要从第一步调转到第三步：
+
+$('#sfxxdj_div').smartWizard('skipTo',3);

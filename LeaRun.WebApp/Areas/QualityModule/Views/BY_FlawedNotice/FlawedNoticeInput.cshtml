@@ -1,0 +1,274 @@
+@{
+    ViewBag.Title = "不合格品信息录入";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        BindDropItem("#ErrorProcess", "Process", "==请选择==");
+        BindDropItem("#CatchProcess", "Process", "==请选择==");
+        BindDropItem("#SituationCode", "UnqualifiedSituation", "==请选择==");
+        BindDropItem("#ReasonCode", "UnqualifiedReason", "==请选择==");
+        BindDropItem("#DealResultCode", "HandleResult", "==请选择==");
+        BindDropItem("#ErrorProcess", "Operation", "==请选择==");
+        //if (!!KeyValue) {
+        //    $("#AddOrderId").attr('disabled', 'disabled');
+        //}
+        InitControl();
+        ScanOrder();
+        //WorkerNameAutocomplete();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/QualityModule/BY_FlawedNotice/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+                AjaxJson("/OrderModule/OrderQuery/GetOrderDetailEntityJson", { BarCode: $("#OrderBarcode").val() + "--" }, function (data) {
+                    if (!data[0] || data.Code == -1) {
+                        return;
+                    }
+                    OrderDetailId = data[0].orderdetailid;
+                    $("#SteelCode").val($.trim(data[0].steelcode).replace("&nbsp;", ""));
+                    $("#SteelStatus").val($.trim(data[0].steelstate).replace("&nbsp;", ""));
+                    $("#Thick").val($.trim(data[0].thick).replace("&nbsp;", ""));
+                    $("#Weigh").val($.trim(data[0].weigh).replace("&nbsp;", ""));
+                    $("#Length").val($.trim(data[0].length).replace("&nbsp;", ""));
+                    $("#Weight").val($.trim(data[0].weight).replace("&nbsp;", ""));
+                    $("#CustomerCode").val($.trim(data[0].customercode).replace("&nbsp;", ""));
+                    $("#CustomerName").val($.trim(data[0].customername).replace("&nbsp;", ""));
+                    $("#OrderDetailId").val($.trim(data[0].orderdetailid).replace("&nbsp;", ""));
+                    //if ($.trim(data[0].AddOrderId).replace("&nbsp;", "") != "0") {
+                    //    $("#AddOrderId").attr("checked", true);  
+                    //}
+                });
+            });
+        }
+    }
+
+    function WorkerNameAutocomplete() {
+        var $WorkerName = $("#DutyUserName");
+        $WorkerName.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("DutyUserName", function (data) {
+            $("#DutyUserName").val(data.WorkerName);
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/CommonModule/Worker/GetAutoCompleJson", { keywords: $WorkerName.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="WorkerId" style="display: none;">' + DataJson[i].WorkerId + '</td>';
+                    html += '<td id="WorkerCode" style="width: 30%;">' + DataJson[i].WorkerCode + '</td>';
+                    html += '<td id="WorkerName" style="width: 40%;">' + DataJson[i].WorkerName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("DutyUserName", "400px", "200px", html, function (data) {
+                    $("#DutyUserName").val(data.WorkerName);
+                });
+            });
+        }
+    }
+
+    //保存事件
+    function btn_save() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        AjaxJson("/QualityModule/BY_FlawedNotice/SubmitFlawedForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            if (!KeyValue) {
+                location.reload();
+            }
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+    //订单扫描事件
+    function ScanOrder() {
+        $(document).keypress(function (e) {
+            //回车键事件
+            if (e.which == 13) {
+                AjaxJsonNoMassge("/OrderModule/OrderQuery/GetOrderDetailEntityJson", { BarCode: $("#OrderBarcode").val() + "--" }, function (data) {
+
+                    if (!data[0] || data.Code == -1) {
+                        tipDialog(data.Message, 3, data.Code);
+                        $("#OrderBarcode").val("");
+                        $("#OrderBarcode").select();
+                        return false;
+                    }
+                    OrderDetailId = data[0].orderdetailid;
+                    $("#SteelCode").val($.trim(data[0].steelcode).replace("&nbsp;", ""));
+                    $("#SteelStatus").val($.trim(data[0].steelstate).replace("&nbsp;", ""));
+                    $("#Thick").val($.trim(data[0].thick).replace("&nbsp;", ""));
+                    $("#Weigh").val($.trim(data[0].weigh).replace("&nbsp;", ""));
+                    $("#Length").val($.trim(data[0].length).replace("&nbsp;", ""));
+                    $("#Qty").val($.trim(data[0].qty).replace("&nbsp;", ""));
+                    $("#Weight").val($.trim(data[0].weight).replace("&nbsp;", ""));
+                    $("#CustomerCode").val($.trim(data[0].customercode).replace("&nbsp;", ""));
+                    $("#CustomerName").val($.trim(data[0].customername).replace("&nbsp;", ""));
+                    $("#DealResultCode").val($.trim(data[0].salesamount).replace("&nbsp;", ""));
+                    $("#OrderDetailId").val($.trim(data[0].orderdetailid).replace("&nbsp;", ""));
+
+
+
+
+
+                });
+            }
+        });
+    }
+    
+</script>
+<form id="form1" style="margin: 1px">
+    <div class="tools_bar" style="margin-top: 1px; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+    </div>
+    <div class="bd" style="border-bottom: none; margin: 1px; margin-left: 0px; margin-right: 0px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div class="tab_list bd actived">加工单信息</div>
+            </div>
+        </div>
+    </div>
+    <table id="Order" class="form">
+        <tr style="display:none;">
+            <th class="formTitle">补料单：
+            </th>
+            <td class="formValue" colspan="5">
+                <span class="item" style="cursor: pointer;">
+                    <input type="checkbox" class="checkbox" name="AddOrderId" id="AddOrderId" />
+                    <label for="AddOrderId">选中些选项后将自动生成一笔补料单，请慎重选择</label></span>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">订单号+行号：
+            </th>
+            <td class="formValue">
+                <input id="OrderBarcode" maxlength="50" type="text" class="txt required" onfocus="$('#OrderBarcode').select()"  datacol="yes" err="订单号+行号" checkexpession="NotNull" />
+                <input id="OrderDetailId" type="hidden" />
+            </td>
+            <th class="formTitle">钢种：
+            </th>
+            <td class="formValue">
+                <input id="SteelCode" maxlength="50" type="text" class="txt" disabled />
+            </td>
+            <th class="formTitle">客户简称：
+            </th>
+            <td class="formValue" >
+                <input id="CustomerName" maxlength="50" type="text" class="txt" disabled />
+                <input id="CustomerCode" type="hidden" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">厚度：
+            </th>
+            <td class="formValue">
+                <input id="Thick" maxlength="50" type="text" class="txt" disabled />
+            </td>
+            <th class="formTitle">宽度：
+            </th>
+            <td class="formValue">
+                <input id="Weigh" maxlength="50" type="text" class="txt" disabled />
+            </td>
+            <th class="formTitle">长度：
+            </th>
+            <td class="formValue">
+                <input id="Length" maxlength="50" type="text" class="txt" disabled />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">数量：
+            </th>
+            <td class="formValue">
+                <input id="Qty" maxlength="50" type="text" class="txt"  />
+            </td>
+            <th class="formTitle">理论重量：
+            </th>
+            <td class="formValue">
+                <input id="Weight" maxlength="50" type="text" class="txt" disabled />
+            </td>
+            <th class="formTitle">报价金额：
+            </th>
+            <td class="formValue">
+                <input id="SalesAmount" maxlength="50" type="text" class="txt" disabled />
+            </td>
+        </tr>
+        
+    </table>
+    <div class="bd" style="border-bottom: none; margin: 1px; margin-left: 0px; margin-right: 0px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div class="tab_list bd actived">《不合格品通知单》详细信息</div>
+            </div>
+        </div>
+    </div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>开单日期：</th>
+            <td class='formValue'>
+                <input id="WriteDate" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetToday()" onfocus="WdatePicker()" />
+            </td>
+            <th class='formTitle'>开单人姓名：</th>
+            <td class='formValue'>
+                <input id="WriteUserName" value="" maxlength="50" type="text" class="txt required" datacol="yes" err="开单人姓名" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle'>责任人姓名：</th>
+            <td class='formValue'>
+                <input id="DutyUserName" maxlength="50" type="text" class="txt required" datacol="yes" err="责任人姓名" checkexpession="NotNull"/>
+            </td>
+            <th class='formTitle'>主管姓名：</th>
+            <td class='formValue'>
+                <input id="DirectorName" maxlength="50" type="text" class="txt" />
+            </td>
+
+        </tr>
+        <tr>
+            <th class='formTitle'>超差工序：</th>
+            <td class='formValue'>
+                <select id="ErrorProcess" class="txtselect" ></select>
+            </td>
+            <th class='formTitle'>是否联客：</th>
+            <td class='formValue'>
+                <select id="IsRelationCust" class="txtselect" >
+                    <option value="0">否</option>
+                    <option value="1">是</option>
+                </select>
+            </td>
+            <th class='formTitle'>质量判定：</th>
+            <td class='formValue' >
+                <select id="SituationCode" class="txtselect" ></select>
+            </td>
+            <th class='formTitle'>不合格原因：</th>
+            <td class='formValue' >
+                <select id="ReasonCode" class="txtselect" ></select>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>客户结果：</th>
+            <td class='formValue' >
+                <select id="DealResultCode"  datacol="yes" err="客户结果" checkexpession="NotNull" class="txtselect" ></select>
+            </td>
+            <th class='formTitle'>处罚金额：</th>
+            <td class='formValue' >
+                <input id="FMoney" value="0" type="text" class="txt required" datacol="yes" err="处罚金额" checkexpession="NotNull"/>
+            </td>
+            <th class='formTitle'>处理意见：</th>
+            <td class='formValue' colspan="3">
+                <input id="Remark" maxlength="300" type="text" class="txt required" datacol="yes" err="处理意见" checkexpession="NotNull"/>
+            </td>
+        </tr>
+        
+    </table>
+</form>

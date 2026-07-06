@@ -1,0 +1,93 @@
+@{
+    ViewBag.Title = "订单转序";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+        url: "@Url.Content("~/OrderDetailProcessModule/BY_OrderDetail/GridPageJson")",
+        datatype: "json",
+        height: $(window).height() - 149,
+        autowidth: true,
+        colModel: [
+                //{ label: '订单明细ID', name: 'OrderDetailId', index: 'OrderDetailId', width: 0, align: 'left',sortable: true  },
+                //{ label: '订单ID', name: 'OrderId', index: 'OrderId', width: 0, align: 'left', sortable: true },
+                { label: '订单号', name: 'OrderId', index: 'OrderId', width: 0, align: 'left', sortable: true },
+                { label: '行号', name: 'LineCode', index: 'LineCode', width: 0, align: 'left',sortable: true  },
+                //{ label: '板件编码', name: 'BoardId', index: 'BoardId', width: 0, align: 'left',sortable: true  },
+                //{ label: '板件描述', name: 'BoardDescription', index: 'BoardDescription', width: 0, align: 'left',sortable: true  },
+
+                { label: '钢种', name: 'SteelId', index: 'SteelId', width: 0, align: 'left',sortable: true  },
+                { label: '钢种编号', name: 'SteelCode', index: 'SteelCode', width: 0, align: 'left', sortable: true },
+                { label: '厚/直径', name: 'Thick', index: 'Thick', width: 0, align: 'left', sortable: true },
+                { label: '宽', name: 'Weigh', index: 'Weigh', width: 0, align: 'left', sortable: true },
+            { label: '长', name: 'Length', index: 'Length', width: 0, align: 'left', sortable: true },
+
+                { label: '数量', name: 'Qty', index: 'Qty', width: 0, align: 'left', sortable: true },
+                { label: '钢种状态', name: 'SteelState', index: 'SteelState', width: 0, align: 'left',sortable: true  },
+                { label: '模号', name: 'DieCode', index: 'DieCode', width: 0, align: 'left',sortable: true  },
+
+                { label: '完工件数', name: 'CompleteQty', index: 'CompleteQty', width: 0, align: 'left',sortable: true  },
+                { label: '打单件数', name: 'PrintQty', index: 'PrintQty', width: 0, align: 'left',sortable: true  },
+                { label: '执行备注信息', name: 'ExecRemark', index: 'ExecRemark', width: 0, align: 'left',sortable: true  },
+                { label: '单据状态', name: 'BillStatus', index: 'BillStatus', width: 0, align: 'left',sortable: true  },
+                { label: '磨四角', name: 'IsGrindAngle', index: 'IsGrindAngle', width: 0, align: 'left',sortable: true  },
+                { label: '倒角', name: 'IsChamfer', index: 'IsChamfer', width: 0, align: 'left',sortable: true  },
+                { label: '有效', name: 'Enabled', index: 'Enabled', width: 0, align: 'left',sortable: true  },
+                { label: '排序码', name: 'SortCode', index: 'SortCode', width: 0, align: 'left',sortable: true  },
+                { label: '删除标记', name: 'DeleteMark', index: 'DeleteMark', width: 0, align: 'left',sortable: true  },
+                { label: '创建时间', name: 'CreateDate', index: 'CreateDate', width: 0, align: 'left',sortable: true  },
+                { label: '创建用户主键', name: 'CreateUserId', index: 'CreateUserId', width: 0, align: 'left',sortable: true  },
+                { label: '创建用户', name: 'CreateUserName', index: 'CreateUserName', width: 0, align: 'left',sortable: true  },
+                { label: '修改时间', name: 'ModifyDate', index: 'ModifyDate', width: 0, align: 'left',sortable: true  },
+                { label: '修改用户主键', name: 'ModifyUserId', index: 'ModifyUserId', width: 0, align: 'left',sortable: true  },
+                { label: '修改用户', name: 'ModifyUserName', index: 'ModifyUserName', width: 0, align: 'left',sortable: true  },
+                { label: '理论重量', name: 'Weight', index: 'Weight', width: 0, align: 'left',sortable: true  },
+                { label: '开料数量', name: 'OpenQty', index: 'OpenQty', width: 0, align: 'left',sortable: true  },
+                { label: 'QuotationDetailId', name: 'QuotationDetailId', index: 'QuotationDetailId', width: 0, align: 'left',sortable: true  },
+                { label: '磅重人', name: 'ScaleUser', index: 'ScaleUser', width: 0, align: 'left',sortable: true  },
+                { label: '磅重时间', name: 'ScaleDate', index: 'ScaleDate', width: 0, align: 'left',sortable: true  },
+                { label: '工序流程', name: 'ScaleProcess', index: 'ScaleProcess', width: 0, align: 'left',sortable: true  },
+        ],
+        viewrecords: true,
+        rowNum: 30,
+        rowList: [30, 50, 100, 500, 5000],
+        pager: "#gridPager",
+        sortname: 'ScaleDate',
+        sortorder: 'desc',
+        rownumbers: true,
+        shrinkToFit: false,
+        altRows: true,
+        altclass: 'altclass',
+        gridview: true,
+    });
+}
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+</script>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>关键字：</th>
+            <td>
+                <input id="keywords" type="text" class="txt" style="width: 200px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

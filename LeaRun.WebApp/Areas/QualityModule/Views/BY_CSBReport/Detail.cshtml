@@ -1,0 +1,171 @@
+@{
+    ViewBag.Title = "BY_CSBReport》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/QualityModule/BY_CSBReport/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <table class="form">
+        <tr>
+            <th class='formTitle'>CSBReportId：</th>
+            <td class='formValue'>
+                <label id="CSBReportId" />
+            </td>
+            <th class='formTitle'>CSBReportCode：</th>
+            <td class='formValue'>
+                <label id="CSBReportCode" />
+            </td>
+            <th class='formTitle'>订单明细ID：</th>
+            <td class='formValue'>
+                <label id="OrderDetailId" />
+            </td>
+            <th class='formTitle'>订单号：</th>
+            <td class='formValue'>
+                <label id="OrderCode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>行号：</th>
+            <td class='formValue'>
+                <label id="LineCode" />
+            </td>
+            <th class='formTitle'>客户ID：</th>
+            <td class='formValue'>
+                <label id="CustomerId" />
+            </td>
+            <th class='formTitle'>客户编号：</th>
+            <td class='formValue'>
+                <label id="CustomerCode" />
+            </td>
+            <th class='formTitle'>客户名称：</th>
+            <td class='formValue'>
+                <label id="CustomerName" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>钢种：</th>
+            <td class='formValue'>
+                <label id="SteelId" />
+            </td>
+            <th class='formTitle'>钢种编号：</th>
+            <td class='formValue'>
+                <label id="SteelCode" />
+            </td>
+            <th class='formTitle'>钢种描述：</th>
+            <td class='formValue'>
+                <label id="SteelDescription" />
+            </td>
+            <th class='formTitle'>Size：</th>
+            <td class='formValue'>
+                <label id="Size" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>加工类型：</th>
+            <td class='formValue'>
+                <label id="OrderType" />
+            </td>
+            <th class='formTitle'>客户货品号：</th>
+            <td class='formValue'>
+                <label id="CustomerProduct" />
+            </td>
+            <th class='formTitle'>Machine：</th>
+            <td class='formValue'>
+                <label id="Machine" />
+            </td>
+            <th class='formTitle'>Pinlv：</th>
+            <td class='formValue'>
+                <label id="Pinlv" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>OHJ：</th>
+            <td class='formValue'>
+                <label id="OHJ" />
+            </td>
+            <th class='formTitle'>CCD：</th>
+            <td class='formValue'>
+                <label id="CCD" />
+            </td>
+            <th class='formTitle'>BZ：</th>
+            <td class='formValue'>
+                <label id="BZ" />
+            </td>
+            <th class='formTitle'>BW：</th>
+            <td class='formValue'>
+                <label id="BW" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>Resilt：</th>
+            <td class='formValue'>
+                <label id="Resilt" />
+            </td>
+            <th class='formTitle'>ReportName：</th>
+            <td class='formValue'>
+                <label id="ReportName" />
+            </td>
+            <th class='formTitle'>CheckName：</th>
+            <td class='formValue'>
+                <label id="CheckName" />
+            </td>
+            <th class='formTitle'>执行备注信息：</th>
+            <td class='formValue'>
+                <label id="Remark" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <label id="Enabled" />
+            </td>
+            <th class='formTitle'>排序码：</th>
+            <td class='formValue'>
+                <label id="SortCode" />
+            </td>
+            <th class='formTitle'>删除标记：</th>
+            <td class='formValue'>
+                <label id="DeleteMark" />
+            </td>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <label id="CreateDate" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>创建用户主键：</th>
+            <td class='formValue'>
+                <label id="CreateUserId" />
+            </td>
+            <th class='formTitle'>创建用户：</th>
+            <td class='formValue'>
+                <label id="CreateUserName" />
+            </td>
+            <th class='formTitle'>修改时间：</th>
+            <td class='formValue'>
+                <label id="ModifyDate" />
+            </td>
+            <th class='formTitle'>修改用户主键：</th>
+            <td class='formValue'>
+                <label id="ModifyUserId" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>修改用户：</th>
+            <td class='formValue'>
+                <label id="ModifyUserName" />
+            </td>
+        </tr>
+    </table>
+</form>

@@ -1,0 +1,75 @@
+﻿@{
+    Layout = null;
+}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+    <title>DENON STUDIO - Smart Menu</title>
+    @*    <link href="~/Content/Styles/learunui-accordion.css" rel="stylesheet" />*@
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <link href="~/Content/Scripts/IndexPagejs/css/smartmenu.css" type="text/css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="~/Content/Scripts/IndexPagejs/css/shCore.css" />
+    <link type="text/css" rel="stylesheet" href="~/Content/Scripts/IndexPagejs/css/shThemeDefault.css" />
+    <script type="text/javascript" src="~/Content/Scripts/IndexPagejs/js/smartmenu.js"></script>
+    <script type="text/javascript" src="~/Content/Scripts/IndexPagejs/js/shCore.js"></script>
+    <script type="text/javascript" src="~/Content/Scripts/IndexPagejs/js/shBrushJScript.js"></script>
+    <script type="text/javascript" src="~/Content/Scripts/IndexPagejs/js/shBrushXml.js"></script>
+    <script type="text/javascript">
+        jQuery(window).ready(function () {
+            jQuery("#navigation1").Smartmenu({ animationDuration: 350 });
+            jQuery("#navigation2").Smartmenu({ animationDuration: 350 });
+            jQuery("#navigation3").Smartmenu({ animationDuration: 350 });
+        });
+        SyntaxHighlighter.all();
+    </script>
+
+</head>
+<body>
+     <div id="navigation1" class="smartmenu" style="display:inline;float:left">
+                    <ul>
+                        <li><a href="#">JavaScript</a>
+                            <ul>
+                                <li><a href="#">Navigation</a> </li>
+                                <li><a href="#">Shopping Carts</a> </li>
+                                <li><a href="#">Forms</a> </li>
+                                <li><a href="#">News Tickers</a> </li>
+                                <li><a href="#">Ratings and Charts</a> </li>
+                                <li><a href="#">Media</a> </li>
+                            </ul>
+                        </li>
+
+                    </ul>
+                </div>
+          
+    
+    <div id="navigation2" class="smartmenu" style="display:inline;float:left">
+        <ul>
+
+            <li><a href="#">Wordpress</a>
+                <ul>
+                    <li><a href="#">Blog &amp; Magazines</a> </li>
+                    <li><a href="#">Creative</a> </li>
+                    <li><a href="#">Corporate</a> </li>
+                    <li><a href="#">Retail</a> </li>
+                </ul>
+            </li>
+
+        </ul>
+    </div>
+    <div id="navigation3" class="smartmenu" style="display:inline;float:left">
+        <ul>
+
+            <li><a href="#">Site Template</a>
+                <ul>
+                    <li><a href="#">Creative</a> </li>
+                    <li><a href="#">Technology</a> </li>
+                </ul>
+            </li>
+
+        </ul>
+    </div>
+
+</body>
+</html>

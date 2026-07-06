@@ -1,0 +1,429 @@
+﻿@{
+    ViewBag.Title = "用户中心";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+
+<!--修改资料-->
+<link rel="stylesheet" type="text/css" href="~/Content/Scripts/Mobile/templates/mobile/css/mobiscroll.custom-2.6.2.min.css" />
+<script type="text/javascript" src="~/Content/Scripts/Mobile/templates/mobile/js/mobiscroll.custom-2.6.2.min.js"></script>
+<script type="text/javascript" src="~/Content/Scripts/Mobile/scripts/jquery/Validform_v5.3.2_min.js"></script>
+@*<script type="text/javascript" src="~/Content/Scripts/Mobile/scripts/jquery/PCASClass.js"></script>*@
+<script type="text/javascript" src="~/Content/Scripts/Conversion.js"></script>
+<script type="text/javascript" src="~/Content/Scripts/temp.js"></script>
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    var QuotationId = GetQuery('QuotationId');
+    var LineCode = GetQuery('LineCode');
+
+    var CustomerId = GetQuery('CustomerId');
+    var OrderType = GetQuery('OrderType');
+    var CustomerName = GetQuery('CustomerName');
+    var QuotationCode = GetQuery('QuotationCode');
+    var temp1 = 0;
+    var temp2 = 0;
+
+
+    $(document).ready(function (e) {
+        if (KeyValue != "") {
+            temp1 = temp1 + 1;
+        }
+
+        if (QuotationId == "" || LineCode == 0 || CustomerId == "" || OrderType == "" || CustomerName == "") {
+            tipDialog("错误：请先创建订单后才能创建明细！", -1,"return");
+            
+            return false;
+        }
+        if (OrderType == 'BC') {
+            $("#BoardId").val("P013");
+            $("#BoardDescription").val("钢材")
+        } else {
+            $("#BoardId").val("P010");
+            $("#BoardDescription").val("精料")
+        }
+        $("#QuotationId").val(GetQuery('QuotationId'));
+        //钢材状态
+        BindDropItemName("#SteelState", "SteelStatus", "==请选择==");
+
+        BindDropItem("#Technology", "CraftType", "==请选择==");
+
+        $("#LineCode1").html(LineCode);
+        $("#QuotationCode1").html(QuotationCode);
+        $("#LineCode").val(LineCode);
+        $("#QuotationCode").val(QuotationCode);
+
+        $("#main_footer a.user").addClass("pressed");
+
+        BindDropSteelCode("#SteelCode", "==请选择==");
+        $('#SteelCode').change(function () {
+            var SteelCode = $(this).children('option:selected').val();
+            if (!!SteelId) {
+                AjaxJsonNoMassge('/CommonModule/Steel/GetSteelEntityByCode', { SteelCode: SteelCode }, function (data) {
+                    $("#SteelId").val(data.SteelId);
+                    $("#SteelDescription").val(data.SteelName);
+                    Density = Number(data.Density);
+                    GetSteelStatus(data.SteelCode);
+                    Conversion();
+                });
+            }
+        })
+        $("#info_form").Validform();
+
+        //初始化表单
+        //AjaxInitForm('#info_form', '#btnSubmit', 1);
+        if (!!KeyValue) {
+            window.setTimeout(function () {
+                AjaxJsonNoMassge("/QuotationModule/QuotationInput/SetDetailForm", { KeyValue: KeyValue }, function (data) {
+                    //alert(JSON.stringify(data));
+                    SetWebControls(data);
+                });
+            }, 500);
+        }
+
+    });
+
+    function GetSteelStatus(SteelCode) {
+        AjaxJsonNoMassge("/CommonModule/SteelStatus/GetSteelStatusJson", { SteelCode: SteelCode }, function (data) {
+            $("#SteelState").val(data.SteelStatus);
+
+        });
+    }
+
+    function AcceptClick(object) {
+        var CheckStatus = GetQuery('CheckStatus');
+        if (CheckStatus == "已审核" || CheckStatus == "待审核") {
+            tipDialog("错误：报价单已经提交了,不能操作！", -1);
+            return false;
+        }
+        $(object).attr("disabled", true);
+        $(object).val("请稍候...");
+
+        var postData = GetWebControls("#info_form");
+        if (postData.Qty <= 0) {
+            tipDialog("错误：数量必须大于0", -1);
+            $(object).attr("disabled", false);
+            $(object).val("重新提交");
+
+            return false;
+        }
+        if (postData.SteelId == "" || $("#SteelCode").val() == "") {
+            tipDialog("错误：请选择钢材种类！", -1);
+            $(object).attr("disabled", false);
+            $(object).val("重新提交");
+
+            return false;
+        }
+        if (!Number(postData.Thick) || !Number(postData.Weigh) || !Number(postData.Length)) {
+            tipDialog("错误：厚度,宽度长度必须为数字型", -1);
+            $(object).attr("disabled", false);
+            $(object).val("重新提交");
+            return false;
+        }
+        if (postData.Thick <= 0) {
+            tipDialog("错误：厚度必须大于0", -1);
+            $(object).attr("disabled", false);
+            $(object).val("重新提交");
+            return false;
+        }
+        //if (postData.Weigh <= 0) {
+        //    tipCss("#Weigh", "宽度必须大于0");
+        //    return false;
+        //}
+        if (postData.Remark.replace("&nbsp;", "") == "") {
+            tipDialog("错误：请输入公差备注", -1);
+            $(object).attr("disabled", false);
+            $(object).val("重新提交");
+            return false;
+        }
+        if (postData.Length <= 0) {
+            tipDialog("错误：长度必须大于0", -1);
+            $(object).attr("disabled", false);
+            $(object).val("重新提交");
+            return false;
+        }
+
+        AjaxJsonNoMassge("/QuotationModule/QuotationInput/SubmitDetailForm?KeyValue=" + KeyValue, postData, function (data) {
+            if (data.Code > 0) {
+                if (KeyValue == "") {
+                    tipDialog("创建订单成功，请继续创建明细！", 1, "@Url.Content("~/WeiWebSite/WeiLogin/InputQuot")?QuotationId=" + QuotationId);
+                    return;
+                }
+                tipDialog("修改订单成功，请继续创建明细！", 1, "@Url.Content("~/WeiWebSite/WeiLogin/InputQuot")?QuotationId=" + QuotationId);
+                return;
+            }
+            else {
+                tipDialog("错误：" + data.Message, -1);
+                $(object).attr("disabled", false);
+                $(object).val("重新提交");
+            }
+        });
+    }
+
+function locationInputQuot() {
+    location.href = "@Url.Content("~/WeiWebSite/WeiLogin/InputQuot")?QuotationId=" + escape(QuotationId);
+}
+</script>
+
+
+<div id="categoryPanel" class="panel" data-footer="none">
+    <header>
+        <a onclick="locationInputQuot();" class="backButton">返回</a>
+        <h1>订单明细创建</h1>
+        <a onclick="$.ui.toggleSideMenu()" class="menuButton"></a>
+    </header>
+
+
+    <form id="info_form" name="info_form" url="/QuotationModule/QuotationInput/SubmitDetailForm">
+        <div class="form-box">
+            <dl>
+                <dt>订单编号</dt>
+                <dd id="QuotationCode1"></dd>
+            </dl>
+            <dl>
+                <dt>行号</dt>
+                <dd id="LineCode1">
+            </dl>
+            <dl>
+                <dt>钢材</dt>
+                <dd>
+                    <select name="SteelCode" id="SteelCode" datatype="*" sucmsg=" ">
+                    </select>
+                    <input id="SteelId" type="hidden" />
+                    <input name="QuotationId" id="QuotationId" type="text" style="display: none" />
+                    <input name="QuotationDetailId" id="QuotationDetailId" type="text" style="display: none" />
+                    <input name="QuotationCode" id="QuotationCode" type="text" style="display: none" />
+                    <input name="LineCode" id="LineCode" type="text" style="display: none" />
+
+                </dd>
+            </dl>
+            <dl>
+                <dt>数量</dt>
+                <dd>
+                    <input name="Qty" id="Qty" type="text" onkeyup="Conversion()" maxlength="50" value="1" datatype="n" sucmsg=" " errormsg="请填写数量" />
+                </dd>
+            </dl>
+            <dl>
+                <dt>厚(直径)</dt>
+                <dd>
+                    <input name="Thick" id="Thick" type="text" onkeyup="Conversion()" maxlength="50" value="0.00" datatype="/^(([1-9]+)|([0-9]+\.[0-9]{1,2}))$/" sucmsg=" " errormsg="请输入不超过小数点后两位的数字" /></dd>
+            </dl>
+            <dl>
+                <dt>宽度</dt>
+                <dd>
+                    <input name="Weigh" id="Weigh" type="text" onkeyup="Conversion()" maxlength="50" value="0.00" datatype="/^(([1-9]+)|([0-9]+\.[0-9]{1,2}))$/" sucmsg=" " errormsg="请输入不超过小数点后两位的数字" /></dd>
+            </dl>
+            <dl>
+                <dt>长度</dt>
+                <dd>
+                    <input name="Length" id="Length" type="text" onkeyup="Conversion()" maxlength="50" value="0.00" datatype="/^(([1-9]+)|([0-9]+\.[0-9]{1,2}))$/" sucmsg=" " errormsg="请输入不超过小数点后两位的数字" /></dd>
+            </dl>
+            <dl>
+                <dt>模  号</dt>
+                <dd>
+                    <input name="DieCode" id="DieCode" type="text" maxlength="50" /></dd>
+            </dl>
+            <dl>
+                <dt>特殊工序</dt>
+                <dd>
+                    <div style="display: inline-block; float: left; width: 50%; margin-left: -30px;">
+                        <input type="checkbox" id="IsGrindAngle" class="checkall">
+                        <label class="select" for="IsGrindAngle">磨四侧</label>
+                    </div>
+                    <div style="display: inline-block; float: left; width: 50%;">
+                        <input type="checkbox" id="IsChamfer" class="checkall">
+                        <label class="select" for="IsChamfer">倒角</label>
+                    </div>
+
+                </dd>
+            </dl>
+            <dl>
+                <dt>理论重量</dt>
+                <dd>
+                    <input id="Weight" disabled type="text" class="txt" value="0.00" /></dd>
+            </dl>
+
+            <dl>
+                <dt>材料单价</dt>
+                <dd>
+                    <input id="MaterialPrice" disabled type="text" class="txt" value="0.00" />
+                </dd>
+            </dl>
+            <dl>
+                <dt>加工单价</dt>
+                <dd>
+                    <input id="WorkPrice" disabled type="text" class="txt" value="0.00" />
+                </dd>
+            </dl>
+            <dl>
+                <dt>热处理工艺</dt>
+                <dd>
+                    <select id="Technology" class="txtselect" onchange="Conversion();"></select></dd>
+            </dl>
+            <dl>
+                <dt>热处理单价</dt>
+                <dd>
+                    <input id="HeatPrice" disabled type="text" class="txt" value="0.00" /></dd>
+            </dl>
+
+            <dl>
+                <dt>金额总计</dt>
+                <dd>
+                    <input id="SalesAmount" disabled type="text" class="txt" value="0.00" /></dd>
+            </dl>
+            <dl>
+                <dt>公差备注</dt>
+                <dd>
+                    <textarea id="Remark" name="Remark" rows="3" datatype="*" sucmsg=" "></textarea></dd>
+            </dl>
+        </div>
+
+        <div>
+            <input id="btnSubmit" name="btnSubmit" type="submit" value="确 认" class="btn orange full" onclick="AcceptClick(this);" />
+        </div>
+
+        <table style="display: none;">
+            <tr>
+                <th class="formTitle" colspan="2">板件编码：</th>
+                <td class="formValue">
+                    <input id="BoardId" type="text" class="txt" /></td>
+                <th class="formTitle" colspan="2">板件名称：</th>
+                <td class="formValue">
+                    <input disabled id="BoardDescription" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+
+                <td class="formValue"></td>
+                <th class="formTitle" colspan="2">钢材名称：</th>
+                <td class="formValue">
+                    <input disabled id="SteelDescription" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class="formTitle" colspan="2">钢材状态：</th>
+                <td class="formValue">
+                    <select id="SteelState" class="txtselect"></select></td>
+                <th class="formTitle" colspan="2">模&nbsp;&nbsp;号：</th>
+                <td class="formValue"></td>
+            </tr>
+            <tr>
+                <th class="formTitle" colspan="2">数&nbsp;&nbsp;量：</th>
+                <td class="formValue">
+
+                <th class="formTitle" colspan="2">特殊工序：</th>
+                <td class="formValue"></td>
+            </tr>
+            <tr>
+                <th class="formTitle" rowspan="3">要求尺寸</th>
+                <th class="formTitle">厚(直径)：</th>
+                <td class="formValue">
+
+                <th class="formTitle" rowspan="3">计价余量</th>
+                <th class="formTitle">厚(直径)：</th>
+                <td class="formValue">
+                    <input id="AddThick" onfocus="IsMoney(this.id);" onkeyup="Conversion()" type="text" class="txt" value="0" disabled /></td>
+            </tr>
+            <tr>
+                <th class="formTitle">宽度：</th>
+                <td class="formValue">
+
+                <th class="formTitle">宽度：</th>
+                <td class="formValue">
+                    <input id="AddWeigh" onfocus="IsMoney(this.id);" onkeyup="Conversion()" type="text" class="txt" value="0" disabled /></td>
+            </tr>
+            <tr>
+                <th class="formTitle">长度：</th>
+                <td class="formValue">
+
+                <th class="formTitle">长度：</th>
+                <td class="formValue">
+                    <input id="AddLength" onfocus="IsMoney(this.id);" onkeyup="Conversion()" type="text" class="txt" value="0" disabled /></td>
+            </tr>
+            <tr>
+                <th class="formTitle" rowspan="3">材料费用</th>
+                <th class="formTitle">单价/KG：</th>
+                <td class="formValue">
+
+                <th class="formTitle" rowspan="3">加工费用</th>
+                <th class="formTitle">单价：</th>
+                <td class="formValue"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">折扣率：</th>
+                <td class="formValue">
+                    <input id="MaterialLess" disabled type="text" class="txt" value="0.00" style="width: 93%; border-right: 1px solid #ccc;" />
+                    <span style="color: red; font-weight: bold;">%</span>
+                </td>
+                <th class="formTitle">折扣率：</th>
+                <td class="formValue">
+                    <input id="WorkLess" disabled type="text" class="txt" value="0.00" style="width: 93%; border-right: 1px solid #ccc;" />
+                    <span style="color: red; font-weight: bold;">%</span>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle">金额：</th>
+                <td class="formValue">
+                    <input id="MaterialAmount" disabled type="text" class="txt" value="0.00" /></td>
+                <th class="formTitle">金额：</th>
+                <td class="formValue">
+                    <input id="WorkAmount" disabled type="text" class="txt" value="0.00" /></td>
+            </tr>
+            <tr>
+                <th class="formTitle" rowspan="4">热处理</th>
+                <th class="formTitle">工艺：</th>
+                <td class="formValue"></td>
+                <th class="formTitle" rowspan="4">预算成本</th>
+                <th class="formTitle">销售额：</th>
+                <td class="formValue"></td>
+            </tr>
+            <tr>
+                <th class="formTitle">单价/KG：</th>
+                <td class="formValue"></td>
+                <th class="formTitle">成本：</th>
+                <td class="formValue">
+                    <input id="CostAmount" onfocus="IsMoney(this.id);" type="text" class="txt" value="0.00" /></td>
+            </tr>
+            <tr>
+                <th class="formTitle">折扣率：</th>
+                <td class="formValue">
+                    <input id="HeatLess" disabled type="text" class="txt" value="0.00" style="width: 93%; border-right: 1px solid #ccc;" />
+                    <span style="color: red; font-weight: bold;">%</span>
+                </td>
+                <th class="formTitle">毛利润：</th>
+                <td class="formValue">
+                    <input id="ProfitAmount" onfocus="IsMoney(this.id);" type="text" class="txt" value="0.00" /></td>
+            </tr>
+            <tr>
+                <th class="formTitle">金额：</th>
+                <td class="formValue">
+                    <input id="HeatAmount" disabled type="text" class="txt" value="0.00" /></td>
+                <th class="formTitle">毛利率：</th>
+                <td class="formValue">
+                    <input id="ProfitRate" onfocus="IsMoney(this.id);" type="text" class="txt" value="0.00" style="width: 93%; border-right: 1px solid #ccc;" />
+                    <span style="color: red; font-weight: bold;">%</span>
+                </td>
+            </tr>
+            <tr>
+                <th class="formTitle" colspan="2">项目编号：</th>
+                <td class="formValue">
+                    <input id="ProjectCode" type="text" class="txt" /></td>
+                <th class="formTitle" colspan="2">理论重量：</th>
+                <td class="formValue"></td>
+            </tr>
+            <tr>
+                <th class="formTitle" colspan="2">发货说明：</th>
+                <td class="formValue" colspan="4">
+                    <input id="ShipDescription" type="text" class="txt" /></td>
+            </tr>
+            <tr>
+                <th class="formTitle" colspan="2">备注：</th>
+                <td class="formValue" colspan="4"></td>
+            </tr>
+        </table>
+
+    </form>
+
+
+    <!--版权信息-->
+    @Html.Partial("_PartialMobileBottom")
+
+    <!--/版权信息-->
+
+</div>

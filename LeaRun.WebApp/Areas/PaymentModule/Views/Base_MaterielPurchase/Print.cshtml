@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>粗料单打印预览</title>
+    @*    <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+    <style>
+        .form-print th {
+            font-size: 10pt;
+            font-family: Arial;
+            font-weight: bold;
+            height: 18.6px;
+            line-height: 18.6px;
+            white-space: nowrap;
+            text-align: right;
+            padding-right: 2px;
+        }
+
+        .form-print td {
+            font-size: 10pt;
+            font-family: Arial;
+            font-weight: bold;
+            height: 18.6px;
+            line-height: 18.6px;
+            padding-right: 2px;
+        }
+    </style>
+    <script>
+        //初始化
+        $(function () {
+            AjaxJsonNoMassge("/PaymentModule/Base_MaterielPurchase/PrintDataJson?MaterielPurchaseIds=" + GetQuery('MaterielPurchaseIds'), { A: 1 }, function (data) {
+
+                $("#CustomerName").html(data.Base_Supplier.FullName);
+                $("#ContactTel").html(data.Base_Supplier.SellpeoplePhone);
+                $("#ContactFax").html(data.Base_Supplier.Fax);
+                $("#ContactName").html(data.Base_Supplier.Sellpeople);
+                $("#CustomerAddress").html(data.Base_Supplier.Address);
+                $("#PaymentMode").html(data.Base_Supplier.PaymentMode);
+                $("#TaxNumber").html(data.Base_Supplier.TaxNumber);
+
+                $("#date").html("@DNS.Utilities.DateTimeHelper.GetDate(1)");
+                $("#man").html("@DNS.Utilities.ManageProvider.Provider.Current().UserName");
+                var SumTotalMoney = 0;
+                var SumQty = 0;
+                $.each(data.ListData, function (i) {
+                    var QuotationDetailhtml = "";
+                    QuotationDetailhtml += '<tr>';
+                    QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielPurchaseCode + '</td>';
+                    QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielName + '</td>';
+                    QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielType + '</td>';
+                    QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielSize + '</td>';
+                    QuotationDetailhtml += '     <td>' + data.ListData[i].Unit + '</td>';
+                    QuotationDetailhtml += '     <td>' + data.ListData[i].PricePer + '</td>';
+                    QuotationDetailhtml += '     <td>' + data.ListData[i].Qty + '</td>';
+                    QuotationDetailhtml += '     <td>' + data.ListData[i].TotalAmount + '</td>';
+                    QuotationDetailhtml += '     <td>' + data.ListData[i].Remark + '</td>';
+
+
+                    QuotationDetailhtml += '</tr>';
+                    $("#tb_QuotationDetail").append(QuotationDetailhtml);
+                    SumTotalMoney = SumTotalMoney + data.ListData[i].TotalAmount;
+                    SumQty = SumQty + data.ListData[i].Qty;
+                });
+
+                var tempfoot = "";
+                tempfoot += '<tr>';
+                tempfoot += '     <td colspan="6" align="center">合   计</td>';
+
+                tempfoot += '     <td>' + SumQty + '</td>';
+                tempfoot += '     <td>￥' + SumTotalMoney + '</td>';
+                tempfoot += '     <td></td>';
+                tempfoot += '</tr>';
+
+                $("#tb_QuotationDetail").append(tempfoot);
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+            //AjaxJson("/QuotationModule/QuotationPrint/StateModify", { KeyValue: GetQuery('QuotationId') }, function (data) {
+            MyPreview();
+
+            //});
+        }
+    </script>
+</head>
+<body style="overflow-x: hidden;">
+    <div id="my_area" >
+        <div style="float: left; position: absolute; padding: 0px 5px 5px 10px;">
+            @*<img style="width: 45px; margin-left:200px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@
+        </div>
+        <table id="tb_Order" border="0" class="form-print" style="width: 100%;">
+            <tr>
+                <td colspan="4" align="center" style="padding: 2px;"><span style="font-size: 25px; font-weight: bold;">北仑机械锻造厂</span></td>
+            </tr>
+            <tr>
+                <td colspan="4" align="center">电话：18892600521&nbsp;传真：0755-28127166&nbsp;</td>
+            </tr>
+
+            <tr>
+                <td colspan="4" align="center" style="border-bottom: 1px solid #000; padding-bottom: 10px;"><span style="font-size: 25px; font-weight: bold;" id="CheckName">物料采购单</span></td>
+            </tr>
+            <tr>
+                <td colspan="4" valign="top">
+                    <div>
+                        <table id="tb_Order" border="0" class="form-print" style="width: 100%;">
+                            <tr>
+                                <th>供&nbsp;&nbsp;方：</th>
+                                <td>
+                                    <label id="CustomerName"></label>
+                                </td>
+                                <th>电&nbsp;&nbsp;话：</th>
+                                <td>
+                                    <label id="ContactTel"></label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>传&nbsp;&nbsp;真：</th>
+                                <td>
+                                    <label id="ContactFax"></label>
+                                </td>
+                                <th>联系人：</th>
+                                <td>
+                                    <label id="ContactName"></label>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>地&nbsp;&nbsp;址：</th>
+                                <td colspan="3">
+                                    <label id="CustomerAddress"></label>
+                                </td>
+
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="4" valign="top">
+                    <div>
+                        <table id="tb_QuotationDetail" border="1" class="form-print" style="width: 100%; border: 1px solid #000; border-collapse: collapse;">
+                            <tr>
+                                <td style="width: 10%" align="center">单号</td>
+                                <td style="width: 10%">物料名称</td>
+                                <td style="width: 10%">物料类型</td>
+                                <td style="width: 10%">尺寸</td>
+                                <td style="width: 5%">单位</td>
+                                <td style="width: 8%">单价</td>
+                                <td style="width: 7%">数量</td>
+                                <td style="width: 8%">总价</td>
+                                <td style="width: 8%">备注
+                     <img id="logo"  style="z-index: -1; position: absolute;right:35px;float:right; width: 4cm;" src="@Url.Content("~/Content/Images/123.png")" />
+
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+
+           @* <tr>
+                <td colspan="4">说明：</td>
+            </tr>
+            <tr>
+                <td colspan="4">1，币种：人民币</td>
+            </tr>
+            <tr>
+                <td colspan="4">2，含税类型：<label id="TaxNumber"></label></td>
+            </tr>
+            <tr>
+                <td colspan="4">3，月结天数：<label id="PaymentMode"></label>，请于次月5日前传对账单</td>
+            </tr>
+            <tr>
+                <td colspan="4">4，交货日期及送货方式：请于
+                    <label id="date"></label>
+                    交货到我公司，如有特殊请致电。</td>
+            </tr>*@
+            
+            <tr>
+                <td colspan="4"> 
+                </td>
+            </tr>
+            <tr>
+                <td style="white-space: nowrap;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;供方：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td style="white-space: nowrap;">审核：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td style="white-space: nowrap;">制表：<label id="man"></label>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+                <td style="white-space: nowrap;">日期：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+            </tr>
+        </table>
+    </div>
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_PAGESIZE(1, "210mm", "297mm", "A4")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        LODOP.PREVIEW();
+        //LODOP.PRINTA();
+        window.setTimeout(function () {closeDialog();}, 500);
+        //if (LODOP.PRINTA()) {
+        //    LODOP.PRINT();
+        //    tipDialog("打印成功", 3, 1);
+        //    top.frames[tabiframeId()].windowload();
+        //    window.setTimeout(function () {closeDialog();}, 500);
+
+        //}
+        //else
+        //    //alert("");
+        //    tipDialog("放弃打印！", 3, 1);
+
+    };
+</script>
+</html>

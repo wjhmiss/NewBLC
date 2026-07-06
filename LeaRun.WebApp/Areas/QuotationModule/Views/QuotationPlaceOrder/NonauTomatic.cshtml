@@ -1,0 +1,80 @@
+﻿@{
+    ViewBag.Title = "NonauTomatic";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script>
+    $(function () {
+        //产能时段 选中事件
+        $("#DayPart").change(function () {
+            AjaxJson("/OrderModule/Capacity/GetCapacityValue", { CapacityDate: $("#CapacityDate").val(), DayPart: $("#DayPart").val(), QuotationId: GetQuery('KeyValue'), OrderType: $("#OrderType").val() }, function (data) {
+                $("#CapacityValue").val(data.BookedQty + "/" + data.CapacityValue);
+            });
+        })
+    })
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        Loading(true, "正在提交数据...");
+        $(".ui_state_highlight").attr("disabled", true);
+        window.setTimeout(function () {
+            var postData = {
+                KeyValue: GetQuery('KeyValue'),
+                CapacityDate: $("#CapacityDate").val(),
+                DayPart: $("#DayPart").val(),
+                PlaceOrder: $("#PlaceOrder").val(),
+                OrderType: $("#OrderType").val()
+            }
+            AjaxJson("/QuotationModule/QuotationPlaceOrder/SubmitNonauTomatic", postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                window.setTimeout(function () {closeDialog();}, 500);
+            });
+        }, 200);
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form" id="Project">
+        <tr>
+            <th class="formTitle">交货期：</th>
+            <td class="formValue">
+                <input id="CapacityDate" type="text" onfocus="WdatePicker({minDate:'%y-%M-%d'})" value="@DNS.Utilities.DateTimeHelper.GetDate(1)" class="txt Wdate" datacol="yes" err="交货期" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">加工类型：</th>
+            <td class="formValue">
+                <select id="OrderType" class="txtselect" class="txt" datacol="yes" err="产能时段" checkexpession="NotNull">
+                    <option value="BJ">光、精加工</option>
+                    <option value="BC">毛料加工</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">产能时段：</th>
+            <td class="formValue">
+                <select id="DayPart" class="txtselect" class="txt" datacol="yes" err="产能时段" checkexpession="NotNull">
+                    <option>请选择时段</option>
+                    <option value="A">A 8:00-12:00</option>
+                    <option value="B">B 12:00-18:00</option>
+                    <option value="C">C 18:00-00:00</option>
+                    <option value="D">D 00:00-8:00</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">已用/产能数量：</th>
+            <td class="formValue">
+                <input id="CapacityValue" disabled type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">未落单数量：</th>
+            <td class="formValue">
+                <input id="PlaceOrder" onkeyup="IsMoney(this.id)" type="text" class="txt" value="@ViewBag.PlaceOrder" datacol="yes" err="落单数量" checkexpession="Double" />
+            </td>
+        </tr>
+    </table>
+</form>

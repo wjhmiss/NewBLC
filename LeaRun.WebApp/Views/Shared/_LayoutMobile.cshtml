@@ -1,0 +1,90 @@
+﻿<!DOCTYPE html>
+<!--HTML5 doctype-->
+<html>
+<head>
+    <meta http-equiv="Content-type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=0">
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>宁波皓丽金属有限公司</title>
+    <link rel="stylesheet" type="text/css" href="~/Content/Scripts/Mobile/templates/mobile/jqmobi/css/icons.css" />
+    <link rel="stylesheet" type="text/css" href="~/Content/Scripts/Mobile/templates/mobile/jqmobi/css/af.ui.base.css" />
+    <link rel="stylesheet" type="text/css" href="~/Content/Scripts/Mobile/templates/mobile/css/style.css" />
+    <!--jqMobi主JS-->
+    <script type="text/javascript" charset="utf-8" src="~/Content/Scripts/Mobile/scripts/jquery/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/Content/Scripts/Mobile/templates/mobile/jqmobi/jq.appframework.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/Content/Scripts/Mobile/templates/mobile/jqmobi/ui/appframework.ui.js"></script>
+    <!--jqMobi插件-->
+    <script type="text/javascript" charset="utf-8" src="~/Content/Scripts/Mobile/templates/mobile/jqmobi/plugins/jq.slidemenu.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/Content/Scripts/Mobile/templates/mobile/js/base.js"></script>
+    <script type="text/javascript" charset="utf-8" src="~/Content/Scripts/Mobile/scripts/artdialog/dialog-plus-min.js"></script>
+    <link rel="stylesheet" type="text/css" href="~/Content/Scripts/Mobile/scripts/artdialog/ui-dialog.css" />
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            
+
+            $.ajax({
+                url: "@Url.Content("~/WeiWebSite/WeiLogin/GetOrdersIng")",
+                type: "post",
+                dataType: "json",
+                async: true,
+                success: function (data) {
+                    $(".af-badge").html(data.Message);
+                },
+                error: function (data) {
+                    alert(data.responseText);
+                }
+            });
+
+        });
+    </script>
+</head>
+
+<body>
+    <div id="afui">
+        <div id="content">
+            @RenderBody()
+            
+
+            <!--页面头部-->
+            <header id="main_header">
+                <h2 class="logo">
+                    <img src="~/Content/Scripts/Mobile/templates/mobile/images/logo.png" /></h2>
+                <a onclick="af.ui.toggleSideMenu()" class="menuButton"></a>
+            </header>
+            <!--/页面头部-->
+
+            <!--底部导航-->
+            <footer id="main_footer">
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/WeiIndex")" class="icon home" data-ignore="true">首页</a>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/WeiLogin")" class="icon user" data-ignore="true">登录</a>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryOrder")" class="icon basket" data-ignore="true">加工单 <span class="af-badge lr">0
+                </span></a>
+                <a href="@Url.Content("~/WeiWebSite/WeiLogin/InstockIndex")" class="icon magnifier" data-ignore="true">库存</a>
+                <a href="tel:15012791005" class="icon phone" data-ignore="true">电话</a>
+            </footer>
+            <!--/底部导航-->
+
+            <!--左侧导航-->
+            <nav>
+                <ul class="list">
+                    <li class="divider">网站导航</li>
+                    <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/WeiIndex")" class="icon home" data-ignore="true">网站首页</a></li>
+                    <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/InstockIndex")" class="icon tv" data-ignore="true">库存查询</a></li>
+                    <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/InputQuot")" class="icon basket" data-ignore="true">快速下单</a></li>
+                    <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryQuot")" class="icon camera" data-ignore="true">合同查询</a></li>
+                    <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryOrder")" class="icon picture" data-ignore="true">生产进度</a></li>
+                    <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryDelivery")" class="icon download" data-ignore="true">发运单查询</a></li>
+                    <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryCheckSheet")" class="icon user" data-ignore="true">对账单查询</a></li>
+                    <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/QueryReport")" class="icon info" data-ignore="true">统计报表</a></li>
+                    <li><a href="@Url.Content("~/WeiWebSite/WeiLogin/Contact")" class="icon message" data-ignore="true">联系方式</a></li>
+                    <li><a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin=229173680&site=qq&menu=yes" class="icon message" data-ignore="true">QQ服务</a></li>
+                    <li><a href="tel:15012791005" class="icon phone" data-ignore="true">电话联系</a></li>
+                </ul>
+            </nav>
+            <!--/左侧导航-->
+
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,185 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>粗料单打印预览</title>
+    @*    <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+        <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+        <script src="~/Content/Scripts/learunui-framework.js"></script>
+        <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+    <style>
+
+
+        .form-print th {
+            font-size: 11pt;
+            font-family: Arial;
+            font-weight: bold;
+            background-color: #fff;
+            height: 24.6px;
+            line-height: 24.6px;
+            white-space: nowrap;
+            text-align: right;
+            padding-right: 2px;
+        }
+
+        .form-print td {
+            font-size: 11pt;
+            font-family: Arial;
+            font-weight: bold;
+            height: 24.6px;
+            line-height: 24.6px;
+            padding-right: 2px;
+        }
+    </style>
+    <script>
+        //初始化
+        $(function () {
+            AjaxJson("/CheckSheetModule/BY_CheckSheet/PrintDataJson", { CheckSheetCode: GetQuery('CheckSheetCode') }, function (data) {
+                //var Quotation = data.Quotation;
+                //var QuotationDetail = data.QuotationDetail;
+                //var Customer = data.Customer;
+
+                //var Name = GetQuery('Name');
+                //Name = "北仑机械锻造厂";
+                var Name = data.CheckEntity.CompanyName;
+                var CheckData = data.CheckEntity;
+                var CheckDataList = data.CheckEntityList;
+                var base_customer = data.base_customer;
+                $("#CheckCode").html(CheckData.CheckSheetCode);
+                $("#CustomerName").html(CheckData.CustomerName);
+                $("#ContactTel").html(base_customer.CheckTele);
+                $("#ContactFax").html(base_customer.CheckFaxs);
+                $("#ContactName").html(base_customer.Checker);
+                $("#CustomerAddress").html(CheckData.CustomerAddress);
+                $("#CheckName").html(CheckData.YearMonth + "月对账单");
+
+                var index = 0;
+                var pageindex = 0;
+                var total = 0
+                var pageNum = 35;
+                var Orderhtml = '';
+                if (CheckDataList.length % pageNum == 0) {
+                    total = CheckDataList.length / pageNum;
+                }
+                else {
+                    total = Math.floor(CheckDataList.length / pageNum) + 1
+                }
+                var pagepertem = 0;
+                var PrintGroup = "";
+                $.each(CheckDataList, function (i) {
+                    if (index % pageNum == 0) {
+                        pageindex++;
+                        Orderhtml += '<div style="float:left;position: absolute; ">@*<img style="width: 60px;padding: 5px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@</div><table id="tb_Order" border="0" class="form-print" style="width: 100%;">';
+                        Orderhtml += '<tr><td colspan="4" align="center" style="padding: 2px;"><span style="font-size: 25px; font-weight: bold;">' + data.company.FullName + '（' + pageindex + '/' + total + '）</span></td></tr>';
+                        //Orderhtml += '<tr><td colspan="4" align="center" style="height: 18.6px;line-height:18.6px;">HUNAN CHAOGUAN STEEL CO.，LTD （' + pageindex + '/' + total + '）</td></tr>';
+                        Orderhtml += '<tr><th style="height: 18.6px;line-height:18.6px;">地址：</th><td style="height: 18.6px;line-height:18.6px;">' + data.company.Address + '</td><th style="height: 18.6px;line-height:18.6px;">电话：</th><td style="height: 18.6px;line-height:18.6px;">' + data.company.Phone + '</td></tr><tr><th style="height: 18.6px;line-height:18.6px;">邮箱：</th><td style="height: 18.6px;line-height:18.6px;">' + data.company.Email +'</td><th style="height: 18.6px;line-height:18.6px;">对账单：</th><td style="height: 18.6px;line-height:18.6px;">' + CheckData.CheckSheetCode + '</td></tr>';
+                        Orderhtml += ' <tr><td colspan="4" align="center" style="border-top: 1px solid #000;padding-top:10px;height: 18.6px;line-height:18.6px;"><span style="font-size: 25px; font-weight: bold;" id="CheckName">' + CheckData.YearMonth + '(' + formatDate(CheckData.BeginDate, 'yyyy-MM-dd') + '至' + formatDate(CheckData.EndDate, 'yyyy-MM-dd') + ')月对账单</span></td></tr><tr><th style="height: 18.6px;line-height:18.6px;">客户名称：</th><td>' + CheckData.CustomerName + '</td><th style="height: 18.6px;line-height:18.6px;">电话:</th><td>' + base_customer.CheckFaxs + '</td></tr><tr><th style="height: 18.6px;line-height:18.6px;">传真:</th><td style="height: 18.6px;line-height:18.6px;">' + base_customer.CheckTele + '</td><th style="height: 18.6px;line-height:18.6px;">联系人：</th><td style="height: 18.6px;line-height:18.6px;">' + base_customer.Checker + '</td></tr>';
+                        Orderhtml += '<tr><td colspan="4" valign="top"><div ><table id="tb_QuotationDetail"  class="form-print" style="width: 100%; border-collapse:collapse;"><tr><td  align="center" style="border:solid 1px #000000;">序号</td><td   style="border:solid 1px #000000;">出货日期</td><td   style="border-bottom:1px solid;border-top:1px solid;">出货单号</td><td   style="border-bottom:1px solid;border:1px solid;">客户PO/模号</td><td   style="border:solid 1px #000000;">总金额（元)</td><td   style="border:solid 1px #000000;">合计</td></tr>';
+                    }
+                    Orderhtml += '<tr>';
+                    Orderhtml += '     <td style="border:solid 1px #000000;">' + (i + 1) + '</td>';
+                    Orderhtml += '     <td style="border:solid 1px #000000;">' + CheckDataList[i].CreateDate.substr(0, 10) + '</td>';
+                    Orderhtml += '     <td style="border:solid 1px #000000;">' + CheckDataList[i].DeliveryCode + '</td>';
+
+                    if (!CheckDataList[i].DieCode) { 
+                        CheckDataList[i].DieCode = "";
+                    }
+
+                    Orderhtml += '     <td style="border:solid 1px #000000;">' + CheckDataList[i].DieCode + '</td>';
+                    Orderhtml += '     <td style="border:solid 1px #000000;">' + CheckDataList[i].TotalAmount + '</td>';
+
+                    if (!!CheckDataList[i].PrintGroup && PrintGroup != CheckDataList[i].PrintGroup) {
+                        Orderhtml += '     <td style="border:solid 1px #000000;" rowspan="' + CheckDataList[i].Rowall + '" align="center">' + CheckDataList[i].TotalAmountall + '</td>';
+                        PrintGroup = CheckDataList[i].PrintGroup;
+                    }
+                    else if (!!CheckDataList[i].PrintGroup) {
+
+                    }
+                    else {
+                        Orderhtml += '     <td style="border:solid 1px #000000;">' + CheckDataList[i].TotalAmount + '</td>';
+
+                    }
+                    Orderhtml += '</tr>';
+                    pagepertem += Number(CheckDataList[i].TotalAmount);
+                    if ((index + 1) % pageNum == 0) {
+                        Orderhtml += '<tr><td colspan="4" style="height:10mm;">本页小计：' + pagepertem.toFixed(2) + '</td></tr>';
+                        Orderhtml += '</table></div></td></tr></table>';
+                        pagepertem = 0;
+                    }
+                    index++;
+                });
+                Orderhtml += '<tr>';
+                Orderhtml += '     <td colspan="3" align="center" >合   计</td>';
+                Orderhtml += '     <td></td>';
+                Orderhtml += '     <td style="font-size: 14pt;">' + CheckData.DTotalAmount + '</td>';
+                Orderhtml += '</tr></table></div></td></tr>';
+
+                if (data.CheckList.length > 9990) {
+                    Orderhtml += '<tr><td colspan="4" valign="top"><table border="1" class="form-print" style="width: 100%; border: 1px solid #000; border-collapse: collapse;"><tr><td>以下未付款汇总：' + data.CheckListTotalMoney + '</td></tr>';
+                    $.each(data.CheckList, function (i) {
+                        var mun = Number(data.CheckList[i].TotalAmount) - Number(data.CheckList[i].GetedAmount);
+                        Orderhtml += ' <tr><td>时间：' + data.CheckList[i].YearMonth + ':' + mun.toFixed(2) + '</td></tr>';
+                    })
+                    Orderhtml += '</table></td></tr>';
+                }
+                Orderhtml += '<tr><td colspan="4">备注：以上账目敬请财务核对且在3个工作日内务必回传，超时视为默认。</td></tr><tr><td colspan="4" valign="top"><table  class="form-print" style="width: 100%; border-top: 1px solid #000;border-collapse:collapse;"><tr><td >制表人：@DNS.Utilities.ManageProvider.Provider.Current().UserName </td><td >审核人：</td><td >客户确认：</td><td >确认日期：</td></tr></table></td></tr></table>';
+                $("#my_area").append(Orderhtml);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+            AjaxJson("/QuotationModule/QuotationPrint/StateModify", { KeyValue: GetQuery('QuotationId') }, function (data) {
+                MyPreview();
+
+            });
+        }
+    </script>
+</head>
+<body style="overflow-x: hidden;">
+    <div id="my_area" style="background: #fff;">
+        
+    </div>
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_PAGESIZE(1, "210mm", "297mm", "A4")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        LODOP.PREVIEW();
+        //LODOP.PRINTA();
+        window.setTimeout(function () {closeDialog();}, 500);
+        //if (LODOP.PRINTA()) {
+        //    LODOP.PRINT();
+        //    tipDialog("打印成功", 3, 1);
+        //    top.frames[tabiframeId()].windowload();
+        //    window.setTimeout(function () {closeDialog();}, 500);
+
+        //}
+        //else
+        //    //alert("");
+        //    tipDialog("放弃打印！", 3, 1);
+        
+    };
+</script>
+</html>

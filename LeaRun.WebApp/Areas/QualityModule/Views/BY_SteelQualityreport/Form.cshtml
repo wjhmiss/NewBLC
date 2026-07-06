@@ -1,0 +1,1053 @@
+@{
+    ViewBag.Title = "BY_SteelQualityreport》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/jqgrid/jqgridjquery")
+@Styles.Render("~/Content/Scripts/jqgrid/css/jqgridcss")
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        CustomerAutocomplete();
+        SteelAutocomplete();
+        SteelQualityreportCodeAutocomplete();
+
+        BindDropItem("#PlaceOrigin", "SteelSource", "==请选择==");
+        BindDropItem("#Standard", "对应标准", "==请选择==");
+        BindDropItem("#ForgingMethod", "冶炼方法", "==请选择==");
+        BindDropItem("#DeliveryStatus", "交货状态", "==请选择==");
+        BindDropItem("#ProcessingeUse", "加工用途", "==请选择==");
+
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+        InitControl();
+        document.onkeydown = enterInput;
+    })
+    function btn_Print() {
+        if (IsChecked(KeyValue)) {
+            PrintDialog("/QualityModule/BY_SteelQualityreport/Print?SteelQualityreportId=" + KeyValue, "PrintPage", "打印", 1070, 600, function (iframe) {
+                top.frames[iframe].AcceptClick();
+                window.setTimeout(function () {closeDialog();}, 500);
+            });
+
+        }
+    }
+    function enterInput() {
+
+
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+        if (event.keyCode == 38) {//上
+            if ($(tar).attr('id') == "StoveCode") {
+                $("#SteelCode").select();
+            }
+            else if ($(tar).attr('id') == "ParentStoveCode") {
+                $("#StoveCode").select();
+            }
+            else if ($(tar).attr('id') == "Size") {
+                $("#ProcessingeUse").focus();
+            }
+            else if ($(tar).attr('id') == "Qty") {
+                $("#Size").select();
+            }
+            else if ($(tar).attr('id') == "Weight") {
+                $("#Qty").select();
+            }
+            else if ($(tar).attr('id') == "Remark") {
+                $("#Weight").select();
+            }
+            else if ($(tar).attr('id') == "CSBruslt") {
+                $("#Remark").select();
+            }
+            else if ($(tar).attr('id') == "C") {
+                $("#CSBruslt").select();
+            }
+            else if ($(tar).attr('id') == "Mn") {
+                $("#C").select();
+            }
+            else if ($(tar).attr('id') == "Si") {
+                $("#Mn").select();
+            }
+            else if ($(tar).attr('id') == "S") {
+                $("#Si").select();
+            }
+            else if ($(tar).attr('id') == "P") {
+                $("#S").select();
+            }
+            else if ($(tar).attr('id') == "Ni") {
+                $("#P").select();
+            }
+            else if ($(tar).attr('id') == "Cr") {
+                $("#Ni").select();
+            }
+            else if ($(tar).attr('id') == "W") {
+                $("#Cr").select();
+            }
+            else if ($(tar).attr('id') == "V") {
+                $("#W").select();
+            }
+            else if ($(tar).attr('id') == "Mo") {
+                $("#V").select();
+            }
+            else if ($(tar).attr('id') == "Cu") {
+                $("#Mo").select();
+            }
+            else if ($(tar).attr('id') == "TA") {
+                $("#Cu").select();
+            }
+            else if ($(tar).attr('id') == "HA") {
+                $("#TA").select();
+            }
+            else if ($(tar).attr('id') == "TB") {
+                $("#HA").select();
+            }
+            else if ($(tar).attr('id') == "HB") {
+                $("#TB").select();
+            }
+            else if ($(tar).attr('id') == "TC") {
+                $("#HB").select();
+            }
+            else if ($(tar).attr('id') == "HC") {
+                $("#TC").select();
+            }
+            else if ($(tar).attr('id') == "TD") {
+                $("#HC").select();
+            }
+            else if ($(tar).attr('id') == "HD") {
+                $("#TD").select();
+            }
+            else if ($(tar).attr('id') == "DZ1") {
+                $("#HD").select();
+            }
+            else if ($(tar).attr('id') == "DZ2") {
+                $("#DZ1").select();
+            }
+            else if ($(tar).attr('id') == "QHJ1") {
+                $("#DZ2").select();
+            }
+            else if ($(tar).attr('id') == "QHJ2") {
+                $("#QHJ1").select();
+            }
+            else if ($(tar).attr('id') == "CJG1") {
+                $("#QHJ2").select();
+            }
+            else if ($(tar).attr('id') == "CJG2") {
+                $("#CJG1").select();
+            }
+            else if ($(tar).attr('id') == "Hardness1") {
+                $("#CJG2").select();
+            }
+            else if ($(tar).attr('id') == "Hardness2") {
+                $("#Hardness1").select();
+            }
+        }
+        if (event.keyCode == 40) {//下
+            if ($(tar).attr('id') == "StoveCode") {
+                $("#ParentStoveCode").select();
+            }
+            else if ($(tar).attr('id') == "Size") {
+                $("#Qty").select();
+            }
+            else if ($(tar).attr('id') == "Qty") {
+                $("#Weight").select();
+            }
+            else if ($(tar).attr('id') == "Weight") {
+                $("#Remark").select();
+            }
+            else if ($(tar).attr('id') == "Remark") {
+                $("#CSBruslt").select();
+            }
+            else if ($(tar).attr('id') == "CSBruslt") {
+                $("#C").select();
+            }
+            else if ($(tar).attr('id') == "C") {
+                $("#Mn").select();
+            }
+            else if ($(tar).attr('id') == "Mn") {
+                $("#Si").select();
+            }
+            else if ($(tar).attr('id') == "Si") {
+                $("#S").select();
+            }
+            else if ($(tar).attr('id') == "S") {
+                $("#P").select();
+            }
+            else if ($(tar).attr('id') == "P") {
+                $("#Ni").select();
+            }
+            else if ($(tar).attr('id') == "Ni") {
+                $("#Cr").select();
+            }
+            else if ($(tar).attr('id') == "Cr") {
+                $("#W").select();
+            }
+            else if ($(tar).attr('id') == "W") {
+                $("#V").select();
+            }
+            else if ($(tar).attr('id') == "V") {
+                $("#Mo").select();
+            }
+            else if ($(tar).attr('id') == "Mo") {
+                $("#Cu").select();
+            }
+            else if ($(tar).attr('id') == "Cu") {
+                $("#TA").select();
+            }
+            else if ($(tar).attr('id') == "TA") {
+                $("#HA").select();
+            }
+            else if ($(tar).attr('id') == "HA") {
+                $("#TB").select();
+            }
+            else if ($(tar).attr('id') == "TB") {
+                $("#HB").select();
+            }
+            else if ($(tar).attr('id') == "HB") {
+                $("#TC").select();
+            }
+            else if ($(tar).attr('id') == "TC") {
+                $("#HC").select();
+            }
+            else if ($(tar).attr('id') == "HC") {
+                $("#TD").select();
+            }
+            else if ($(tar).attr('id') == "TD") {
+                $("#HD").select();
+            }
+            else if ($(tar).attr('id') == "HD") {
+                $("#DZ1").select();
+            }
+            else if ($(tar).attr('id') == "DZ1") {
+                $("#DZ2").select();
+            }
+            else if ($(tar).attr('id') == "DZ2") {
+                $("#QHJ1").select();
+            }
+            else if ($(tar).attr('id') == "QHJ1") {
+                $("#QHJ2").select();
+            }
+            else if ($(tar).attr('id') == "QHJ2") {
+                $("#CJG1").select();
+            }
+            else if ($(tar).attr('id') == "CJG1") {
+                $("#CJG2").select();
+            }
+            else if ($(tar).attr('id') == "CJG2") {
+                $("#Hardness1").select();
+            }
+            else if ($(tar).attr('id') == "Hardness1") {
+                $("#Hardness2").select();
+            }
+            else if ($(tar).attr('id') == "Hardness2") {
+            }
+        }
+        if (e && e.keyCode == 13) {//回车
+            if ($(tar).attr('id') == "SteelQualityreportCode") {
+                $("#CreateDate").select();
+            }
+            else if ($(tar).attr('id') == "CreateDate") {
+                $("#CustomerCode").select();
+            }
+            else if ($(tar).attr('id') == "CustomerCode") {
+                $("#SteelCode").select();
+            }
+            else if ($(tar).attr('id') == "SteelCode") {
+                $("#StoveCode").select();
+            }
+            else if ($(tar).attr('id') == "StoveCode") {
+                $("#ParentStoveCode").select();
+            }
+            else if ($(tar).attr('id') == "ParentStoveCode") {
+                $("#PlaceOrigin").focus();
+            }
+            else if ($(tar).attr('id') == "PlaceOrigin") {
+                $("#Standard").focus();
+            }
+            else if ($(tar).attr('id') == "Standard") {
+                $("#ForgingMethod").focus();
+            }
+            else if ($(tar).attr('id') == "ForgingMethod") {
+                $("#DeliveryStatus").focus();
+            }
+            else if ($(tar).attr('id') == "DeliveryStatus") {
+                $("#ProcessingeUse").focus();
+            }
+            else if ($(tar).attr('id') == "ProcessingeUse") {
+                $("#Size").select();
+            }
+            else if ($(tar).attr('id') == "Size") {
+                $("#Qty").select();
+            }
+            else if ($(tar).attr('id') == "Qty") {
+                $("#Weight").select();
+            }
+            else if ($(tar).attr('id') == "Weight") {
+                $("#Remark").select();
+            }
+            else if ($(tar).attr('id') == "Remark") {
+                $("#CSBruslt").select();
+            }
+            else if ($(tar).attr('id') == "CSBruslt") {
+                $("#C").select();
+            }
+            else if ($(tar).attr('id') == "C") {
+                $("#Mn").select();
+            }
+            else if ($(tar).attr('id') == "Mn") {
+                $("#Si").select();
+            }
+            else if ($(tar).attr('id') == "Si") {
+                $("#S").select();
+            }
+            else if ($(tar).attr('id') == "S") {
+                $("#P").select();
+            }
+            else if ($(tar).attr('id') == "P") {
+                $("#Ni").select();
+            }
+            else if ($(tar).attr('id') == "Ni") {
+                $("#Cr").select();
+            }
+            else if ($(tar).attr('id') == "Cr") {
+                $("#W").select();
+            }
+            else if ($(tar).attr('id') == "W") {
+                $("#V").select();
+            }
+            else if ($(tar).attr('id') == "V") {
+                $("#Mo").select();
+            }
+            else if ($(tar).attr('id') == "Mo") {
+                $("#Cu").select();
+            }
+            else if ($(tar).attr('id') == "Cu") {
+                $("#TA").select();
+            }
+            else if ($(tar).attr('id') == "TA") {
+                $("#HA").select();
+            }
+            else if ($(tar).attr('id') == "HA") {
+                $("#TB").select();
+            }
+            else if ($(tar).attr('id') == "TB") {
+                $("#HB").select();
+            }
+            else if ($(tar).attr('id') == "HB") {
+                $("#TC").select();
+            }
+            else if ($(tar).attr('id') == "TC") {
+                $("#HC").select();
+            }
+            else if ($(tar).attr('id') == "HC") {
+                $("#TD").select();
+            }
+            else if ($(tar).attr('id') == "TD") {
+                $("#HD").select();
+            }
+            else if ($(tar).attr('id') == "HD") {
+                $("#DZ1").select();
+            }
+            else if ($(tar).attr('id') == "DZ1") {
+                $("#DZ2").select();
+            }
+            else if ($(tar).attr('id') == "DZ2") {
+                $("#QHJ1").select();
+            }
+            else if ($(tar).attr('id') == "QHJ1") {
+                $("#QHJ2").select();
+            }
+            else if ($(tar).attr('id') == "QHJ2") {
+                $("#CJG1").select();
+            }
+            else if ($(tar).attr('id') == "CJG1") {
+                $("#CJG2").select();
+            }
+            else if ($(tar).attr('id') == "CJG2") {
+                $("#Hardness1").select();
+            }
+            else if ($(tar).attr('id') == "Hardness1") {
+                $("#Hardness2").select();
+            }
+            else if ($(tar).attr('id') == "Hardness2") {
+            }
+
+        }
+    }
+
+    function SteelQualityreportCodeAutocomplete() {
+        var $SteelQualityreportCode = $("#SteelQualityreportCode");
+        $SteelQualityreportCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("SteelQualityreportCode", function (data) {
+            if (!!data.SteelQualityreportCode) {
+                $("#SteelQualityreportCode").val(data.SteelQualityreportCode);
+            }
+            KeyValue = "";
+            setQuo();
+
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/QualityModule/BY_SteelQualityreportT/SetForm1", { SteelQualityreportCode: escape($("#SteelQualityreportCode").val()) }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="SteelQualityreportCode" style="width: 100%;">' + DataJson[i].SteelQualityreportCode + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("SteelQualityreportCode", $SteelQualityreportCode.width() + "px", "280px", html, function (data) {
+                    if (!!data.SteelQualityreportCode) {
+                        $("#SteelQualityreportCode").val(data.SteelQualityreportCode);
+                    }
+                    KeyValue = "";
+                    setQuo();
+
+                },true);
+            });
+        }
+    }
+        var lastsel;
+    function GetGrid() {
+        var lastselpostdate;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/QualityModule/BY_SteelQualityreportList/GetListJson1")?SteelQualityreportId=" + $("#SteelQualityreportId").val(),
+            datatype: "json",
+            height: $(window).height() - 150,
+            autowidth: true,
+            colModel: [
+                //{ label: '主键', name: 'InventoryId', hidden: true },
+                { label: 'BY_SteelQualityreportListId', name: 'BY_SteelQualityreportListId', hidden: true },
+                { label: 'QuotationDetailId', name: 'QuotationDetailId', hidden: true },
+                { label: '序号', name: 'SortCode', width: 40, align: 'center' },
+                { label: '生产编号', name: 'OrderCodeLine', align: 'center', width: 120, editable: true },
+                { label: "规格", name: "Size", align: 'center', width: 100, editable: true },
+                { label: "件数", name: "Qty", width: 60, align: 'center', editable: true },
+                { label: '重量', name: 'Weight', width: 60, align: 'center', editable: true },
+                { label: '模号', name: 'CustomerProduct', width: 100, align: 'center', editable: true },
+                { label: '备注', name: 'ExecRemark', width: 100, align: 'center', editable: true },
+            ],
+            viewrecords: true,
+            rowNum: 999,
+            rowList: [999, 999, 999, 999, 999],
+            pager: false,
+            shrinkToFit: false,
+            rownumbers: true,
+            altRows: false,
+            sortname: 'SortCode',
+            sortorder: 'asc',
+            altclass: 'altclass',
+            gridview: true,
+            cellsubmit: 'clientArray',
+            onSelectRow: function (id) {
+                var postData = {
+                    OrderCodeLine: $("[name='OrderCodeLine']").val(),
+                    Size: $("[name='Size']").val(),
+                    Qty: $("[name='Qty']").val(),
+                    Weight: $("[name='Weight']").val(),
+                    CustomerProduct: $("[name='CustomerProduct']").val(),
+                    ExecRemark: $("[name='ExecRemark']").val(),
+                }
+                if (id && id !== lastsel) {
+                    $('#gridTable').jqGrid('restoreRow', lastsel);
+                    $('#gridTable').jqGrid('editRow', id, { keys: false });
+                    $('#gridTable').jqGrid('setRowData', lastsel, postData, '');
+                }
+                lastselpostdate = postData;
+                lastsel = id;
+
+            },
+            gridComplete: function () {
+                //合计
+            }
+
+        });
+        $("#lr-delete-Row").click(function () {
+            var Index = GetJqGridRowIndx("#gridTable");
+            $("#gridTable").jqGrid("delRowData", Index);
+        });
+    }
+
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/QualityModule/BY_SteelQualityreport/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    function SteelAutocomplete() {
+        var $SteelCode = $("#SteelCode");
+        $SteelCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            //DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("SteelCode", function (data) {
+            if (!!data.SteelCode) {
+                $("#SteelId").val(data.SteelId);
+                $("#SteelCode").val(data.SteelCode);
+                $("#SteelName").val(data.SteelName);
+            }
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJsonNoMassge("/CommonModule/Steel/GetAutoCompleJson", { keywords: $SteelCode.val(), isBanOrYuan: "", type: 1 }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="SteelId" style="display: none;">' + DataJson[i].SteelId + '</td>';
+                    html += '<td id="SteelCode" style="width: 40%;">' + DataJson[i].SteelCode + '</td>';
+                    html += '<td id="SteelName" style="width: 60%;">' + DataJson[i].SteelName + '</td>';
+                    html += '<td id="Density" style="display: none;">' + DataJson[i].Density + '</td>';
+                    html += '<td id="SteelType" style="display: none;">' + DataJson[i].SteelType + '</td>';
+                    html += '<td id="RepalceMl" style="display: none;">' + DataJson[i].RepalceMl + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("SteelCode", "150px", "250px", html, function (data) {
+                    $("#SteelId").val(data.SteelId);
+                    $("#SteelCode").val(data.SteelCode);
+                    $("#SteelName").val(data.SteelName);
+                });
+            });
+        }
+    }
+
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+
+        var RowData = {
+            OrderCodeLine: $("[name='OrderCodeLine']").val(),
+            Size: $("[name='Size']").val(),
+            Qty: $("[name='Qty']").val(),
+            Weight: $("[name='Weight']").val(),
+            CustomerProduct: $("[name='CustomerProduct']").val(),
+            ExecRemark: $("[name='ExecRemark']").val(),
+        }
+        $('#gridTable').jqGrid('setRowData', GetJqGridRowIndx('#gridTable'), RowData, '');
+        var data = $("#gridTable").jqGrid("getRowData");
+        for (var i = 0; i < data.length; i++) {
+            if (!data[i].OrderCodeLine) {
+                tipDialog("单号编码错误，请检查", 3, -1);
+                return;
+            }
+            if (!data[i].Size) {
+                tipDialog("部分尺寸错误，请检查", 3, -1);
+                return;
+            }
+            if (!data[i].Qty) {
+                tipDialog("部分数量错误，请检查", 3, -1);
+                return;
+            }
+            if (!data[i].Weight) {
+                tipDialog("部分重量错误，请检查", 3, -1);
+                return;
+            }
+        }
+
+        var postData = GetWebControls("#form1");
+        postData["SteelListJson"] = JSON.stringify($("#gridTable").jqGrid("getRowData"));
+
+        AjaxJson("/QualityModule/BY_SteelQualityreport/SubmitForm1?KeyValue=" + KeyValue, postData, function (data) {
+            if (data.Code == "1") {
+                tipDialog("保存成功!", 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                KeyValue = data.Message
+                //window.setTimeout(function () {closeDialog();}, 500);
+            }
+        });
+    }
+
+    //客户编码自动补全
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerName").val(data.FullName);
+
+        });
+        //获取数据源
+        function DataSource() {
+            $("#CustomerId").val('');
+            AjaxJson("/CommonModule/Customer/GetAutoCompleJson", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].CustomerId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 70%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="ShortName" style="display: none;">' + DataJson[i].ShortName + '</td>';
+                    html += '<td id="Sellpeople" style="display: none;">' + DataJson[i].Sellpeople + '</td>';
+                    html += '<td id="SalesArea" style="display: none;">' + DataJson[i].Sellarea + '</td>';
+                    html += '<td id="DiscountRate" style="display: none;">' + DataJson[i].DiscountRate + '</td>';
+                    html += '<td id="TransitMode" style="display: none;">' + DataJson[i].TransitMode + '</td>';
+                    html += '<td id="PaymentMode" style="display: none;">' + DataJson[i].PaymentMode + '</td>';
+                    html += '<td id="Category" style="display: none;">' + DataJson[i].Category + '</td>';
+                    html += '<td id="IsInvoice" style="display: none;">' + DataJson[i].IsInvoice + '</td>';
+
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerName").val(data.FullName);
+                });
+
+            });
+        }
+    }
+
+
+    function addforQuo(s) {
+        var SortCode = 0;
+        if (!!Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode"))) {
+            SortCode = Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode")) + 1;
+        }
+        else {
+            SortCode = 1;
+        }
+        var index = 0;
+        if (!!$("#gridTable").getGridParam("reccount")) {
+            index = $("#gridTable").getGridParam("reccount") + 1;
+        }
+        else {
+            index = 1;
+        }
+        var entitys = s.split(';');
+        for (var i = 0; i < entitys.length; i++) {
+            var items = entitys[i].split(',');
+            //s1 = s1 + myrow.steelcode + "," + myrow.SteelName + "," + myrow.length + ","
+            //        + myrow.weigh + "," + myrow.thick + "," + myrow.quotationcode + "-"
+            //        + myrow.linecode + "," + myrow.qty + "," + myrow.addlength + ","
+            //        + myrow.addweigh + "," + myrow.addthick + "," + myrow.quotationdetailid + ","
+            //        + myrow.weight + "," + myrow.density + "," + myrow.customerproduct + "," + myrow.ordertype + "," + myrow.shortname.replace(myrow.departname,""); + '、' + myrow.departname + ";";
+            var boresize = 0;
+
+            var size = "";
+            if (items[3] > 0) {
+                size = items[2] + "*" + items[3] + "*" + items[4];
+            }
+            else {
+                size = "Φ" + items[4] + "*" + items[2] ;
+
+            }
+
+            var RowData = {
+                SortCode: SortCode + i,
+                OrderCodeLine: items[5],
+                Size: size,
+                Qty: items[6],
+                Weight: items[11],
+                CustomerProduct: items[13],
+                ExecRemark: items[16],
+                QuotationDetailId: items[10],
+            }
+            $('#gridTable').jqGrid('addRowData', index, RowData, "last");
+            index += 1;
+        }
+
+    }
+    //新增一行
+    function addrow() {
+        var SortCode = 0;
+        if (!!Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode"))) {
+            SortCode = Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode")) + 1;
+        }
+        else {
+            SortCode = 1;
+        }
+        var index = 0;
+        if (!!$("#gridTable").getGridParam("reccount")) {
+            index = $("#gridTable").getGridParam("reccount") + 1;
+        }
+        else {
+            index = 1;
+        }
+
+        var RowData = {
+            SortCode: SortCode,
+            OrderCodeLine: "",
+            Size: "",
+            Qty: "",
+            Weight: "",
+            CustomerProduct: "",
+            ExecRemark: "",
+        }
+        $('#gridTable').jqGrid('restoreRow', index);
+        $('#gridTable').jqGrid('addRowData', index, RowData, "last");
+        $("#gridTable").setSelection(index);
+    }
+
+    function btn_Quotationquery() {
+        openDialog("/QuotationModule/QuotationQuery/QueryQuotationForSteelP?SteelCode=" + escape($("#SteelCode").val()), "Query", "明细查询", 950, 660, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+
+    function setQuo() {
+        if (!!$("#SteelQualityreportCode").val()) {
+            AjaxJson("/QualityModule/BY_SteelQualityreportT/SetForm1", { SteelQualityreportCode: escape($("#SteelQualityreportCode").val()) }, function (data) {
+
+                if (!!data[0] &&!!data[0].SteelName) {
+
+                $("#SteelId").val(data[0].SteelId)
+                $("#SteelCode").val(data[0].SteelCode)
+                $("#SteelName").val(data[0].SteelName)
+                $("#StoveCode").val(data[0].StoveCode)
+                $("#ParentStoveCode").val(data[0].ParentStoveCode)
+                $("#PlaceOrigin").val(data[0].PlaceOrigin)
+                $("#Standard").val(data[0].Standard)
+                $("#ForgingMethod").val(data[0].ForgingMethod)
+                $("#DeliveryStatus").val(data[0].DeliveryStatus)
+                $("#ProcessingeUse").val(data[0].ProcessingeUse)
+                $("#Size").val(data[0].Size)
+                $("#Qty").val(data[0].Qty)
+                $("#Weight").val(data[0].Weight)
+                $("#C").val(data[0].C)
+                $("#Mn").val(data[0].Mn)
+                $("#Si").val(data[0].Si)
+                $("#S").val(data[0].S)
+                $("#P").val(data[0].P)
+                $("#Ni").val(data[0].Ni)
+                $("#Cr").val(data[0].Cr)
+                $("#W").val(data[0].W)
+                $("#V").val(data[0].V)
+                $("#Mo").val(data[0].Mo)
+                $("#Cu").val(data[0].Cu)
+                $("#DZ1").val(data[0].DZ1)
+                $("#DZ2").val(data[0].DZ2)
+                $("#QHJ1").val(data[0].QHJ1)
+                $("#QHJ2").val(data[0].QHJ2)
+                $("#CJG1").val(data[0].CJG1)
+                $("#CJG2").val(data[0].CJG2)
+                $("#Hardness1").val(data[0].Hardness1)
+                $("#Hardness2").val(data[0].Hardness2)
+                $("#CSBruslt").val(data[0].CSBruslt)
+                $("#TA").val(data[0].TA)
+                $("#HA").val(data[0].HA)
+                $("#TB").val(data[0].TB)
+                $("#HB").val(data[0].HB)
+                $("#TC").val(data[0].TC)
+                $("#HC").val(data[0].HC)
+                $("#TD").val(data[0].TD)
+                $("#HD").val(data[0].HD)
+                $("#Remark").val(data[0].Remark)
+                }
+
+                else {
+
+                    $("#SteelId").val("");
+                    $("#SteelCode").val("");
+                    $("#SteelName").val("");
+                    $("#StoveCode").val("");
+                    $("#ParentStoveCode").val("");
+                    $("#Size").val("");
+                    $("#Qty").val("");
+                    $("#Weight").val("");
+                    $("#C").val("");
+                    $("#Mn").val("");
+                    $("#Si").val("");
+                    $("#S").val("");
+                    $("#P").val("");
+                    $("#Ni").val("");
+                    $("#Cr").val("");
+                    $("#W").val("");
+                    $("#V").val("");
+                    $("#Mo").val("");
+                    $("#Cu").val("");
+                    $("#DZ1").val("");
+                    $("#DZ2").val("");
+                    $("#QHJ1").val("");
+                    $("#QHJ2").val("");
+                    $("#CJG1").val("");
+                    $("#CJG2").val("");
+                    $("#Hardness1").val("");
+                    $("#Hardness2").val("");
+                    $("#TA").val("");
+                    $("#HA").val("");
+                    $("#TB").val("");
+                    $("#HB").val("");
+                    $("#TC").val("");
+                    $("#HC").val("");
+                    $("#TD").val("");
+                    $("#HD").val("");
+                    $("#Remark").val("");
+                }
+
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <div>
+        <div style="font-family: 华文楷体; font-size: x-large; height: 40px; line-height: 40px; text-align: center;">
+            质量报告录入
+        </div>
+    </div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>编号：</th>
+            <td class='formValue'>
+                <input type="hidden" id="SteelQualityreportId" />
+                <input id="SteelQualityreportCode" maxlength="50" type="text" class="txt"  datacol="yes" err="编号" checkexpession="NotNull" />
+            </td>
+            <th class='formTitle'>时间：</th>
+            <td class='formValue'>
+                <input id="CreateDate" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.GetToday("yyyy-MM-dd HH:mm")" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm'})"  datacol="yes" err="付款时间" checkexpession="NotNull"  />
+            </td>
+            <th class='formTitle'>客户：</th>
+            <td class='formValue'>
+                <input type="hidden" id="CustomerId" />
+                <input id="CustomerCode" maxlength="50" type="text" class="txt" style="width: 45%" />
+                <input id="CustomerName" maxlength="200" type="text" class="txt" style="width: 45%" disabled />
+            </td>
+            <th class='formTitle'>钢材名称：</th>
+            <td class='formValue'>
+                <input type="hidden" id="SteelId" />
+                <input id="SteelCode" maxlength="50" type="text" class="txt" style="width: 45%" />
+                <input id="SteelName" maxlength="200" type="text" class="txt" style="width: 45%" disabled />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>原炉号：</th>
+            <td class='formValue'>
+                <input id="StoveCode" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>母炉号：</th>
+            <td class='formValue'>
+                <input id="ParentStoveCode" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>产地：</th>
+            <td class='formValue'>
+                <select id="PlaceOrigin"  class="txtselect" >
+                        </select>
+            </td>
+            <th class='formTitle'>对应标准：</th>
+            <td class='formValue'>
+                  <select id="Standard"  class="txtselect" >
+                        </select>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>冶炼方法：</th>
+            <td class='formValue'>
+                  <select id="ForgingMethod"  class="txtselect" >
+                        </select>
+            </td>
+            <th class='formTitle'>交货状态：</th>
+            <td class='formValue'>
+                <select id="DeliveryStatus"  class="txtselect" >
+                        </select>
+            </td>
+            <th class='formTitle'>加工用途：</th>
+            <td class='formValue'>
+                <select id="ProcessingeUse"  class="txtselect" >
+                        </select>
+            </td>
+            <th class='formTitle'>尺寸：</th>
+            <td class='formValue'>
+                <input id="Size" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>件数：</th>
+            <td class='formValue'>
+                <input id="Qty" maxlength="18" type="text" class="txt" value="0" />
+            </td>
+            <th class='formTitle'>重量：</th>
+            <td class='formValue'>
+                <input id="Weight" maxlength="18" type="text" class="txt" value="0" />
+            </td>
+
+
+            <th class='formTitle'>备注：</th>
+            <td class='formValue'>
+                <input id="Remark" maxlength="2000" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>超声波结果：</th>
+            <td class='formValue'>
+                <input id="CSBruslt" maxlength="50" type="text" class="txt" value="合格" />
+            </td>
+        </tr>
+    </table>
+    <table class="form">
+        <tr>
+            <th class='formTitle' style="width:60px;text-align:center;">C：</th>
+            <th class='formTitle' style="width:60px;text-align:center;">Mn：</th>
+            <th class='formTitle' style="width:60px;text-align:center;">Si：</th>
+            <th class='formTitle' style="width:60px;text-align:center;">S：</th>
+            <th class='formTitle' style="width:60px;text-align:center;">P：</th>
+            <th class='formTitle' style="width:60px;text-align:center;">Ni：</th>
+            <th class='formTitle' style="width:60px;text-align:center;">Cr：</th>
+            <th class='formTitle' style="width:60px;text-align:center;">W：</th>
+            <th class='formTitle' style="width:60px;text-align:center;">V：</th>
+            <th class='formTitle' style="width:60px;text-align:center;">Mo：</th>
+            <th class='formTitle' style="width:60px;text-align:center;">Cu：</th>
+        </tr>
+        <tr>
+            <td class='formValue'  style="text-align:center;">
+                <input id="C" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="Mn" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="Si" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="S" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="P" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="Ni" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="Cr" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="W" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="V" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="Mo" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="Cu" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle' style="text-align:center;"></th>
+            <th class='formTitle' style="text-align:center;">A：</th>
+            <th class='formTitle' style="text-align:center;">B：</th>
+            <th class='formTitle' style="text-align:center;">C：</th>
+            <th class='formTitle' style="text-align:center;">D：</th>
+            <th class='formTitle' style="text-align:center;"></th>
+            <th class='formTitle' style="text-align:center;">带状：</th>
+            <th class='formTitle' style="text-align:center;">球化级：</th>
+            <th class='formTitle' style="text-align:center;">冲击功：</th>
+            <th class='formTitle' style="text-align:center;">出厂硬度：</th>
+        </tr>
+        <tr>
+            <td class='formTitle' style="text-align:center;">T
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="TA" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="TB" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="TC" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="TD" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formTitle' style="text-align:center;">
+            </td>
+
+
+
+
+
+            <td class='formValue' style="text-align:center;">
+                <input id="DZ1" maxlength="50" type="text" class="txt" />
+            </td>
+            
+            <td class='formValue' style="text-align:center;">
+                <input id="QHJ1" maxlength="50" type="text" class="txt" />
+            </td>
+            
+            <td class='formValue' style="text-align:center;">
+                <input id="CJG1" maxlength="50" type="text" class="txt" />
+            </td>
+            
+            <td class='formValue' style="text-align:center;">
+                <input id="Hardness1" maxlength="50" type="text" class="txt" />
+            </td>
+           
+        </tr>
+        <tr>
+            <td class='formTitle' style="text-align:center;">H
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="HA" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="HB" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="HC" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formValue' style="text-align:center;">
+                <input id="HD" maxlength="50" type="text" class="txt" />
+            </td>
+            <td class='formTitle' style="text-align:center;">
+            </td>
+
+            <td class='formValue' style="text-align:center;">
+                <input id="DZ2" maxlength="50" type="text" class="txt" />
+            </td>
+            
+            <td class='formValue' style="text-align:center;">
+                <input id="QHJ2" maxlength="50" type="text" class="txt" />
+            </td>
+           
+            <td class='formValue' style="text-align:center;">
+                <input id="CJG2" maxlength="50" type="text" class="txt" />
+            </td>
+            
+            <td class='formValue' style="text-align:center;">
+                <input id="Hardness2" maxlength="50" type="text" class="txt" />
+            </td>
+        </tr>
+    </table>
+
+    <div class="nui-toolbar leftline rightline">
+                <div id="toolbar_a">
+                    <div id="lr-add-Row" class="nui-toolbar-item nui-btn-right" onclick="addrow();">
+                        <span class="nui-btn-text">新增</span>
+                    </div>
+                    <div id="lr-delete-Row" class="nui-toolbar-item nui-btn-left">
+                        <span class="nui-btn-text">删除</span>
+                    </div>
+                    <div id="lr-choose-Row" class="nui-toolbar-item nui-btn-left">
+                        <span class="nui-btn-text" onclick="btn_Quotationquery();">选择</span>
+                    </div>
+                </div>
+            </div>
+            <div class="rightline">
+                <table id="gridTable"></table>
+                <div id="gridPager"></div>
+            </div>
+</form>

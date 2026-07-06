@@ -1,0 +1,335 @@
+﻿@{
+    ViewBag.Title = "完工扫描销数";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        GetGrid();
+    })
+    //查询
+    var dataall;
+    function btn_Search() {
+        lastsel = -1;
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/StorageModule/BY_OutStock/WriteWeihtdo")?Condition=" + escape(Condition), datatype: "json", page: 1 }).trigger('reloadGrid');
+        window.setTimeout(function () {
+            dataall = $("#gridTable").jqGrid("getRowData");
+        }, 1000);
+    }
+    var lastsel;
+    //加载订单表格
+    function GetGrid() {
+        var weightThorey = 0;
+        var qty = 0;
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/StorageModule/BY_OutStock/WriteWeihtdo")?Condition=" + escape(Condition),
+            datatype: "json",
+            height: $(window).height() - 140,
+            autowidth: true,
+            colModel: [
+                    { label: 'orderdetailid', name: 'orderdetailid', hidden: true },
+                    { label: '行号', name: 'ordercode', index: 'ordercode', width: 50, align: 'center', sortable: true, hidden: true },
+                    { label: '行号', name: 'linecode', index: 'linecode', width: 50, align: 'center', sortable: true },
+                    { label: '钢材', name: 'steelcode', index: 'steelcode', hidden: true },
+                    { label: '钢种名称', name: 'steeldescription', index: 'steeldescription', width: 80, align: 'left', sortable: true },
+                    { label: '客户名称', name: 'customername', index: 'customername', width: 120, align: 'left', sortable: true, hidden: true },
+                    { label: 'CustomerCode', name: 'customercode', index: 'customercode', width: 120, align: 'left', sortable: true, hidden: true },
+
+                        {
+                            label: "规格(厚宽长)", name: "thick", index: "thick", width: 100,
+                            formatter: function (cellvalue, options, rowobject) {
+                                if (!!rowobject.weigh) {
+                                    if (parseFloat(rowobject.length) == 0) {
+                                        return parseFloat(rowobject.weigh) + "*" + parseFloat(rowobject.thick) + "*L" ;
+
+                                    }
+                                    else {
+                                        return parseFloat(rowobject.thick) + "*" + parseFloat(rowobject.weigh) + "*" + parseFloat(rowobject.length);
+
+                                    }
+                                }
+                                else {
+                                    var BoreSize = "";
+                                    if (!!rowobject.boresize) {
+                                        BoreSize = "*Φ" + rowobject.boresize;
+                                    }
+                                    return "Φ" + parseFloat(rowobject.thick) + BoreSize + "*" + parseFloat(rowobject.length);
+                                }
+                            }
+                        },
+                    { label: 'steeltype', name: 'steeltype', hidden: true },
+                    { label: 'length', name: 'length', hidden: true },
+                    { label: 'weigh', name: 'weigh', hidden: true },
+                    { label: 'thick', name: 'thick', hidden: true },
+                    { label: 'weight', name: 'weight', hidden: true },
+                    { label: 'odqty', name: 'odqty', hidden: true },
+
+                    { label: '数量', name: 'qty', index: 'qty', width: 50, align: 'left', sortable: true },
+                    { label: '核减件数', name: 'openqty', index: 'openqty', width: 60, align: 'left', sortable: true, editable: true },
+                    { label: '材料编号', name: 'batchcode', index: 'batchcode', width: 180, align: 'left', sortable: true, editable: true },
+                    { label: '原长度', name: 'olength', index: 'olength', width: 60, align: 'left', sortable: true },
+                    { label: '原长度', name: 'oweigh', index: 'oweigh', width: 60, align: 'left', sortable: true, hidden: true },
+                    { label: '原长度', name: 'othick', index: 'othick', width: 60, align: 'left', sortable: true, hidden: true },
+                    { label: '原长度', name: 'density', index: 'density', width: 60, align: 'left', sortable: true, hidden: true },
+                    { label: '原重量', name: 'oweight', index: 'oweight', width: 60, align: 'left', sortable: true },
+                    { label: '剩余长度', name: 'nowlength', index: 'nowlength', width: 180, align: 'left', sortable: true, editable: true },
+                    { label: '余长度', name: 'opensize', index: 'opensize', width: 60, align: 'left', sortable: true, hidden: true },
+                    { label: '余重量', name: 'nowweight', index: 'nowweight', width: 60, align: 'left' },
+                { label: '开料厚度', name: 'openthick', index: 'openthick', width: 60, align: 'left', hidden: true },
+                { label: '仓位', name: 'position', index: 'position', width: 60, align: 'left', editable: true },
+
+            ],
+            viewrecords: true,
+            rowNum: 300,
+            rowList: [300, 500, 800, 1000],
+            pager: "#gridPager",
+            sortname: 'linecode',
+            sortorder: 'asc',
+            rownumbers: false,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            cellsubmit: 'clientArray',
+            //footerrow: true,
+            onSelectRow: function (id) {
+                //weightThorey = Number(GetJqGridValue("#gridTable", id, "theoryweight")) / Number(GetJqGridValue("#gridTable", id, "qty"));
+                qty = Number(GetJqGridValue("#gridTable", id, "qty"))
+                var postData = {
+                    batchcode: $("[name='batchcode']").val(),
+                    openqty: $("[name='openqty']").val(),
+                    nowlength: $("[name='nowlength']").val(),
+                    openthick: $("[name='openthick']").val(),
+                    position: $("[name='position']").val(),
+                }
+                if (id && id !== lastsel) {
+                    $('#gridTable').jqGrid('restoreRow', lastsel);
+                    $('#gridTable').jqGrid('editRow', id, { keys: false });
+                    $('#gridTable').jqGrid('setRowData', lastsel, postData, '');
+                }
+                lastsel = id;
+
+                //if (GetJqGridValue("#gridTable", id, "steeltype") == "大板") {
+                //    $("#" + id + "_isalllenght").attr('disabled', 'disabled');
+                //}
+                //else {
+                //    $("#" + id + "_isalllenght").removeAttr('disabled');
+
+                //}
+
+                jQuery("#" + id + "_openqty").keyup(function () {
+                    if (Number($(this).val()) > Number(GetJqGridValue("#gridTable", id, "qty"))) {
+                        alert("不能大于最大件数！");
+                        $(this).val(Number(GetJqGridValue("#gridTable", id, "qty")));
+                    }
+                    self(id);
+                });
+
+                jQuery("#" + id + "_batchcode").keyup(function () {
+                    if (event.keyCode == 37 || event.keyCode == 39 || event.keyCode == 38 || event.keyCode == 40) {//左
+                        return true;
+                    }
+                    var batchcode = $("#" + id + "_batchcode").val();
+                    var data1;
+                    AjaxJson("/StorageModule/BY_Inventory/GetListJsonforReplace", { BatchCode: batchcode }, function (DataJson) {
+                        var html = "";
+                        data1 = DataJson[0];
+                        $.each(DataJson, function (i) {
+                            html += "<tr>";
+                            html += '<td id="BatchCode" >' + DataJson[i].BatchCode + '</td>';
+                            html += '<td id="Length" style="display: none;">' + DataJson[i].Length + '</td>';
+                            html += '<td id="Weight" style="display: none;">' + DataJson[i].Weight + '</td>';
+                            html += '<td id="Weigh" style="display: none;">' + DataJson[i].Weigh + '</td>';
+                            html += '<td id="Thick" style="display: none;">' + DataJson[i].Thick + '</td>';
+                            html += '<td id="Density" style="display: none;">' + DataJson[i].Density + '</td>';
+                            html += '<td id="position" style="display: none;">' + DataJson[i].position + '</td>';
+                            html += "</tr>";
+                        });
+                        //点击事件回调
+                        autocomplete(id + "_batchcode", $("#" + id + "_batchcode").width() + "px", "200px", html, function (data) {
+                            $("#" + id + "_batchcode").val(data.BatchCode);
+                            $("#gridTable").jqGrid('setRowData', id, { oweight: data.Weight });
+                            $("#gridTable").jqGrid('setRowData', id, { olength: data.Length });
+                            $("#gridTable").jqGrid('setRowData', id, { oweigh: data.Weigh });
+                            $("#gridTable").jqGrid('setRowData', id, { othick: data.Thick });
+                            $("#gridTable").jqGrid('setRowData', id, { density: data.Density });
+                            $("#" + id + "_position").val(data.position);
+                            $("#" + id + "_nowlength").select();
+                        });
+                    });
+                });
+
+                jQuery("#" + id + "_nowlength").keyup(function () {
+                    var length = Number(GetJqGridValue("#gridTable", id, "length"));
+                    var olength = Number(GetJqGridValue("#gridTable", id, "olength"));
+                    var oweigh = Number(GetJqGridValue("#gridTable", id, "oweigh"));
+                    var othick = Number(GetJqGridValue("#gridTable", id, "othick"));
+                    var density = Number(GetJqGridValue("#gridTable", id, "density"));
+                    var openqty = Number($("#" + id + "_openqty").val());
+                    var nowlength = Number($("#" + id + "_nowlength").val());
+
+                    var opensize = olength - nowlength;
+                    $("#gridTable").jqGrid('setRowData', id, { opensize: opensize });
+
+                    var nowweight = 0;
+                    if (olength != 0 && oweigh != 0 && othick != 0) {
+                        nowweight = (nowlength * oweigh * othick * density / 1000000).toFixed(2);
+                    }
+                    else {
+                        nowweight = (nowlength * (othick/2) * (othick/2) *3.14* density / 1000000).toFixed(2);
+                    }
+                    $("#gridTable").jqGrid('setRowData', id, { nowweight: nowweight });
+                    self(id);
+                });
+
+            },
+            gridComplete: function () {
+                //var data = $("#gridTable").jqGrid("getRowData");
+                //for (var i = 0; i < data.length; i++) {
+                //    this.rows[i + 1].cells[21].bgColor = "#66FFFF";
+                //}
+                //合计
+                //$(this).footerData("set", {
+                //    "steeldescription": "合计",
+                //    "weight": FormatCurrency($("#gridTable").getCol('weight', false, 'sum')),
+                //    "qty": FormatCurrency($("#gridTable").getCol('qty', false, 'sum')),
+                //    "gbqty": FormatCurrency($("#gridTable").getCol('gbqty', false, 'sum')),
+                //    "gbweight": FormatCurrency($("#gridTable").getCol('gbweight', false, 'sum')),
+
+                //});
+            },
+        });
+    }
+    function self(id) {
+        var id = Number(id);
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+        if (event.keyCode == 13 || event.keyCode == 39) {//右
+            if ($(tar).attr('id') == id + "_openqty") {
+                $("#" + id + "_batchcode").select();
+            }
+            else if ($(tar).attr('id') == id + "_batchcode") {
+                $("#" + id + "_nowlength").select();
+            }
+            return true;
+        }
+        if (event.keyCode == 38) {//上
+            var aaa = $(tar).attr('id');
+            if (id == 1) {
+                return true;
+            }
+            $("#gridTable").setSelection(id - 1);
+            var irow = id - 1;
+            aaa = irow + aaa.substr(1, aaa.length);
+            window.setTimeout(function () {
+                $("#" + aaa).select();
+            }, 200);
+            return true;
+        }
+        if (event.keyCode == 40) {//下
+
+            var aaa = $(tar).attr('id');
+            
+            var mun = Number($("#gridTable").getGridParam("reccount"));
+            if (id >= 0 && id < mun) {
+                $("#gridTable").setSelection(id + 1);
+            }
+            var irow = id + 1;
+            aaa = irow + aaa.substr(1, aaa.length);
+            window.setTimeout(function () {
+                //$("#" + aaa).select();
+                $("#" + irow + "_batchcode").select()
+            }, 200);
+            return true;
+        }
+        ////if (e && e.keyCode == 13) {//回车
+        ////    //alert($("#gridTable").getGridParam("reccount"));
+        ////    return false;
+        ////}
+        return false;
+    }
+    function btn_remove() {
+        var Index = GetJqGridRowIndx("#gridTable");
+        $("#gridTable").jqGrid("delRowData", Index);
+        //var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        //var temsp = selr;
+        //temsp.sort(compare);
+        //if (temsp.length) {
+        //    for (var i = 0; i < temsp.length;) {
+        //        $("#gridTable").jqGrid("delRowData", temsp[i]);
+        //    }
+        //}
+    }
+
+    function btn_Confirm() {
+        var postData = {
+            batchcode: $("[name='batchcode']").val(),
+            openqty: $("[name='openqty']").val(),
+            nowlength: $("[name='nowlength']").val(),
+            openthick: $("[name='openthick']").val(),
+            position: $("[name='position']").val(),
+        }
+        $('#gridTable').jqGrid('setRowData', GetJqGridRowIndx('#gridTable'), postData, '');
+        lastsel = 0;
+        var data1 = $("#gridTable").jqGrid("getRowData");
+        for (var i = 0; i < data1.length; i++) {
+            if (Number(data1[i].openqty) > Number(data1[i].qty)) {
+                tipDialog("操作失败：消数件数大于订单行件数！", 2, 0);
+                return false;
+            }
+            if ((Number(data1[i].nowlength) < -100 || Number(data1[i].nowweight) < -50) && (data1[i].openthick == "" || data1[i].openthick == "&nbsp;" || data1[i].openthick == "0")) {
+                tipDialog("操作失败：此钢材料号剩余长度和重量过小，请检查！", 2, 0);
+                return false;
+            }
+            if ((data1[i].nowlength == "" || data1[i].nowweight == "") && (data1[i].openthick == "" || data1[i].openthick == "&nbsp;" || data1[i].openthick == "0")) {
+                tipDialog("操作失败：请点击实际用料，显示余重后保存！", 2, 0);
+                return false;
+            }
+        }
+        var data2 = $("#gridTable").jqGrid("getRowData");
+        if (data2.length == 0) {
+            tipDialog("操作失败：无满足条件的行！", 2, 0);
+            return false;
+        }
+        confirmDialog("提示", "是否提交？", function (r) {
+            if (r) {
+
+                var postData = JSON.stringify($("#gridTable").jqGrid("getRowData"));
+                AjaxJsonNoMassge("/StorageModule/BY_OutStock/SubmitScaleForm2", { postData: postData }, function (data) {
+                    tipDialog(data.Message, 3, data.Code);
+                    btn_Search();
+                });
+            }
+        })
+
+
+    }
+</script>
+<!--工具栏-->
+
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table id="QueryParameter" border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>订单单号：</th>
+            <td>
+                <input id="OrderCode" type="text" class="txt" style="width: 120px" />
+            </td>
+            
+            <td>&nbsp;&nbsp;&nbsp;
+                <input id="btnssSearch" type="button" class="btnSearch" value="查询" onclick="btn_Search()" />
+           
+                <input id="btndelete" type="button" class="btnSearch" value="隐藏" onclick="btn_remove()" />
+            
+                <input id="btnseta" type="button" class="btnSearch" value="保存" onclick="btn_Confirm()" />
+            </td>
+            
+           
+
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

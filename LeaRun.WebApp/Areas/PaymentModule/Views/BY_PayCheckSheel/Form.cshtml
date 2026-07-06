@@ -1,0 +1,313 @@
+﻿@{
+    ViewBag.Title = "对账单》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/Workday/kalendarjqueryyyyydd")
+@Styles.Render("~/Content/Scripts/Workday/kalendarcss")
+@Scripts.Render("~/Content/Scripts/jqgrid/jqgridjquery")
+@Styles.Render("~/Content/Scripts/jqgrid/css/jqgridcss")
+<script type="text/javascript">
+    var PayCheckSheetId = GetQuery('PayCheckSheetId');
+    $(function () {
+        CustomerAutocomplete();
+        InitControl();
+        window.setTimeout(function () {
+            GetGrid1();
+        }, 200);
+    })
+    
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+
+        if (Number($("#month").find("select[name='year']").val()) + 1 == 13) {
+            tipDialog("请选择月份！！", 3, 0);
+            return false;
+
+        }
+
+        var selr = jQuery('#gridTable1').jqGrid('getGridParam', 'selarrrow');
+        var s = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable1').jqGrid('getRowData', selr[i]);
+                if (myrow.paychecksheetcode != $("#PayCheckSheetCode").val() && myrow.paychecksheetcode != "") {
+                    tipDialog("选择项部分已生成对账单！", 3, 0);
+                    return false;
+                }
+                if (myrow.paychecksheetcode != $("#PayCheckSheetCode").val() && myrow.getedamount != 0) {
+                    tipDialog("选择项部分已收款！", 3, 0);
+                    return false;
+                }
+                s = s + myrow.typename + ":" + myrow.idid + ",";
+            }
+
+            
+            $(".ui_state_highlight").attr("disabled", true);
+
+            var postData = {
+                Year: $("#year").find("select[name='year']").val(),
+                Month: Number($("#month").find("select[name='year']").val()) + 1,
+                CustomerId: $("#CustomerId").val(),
+                code: s,
+                PayCheckSheetId: PayCheckSheetId,
+                StartTime: $("#StartTime").val(),
+                EndTime: $("#EndTime").val(),
+            };
+            Loading(true, "正在提交数据...");
+            AjaxJson("/PaymentModule/BY_PayCheckSheel/BuildCheckSheet1", postData, function (data) {
+                tipDialog(data.Message, 3, data.Code);
+                top.frames[tabiframeId()].windowload();
+                window.setTimeout(function () {closeDialog();}, 500);
+            });
+        }
+        else {
+            tipDialog("请选择！", 3, 0);
+        }
+        return;
+    }
+    function CustomerAutocomplete() {
+        var $CustomerCode = $("#CustomerCode");
+        $CustomerCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("CustomerCode", function (data) {
+            $("#CustomerCode").val(data.CustomerCode);
+            $("#CustomerId").val(data.CustomerId);
+            $("#CustomerName").val(data.FullName);
+            
+            btn_Search1();
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/CommonModule/Base_Supplier/GetAutoForSupAndCus", { keywords: $CustomerCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="CustomerId" style="display: none;">' + DataJson[i].SupplierId + '</td>';
+                    html += '<td id="CustomerCode" style="width: 30%;">' + DataJson[i].Code + '</td>';
+                    html += '<td id="FullName" style="width: 40%;">' + DataJson[i].FullName + '</td>';
+                    html += '<td id="PaymentMode" style="width: 30%;">' + DataJson[i].Remark + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("CustomerCode", "300px", "200px", html, function (data) {
+                    $("#CustomerCode").val(data.CustomerCode);
+                    $("#CustomerId").val(data.CustomerId);
+                    $("#CustomerName").val(data.FullName);
+                    btn_Search1();
+                });
+            });
+        }
+    }
+
+    
+    function InitControl() {
+        if (!!PayCheckSheetId) {
+            AjaxJson("/PaymentModule/BY_PayCheckSheel/SetForm", { KeyValue: PayCheckSheetId }, function (data) {
+                SetWebControls(data);
+            });
+        }
+        else {
+            $("#PayCheckSheetCode").val("自动生成")
+        }
+    }
+     
+
+    //加载表格
+    //查询
+    function btn_Search1() {
+        var Parameter = [ {
+            paramName: "CustomerId",
+            paramValue: $("#CustomerId").val(),
+            Operation: "Equal",
+            Logic: "AND",
+        }, {
+            paramName: "CreateDate",
+            paramValue:  $("#StartTime").val() ,
+            Operation: "GreaterThan",
+            Logic: "AND"
+        }, {
+            paramName: "CreateDate",
+            paramValue:  $("#EndTime").val() ,
+            Operation: "LessThan",
+            Logic: "AND"
+        }
+        ]
+
+        $("#gridTable1").jqGrid('setGridParam', { url: "@Url.Content("~/PaymentModule/Base_SteelPurchase/GridPageJson0")?ParameterJson=" + escape(JSON.stringify(Parameter)) , page: 1 }).trigger('reloadGrid');
+    }
+    
+    function GetGrid1() {
+        var Parameter = [{
+            paramName: "CustomerId",
+            paramValue: $("#CustomerId").val(),
+            Operation: "Equal",
+            Logic: "AND",
+        }, {
+            paramName: "CreateDate",
+            paramValue: $("#StartTime").val(),
+            Operation: "GreaterThan",
+            Logic: "AND"
+        }, {
+            paramName: "CreateDate",
+            paramValue: $("#EndTime").val(),
+            Operation: "LessThan",
+            Logic: "AND"
+        }
+        ]
+        var rowScrod = 0;
+        var SelectRowIndx = 0;
+        $("#gridTable1").jqGrid({
+            url: "@Url.Content("~/PaymentModule/Base_SteelPurchase/GridPageJson0")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            datatype: "json",
+            height: $(window).height() - 265,
+            autowidth: true,
+            colModel: [
+                    { label: '助记码', name: 'idid', index: 'idid', width: 100, align: 'left', sortable: true, hidden: true },
+                    { label: '类型', name: 'typename', index: 'typename', width: 100, align: 'left', sortable: true },
+                    { label: '对账单号', name: 'paychecksheetcode', index: 'paychecksheetcode', width: 100, align: 'left', sortable: true },
+                    { label: '单据号', name: 'codecc', index: 'codecc', align: 'left', width: 80 },
+                    { label: '供应商名称', name: 'customername', index: 'customername', width: 100, align: 'left', sortable: true },
+                    { label: '总金额', name: 'totalamount', index: 'totalamount', width: 50, align: 'left', sortable: true },
+                    { label: '已付金额', name: 'getedamount', index: 'getedamount', width: 50, align: 'left', sortable: true },
+                    { label: '申请人姓名', name: 'workername', index: 'workername', width: 50, align: 'left', sortable: true },
+                    { label: '备注', name: 'remark', index: 'remark', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '时间', name: 'createdate', index: 'createdate', width: 80, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+            ],
+            viewrecords: true,
+            rowNum: 50,
+            rowList: [50, 80, 100, 500, 5000],
+            pager: "#gridPager1",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            footerrow: true,
+            gridview: true,
+            onSelectRow: function (rowid, status) {
+                var selr = jQuery('#gridTable1').jqGrid('getGridParam', 'selarrrow');
+                var TotalAmountall = 0;
+                if (selr.length) {
+                    for (var i = 0; i < selr.length; i++) {
+                        var myrow = jQuery('#gridTable1').jqGrid('getRowData', selr[i]);
+                        TotalAmountall = TotalAmountall + Number(myrow.totalamount);
+                    }
+                    $("#TotalAmount111").val(TotalAmountall.toFixed(2));
+                }
+                else {
+                    $("#TotalAmount111").val(0);
+
+                }
+            },
+            gridComplete: function () {
+                var data = $("#gridTable1").jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    var item = i + 1;
+                    if (data[i].paychecksheetcode == $("#PayCheckSheetCode").val() && $("#PayCheckSheetCode").val() != "") {
+                        jQuery("#gridTable1").jqGrid('setSelection', item);
+                    }
+                }
+                //合计
+                $(this).footerData("set", {
+                    "paychecksheetcode": "合计",
+                    "totalamount": FormatCurrency($("#gridTable1").getCol('totalamount', false, 'sum')),
+                    "getedamount": FormatCurrency($("#gridTable1").getCol('getedamount', false, 'sum')),
+                    "qty": FormatCurrency($("#gridTable1").getCol('qty', false, 'sum')),
+                });
+            },
+            multiselect: true,
+        });
+    }
+
+
+    
+
+</script>
+<form id="form1" style="margin: 1px">
+
+
+    <div class="note-prompt" style="margin: 1px;">
+        温馨提示：选择年月后点击生成对账单，如果对账单日期重叠，对账单金额会错误，请选择正确日期后重新生成重叠的前后两个对账单。
+    </div>
+    <div class="border" style="margin: 1px;">
+    </div>
+    <div style="overflow: auto;">
+        <div id='wrap' style="float: inherit; width: 100%">
+        </div>
+    </div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>对账单号：</th>
+            <td class='formValue'>
+                <input id="PayCheckSheetCode" maxlength="50" type="text" class="txt" readonly />
+                <input id="Enabled" type="hidden" value="1" />
+            </td>
+            <th class='formTitle'>勾选金额：</th>
+            <td class='formValue'>
+                <input id="TotalAmount111" maxlength="50" type="text" class="txt" readonly />
+                <input id="Enabled" type="hidden" value="1" />
+            </td>
+
+        </tr>
+    </table>
+    <div id="basic" class="tabPanel">
+        <table class="form">
+            <tr>
+                <th class='formTitle'>供应商编号：</th>
+                <td class='formValue'>
+                    <input id="CustomerCode" maxlength="50" type="text" class="txt required" datacol="yes" err="供应商编号" checkexpession="NotNull" />
+                    <input id="CustomerId" type="hidden" value="1" />
+
+                </td>
+                <th class='formTitle'>供应商名称：</th>
+                <td class='formValue'>
+                    <input id="CustomerName" maxlength="50" type="text" class="txt" disabled />
+
+                </td>
+                @*  <th class='formTitle'>类型：</th>
+                    <td class='formValue'>
+                        <select id="PayType" class="txtselect" datacol="yes" err="类型" checkexpession="NotNull"  onchange="dispalydiv();">
+                            <option value="委外加工" selected="selected">委外加工</option>
+                            <option value="委外采购">委外采购</option>
+                            <option value="钢材购买">钢材购买</option>
+                            <option value="物料购买">物料购买</option>
+
+                        </select>
+                    </td>*@
+            </tr>
+            <tr>
+                <th class='formTitle'>开始日期：</th>
+                <td class='formValue'>
+                    <input id="StartTime" type="text" class="txt Wdate required" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00',onpicked:function(){btn_Search1();}})" style="width: 95%" datacol="yes" err="开始时间" checkexpession="NotNull" />
+                </td>
+                <th class='formTitle'>结束日期：</th>
+                <td class='formValue'>
+                    <input id="EndTime" type="text" class="txt Wdate required" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59',onpicked:function(){btn_Search1();}})" style="width: 95%" datacol="yes" err="结束时间" checkexpession="NotNull" />
+
+                </td>
+            </tr>
+        </table>
+        <div class="topline rightline" style="margin: 1px; margin-top: -1px;" id="div1">
+            <table id="gridTable1"></table>
+            <div id="gridPager1"></div>
+        </div>
+        <div class="topline rightline" style="margin: 1px; margin-top: -1px;" id="div2">
+            <table id="gridTable"></table>
+            <div id="gridPager"></div>
+        </div>
+    </div>
+</form>

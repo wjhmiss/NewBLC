@@ -1,0 +1,141 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>粗料单打印预览</title>
+@*    <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>
+    <script src="~/Content/Scripts/lodop/LodopFuncs.js"></script>*@
+        @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+                <style>
+               
+
+    .form-print th {
+        font-size: 11pt;
+        font-family: Arial;
+        font-weight: bold;
+        background-color: #fff;
+        height: 24.6px;
+        line-height:24.6px;
+        white-space: nowrap;
+        
+        text-align: right;
+        padding-right: 2px;
+    }
+
+    .form-print td {
+        font-size: 11pt;
+        font-family: Arial;
+        font-weight: bold;
+        height: 24.6px;
+        line-height:24.6px;
+        padding-right: 2px;
+       
+    }
+</style>
+    <script>
+        //初始化
+        $(function () {
+            AjaxJson("/CheckSheetModule/BY_ReimburseSheet/PrintDataJsonBank", { Starttime: GetQuery('Starttime'), Endtime: GetQuery('Endtime') }, function (data) {
+
+                var Name = GetQuery('Name');
+                Name = "北仑机械锻造厂";
+                var CheckDataList = data.Datas;
+
+                var index = 0;
+                var pageindex = 0;
+                var total = 0
+                var pageNum = 35;
+                var Orderhtml = '';
+                if (CheckDataList.length % pageNum == 0) {
+                    total = CheckDataList.length / pageNum;
+                }
+                else {
+                    total = Math.floor(CheckDataList.length / pageNum) + 1
+                }
+                var pagepertem = 0;
+                var PrintGroup = "";
+                Orderhtml += '<div style="float:left;position: absolute; ">@*<img style="width: 60px;padding: 5px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@</div><table id="tb_Order" border="0" class="form-print" style="width: 100%;page-break-after:always;">';
+                Orderhtml += '<tr><td colspan="4" align="center" style="padding: 2px;"><span style="font-size: 25px; font-weight: bold;">' + Name + '</span></td></tr>';
+                Orderhtml += '<tr><td colspan="4" align="center" style="height: 18.6px;line-height:18.6px;">YueRiMoJu Metal Material Co.Ltd （' + pageindex + '/' + total + '）</td></tr>';
+                Orderhtml += '<tr><th style="height: 18.6px;line-height:18.6px;">地址：</th><td style="height: 18.6px;line-height:18.6px;">浙江省台州黄岩区新前工业园区锦川路103号</td><th style="height: 18.6px;line-height:18.6px;">邮箱：</th><td style="height: 18.6px;line-height:18.6px;">124176905@qq.com </td></tr><tr><th style="height: 18.6px;line-height:18.6px;">传真：</th><td style="height: 18.6px;line-height:18.6px;">0576-81123767</td><th style="height: 18.6px;line-height:18.6px;">对账单：</th><td style="height: 18.6px;line-height:18.6px;"></td></tr>';
+                Orderhtml += '<tr><td colspan="4" align="center" style="border-top: 1px solid #000000;padding-top:10px;height: 18.6px;line-height:18.6px;"><span style="font-size: 25px; font-weight: bold;" id="CheckName"></span></td></tr>';
+
+                Orderhtml += '<tr><td colspan="4" valign="top">一，送货明细：</td></tr>';
+                Orderhtml += '<tr><td colspan="4" valign="top"><div >';
+                Orderhtml += '<table id="tb_QuotationDetail"  class="form-print" style="width: 100%; border-collapse:collapse;border:solid 1px #000000;">';
+                Orderhtml += '<tr><td style="border:solid 1px #000000;" align="center">收款种类</td>';
+                Orderhtml += '<td  style="border:solid 1px #000000;" align="center">细项</td>';
+                Orderhtml += '<td  style="border:solid 1px #000000;" align="center">时间</td>';
+                Orderhtml += '<td  style="border:solid 1px #000000;" align="center">名称</td>';
+                Orderhtml += '<td  style="border:solid 1px #000000;" align="center">账户</td>';
+                Orderhtml += '<td  style="border:solid 1px #000000;" align="center">备注</td>';
+                Orderhtml += '</tr>';
+                $.each(CheckDataList, function (i) {
+                    if (index % pageNum == 0) {
+                        pageindex++;
+                    }
+                    Orderhtml += '<tr>';
+                    Orderhtml += '     <td style="border:solid 1px #000000;">' + (i + 1) + '</td>';
+                    Orderhtml += '     <td style="border:solid 1px #000000;">' + CheckDataList[i].Type1 + '</td>';
+                    Orderhtml += '     <td style="border:solid 1px #000000;">' + CheckDataList[i].Type2 + '</td>';
+                    Orderhtml += '     <td style="border:solid 1px #000000;">' + CheckDataList[i].RequiredDate.substr(0, 10) + '</td>';
+                    Orderhtml += '     <td style="border:solid 1px #000000;">' + CheckDataList[i].CustomerName + '</td>';
+                    Orderhtml += '     <td style="border:solid 1px #000000;">' + CheckDataList[i].BankNum + '</td>';
+                    Orderhtml += '     <td style="border:solid 1px #000000;">' + CheckDataList[i].Remark + '</td>';
+                    if (!!CheckDataList[i].PrintGroup && PrintGroup != CheckDataList[i].PrintGroup) {
+                        Orderhtml += '     <td style="border:solid 1px #000000;" rowspan="' + CheckDataList[i].Rowall + '" align="center">' + CheckDataList[i].TotalAmountall + '</td>';
+                        PrintGroup = CheckDataList[i].PrintGroup;
+                    }
+                    else {
+                        Orderhtml += '     <td style="border:solid 1px #000000;">' + CheckDataList[i].TotalAmount + '</td>';
+                    }
+                    Orderhtml += '</tr>';
+                    index++;
+                });
+                
+                Orderhtml += '</table>';
+                $("#my_area").append(Orderhtml);
+
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+                MyPreview();
+        }
+    </script>
+</head>
+<body style="overflow-x: hidden;">
+    <div id="my_area" style="background: #fff;">
+        
+    </div>
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        ////var LODOP = getLodop();
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_PAGESIZE(1, "210mm", "297mm", "A4")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        LODOP.PREVIEW();
+        //LODOP.PRINTA();
+        window.setTimeout(function () {closeDialog();}, 500);
+        //if (LODOP.PRINTA()) {
+        //    LODOP.PRINT();
+        //    tipDialog("打印成功", 3, 1);
+        //    top.frames[tabiframeId()].windowload();
+        //    window.setTimeout(function () {closeDialog();}, 500);
+
+        //}
+        //else
+        //    //alert("");
+        //    tipDialog("放弃打印！", 3, 1);
+        
+    };
+</script>
+</html>

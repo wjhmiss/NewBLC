@@ -1,0 +1,143 @@
+@{
+    ViewBag.Title = "物料退料》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/MaterielModule/Base_MaterielReturn/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <table class="form">
+        <tr>
+            <th class='formTitle'>物料id：</th>
+            <td class='formValue'>
+                <label id="MaterielReturnId" />
+            </td>
+            <th class='formTitle'>物料号：</th>
+            <td class='formValue'>
+                <label id="MaterielReturnCode" />
+            </td>
+            <th class='formTitle'>物料id：</th>
+            <td class='formValue'>
+                <label id="MaterielId" />
+            </td>
+            <th class='formTitle'>物料号：</th>
+            <td class='formValue'>
+                <label id="MaterielCode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>物料类型：</th>
+            <td class='formValue'>
+                <label id="MaterielType" />
+            </td>
+            <th class='formTitle'>尺寸：</th>
+            <td class='formValue'>
+                <label id="MaterielSize" />
+            </td>
+            <th class='formTitle'>单位：</th>
+            <td class='formValue'>
+                <label id="Unit" />
+            </td>
+            <th class='formTitle'>客户ID：</th>
+            <td class='formValue'>
+                <label id="CustomerId" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>客户编号：</th>
+            <td class='formValue'>
+                <label id="CustomerCode" />
+            </td>
+            <th class='formTitle'>客户名称：</th>
+            <td class='formValue'>
+                <label id="CustomerName" />
+            </td>
+            <th class='formTitle'>单价：</th>
+            <td class='formValue'>
+                <label id="PricePer" />
+            </td>
+            <th class='formTitle'>数量：</th>
+            <td class='formValue'>
+                <label id="Qty" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>总金额：</th>
+            <td class='formValue'>
+                <label id="TotalAmount" />
+            </td>
+            <th class='formTitle'>状态0未审核，1已审核，-1拒绝：</th>
+            <td class='formValue'>
+                <label id="Status" />
+            </td>
+            <th class='formTitle'>员工ID：</th>
+            <td class='formValue'>
+                <label id="WorkerId" />
+            </td>
+            <th class='formTitle'>员工姓名：</th>
+            <td class='formValue'>
+                <label id="WorkerName" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>工号：</th>
+            <td class='formValue'>
+                <label id="WorkerCode" />
+            </td>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue'>
+                <label id="Remark" />
+            </td>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <label id="Enabled" />
+            </td>
+            <th class='formTitle'>排序码：</th>
+            <td class='formValue'>
+                <label id="SortCode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>删除标记：</th>
+            <td class='formValue'>
+                <label id="DeleteMark" />
+            </td>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <label id="CreateDate" />
+            </td>
+            <th class='formTitle'>创建用户主键：</th>
+            <td class='formValue'>
+                <label id="CreateUserId" />
+            </td>
+            <th class='formTitle'>创建用户：</th>
+            <td class='formValue'>
+                <label id="CreateUserName" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>修改时间：</th>
+            <td class='formValue'>
+                <label id="ModifyDate" />
+            </td>
+            <th class='formTitle'>修改用户主键：</th>
+            <td class='formValue'>
+                <label id="ModifyUserId" />
+            </td>
+            <th class='formTitle'>修改用户：</th>
+            <td class='formValue'>
+                <label id="ModifyUserName" />
+            </td>
+        </tr>
+    </table>
+</form>

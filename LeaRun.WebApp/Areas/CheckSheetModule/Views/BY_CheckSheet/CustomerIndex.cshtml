@@ -1,0 +1,489 @@
+﻿@{
+    ViewBag.Title = "CustomerIndex";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+@Scripts.Render("~/Content/Scripts/highcharts/highchartsjquery")
+@Scripts.Render("~/Content/Scripts/Workday/kalendarjqueryyyyydd")
+@Styles.Render("~/Content/Scripts/Workday/kalendarcss")
+<script type="text/javascript">
+    $(function () {
+        GetGrid1();
+        GetGrid2();
+        btn_Search();
+    })
+    function GetCustomerchart() {
+        AjaxJson("/CheckSheetModule/BY_CheckSheet/Customerdata", { StartTime: $("#StartTime").val(), EndTime: $("#EndTime").val(), CustomerCode: $("#CustomerCode").val(), LType: $("#LType").val() }, function (data) {
+            var colors = Highcharts.getOptions().colors,
+                categories = data.categoriesName;//['天文模具', '永坚', '建欣模具', '优润', '云祥五金'],
+            name = '销售企业排名',
+            data = data.datas;
+            //    [{
+            //    y: 40760.18,
+            //    color: colors[0],
+            //    drilldown: {
+            //        name: '天文模具详情',
+            //        categories: ['2015-4-10', '2015-4-14', '2015-4-16', '2015-4-17', '2015-4-20'],
+            //        data: [1000.85, 880.35, 700.06, 500.81,994.11],
+            //        color: colors[0]
+            //    }
+            //}];
+            function setChart(name, categories, data, color) {
+                chart.xAxis[0].setCategories(categories, false);
+                chart.series[0].remove(false);
+                chart.addSeries({
+                    name: name,
+                    data: data,
+                    color: color || 'white'
+                }, false);
+                chart.redraw();
+            }
+
+            var chart = $('#container').highcharts({
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: '采购厂家明细！'
+                },
+                subtitle: {
+                    text: '点击柱状图可以查看具体销售详情'
+                },
+                xAxis: {
+                    categories: categories
+                },
+                yAxis: {
+                    title: {
+                        text: '销售金额（￥）'
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        cursor: 'pointer',
+                        point: {
+                            events: {
+                                click: function () {
+                                    var drilldown = this.drilldown;
+                                    if (drilldown) { // drill down
+                                        setChart(drilldown.name, drilldown.categories, drilldown.data, drilldown.color);
+                                    } else { // restore
+                                        setChart(name, categories, data);
+                                    }
+                                }
+                            }
+                        },
+                        dataLabels: {
+                            enabled: true,
+                            color: colors[0],
+                            style: {
+                                fontWeight: 'bold'
+                            },
+                            formatter: function () {
+                                return this.y + '￥';
+                            }
+                        }
+                    }
+                },
+                tooltip: {
+                    formatter: function () {
+                        var point = this.point,
+                            s = this.x + ':<b>' + this.y + '￥ </b><br>';
+                        if (point.drilldown) {
+                            s += '点击 ' + point.category + ' 详细信息';
+                        } else {
+                            s += '返回';
+                        }
+                        return s;
+                    }
+                },
+                series: [{
+                    name: name,
+                    data: data,
+                    color: 'white'
+                }],
+                exporting: {
+                    enabled: false
+                }
+            })
+            .highcharts(); // return chart
+        });
+    }
+    function GetMetaChart() {
+        AjaxJson("/CheckSheetModule/BY_CheckSheet/GetMetaChart", { StartTime: $("#StartTime").val(), EndTime: $("#EndTime").val(), CustomerCode: $("#CustomerCode").val(), LType: $("#LType").val() }, function (data) {
+            var colors = Highcharts.getOptions().colors,
+                categories = data.categoriesName;//['天文模具', '永坚', '建欣模具', '优润', '云祥五金'],
+            name = '钢材用量排名',
+            data = data.datas;
+            //    [{
+            //    y: 40760.18,
+            //    color: colors[0],
+            //    drilldown: {
+            //        name: '天文模具详情',
+            //        categories: ['2015-4-10', '2015-4-14', '2015-4-16', '2015-4-17', '2015-4-20'],
+            //        data: [1000.85, 880.35, 700.06, 500.81,994.11],
+            //        color: colors[0]
+            //    }
+            //}];
+            function setChart(name, categories, data, color) {
+                chart.xAxis[0].setCategories(categories, false);
+                chart.series[0].remove(false);
+                chart.addSeries({
+                    name: name,
+                    data: data,
+                    color: color || 'white'
+                }, false);
+                chart.redraw();
+            }
+
+            var chart = $('#container1').highcharts({
+                chart: {
+                    type: 'column'
+                },
+                title: {
+                    text: '钢材用量排名！'
+                },
+                subtitle: {
+                    text: '点击柱状图可以查看具体销售详情'
+                },
+                xAxis: {
+                    categories: categories
+                },
+                yAxis: {
+                    title: {
+                        text: '重量（KG）'
+                    }
+                },
+                plotOptions: {
+                    column: {
+                        cursor: 'pointer',
+                        point: {
+                            events: {
+                                click: function () {
+                                    var drilldown = this.drilldown;
+                                    if (drilldown) { // drill down
+                                        setChart(drilldown.name, drilldown.categories, drilldown.data, drilldown.color);
+                                    } else { // restore
+                                        setChart(name, categories, data);
+                                    }
+                                }
+                            }
+                        },
+                        dataLabels: {
+                            enabled: true,
+                            color: colors[0],
+                            style: {
+                                fontWeight: 'bold'
+                            },
+                            formatter: function () {
+                                return this.y + ' KG';
+                            }
+                        }
+                    }
+                },
+                tooltip: {
+                    formatter: function () {
+                        var point = this.point,
+                            s = this.x + ':<b>' + this.y + 'KG </b><br>';
+                        if (point.drilldown) {
+                            s += '点击 ' + point.category + ' 详细信息';
+                        } else {
+                            s += '返回';
+                        }
+                        return s;
+                    }
+                },
+                series: [{
+                    name: name,
+                    data: data,
+                    color: 'white'
+                }],
+                exporting: {
+                    enabled: false
+                }
+            })
+            .highcharts(); // return chart
+        });
+    }
+
+    Highcharts.theme = {
+        colors: ['#058DC7', '#50B432', '#ED561B', '#DDDF00', '#24CBE5', '#64E572', '#FF9655', '#FFF263', '#6AF9C4'],
+        chart: {
+            backgroundColor: {
+                linearGradient: { x1: 0, y1: 0, x2: 1, y2: 1 },
+                stops: [
+                    [0, 'rgb(255, 255, 255)'],
+                    [1, 'rgb(240, 240, 255)']
+                ]
+            },
+            borderWidth: 2,
+            plotBackgroundColor: 'rgba(255, 255, 255, .9)',
+            plotShadow: true,
+            plotBorderWidth: 1
+        },
+        title: {
+            style: {
+                color: '#000',
+                font: 'bold 16px "Trebuchet MS", Verdana, sans-serif'
+            }
+        },
+        subtitle: {
+            style: {
+                color: '#666666',
+                font: 'bold 12px "Trebuchet MS", Verdana, sans-serif'
+            }
+        },
+        xAxis: {
+            gridLineWidth: 1,
+            lineColor: '#000',
+            tickColor: '#000',
+            labels: {
+                style: {
+                    color: '#000',
+                    font: '11px Trebuchet MS, Verdana, sans-serif'
+                }
+            },
+            title: {
+                style: {
+                    color: '#333',
+                    fontWeight: 'bold',
+                    fontSize: '12px',
+                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+
+                }
+            }
+        },
+        yAxis: {
+            minorTickInterval: 'auto',
+            lineColor: '#000',
+            lineWidth: 1,
+            tickWidth: 1,
+            tickColor: '#000',
+            labels: {
+                style: {
+                    color: '#000',
+                    font: '11px Trebuchet MS, Verdana, sans-serif'
+                }
+            },
+            title: {
+                style: {
+                    color: '#333',
+                    fontWeight: 'bold',
+                    fontSize: '12px',
+                    fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+                }
+            }
+        },
+        legend: {
+            itemStyle: {
+                font: '9pt Trebuchet MS, Verdana, sans-serif',
+                color: 'black'
+
+            },
+            itemHoverStyle: {
+                color: '#039'
+            },
+            itemHiddenStyle: {
+                color: 'gray'
+            }
+        },
+        labels: {
+            style: {
+                color: '#99b'
+            }
+        },
+
+        navigation: {
+            buttonOptions: {
+                theme: {
+                    stroke: '#CCCCCC'
+                }
+            }
+        }
+    };
+
+    // Apply the theme
+    var highchartsOptions = Highcharts.setOptions(Highcharts.theme);
+
+    function OverrideTabchange(id) {
+        Tabchange(id);
+        //if (id == "Report") {
+        //}
+        //else if (id == "Plato") {
+        //    CreatePlato();
+        //}
+    }
+    function btn_Search() {
+        GetCustomerchart();
+        GetMetaChart();
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable1").jqGrid('setGridParam', { url: "@Url.Content("~/CheckSheetModule/BY_CheckSheet/GridPageListJson1")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+        $("#gridTable2").jqGrid('setGridParam', { url: "@Url.Content("~/CheckSheetModule/BY_CheckSheet/GridPageListJson2")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+
+    }
+ 
+
+    //加载表格
+    function GetGrid1() {
+        var rowScrod = 0;
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable1").jqGrid({
+            url: "@Url.Content("~/CheckSheetModule/BY_CheckSheet/GridPageListJson1")?Condition=" + escape(Condition),
+            datatype: "json",
+            height: $(window).height() - 195,
+            autowidth: true,
+            colModel: [
+                    
+                    { label: '客户编号', name: 'customercode', index: 'customercode', width: 160, align: 'left', sortable: true },
+                    { label: '客户名称', name: 'customername', index: 'customername', width: 200, align: 'left', sortable: true },
+                    { label: '金额', name: 'totalamount', index: 'totalamount', width: 200, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager1",
+            sortname: 'totalamount',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            footerrow: true,
+            onSelectRow: function (rowid, status) {
+                rowScrod = $("#" + rowid).position().top;
+            },
+            gridComplete: function () {
+                $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
+                //合计
+                $(this).footerData("set", {
+                    "customercode": "合计",
+                    "totalamount": $("#gridTable1").getCol('totalamount', false, 'sum'),
+                });
+                
+            },
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+               
+            },
+        });
+    }
+
+    //加载表格
+    function GetGrid2() {
+        var rowScrod = 0;
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable2").jqGrid({
+            url: "@Url.Content("~/CheckSheetModule/BY_CheckSheet/GridPageListJson2")?Condition=" + escape(Condition),
+            datatype: "json",
+            height: $(window).height() - 195,
+            autowidth: true,
+            colModel: [
+                    
+                    { label: '品名', name: 'productname', index: 'customercode', width: 160, align: 'left', sortable: true },
+                    { label: '重量', name: 'weight', index: 'weight', width: 200, align: 'left', sortable: true },
+                    { label: '金额', name: 'materialamount', index: 'materialamount', width: 200, align: 'left', sortable: true },
+                    
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager2",
+            sortname: 'materialamount',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            footerrow: true,
+            onSelectRow: function (rowid, status) {
+                rowScrod = $("#" + rowid).position().top;
+            },
+            gridComplete: function () {
+                $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
+                //合计
+                $(this).footerData("set", {
+                    "productname": "合计",
+                    "weight": $("#gridTable2").getCol('weight', false, 'sum'),
+                    "materialamount": $("#gridTable2").getCol('materialamount', false, 'sum'),
+                });
+
+            },
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+
+            },
+        });
+    }
+
+</script>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table id="QueryParameter" border="0" class="form-find" style="height: 45px;">
+        <tr>
+            @*<th>时间：</th>
+            <td>
+                <div id='wrap' style="float: inherit; width: 100%">
+                </div>
+            </td>*@
+            <th>时间 从：</th>
+            <td>
+                <input id="StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth() 00:00:00" style="width: 120px" />
+            </td>
+            <th>至：</th>
+            <td>
+                <input id="EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth() 23:59:59" style="width: 120px" />
+            </td>
+            <th>客户：</th>
+            <td>
+                <input id="CustomerCode" type="text" class="txt" style="width: 120px" />
+            </td>
+            <th >业务员：</th>
+            
+            <td>
+                     <input id="Sellpeople" type="text" class="txt" style="width: 100px" />
+                            </td>
+            <th>类型：</th>
+            <td>
+                <select id="LType" type="text" class="select" onchange="btn_Search();">
+                    <option value="">全部</option>
+                    <option value="GC">钢材</option>
+                    <option value="LJ">配件</option>
+                    <option value="RCL">热处理</option>
+                </select>
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div class="bd" style="border-bottom: none; margin: 1px;">
+    <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+        <div class="tab_list_top" style="position: absolute">
+            <div id="TabReport" class="tab_list bd actived" onclick="OverrideTabchange('Report');btn_Search();">客户统计</div>
+            <div id="TabPlato1" class="tab_list bd " onclick="OverrideTabchange('Plato1');btn_Search();">客户统计明细</div>
+            <div id="TabPlato" class="tab_list bd " onclick="OverrideTabchange('Plato');btn_Search();">材料统计</div>
+            <div id="TabPlato2" class="tab_list bd " onclick="OverrideTabchange('Plato2');btn_Search();">材料领出明细</div>
+        </div>
+    </div>
+</div>
+
+<div class="ScrollBar topline" style="margin: 1px; overflow: hidden; border-bottom: none;">
+    <!--报表-->
+    <div id="Report" class="tabPanel" style="margin: 1px; margin-top: -1px;">
+        <div id="container"></div>
+    </div>
+    <!--柏拉图-->
+    <div id="Plato" class="tabPanel" style="margin: 1px; margin-top: -1px; display: none;">
+        <div id="container1"></div>
+    </div>
+
+    <div id="Plato1" class="tabPanel" style="margin: 1px; margin-top: -1px; display: none;">
+        <table id="gridTable1"></table>
+    <div id="gridPager1"></div>
+    </div>
+
+    <div id="Plato2" class="tabPanel" style="margin: 1px; margin-top: -1px; display: none;">
+        <table id="gridTable2"></table>
+    <div id="gridPager2"></div>
+    </div>
+
+</div>
+
+
+
+

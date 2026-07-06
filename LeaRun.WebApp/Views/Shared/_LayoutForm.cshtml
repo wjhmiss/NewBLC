@@ -1,0 +1,71 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>@ViewBag.Title</title>
+    <!--框架必需start-->
+@*    <link href="~/Content/Styles/learunui-framework.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/jquery/jquery-1.8.2.min.js"></script>
+    <script src="~/Content/Scripts/learunui-framework.js"></script>*@
+         @Scripts.Render("~/Content/Scripts/frameworkjquery")
+     @Styles.Render("~/Content/Styles/frameworkcss")
+    <!--框架必需end-->
+    <!--树形组件start-->
+@*    <link href="~/Content/Scripts/tree/tree.css" rel="stylesheet" />
+    <script src="~/Content/Scripts/tree/tree.js"></script>*@
+                @Scripts.Render("~/Content/Scripts/tree/treejquery")
+     @Styles.Render("~/Content/Scripts/tree/treecss")   
+    <!--树形组件end-->
+    <!--日期组件start-->
+    <script src="~/Content/Scripts/datepicker/WdatePicker.js"></script>
+  @*@Scripts.Render("~/Content/Scripts/datepicker/datepickerjquery")  *@
+    <!--日期组件start-->
+    <!--表单验证组件start-->
+    @*<script src="~/Content/Scripts/validator/learunui-validator.js"></script>*@
+     @Scripts.Render("~/Content/Scripts/validator/validatorjquery")   
+    <!--表单验证组件end-->
+    <!--布局组件start-->
+    @*<script src="~/Content/Scripts/layout/splitter.js"></script>*@
+    @Scripts.Render("~/Content/Scripts/layout/layoutjquery")  
+    <!--布局组件end-->
+    <script type="text/javascript">
+        $(document).ready(function () {
+            Loadlayout();
+        });
+        function whichButton(event) {
+            if (event.button == 1 || event.button == 0) {
+                //左键
+                top.linkAddTabMenu();
+            }
+
+        }
+    </script>
+          <style>
+        .altclass {
+            background: #fffccc;
+        }
+        .ui-jqgrid tr.ui-row-ltr td {
+            border-bottom: 1px solid #ccc;
+        }
+
+        .ui-jqgrid .ui-jqgrid-htable th {
+            line-height: 15px;
+        }
+
+            .ui-th-column, .ui-jqgrid .ui-jqgrid-htable th.ui-th-column {
+                background: none;
+            }
+
+        .editable {
+            height: 22px;
+            background-color: #fff;
+        }
+    </style>
+</head>
+<body onmousedown="whichButton(event)">
+    <div>
+        @RenderBody()
+    </div>
+</body>
+</html>

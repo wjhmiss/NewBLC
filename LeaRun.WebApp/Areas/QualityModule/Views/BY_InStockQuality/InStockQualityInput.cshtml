@@ -1,0 +1,248 @@
+@{
+    ViewBag.Title = "原材料入仓品质信息";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        BillCodeAutocomplete();
+        BindDropItem("#PlaceOrigin", "SteelSource", "==请选择==");
+        //外观类型下拉框
+        BindDropItem("#SteelType", "FaceType", "==请选择==");
+        //钢板状态下拉框
+        BindDropItem("#SteelStatus", "SteelStatus", "==请选择==");
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/QualityModule/BY_InStockQuality/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+                SetSteelControl();
+            });
+        }
+    }
+    //保存事件
+    function btn_save() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        AjaxJson("/QualityModule/BY_InStockQuality/SubmitQualityForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+    //批号自动补全
+    function BillCodeAutocomplete() {
+        var $BillCode = $("#BillCode");
+        $BillCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("BillCode", function (data) {
+            $("#BillCode").val(data.BillCode);
+            SetSteelControl();
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/StorageModule/BY_InStock/GetInStockList", { BillCode: $("#BillCode").val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="BillCode" >' + DataJson[i].BillCode + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("BillCode", $BillCode.width() + "px", "200px", html, function (data) {
+                    $("#BillCode").val(data.BillCode);
+                    SetSteelControl();
+                });
+            });
+        }
+    }
+    //得到一个对象实体
+    function SetSteelControl() {
+        if ($("#BillCode").val()) {
+            AjaxJson("/StorageModule/BY_InStock/GetInStockList", { BillCode: $("#BillCode").val() }, function (data) {
+                $("#SteelCode").val($.trim(data[0].SteelCode).replace("&nbsp;", ""));
+                $("#StoveCode").val($.trim(data[0].StoveCode).replace("&nbsp;", ""));
+                $("#PlaceOrigin").val($.trim(data[0].PlaceOrigin).replace("&nbsp;", ""));
+                $("#SteelStatus").val($.trim(data[0].SteelStatus).replace("&nbsp;", ""));
+                $("#SteelType").val($.trim(data[0].SteelType).replace("&nbsp;", ""));
+                $("#Thick").val($.trim(data[0].Thick).replace("&nbsp;", ""));
+                $("#Weigh").val($.trim(data[0].Weigh).replace("&nbsp;", ""));
+                $("#Length").val($.trim(data[0].Length).replace("&nbsp;", ""));
+                $("#InStockDate").val($.trim(data[0].InStockDate).replace("&nbsp;", ""));
+                $("#Weight").val($.trim(data[0].Weight).replace("&nbsp;", ""));
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none; padding: 1px; padding-bottom: 0px;"></div>
+    <div class="tools_bar" style="margin-top: 1px; margin-bottom: 0px;">
+        <div class="PartialButton">
+            @Html.Partial("_PartialButton")
+        </div>
+    </div>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div class="tab_list bd actived">材料入库信息</div>
+            </div>
+        </div>
+    </div>
+    <table class="form">
+        <tr>
+            <th class="formTitle">钢材编码：
+            </th>
+            <td class="formValue">
+                <input id="BillCode" maxlength="50" type="text" class="txt" datacol="yes" err="订单号+行号" checkexpession="NotNull" />
+            </td>
+            <th class="formTitle">钢种：
+            </th>
+            <td class="formValue">
+                <input id="SteelCode" maxlength="50" type="text" class="txt" disabled />
+            </td>
+            <th class="formTitle">状态：
+            </th>
+            <td class="formValue">
+                <select id="SteelStatus" class="txtselect" disabled></select>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">炉号：
+            </th>
+            <td class="formValue">
+                <input id="StoveCode" maxlength="50" type="text" class="txt" disabled />
+            </td>
+
+            <th class="formTitle">产地：
+            </th>
+            <td class="formValue">
+                <select id="PlaceOrigin" class="txtselect" disabled></select>
+            </td>
+            <th class="formTitle">类型：
+            </th>
+            <td class="formValue">
+                <select id="SteelType" class="txtselect" disabled></select>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">厚度：
+            </th>
+            <td class="formValue">
+                <input id="Thick" maxlength="50" type="text" class="txt" disabled />
+            </td>
+            <th class="formTitle">宽度：
+            </th>
+            <td class="formValue">
+                <input id="Weigh" maxlength="50" type="text" class="txt" disabled />
+            </td>
+            <th class="formTitle">长度：
+            </th>
+            <td class="formValue">
+                <input id="Length" maxlength="50" type="text" class="txt" disabled />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">实际重量：
+            </th>
+            <td class="formValue">
+                <input id="Weight" maxlength="50" type="text" class="txt" disabled />
+            </td>
+            <th class="formTitle">进仓：
+            </th>
+            <td class="formValue" colspan="3">
+                <input id="InStockDate" maxlength="50" type="text" class="txt" disabled />
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">备注信息：
+            </th>
+            <td class="formValue" colspan="5">
+                <input id="Remark" maxlength="200" type="text" class="txt" disabled />
+            </td>
+        </tr>
+    </table>
+    <div class="bd" style="border-bottom: none; margin: 1px;">
+        <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+            <div class="tab_list_top" style="position: absolute">
+                <div class="tab_list bd actived">品质信息</div>
+            </div>
+        </div>
+    </div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>外观及尺寸：</th>
+            <td class='formValue'>
+                <select id="FacadeSize" class="txtselect" datacol="yes" err="外观及尺寸" checkexpession="NotNull">
+                    <option>==请选择==</option>
+                    <option value="合格">合格</option>
+                    <option value="不合格">不合格</option>
+                </select>
+            </td>
+            <th class='formTitle'>表面硬度：</th>
+            <td class='formValue'>
+                <input id="SurfaceHardness" maxlength="10" type="text" class="txt" datacol="yes" err="表面硬度" checkexpession="NotNull"/>
+            </td>
+            <th class='formTitle'>锯口面硬度：</th>
+            <td class='formValue'>
+                <input id="KerfHardness" maxlength="10" type="text" class="txt"  datacol="yes" err="锯口面硬度" checkexpession="NotNull"/>
+            </td>
+            <th class='formTitle'>硬度检测人：</th>
+            <td class='formValue'>
+                <input id="HardnessChecker" maxlength="50" type="text" class="txt" datacol="yes" err="硬度检测人" checkexpession="NotNull"/>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>火花鉴别：</th>
+            <td class='formValue'>
+                <select id="SparkDiscern" class="txtselect" datacol="yes" err="火花鉴别" checkexpession="NotNull">
+                    <option>==请选择==</option>
+                    <option value="合格">合格</option>
+                    <option value="不合格">不合格</option>
+                </select>
+            </td>
+            <th class='formTitle'>探伤级别：</th>
+            <td class='formValue'>
+                <select id="FindLevel" class="txtselect" datacol="yes" err="探伤级别" checkexpession="NotNull">
+                    <option>==请选择==</option>
+                    <option value="合格">合格</option>
+                    <option value="不合格">不合格</option>
+                </select>
+            </td>
+            <th class='formTitle'>探伤检测人：</th>
+            <td class='formValue'>
+                <input id="FindCheckUser" maxlength="50" type="text" class="txt" datacol="yes" err="探伤检测人" checkexpession="NotNull"/>
+            </td>
+            <th class='formTitle'>综合判定：</th>
+            <td class='formValue'>
+                <select id="MultiJudge" class="txtselect" datacol="yes" err="订单号+行号" checkexpession="NotNull">
+                    <option>==请选择==</option>
+                    <option value="合格">合格</option>
+                    <option value="不合格">不合格</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>异议编号：</th>
+            <td class='formValue'>
+                <input id="DiffCode" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>其它检验项目：</th>
+            <td class='formValue' colspan="5">
+                <input id="OtherItem" maxlength="200" type="text" class="txt" />
+            </td>
+        </tr>
+        <tr>
+        </tr>
+    </table>
+</form>

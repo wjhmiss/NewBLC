@@ -1,0 +1,127 @@
+@{
+    ViewBag.Title = "钢材状态设置表》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        //钢材编码自动补全
+        SteelAutocomplete();
+        //钢材状态
+        BindDropItemName("#SteelStatus", "SteelStatus", "==请选择==");
+        InitControl();
+    });
+    //钢材编码自动补全
+    function SteelAutocomplete() {
+        var $SteelCode = $("#SteelCode");
+        $SteelCode.bind("keyup", function (e) {
+            if (e.which != 13 && e.which != 40 && e.which != 38) {
+                DataSource();
+            }
+        }).focus(function () {
+            $(this).select();
+            DataSource();
+        });
+        //上，下键盘回调
+        autocompletekeydown("SteelCode", function (data) {
+            $("#SteelId").val(data.SteelId);
+            $("#SteelCode").val(data.SteelCode);
+            $("#SteelName").val(data.SteelName);
+        });
+        //获取数据源
+        function DataSource() {
+            AjaxJson("/CommonModule/Steel/GetAutoCompleJson", { keywords: $SteelCode.val() }, function (DataJson) {
+                var html = "";
+                $.each(DataJson, function (i) {
+                    html += "<tr>";
+                    html += '<td id="SteelId" style="display: none;">' + DataJson[i].SteelId + '</td>';
+                    html += '<td id="SteelCode" style="width: 50%;">' + DataJson[i].SteelCode + '</td>';
+                    html += '<td id="SteelName" style="width: 100%;">' + DataJson[i].SteelName + '</td>';
+                    html += "</tr>";
+                });
+                //点击事件回调
+                autocomplete("SteelCode", $SteelCode.width() + "px", "200px", html, function (data) {
+                    $("#SteelId").val(data.SteelId);
+                    $("#SteelCode").val(data.SteelCode);
+                    $("#SteelName").val(data.SteelName);
+                });
+            });
+        }
+    }
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CommonModule/SteelStatus/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        var postData = GetWebControls("#form1");
+        AjaxJson("/CommonModule/SteelStatus/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>钢材编码：</th>
+            <td class='formValue'>
+                <input id="SteelId" type="hidden" class="txt" />
+                <input id="SteelCode" maxlength="50" type="text" class="txt" />
+            </td>
+            <th class='formTitle'>钢材名称：</th>
+            <td class='formValue'>
+                <input id="SteelName" readonly maxlength="200" type="text" class="txt readonly" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>钢材状态：</th>
+            <td class='formValue'>
+                <select id="SteelStatus" class="txtselect"></select>
+            </td>
+            <th class='formTitle'>主要选项：</th>
+            <td class='formValue'>
+                <span class="item">
+                    <input type="checkbox" name="checkbox" checked="checked" id="MainFlag" />
+                    <label for="MainFlag">主要选项</label>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue' colspan="3">
+                <span class="item">
+                    <input type="checkbox" name="checkbox" checked="checked" id="Enabled" />
+                    <label for="Enabled">有效</label>
+                </span>
+            </td>
+        </tr>
+        <tr>
+            <th class="formTitle">说明：
+            </th>
+            <td class="formValue" colspan="3">
+                <textarea id="Remark" name="Description" maxlength="200" class="txtArea" rows="4"></textarea>
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>最近更新时间：</th>
+            <td class='formValue'>
+                <input id="ModifyDate" readonly maxlength="23" type="text" value="@DNS.Utilities.DateTimeHelper.GetTime()" class="txt readonly" />
+            </td>
+            <th class='formTitle'>最近更新人：</th>
+            <td class='formValue'>
+                <input id="ModifyUserName" readonly maxlength="50" type="text" value="@DNS.Utilities.ManageProvider.Provider.Current().UserName" class="txt readonly" />
+            </td>
+        </tr>
+    </table>
+</form>

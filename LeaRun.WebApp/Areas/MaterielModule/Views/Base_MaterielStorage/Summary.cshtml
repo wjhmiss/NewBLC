@@ -1,0 +1,389 @@
+@{
+    ViewBag.Title = "物料购买申请";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        BindDropDepartmentName("#DepartmentName");
+
+        window.setTimeout(function () {
+            GetGrid();
+            GetGrid1();
+            GetGrid2();
+        }, 200);
+        
+    })
+    //加载表格
+    function GetGrid() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/MaterielModule/Base_MaterielStorage/SummaryListJson")?Condition=" + escape(Condition),
+            datatype: "json",
+            height: $(window).height() - 179,
+            autowidth: true,
+            colModel: [
+                { label: '所在部门', name: 'departmentname', index: 'departmentname', width: 100, align: 'left', sortable: true },
+                    { label: '人员名称', name: 'workername', index: 'workername', width: 120, align: 'left', sortable: true },
+                { label: '物料类型', name: 'materieltype', index: 'materieltype', width: 100, align: 'left', sortable: true },
+                    { label: '物料名称', name: 'materielname', index: 'materielname', width: 120, align: 'left', sortable: true },
+                    { label: '领料件数', name: 'getqty', index: 'getqty', width: 80, align: 'left', sortable: true },
+                    { label: '退料件数', name: 'backqty', index: 'backqty', width: 80, align: 'left', sortable: true },
+                    { label: '单价', name: 'pepermoney', index: 'pepermoney', width: 80, align: 'left', sortable: true },
+                    { label: '总价', name: 'totalamount', index: 'totalamount', width: 80, align: 'left', sortable: true },
+                    { label: '库存数', name: 'qty', index: 'qty', width: 80, align: 'left', sortable: true },
+
+            ],
+            viewrecords: true,
+            rowNum: 2000,
+            rowList: [30, 50, 100, 2000, 5000],
+            pager: "#gridPager",
+            sortname: '',
+            sortorder: '',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                btn_edit();
+            },
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "workername": "合计",
+                    "getqty": FormatCurrency($("#gridTable").getCol('getqty', false, 'sum')),
+                    "backqty": FormatCurrency($("#gridTable").getCol('backqty', false, 'sum')),
+                    "getmoney": FormatCurrency($("#gridTable").getCol('getmoney', false, 'sum')),
+                    "totalamount": FormatCurrency($("#gridTable").getCol('totalamount', false, 'sum')),
+                });
+            }
+        });
+    }
+    //加载表格
+    function GetGrid1() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable1").jqGrid({
+            url: "@Url.Content("~/MaterielModule/Base_MaterielStorage/SummaryListJson1")?Condition=" + escape(Condition),
+            datatype: "json",
+            height: $(window).height() - 179,
+            autowidth: true,
+            colModel: [
+                    { label: '所在部门', name: 'departmentname', index: 'departmentname', width: 100, align: 'left', sortable: true },
+                { label: '物料类型', name: 'materieltype', index: 'materieltype', width: 100, align: 'left', sortable: true },
+                    { label: '物料名称', name: 'materielname', index: 'materielname', width: 120, align: 'left', sortable: true },
+                    { label: '领料件数', name: 'getqty', index: 'getqty', width: 80, align: 'left', sortable: true },
+                    { label: '退料件数', name: 'backqty', index: 'backqty', width: 80, align: 'left', sortable: true },
+                     { label: '单价', name: 'pepermoney', index: 'pepermoney', width: 80, align: 'left', sortable: true },
+                    { label: '总价', name: 'totalamount', index: 'totalamount', width: 80, align: 'left', sortable: true },
+                    { label: '库存数', name: 'qty', index: 'qty', width: 80, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 2000,
+            rowList: [30, 50, 100, 2000, 5000],
+            pager: "#gridPager1",
+            sortname: '',
+            sortorder: '',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                btn_edit();
+            },
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "workername": "合计",
+                    "getqty": FormatCurrency($("#gridTable").getCol('getqty', false, 'sum')),
+                    "backqty": FormatCurrency($("#gridTable").getCol('backqty', false, 'sum')),
+                    "totalamount": FormatCurrency($("#gridTable").getCol('totalamount', false, 'sum')),
+                });
+            }
+        });
+    }
+    //加载表格
+    function GetGrid2() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable2").jqGrid({
+            url: "@Url.Content("~/MaterielModule/Base_MaterielStorage/SummaryListJson2")?Condition=" + escape(Condition),
+            datatype: "json",
+            height: $(window).height() - 179,
+            autowidth: true,
+            colModel: [
+                { label: '物料类型', name: 'materieltype', index: 'materieltype', width: 100, align: 'left', sortable: true },
+                    { label: '物料名称', name: 'materielname', index: 'materielname', width: 120, align: 'left', sortable: true },
+                    { label: '领料件数', name: 'getqty', index: 'getqty', width: 80, align: 'left', sortable: true },
+                    { label: '退料件数', name: 'backqty', index: 'backqty', width: 80, align: 'left', sortable: true },
+                     { label: '单价', name: 'pepermoney', index: 'pepermoney', width: 80, align: 'left', sortable: true },
+                    { label: '总价', name: 'totalamount', index: 'totalamount', width: 80, align: 'left', sortable: true },
+                    { label: '库存数', name: 'qty', index: 'qty', width: 80, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 2000,
+            rowList: [30, 50, 100, 2000, 5000],
+            pager: "#gridPager2",
+            sortname: '',
+            sortorder: '',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                btn_edit();
+            },
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "workername": "合计",
+                    "getqty": FormatCurrency($("#gridTable").getCol('getqty', false, 'sum')),
+                    "backqty": FormatCurrency($("#gridTable").getCol('backqty', false, 'sum')),
+                    "totalamount": FormatCurrency($("#gridTable").getCol('totalamount', false, 'sum')),
+                });
+            }
+        });
+    }
+    //新增
+    function btn_add() {
+        var url = "/PaymentModule/Base_MaterielPurchase/Form"
+        openDialog(url, "Form", "新增物料购买申请", 770, 395, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //编辑
+    function btn_edit() {
+        //var Status = GetJqGridRowValue("#gridTable", "Status");
+        //if (Status=="是") {
+        //    alertDialog("当前报价单已审核", 0);
+        //    return false;
+        //}
+        var IsPay = GetJqGridRowValue("#gridTable", "IsPay");
+        if (IsPay == "是") {
+            alertDialog("当前报价单已付款", 0);
+            return false;
+        }
+        var IsInvoice = GetJqGridRowValue("#gridTable", "IsInvoice");
+        if (IsInvoice == "是") {
+            alertDialog("当前报价单已开票", 0);
+            return false;
+        }
+
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielPurchaseId");
+        if (IsChecked(KeyValue)) {
+            var url = "/PaymentModule/Base_MaterielPurchase/Form?KeyValue=" + KeyValue;
+            openDialog(url, "Form", "编辑物料购买申请", 770, 395, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //删除
+    function btn_delete() {
+        //var Status = GetJqGridRowValue("#gridTable", "Status");
+        //if (Status == "是") {
+        //    alertDialog("当前报价单已审核", 0);
+        //    return false;
+        //}
+        var IsPay = GetJqGridRowValue("#gridTable", "IsPay");
+        if (IsPay == "是") {
+            alertDialog("当前报价单已付款", 0);
+            return false;
+        }
+        var IsInvoice = GetJqGridRowValue("#gridTable", "IsInvoice");
+        if (IsInvoice == "是") {
+            alertDialog("当前报价单已开票", 0);
+            return false;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielPurchaseId");
+        if (IsDelData(KeyValue)) {
+            var delparm = 'KeyValue=' + KeyValue;
+            delConfig('/PaymentModule/Base_MaterielPurchase/Delete', delparm, KeyValue.split(",").length);
+        }
+    }
+    //明细
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielPurchaseId");
+        if (IsChecked(KeyValue)) {
+            var url = "/PaymentModule/Base_MaterielPurchase/Detail?KeyValue=" + KeyValue;
+            Dialog(url, "Detail", "物料购买申请明细", 820, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+    function btn_Invoice() {
+        var IsInvoice = GetJqGridRowValue("#gridTable", "IsInvoice");
+        if (IsInvoice == "是") {
+            alertDialog("当前报价单已开票", 0);
+            return false;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielPurchaseId");
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要开票？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/Base_MaterielPurchase/Update?IsInvoice=1&MaterielPurchaseId=" + KeyValue, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    function btn_audit() {
+        var Status = GetJqGridRowValue("#gridTable", "Status");
+        if (Status == "是") {
+            alertDialog("当前报价单已审核", 0);
+            return false;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielPurchaseId");
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要审核通过？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/Base_MaterielPurchase/Update?Status=1&MaterielPurchaseId=" + KeyValue, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    function btn_payed() {
+        var IsPay = GetJqGridRowValue("#gridTable", "IsPay");
+        if (IsPay == "是") {
+            alertDialog("当前报价单已付款", 0);
+            return false;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "MaterielPurchaseId");
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要付费？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/PaymentModule/Base_MaterielPurchase/Update?IsPay=1&MaterielPurchaseId=" + KeyValue, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+
+    //查询
+    function btn_Search() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/MaterielModule/Base_MaterielStorage/SummaryListJson")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+        $("#gridTable1").jqGrid('setGridParam', { url: "@Url.Content("~/MaterielModule/Base_MaterielStorage/SummaryListJson1")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+        $("#gridTable2").jqGrid('setGridParam', { url: "@Url.Content("~/MaterielModule/Base_MaterielStorage/SummaryListJson2")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+
+    }
+    //导出
+    function btn_Export() {
+        SetDeriveExcel("#gridTable", "物料统计报表");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+    function btn_Export1() {
+        SetDeriveExcel("#gridTable1", "物料统计报表");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+    function btn_Export2() {
+        SetDeriveExcel("#gridTable2", "物料统计报表");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+
+    function btn_printall() {
+        var Condition = GetParameterJson("QueryParameter");
+        PrintDialog("/MaterielModule/Base_MaterielStorage/SummaryListJson?Condition=" + escape(Condition), "PrintPage", "打印", 850, 500, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+</script>
+<!--工具栏-->
+
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;" id="QueryParameter">
+        <tr>
+            <th>日期 从：</th>
+            <td>
+                <input id="CreateDate_StartTime" type="text" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()"  class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />
+                <input id="CreateDate_EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />
+            </td>
+            <th>员工姓名：</th>
+            <td>
+                <input id="WorkerName" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>物料名称：</th>
+            <td>
+                <input id="MaterielName" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>申报部门：</th>
+            <td>
+                <select id="DepartmentName" class="select" style="width: 100px">
+                    <option value="">全部</option> 
+                </select>
+            </td>
+
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                <input id="btn_export" type="button" class="btnSearch" value="人员统计导出" onclick="btn_Export()" />
+                <input id="btn_export1" type="button" class="btnSearch" value="部门统计导出" onclick="btn_Export1()" />
+                <input id="btn_export2" type="button" class="btnSearch" value="物料统计导出" onclick="btn_Export2()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="bd" style="border-bottom: none; margin: 1px;">
+    <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
+        <div class="tab_list_top" style="position: absolute">
+            <div id="TabReport" class="tab_list bd actived" onclick="Tabchange('Report');">人员统计</div>
+            <div id="TabReport1" class="tab_list bd " onclick="Tabchange('Report1');">部门统计</div>
+            <div id="TabReport2" class="tab_list bd " onclick="Tabchange('Report2');">物料统计</div>
+        </div>
+    </div>
+</div>
+<div class="ScrollBar topline" style="margin: 1px; overflow: hidden; border-bottom: none;">
+    <!--报表-->
+    <div id="Report" class="tabPanel" style="margin: 1px; margin-top: -1px;">
+        <div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+            <table id="gridTable"></table>
+            <div id="gridPager"></div>
+        </div>
+    </div>
+    <!--柏拉图-->
+    <div id="Report1" class="tabPanel" style="margin: 1px; margin-top: -1px; display: none;">
+        <div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+            <table id="gridTable1"></table>
+            <div id="gridPager1"></div>
+        </div>
+    </div>
+    <div id="Report2" class="tabPanel" style="margin: 1px; margin-top: -1px; display: none;">
+        <div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+            <table id="gridTable2"></table>
+            <div id="gridPager2"></div>
+        </div>
+    </div>
+</div>
+
+

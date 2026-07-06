@@ -1,0 +1,52 @@
+/* Design by jason.leung, QQ,147430218, 新浪微博,@切片面包 */
+/* 酷站代码整理 转载请注明出处 http://www.5icool.org */
+.smallpic {
+	margin:0px;
+	padding:0px;
+	height:50px;
+	position: relative;
+	float:left;
+	margin:0px;
+	-webkit-box-shadow:0 0 10px #333;
+	-moz-box-shadow:0 0 10px #333;
+	box-shadow: 0 0 10px #333;
+}
+
+.smallpic img {
+	max-width: 50px;
+}
+
+.mark {
+	margin:0px;
+	padding:0px;
+	width:40px;
+	height:40px;
+	position: absolute;
+	left:0px;
+	top:0px;
+	background:#fff;
+	filter:alpha(opacity:30);
+	opacity:0.3;
+	display:none;
+}
+
+.bigpic {
+	margin:0px;
+	padding:0px;
+	width:500px;
+	height:500px;
+	float:left;
+	margin:10px;
+	display:none;
+	overflow: hidden;
+	position: relative;
+	-webkit-box-shadow:0 0 10px #333;
+	-moz-box-shadow:0 0 10px #333;
+	box-shadow: 0 0 10px #333;
+}
+
+.bigpic img {
+	position:absolute;
+	left:0px;
+	top:0px;
+}

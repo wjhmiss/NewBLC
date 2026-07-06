@@ -1,0 +1,128 @@
+﻿@{
+    ViewBag.Title = "粗料单打印";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //查询
+    function btn_Search() {
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/QuotationModule/QuotationPrint/GridPageListJson")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
+    }
+    //加载订单表格
+    function GetGrid() {
+        var SelectRowIndx = 1;
+        var Condition = GetParameterJson("QueryParameter");
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/QuotationModule/QuotationPrint/GridPageListJson")?Condition=" + escape(Condition),
+            datatype: "json",
+            height: $(window).height() - 103,
+            autowidth: true,
+            colModel: [
+                    { label: '主键', name: 'QuotationId', hidden: true },
+                    { label: '类型', name: 'OrderType', index: 'OrderType', width: 50, align: 'center', sortable: true },
+                    { label: '报价单号', name: 'QuotationCode', index: 'QuotationCode', width: 95, sortable: true },
+                    {
+                        label: '单据状态', name: 'BillStatus', index: 'BillStatus', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowobject) {
+                            if (!!cellvalue) {
+                                return "<span style='color:blue'>" + cellvalue + "</span>";
+                            } else {
+                                return "<span style='color:red'>待提交</span>";
+                            }
+                        }
+                    },
+                    { label: '客户编号', name: 'CustomerCode', index: 'CustomerCode', width: 50, align: 'left', sortable: true },
+                    { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 150, align: 'left', sortable: true },
+                    { label: '客户PO', name: 'CustomerPO', index: 'CustomerPO', width: 100, align: 'left', sortable: true, hidden: true },
+                    {
+                        label: '入单日期', name: 'CreateDate', index: 'CreateDate', width: 65, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    {
+                        label: '审核日期', name: 'CheckDate', index: 'CheckDate', width: 65, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '跟进人员', name: 'CreateUserName', index: 'CreateUserName', width: 80, align: 'left', sortable: true },
+                    { label: '营业人员', name: 'SalesMan', index: 'SalesMan', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '是否打印', name: 'PrintUserId', index: 'PrintUserId', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (cellvalue) {
+                                return "<span style='color:blue'>已打印</span>";
+                            } else {
+                                return "<span style='color:red' >未打印</span>";
+                            }
+                        }
+                    }
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'PrintUserId,CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+            }
+        });
+    }
+    //粗料单打印预览
+    function BCPrintPreview() {
+        var QuotationId = GetJqGridRowValue("#gridTable", "QuotationId");
+        if (IsChecked(QuotationId)) {
+            PrintDialog("/QuotationModule/QuotationPrint/BCPrintPreview?QuotationId=" + QuotationId, "PrintPage", "粗料单打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入  
+    }
+</script>
+<div class="leftline rightline topline QueryArea" style="margin: 1px; margin-bottom: 0px;">
+    <table id="QueryParameter" border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>报价单号：</th>
+            <td>
+                <input id="OrderType" type="hidden" value="BC" />
+                <input id="CheckStatus" type="hidden" value="1" />
+                <input id="QuotationCode" type="text" class="txt" style="width: 120px" />
+            </td>
+            <th>审核日期 从：</th>
+            <td>
+                <input id="CheckDate_StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 120px" />
+            </td>
+            <th>审核日期 至：</th>
+            <td>
+                <input id="CheckDate_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 120px" />
+            </td>
+            <td>&nbsp;&nbsp;&nbsp;
+                <input id="btnSearch" type="button" class="btnSearch" value="查 询" onclick="btn_Search()" />
+                &nbsp;&nbsp;&nbsp;
+                <input id="btn_print" type="button" class="btnSearch" value="打 印" onclick="BCPrintPreview()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

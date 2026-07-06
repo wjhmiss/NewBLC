@@ -1,0 +1,534 @@
+﻿@{
+    ViewBag.Title = "BY_OrderDetailBeOut";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+        document.onkeydown = enterInput;
+    })
+
+    function enterInput() {
+        var e = e || window.event || arguments.callee.caller.arguments[0];
+        var tar = e.srcElement || e.target;
+
+        if (e && e.keyCode == 13) {//回车
+            if ($(tar).attr('id') == "ComfirmOrderCode") {
+                AjaxJson("/OrderModule/BY_OrderDetailBeOut/Update?OrderCode=" + $(tar).val(), { keywords: 1 }, function (data) {
+                    tipDialog(data.Message, 3, data.Code);
+                    windowload();
+                    return;
+                });
+            }
+            btn_Search();
+        }
+    }
+
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx = 0;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/OrderModule/BY_OrderDetailBeOut/GridPageJson")",
+            datatype: "json",
+            height: $(window).height() - 195,
+            autowidth: true,
+            colModel: [
+                 { label: '助记编码', name: 'MnemonicCode', index: 'MnemonicCode', width: 120, align: 'left', sortable: true },
+                  { label: '委外客户名称', name: 'CustomerName', index: 'CustomerName', width: 80, align: 'left', sortable: true },
+                    { label: '钢种描述', name: 'SteelDescription', index: 'SteelDescription', width: 60, align: 'left', sortable: true },
+                    { label: '加工类型', name: 'OrderType', index: 'OrderType', width: 60, align: 'left', sortable: true },
+                    { label: '厚(直径)', name: 'Thick', index: 'Thick', width: 50, align: 'left', sortable: true },
+                    { label: '宽', name: 'Weigh', index: 'Weigh', width: 50, align: 'left', sortable: true },
+                    { label: '长', name: 'Length', index: 'Length', width: 50, align: 'left', sortable: true },
+                    {
+                        label: '公差信息', name: 'Remark', index: 'Remark', width: 80, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!cellvalue) {
+                                return cellvalue.replace(/,/g, "，");;
+
+                            }
+                            return "";
+                        }
+                    },
+                    { label: '数量', name: 'Qty', index: 'Qty', width: 50, align: 'left', sortable: true },
+                    { label: '重量', name: 'Weight', index: 'Weight', width: 50, align: 'left', sortable: true },
+                    { label: '面积M²', name: 'Area', index: 'Area', width: 50, align: 'left', sortable: true },
+                    { label: '单价', name: 'AreaPrice', index: 'AreaPrice', width: 50, align: 'left', sortable: true },
+                    { label: '总费用', name: 'CostAmount', index: 'CostAmount', width: 50, align: 'left', sortable: true },
+                    { label: '委外客户', name: 'CustomerCode', index: 'CustomerCode', width: 60, align: 'left', sortable: true },
+
+                    { label: '钢种编号', name: 'SteelCode', index: 'SteelCode', width: 60, align: 'left', sortable: true },
+                    { label: '单据状态', name: 'BillStatus', index: 'BillStatus', width: 60, align: 'left', sortable: true },
+                    {
+                        label: '审核', name: 'Status', index: 'Status', width: 60, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return cellvalue == "0" ? "否" : "是";
+                        }
+                    },
+                    {
+                        label: '已付款', name: 'IsPay', index: 'IsPay', width: 50, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return cellvalue == "0" ? "否" : "是";
+                        }
+                    },
+
+
+                    { label: '订单明细ID', name: 'OrderDetailOutId', hidden: true },
+                    { label: '订单明细ID', name: 'OrderDetailId', hidden: true },
+                    { label: '订单ID', name: 'OrderId', hidden: true },
+                    { label: '报价单明细ID', name: 'QuotationDetailId', hidden: true },
+                    { label: '客户ID', name: 'CustomerId', hidden: true },
+                    { label: '钢种', name: 'SteelId', hidden: true },
+
+                    { label: '报价单号', name: 'QuotationCode', index: 'QuotationCode', width: 120, align: 'left', sortable: true },
+                    { label: '订单号', name: 'OrderCode', index: 'OrderCode', width: 100, align: 'left',sortable: true  },
+                    { label: '行号', name: 'LineCode', index: 'LineCode', width: 50, align: 'left',sortable: true  },
+                                       { label: '模号', name: 'DieCode', index: 'DieCode', width: 80, align: 'left',sortable: true  },
+
+                    {
+                        label: '已收票', name: 'IsInvoice', index: 'IsInvoice', width: 50, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return cellvalue == "0" ? "否" : "是";
+                        }
+                    },
+                    {
+                        label: '倒角', name: 'IsChamfer', index: 'IsChamfer', width: 50, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowobject) {
+                            return cellvalue == 1 ? "<a style='color:red'>是</a>" : "否";
+                        }
+                    },
+                                        { label: '联系人', name: 'ContactName', index: 'ContactName', width: 60, align: 'left', sortable: true },
+                    { label: '联系电话', name: 'ContactTel', index: 'ContactTel', width: 60, align: 'left', sortable: true },
+                    { label: '手机', name: 'MobileCode', index: 'MobileCode', width: 60, align: 'left', sortable: true },
+                    { label: '客户地址', name: 'CustomerAddress', index: 'CustomerAddress', width: 100, align: 'left', sortable: true },
+                                        {
+                        label: '委外完成时间', name: 'BeOutCompleteDate', index: 'BeOutCompleteDate', width: 100, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '委外验收人', name: 'BeOutCompletePerson', index: 'BeOutCompletePerson', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '创建时间', name: 'CreateDate', index: 'CreateDate', width: 80, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '创建用户', name: 'CreateUserName', index: 'CreateUserName', width: 80, align: 'left', sortable: true }
+
+            ],
+            viewrecords: true,
+            rowNum: 50,
+            rowList: [ 50, 100, 500, 1000,5000],
+            pager: "#gridPager",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            footerrow: true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                //合计
+                $(this).footerData("set", {
+                    "OrderCode": "合计",
+                    "Qty": FormatCurrency($("#gridTable").getCol('Qty', false, 'sum')),
+                    "Area": FormatCurrency($("#gridTable").getCol('Area', false, 'sum')),
+                    "CostAmount": FormatCurrency($("#gridTable").getCol('CostAmount', false, 'sum')),
+                });
+
+                var data = $("#gridTable").jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    var item = i + 1;
+                    if (data[i].IsPay == "是") {
+                        $("#" + item).find('td').css("background-color", "#CC0000");
+                    }
+                    else if (data[i].BillStatus == "验收通过") {
+                        $("#" + item).find('td').css("background-color", "#008800");
+                    }
+                    else if (data[i].Status == "是") {
+                        $("#" + item).find('td').css("background-color", "#00AA88");
+                    }
+                    else if (data[i].CostAmount > 0 && data[i].AreaPrice > 0) {
+                        $("#" + item).find('td').css("background-color", "#00AA00");
+                    }
+
+                }
+            },
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                btn_edit();
+            },
+            multiselect: true,
+
+        });
+    }
+    //新增
+    function btn_add() {
+        var url = "/OrderModule/BY_OrderDetailBeOut/Form"
+        openDialog(url, "Form", "新增委外单", 770, 395, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    function btn_Changeprice() {
+
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s1 = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                if (myrow.BillStatus == "验收通过") {
+                    tipDialog("操作失败：部分验收通过，不能修改价格!", 3, 0);
+                    return false;
+                }
+
+                s1 = s1 + myrow.OrderDetailOutId + ",";
+            }
+            s1 = s1.trim(',');
+            var url = "/OrderModule/BY_OrderDetailBeOut/ChangePrice?KeyValue=" + s1;
+            //openDialog(url, "Form", "编辑委外单", 770, 395, function (iframe) {
+            //    top.frames[iframe].AcceptClick();
+            //});
+            openDialog(url, "DetailForm", "报价单行编辑【" + $("#ShortName").val() + "】", 620, 370, function (iframe) {
+                top.frames[iframe].AcceptClick()
+            });
+
+
+        }
+    }
+
+    //编辑
+    function btn_edit() {
+        var BillStatus = GetJqGridRowValue("#gridTable", "BillStatus");
+        if (BillStatus == "验收通过") {
+            alert("操作失败：已验收不可修改！");
+            return false;
+        }
+        var IsPay = GetJqGridRowValue("#gridTable", "IsPay");
+        if (IsPay == "是") {
+            alertDialog("当前报价单已付款", 0);
+            return false;
+        }
+
+        var KeyValue = GetJqGridRowValue("#gridTable", "OrderDetailOutId");
+
+        if (IsChecked(KeyValue)) {
+            var url = "/OrderModule/BY_OrderDetailBeOut/Form?KeyValue=" + KeyValue;
+            //openDialog(url, "Form", "编辑委外单", 770, 395, function (iframe) {
+            //    top.frames[iframe].AcceptClick();
+            //});
+            openDialogFName(url, "Form", "审核单据", 770, 450, "保存", "验收通过",
+            function (iframe) {
+                var BillStatus = GetJqGridRowValue("#gridTable", "BillStatus");
+                if (BillStatus == "验收通过") {
+                    alert("操作失败：验收已通过，不能保存！");
+                    return false;
+                }
+                top.frames[iframe].AcceptClick();
+            },
+                function (iframe) {
+                    var BillStatus = GetJqGridRowValue("#gridTable", "BillStatus");
+                    if (BillStatus == "验收通过") {
+                        alert("操作失败：验收已通过，不能再次验收！");
+                        return false;
+                    }
+                    top.frames[iframe].AcceptClick2();
+                });
+
+        }
+    }
+        //删除
+        function btn_delete() {
+            var BillStatus = GetJqGridRowValue("#gridTable", "BillStatus");
+            //if (BillStatus == "验收通过") {
+            //    alert("验收已通过！");
+            //    return false;
+            //}
+            var KeyValue = GetJqGridRowValue("#gridTable", "OrderDetailOutId");
+            if (IsDelData(KeyValue)) {
+                var delparm = 'KeyValue=' + KeyValue;
+                delConfig('/OrderModule/BY_OrderDetailBeOut/Delete', delparm, KeyValue.split(",").length);
+            }
+        }
+        //明细
+        function btn_detail() {
+            var KeyValue = GetJqGridRowValue("#gridTable", "OrderDetailOutId");
+            if (IsChecked(KeyValue)) {
+                var url = "/OrderModule/BY_OrderDetailBeOut/Detail?KeyValue=" + KeyValue;
+                Dialog(url, "Detail", "委外单明细", 820, 500, function (iframe) {
+                    top.frames[iframe].AcceptClick();
+                });
+            }
+        }
+        //刷新
+        function windowload() {
+            $("#gridTable").trigger("reloadGrid"); //重新载入
+
+        }
+
+        //查询
+        function btn_Search() {
+            var tempstatus = "";
+            if ($("#Status").prop("checked")) {
+                tempstatus = 0;
+            }
+            if ($("#Status1").prop("checked")) {
+                tempstatus = 1;
+            }
+            if ($("#Status1").prop("checked") && $("#Status").prop("checked")) {
+                tempstatus = "";
+            }
+
+            var Parameter = [{
+                paramName: "OrderCode",
+                paramValue: $.trim($("#OrderCode").val()),
+                Operation: "Like",
+                Logic: "AND"
+            }, {
+                paramName: "CustomerName",
+                paramValue: $.trim($("#CustomerName").val()),
+                Operation: "Like",
+                Logic: "AND"
+            }, {
+                paramName: "CustomerCode",
+                paramValue: $.trim($("#CustomerCode").val()),
+                Operation: "Like",
+                Logic: "AND"
+            }, {
+                paramName: "QuotationCode",
+                paramValue: $.trim($("#QuotationCode").val()),
+                Operation: "Like",
+                Logic: "AND"
+            }, {
+                paramName: "CreateDate",
+                paramValue: $("#CreateDate_StartTime").val(),
+                Operation: "GreaterThan",
+                Logic: "AND"
+            }, {
+                paramName: "CreateDate",
+                paramValue: $("#CreateDate_EndTime").val(),
+                Operation: "LessThan",
+                Logic: "AND"
+            }, {
+                paramName: "MnemonicCode",
+                paramValue: $.trim($("#MnemonicCode").val()),
+                Operation: "Like",
+                Logic: "AND"
+            }
+            , {
+                paramName: "Status",
+                paramValue: tempstatus,
+                Operation: "Equal",
+                Logic: "AND"
+            }]
+            $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/OrderModule/BY_OrderDetailBeOut/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1 }).trigger('reloadGrid');
+    }
+
+    function btn_printall() {
+        //var OrderId = GetJqGridRowValue("#gridTable", "OrderId");
+        //var CustomerCode = GetJqGridRowValue("#gridTable", "CustomerCode");
+        //if (IsChecked(OrderId) && IsChecked(CustomerCode)) {
+        //    PrintDialog("/OrderModule/BY_OrderDetailBeOut/BeOutPrintList?OrderId=" + OrderId + "&CustomerCode=" + CustomerCode, "PrintPage", "打印", 850, 500, function (iframe) {
+        //        top.frames[iframe].AcceptClick();
+        //    });
+        //}
+
+
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s = "";
+        var s1 = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                if (i == 0) {
+                    s = myrow.CustomerCode;
+                }
+                if (myrow.CustomerCode != s) {
+                    tipDialog("供应商不同，请重新选择!", 3, 0);
+                    return false;
+                }
+                s1 = s1 + myrow.OrderDetailOutId + "," ;
+            }
+            s1 = s1.trim(',');
+            PrintDialog("/OrderModule/BY_OrderDetailBeOut/BeOutPrintList?OrderDetailOutIds=" + s1 + "&CustomerCode=" + s, "PrintPage", "打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+
+
+
+    }
+
+    function btn_Invoice() {
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s1 = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                if (myrow.BillStatus != "验收通过") {
+                    tipDialog("操作失败：部分未验收通过，请先验收!", 3, 0);
+                    return false;
+                }
+                s1 = s1 + myrow.OrderDetailOutId + "," ;
+            }
+            s1 = s1.trim(',');
+            confirmDialog("提示", "确定要开票？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/OrderModule/BY_OrderDetailBeOut/Update?IsInvoice=1&OrderDetailOutIds=" + s1, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+
+    }
+
+    function btn_payed() {
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s1 = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                if (myrow.BillStatus != "验收通过") {
+                    tipDialog("操作失败：部分未验收通过，请先验收!", 3, 0);
+                    return false;
+                }
+                s1 = s1 + myrow.OrderDetailOutId + ",";
+            }
+            s1 = s1.trim(',');
+            confirmDialog("提示", "确定要开票？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/OrderModule/BY_OrderDetailBeOut/Update?IsPay=1&Status=1&OrderDetailOutIds=" + s1, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+
+    function btn_edit1() {
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s1 = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+
+                s1 = s1 + myrow.OrderDetailOutId + ",";
+            }
+            s1 = s1.trim(',');
+            confirmDialog("提示", "确定要验收？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/OrderModule/BY_OrderDetailBeOut/Update?BillStatus=" + escape('验收通过') + "&OrderDetailOutIds=" + s1, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    function btn_audit1() {
+        var selr = jQuery('#gridTable').jqGrid('getGridParam', 'selarrrow');
+        var s1 = "";
+        if (selr.length) {
+            for (var i = 0; i < selr.length; i++) {
+                var myrow = jQuery('#gridTable').jqGrid('getRowData', selr[i]);
+                s1 = s1 + myrow.OrderDetailOutId + ",";
+            }
+            s1 = s1.trim(',');
+            confirmDialog("提示", "确定要审核？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/OrderModule/BY_OrderDetailBeOut/Update?Status=1&OrderDetailOutIds=" + s1, "", function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+</script>
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>助记编码：</th>
+            <td>
+                <input id="MnemonicCode" type="text" class="txt" style="width: 120px" />
+            </td>
+            <th>订单单号：</th>
+            <td>
+                <input id="OrderCode" type="text" class="txt" style="width: 120px" />
+            </td>
+
+            <th>日期 从：</th>
+            <td>
+                <input id="CreateDate_StartTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})" style="width: 120px" />
+            </td>
+            <th>日期 至：</th>
+            <td>
+                <input id="CreateDate_EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})" style="width: 120px" />
+            </td>
+            <th style="width: 20%; border-left: 1px solid #000; text-align: right;">整单审核确认:</th>
+            <td>
+                <input id="ComfirmOrderCode" type="text" class="txt" style="width: 120px" />
+            </td>
+
+        </tr>
+        <tr>
+            <th>报价单号：</th>
+            <td>
+                <input id="QuotationCode" type="text" class="txt" style="width: 120px" />
+            </td>
+            <th>客户名称：</th>
+            <td>
+                <input id="CustomerName" type="text" class="txt " style="width: 120px" />
+            </td>
+            <th>客户编号：</th>
+            <td>
+                <input id="CustomerCode" type="text" class="txt " style="width: 120px" />
+            </td>
+            <td  colspan="2">
+                    <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkbox" id="Status"  />
+                        <label for="Status">未审核</label>
+                    </span>
+                <span class="item" style="cursor: pointer;">
+                        <input type="checkbox" class="checkbox" name="checkbox" id="Status1"  />
+                        <label for="Status1">已审核</label>
+                    </span>
+                </td>
+            <td> 
+                <input id="btnSearch" type="button" class="btnSearch" value="查 询" onclick="btn_Search()" />
+            </td>
+            <th></th>
+
+            <th style="width: 20%; border-left: 1px solid #000; text-align: right;"></th>
+            <td></td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

@@ -1,0 +1,145 @@
+@{
+    ViewBag.Title = "设置绩效》表单页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    var KeyValue = GetQuery('KeyValue');//主键
+    $(function () {
+        //工序
+        BindDropItemName("#TechnologyName", "Operation", "==请选择==");
+        //加工类型
+        BindDropItem("#OrderType", "ProcessType", "==请选择==");
+        //钢材类型
+        BindDropItem("#SteelType", "SteelType", "==请选择==");
+
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CommonModule/Base_SetPerformance/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        var postData = GetWebControls("#form1");
+        $(".ui_state_highlight").attr("disabled", true);
+        AjaxJson("/CommonModule/Base_SetPerformance/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
+            tipDialog(data.Message, 3, data.Code);
+            top.frames[tabiframeId()].windowload();
+            window.setTimeout(function () {closeDialog();}, 500);
+        });
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class='formTitle'>工艺名称：</th>
+            <td class='formValue'>
+                <select id="TechnologyName" class="txt required"  datacol="yes" err="比例" checkexpession="NotNull">
+                    <option value="">请选择</option>
+                </select>
+            </td>
+            <th class='formTitle'>单位：</th>
+            <td class='formValue'>
+                <select id="Unit" class="txt" datacol="yes" err="单位" checkexpession="NotNull">
+                    <option value="公斤">公斤</option>
+                    <option value="件">件</option>
+                </select>
+            </td>
+           
+        </tr>
+        @*<tr>
+            <th class='formTitle'>加工类型：</th>
+            <td class='formValue'>
+                <select id="OrderType" class="txtselect">
+                    <option value="">请选择</option>
+                </select>
+            </td>
+        <th class='formTitle'>钢材类型：</th>
+            <td class='formValue'>
+                <select id="SteelType" class="txtselect">
+                    <option value="">请选择</option>
+                    <option value="方铁">方铁</option>
+                </select>
+            </td>
+        </tr>*@
+     
+        <tr>
+            <th class='formTitle'>重量由：</th>
+            <td class='formValue'>
+                <input id="WeightStart" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);"  datacol="yes" err="重量由" checkexpession="NotNull"/>
+            </td>
+            <th class='formTitle'>重量至：</th>
+            <td class='formValue'>
+                <input id="WeightEnd" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" style="width: 50%; display: inline;"  datacol="yes" err="重量至" checkexpession="NotNull" />
+
+            </td>
+        </tr>
+           <tr>
+            @*<th class='formTitle'>条件：</th>
+            <td class='formValue'>
+                <select id="WhereQ" class="txt" style="width: 45%; display: inline;">
+                    <option value="重量小于等于">重量小于等于</option>
+                </select>
+                <input id="WhereQty" maxlength="18" onfocus="IsMoney(this.id);" type="text" class="txt" style="width: 45%; border-right: 1px solid #ccc;" />
+            </td>*@
+            <th class='formTitle'>价格：</th>
+            <td class='formValue' colspan="3">
+                <input id="Price" onfocus="IsMoney(this.id);" maxlength="50" type="text" class="txt required"  datacol="yes" err="价格" checkexpession="NotNull"/>
+            </td>
+            
+        </tr>
+        @*<tr>
+            <th class='formTitle'>保底面积：</th>
+            <td class='formValue'>
+                <input id="LimitArea"  onfocus="IsMoney(this.id);"  maxlength="50" type="text" class="txt" datacol="yes" err="加工类型" checkexpession="NotNull" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>厚(直径)由：</th>
+            <td class='formValue'>
+                <input id="PachyStart" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" />
+            </td>
+            <th class='formTitle'>厚(直径)至：</th>
+            <td class='formValue'>
+                <input id="PachyEnd" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" style="width: 50%; display: inline;" />
+
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>宽 由：</th>
+            <td class='formValue'>
+                <input id="WidthStart" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" />
+            </td>
+            <th class='formTitle'>宽 至：</th>
+            <td class='formValue'>
+                <input id="WidthEnd" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" style="width: 50%; display: inline;" />
+
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>长 由：</th>
+            <td class='formValue'>
+                <input id="LengthStart" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" />
+            </td>
+            <th class='formTitle'>长 至：</th>
+            <td class='formValue'>
+                <input id="LengthEnd" maxlength="18" type="text" class="txt" onfocus="IsMoney(this.id);" style="width: 50%; display: inline;" />
+            </td>
+        </tr>*@
+        <tr>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue' colspan="3">
+                <input id="Remark" maxlength="2000" type="text" class="txt" />
+            </td>
+        </tr>
+
+    </table>
+</form>

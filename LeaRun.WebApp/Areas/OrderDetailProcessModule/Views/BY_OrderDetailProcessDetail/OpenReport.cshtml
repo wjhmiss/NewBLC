@@ -1,0 +1,235 @@
+﻿@{
+    ViewBag.Title = "工单工序详情表";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+        BindDropItem("#TechnologyId", "Operation", "==请选择==");
+    })
+    //加载表格
+    var lastsel3;
+    function GetGrid() {
+        var Parameter = [{
+            paramName: "OperatorDate",
+            paramValue: $.trim($("#CreateDate_EndTime").val()),
+            Operation: "AfterDay",
+            Logic: "AND"
+        }, {
+            paramName: "OperatorDate",
+            paramValue: $.trim($("#CreateDate_StartTime").val()),
+            Operation: "BeforeDay"
+    , Logic: "AND"
+        }, {
+            paramName: "OperatorId",
+            paramValue: $.trim($("#OperatorId").val()),
+            Operation: "Equal",
+            LeftBrace: "(",
+            Logic: "or"
+        }, {
+            paramName: "OperatorName",
+            paramValue: $.trim($("#OperatorId").val()),
+            Operation: "Equal",
+            RightBrace: ")",
+            Logic: "AND"
+        }
+, {
+    paramName: "TechnologyId",
+    paramValue: "K001",
+    Operation: "Equal",
+    Logic: "AND"
+}, {
+    paramName: "OrderCode",
+    paramValue: $.trim($("#keywords").val()),
+    Operation: "Like",
+    Logic: "AND"
+}
+        ]
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/OrderDetailProcessModule/BY_OrderDetailProcessDetail/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)),
+            datatype: "json",
+            height: $(window).height() - 149,
+            autowidth: true,
+            colModel: [
+                    { label: 'ID', name: 'OrderDetailProcessDetailId', index: 'OrderDetailProcessDetailId', hidden: true },
+                    { label: '工单号', name: 'OrderCode', index: 'OrderCode', width: 120, align: 'left', sortable: true },
+                    { label: '行号', name: 'LineCode', index: 'LineCode', width: 50, align: 'left', sortable: true },
+                    { label: '数量', name: 'Qty', index: 'Qty', width: 50, align: 'left', sortable: true, summaryType: 'sum', summaryTpl: '<b>共: {0}</b>' },
+
+                    { label: '厚/直径', name: 'Thick', index: 'Thick', width: 50, align: 'left', sortable: true },
+                    { label: '宽度', name: 'Weigh', index: 'Weigh', width: 50, align: 'left', sortable: true },
+                { label: '长度', name: 'Length', index: 'Length', width: 50, align: 'left', sortable: true },
+
+                    { label: '钢种', name: 'SteelCode', index: 'SteelCode', width: 80, align: 'left', sortable: true },
+                    { label: '钢种描述', name: 'SteelDescription', index: 'SteelDescription', width: 100, align: 'left', sortable: true },
+                    {
+                        label: '重量(公斤)', name: 'Weight', index: 'Weight', width: 60, align: 'left', sortable: true, formatter: function (cellvalue, options, rowObject) {
+                            if (cellvalue) {
+                                return cellvalue.toFixed(2);
+                            }
+                            else {
+                                return "0";
+                            };
+                        }, summaryType: 'sum', summaryTpl: '<b>共: {0}</b>'
+                    },
+                    {
+                        label: '面积(平方米)', name: 'Area', index: 'Area', width: 60, align: 'left', sortable: true, formatter: function (cellvalue, options, rowObject) {
+                            if (cellvalue) {
+                                return cellvalue.toFixed(2);
+                            }
+                            else {
+                                return "0";
+                            };
+                        }, summaryType: 'sum', summaryTpl: '<b>共: {0}</b>'
+                    },
+                    { label: '扫描人', name: 'OperatorName', index: 'OperatorName', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '扫描时间', name: 'OperatorDate', index: 'OperatorDate', width: 100, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    {
+                        label: '数据来源', name: '', index: '', width: 100, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return  "过磅消数";
+                        }
+                    },
+
+
+
+
+            ],
+            //ondblClickRow: function (id) {
+            //    if (id && id !== lastsel3) {
+            //        var KeyValue = GetJqGridRowValue("#gridTable", "OrderDetailProcessDetailId");
+            //        if (IsChecked(KeyValue)) {
+            //            var url = "/OrderDetailProcessModule/BY_OrderDetailProcessDetail/Detail?KeyValue=" + KeyValue;
+            //            Dialog(url, "Detail", "工单工序详情表明细", 820, 500, function (iframe) {
+            //                top.frames[iframe].AcceptClick();
+            //            });
+            //        }
+            //        lastsel3 = id;
+            //    }
+            //},
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'OperatorDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            grouping: true,
+            groupingView: {
+                groupField: ['OperatorName'],
+                groupSummary: [true],
+                groupColumnShow: [true],
+                groupText: ['<b>{0}</b>'],
+                groupCollapse: false,
+                groupOrder: ['asc']
+            },
+        });
+    }
+
+
+    //搜索
+    function btn_Search() {
+        var Parameter = [{
+            paramName: "OperatorDate",
+            paramValue: $.trim($("#CreateDate_EndTime").val()),
+            Operation: "AfterDay",
+            Logic: "AND"
+        }, {
+            paramName: "OperatorDate",
+            paramValue: $.trim($("#CreateDate_StartTime").val()),
+            Operation: "BeforeDay"
+            ,Logic: "AND"
+        }, {
+            paramName: "OperatorId",
+            paramValue: $.trim($("#OperatorId").val()),
+            Operation: "Equal",
+            LeftBrace:"(",
+            Logic: "or"
+        }, {
+            paramName: "OperatorName",
+            paramValue: $.trim($("#OperatorId").val()),
+            Operation: "Equal",
+            RightBrace:")",
+            Logic: "AND"
+        }
+        ,{
+            paramName: "TechnologyId",
+            paramValue: "K001",
+            Operation: "Equal",
+            Logic: "AND"
+        }, {
+            paramName: "OrderCode",
+            paramValue: $.trim($("#keywords").val()),
+            Operation: "Like",
+            Logic: "AND"
+        }
+        ]
+        $("#gridTable").jqGrid('setGridParam', {
+            url: "@Url.Content("~/OrderDetailProcessModule/BY_OrderDetailProcessDetail/GridPageJson")?ParameterJson=" + escape(JSON.stringify(Parameter)), page: 1
+        }).trigger('reloadGrid');
+        }
+
+        //刷新
+        function windowload() {
+            $("#gridTable").trigger("reloadGrid"); //重新载入
+        }
+
+
+</script>
+<div id="layout2" class="layout2">
+
+    <!--中间-->
+    <div class="layoutPanel layout-center" id="rightPane">
+        <div class="btnbartitle">
+            <div>
+                开料产出报表 <span id="CenterTitle"></span>
+            </div>
+        </div>
+
+        <!--列表-->
+        <div id="grid_List">
+            <div class="bottomline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+                <table border="0" class="form-find" style="height: 45px;">
+                    <tr>
+                        
+                        <th style="width:0px;">工号/姓名：
+                        </th>
+                        <td>
+                            <input id="OperatorId" type="text" class="txt" style="width: 100px" />
+                        </td>
+                        <th style="width:0px;">订单编号：
+                        </th>
+                        <td>
+                            <input id="keywords" type="text" class="txt" style="width: 100px" />
+                        </td>
+                        <th>扫描日期 从：</th>
+                        <td>
+                            <input id="CreateDate_StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 100px" />
+                        </td>
+                        <th style="width:0px;">至：</th>
+                        <td>
+                            <input id="CreateDate_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 100px" />
+                        </td>
+                        
+                        <td>
+                            <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <table id="gridTable"></table>
+            <div id="gridPager"></div>
+        </div>
+    </div>
+</div>

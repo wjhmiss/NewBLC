@@ -1,0 +1,36 @@
+﻿@{
+    ViewBag.Title = "登录";
+    Layout = "~/Views/Shared/_LayoutMobile.cshtml";
+}
+    @Scripts.Render("~/Content/Scripts/jquery/md5jquery")
+<script type="text/javascript" charset="utf-8" src="~/Content/Scripts/Mobile/templates/mobile/js/login_validate.js"></script>
+
+<div id="mainPanel" class="panel" data-footer="main_footer">
+    <header>
+        <a href="javascript:;" onclick="history.back(-1);" class="backButton">返回</a>
+        <h1>会员登录</h1>
+        <a onclick="$.ui.toggleSideMenu()" class="menuButton"></a>
+    </header>
+    <div class="form-box">
+        <form id="loginform" name="loginform" url="@Url.Content("~/Login/CheckLogin")">
+            <input id="txtUserName" name="txtUserName" type="text" placeholder="用户名">
+            <input id="txtPassword" name="txtPassword" type="password" placeholder="登录密码">
+            <input id="btnSubmit" name="btnSubmit" type="submit" value="登录" class="btn red full">
+        </form>
+    </div>
+    <div id="msgtips" style="display: none; text-align: center; color: #F00; font-size: 12px; line-height: 1.5em;"></div>
+
+    <div class="oauth-list">
+        <h2>提醒：</h2>
+        <!--取得一个DataTable-->
+        <p style="text-align: center; color: #F00; font-size: 12px; line-height: 1.5em;">
+          本系统不能个人注册，请联系企业，认证通过后获取帐号及密码。
+        </p>
+    </div>
+
+    <!--版权信息-->
+    @Html.Partial("_PartialMobileBottom")
+
+    <!--/版权信息-->
+</div>
+

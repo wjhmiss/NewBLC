@@ -1,0 +1,490 @@
+﻿@{
+    ViewBag.Title = "报价单查询";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+            GetGridDetail();
+        }, 200);
+    })
+    //查询
+    function btn_Search() {
+        //var ProcessingAlgorithm1 = $("#A1").prop("checked") == true ? "门市" : ""
+        //var ProcessingAlgorithm2 = $("#A2").prop("checked") == true ? "同行" : "";
+        //var ProcessingAlgorithm3 = $("#A3").prop("checked") == true ? "客户" : "";
+        //var ProcessingAlgorithm = ProcessingAlgorithm1 + "," + ProcessingAlgorithm2 + "," + ProcessingAlgorithm3;
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/QuotationModule/QuotationQuery/GridPageListJson")?QuotationCode=" + $.trim($("#QuotationCode").val()) + "&StartTime=" + $("#StartTime").val() + "&EndTime=" + $("#EndTime").val() + "&MnemonicCode=" + $("#MnemonicCode").val() + "&CustomerCode=" + escape($("#CustomerCode").val()) + "&LType=LJ"   , page: 1 }).trigger('reloadGrid');
+        $("#gridTable_Detail").jqGrid('setGridParam', { url: "@Url.Content("~/QuotationModule/QuotationQuery/QuotationDetailListJson")?QuotationId=-1" }).trigger('reloadGrid');
+    }
+    //查询
+    function btn_query() {
+        openDialog("/QuotationModule/QuotationQuery/QueryQuotation", "Query", "明细查询", 850, 560, function (iframe) {
+            top.frames[iframe].AcceptClick()
+        });
+    }
+    //加载表格
+    function GetGrid() {
+        var SelectRowIndx = 1;
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/QuotationModule/QuotationQuery/GridPageListJson")?QuotationCode=" + $.trim($("#QuotationCode").val()) + "&StartTime=" + $("#StartTime").val() + "&EndTime=" + $("#EndTime").val() + "&MnemonicCode=" + $("#MnemonicCode").val() + "&CustomerCode=" + escape($("#CustomerCode").val()) + "&LType=LJ",
+            datatype: "json",
+            height: 160,
+            autowidth: true,
+            colModel: [
+                    { label: '报价单id', name: 'quotationid', hidden: true },
+                    { label: 'printuserid', name: 'printuserid', hidden: true },
+                    { label: 'CustMaterial', name: 'custmaterial', hidden: true },
+                    { label: 'FreeBill', name: 'freebill', hidden: true },
+                    { label: 'CustomerId', name: 'customerid', hidden: true },
+                    { label: 'pauseuserid', name: 'pauseuserid', hidden: true },
+                    { label: '助记编号', name: 'mnemoniccode', index: 'MnemonicCode', width: 120, align: 'left', sortable: true },
+                    { label: '报价单号', name: 'quotationcode', index: 'quotationcode', width: 120, align: 'left', sortable: true },
+                    { label: '订单单号', name: 'ordercode', index: 'ordercode', width: 120, align: 'left', sortable: true },
+                    {
+                        label: '单据状态', name: 'billstatus', index: 'billstatus', width: 50, align: 'center', sortable: true,
+                        formatter: function (cellvalue, options, rowobject) {
+                            //if (!!cellvalue) {
+                            //    return "<a class='alink' style='color:blue' onclick='OpearLog(\"" + rowobject.quotationid + "\",\"" + rowobject.quotationcode + "\")'>" + cellvalue + "</a>";
+                            //} else {
+                            //    return "<span style='color:red'>待提交</span>";
+                            //}
+                            if (rowobject.pauseuserid) {
+                                return "已暂挂";
+                            } else {
+                                if (!!cellvalue) {
+                                    return cellvalue;
+                                }
+                                else {
+                                    return "待提交";
+                                }
+                            }
+                        }
+                    },
+                    { label: '客户编号', name: 'customercode', index: 'customercode', width: 80, align: 'left', sortable: true },
+                    { label: '客户名称', name: 'customername', index: 'customername', width: 150, align: 'left', sortable: true },
+                    { label: '客户简称', name: 'shortname', index: 'shortname', width: 80, align: 'left', sortable: true },
+                    { label: '客户po', name: 'customerpo', index: 'customerpo', width: 80, align: 'left', sortable: true, hidden: true },
+                    { label: '总数量', name: 'qty', index: 'qty', width: 50, align: 'center', sortable: true },
+                    { label: '合计金额', name: 'totalamount', index: 'totalamount', width: 50, align: 'center', sortable: true },
+                    { label: '跟进人员', name: 'createusername', index: 'createusername', width: 80, align: 'left', sortable: true },
+                    {
+                        label: '创建日期', name: 'createdate', index: 'createdate', width: 65, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowobject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '送货条款', name: 'shipclause', index: 'shipclause', width: 100, align: 'left', sortable: true },
+                    { label: '备注', name: 'remark', index: 'remark', width: 100, align: 'left', sortable: true },
+                    {
+                        label: '暂挂日期', name: 'pausedate', index: 'pausedate', width: 65, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowobject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    { label: '取消人员', name: 'cancleuserid', index: 'cancleuserid', width: 80, align: 'left', sortable: true },
+                    { label: '取消原因', name: 'canclereason', index: 'canclereason', width: 80, align: 'left', sortable: true }
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 1000],
+            pager: "#gridPager",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+
+            gridview: true,
+            onSelectRow: function () {
+                SelectRowIndx = GetJqGridRowIndx("#" + this.id);
+                var QuotationId = GetJqGridRowValue("#gridTable", "quotationid");
+                $("#gridTable_Detail").jqGrid('setGridParam', {
+                    url: "@Url.Content("~/QuotationModule/QuotationQuery/QuotationDetailListJson")?QuotationId=" + QuotationId
+                }).trigger('reloadGrid');
+            },
+            gridComplete: function () {
+                $("#" + this.id).jqGrid('setSelection', SelectRowIndx);
+                var data = $("#" + this.id).jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    var item = i + 1;
+                    if (!!data[i].printuserid) {
+                        $("#" + item).find('td').css("background-color", "#008800");
+                    }
+                }
+            },
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                //btn_detail();
+                BCPrintPreview();
+            },
+            //multiselect: true,
+        });
+            }
+            //报价单明细列表
+            function GetGridDetail() {
+                $("#gridTable_Detail").jqGrid({
+                    url: "@Url.Content("~/QuotationModule/QuotationQuery/QuotationDetailListJson?QuotationDetailId=1")",
+                    datatype: "json",
+                    height: $(window).height() - 340,
+                    autowidth: true,
+                    colModel: [
+                        { label: "主键", name: "quotationdetailid", hidden: true },
+                        { label: "行号", name: "linecode", index: "linecode", width: 40 },
+                        { label: "类型", name: "ordertype", index: "ordertype", width: 80, align: "center" },
+                        { label: "数量", name: "qty", index: "qty", width: 50, align: "center" },
+                        { label: "钢材编码", name: "steelcode", index: "steelcode", width: 50, hidden: true },
+                        { label: "钢材名称", name: "steeldescription", index: "steeldescription", width: 50 },
+                        { label: "客户品名", name: 'productname', width: 90 },
+                        { label: '交货期', name: 'delivery', index: 'delivery', width: 80, align: 'left', sortable: true },
+                        { label: "长度", name: "length", index: "length", width: 60, align: 'left', sortable: true },
+                        { label: "宽度", name: "weigh", index: "weigh", width: 60, align: 'left', sortable: true },
+                        { label: "厚/直径", name: "thick", index: "thick", width: 60, align: 'left', sortable: true },
+                        {
+                            label: '长*宽*厚', name: 'length', index: 'length', width: 120, align: 'left', sortable: true,
+                            formatter: function (cellvalue, options, rowobject) {
+                                if (rowobject.steelcode == "fy") {
+                                    return '';
+                                }
+                                if (!!rowobject.weigh) {
+                                    return rowobject.length + "*" + rowobject.weigh + "*" + rowobject.thick;
+                                }
+                                else {
+                                    var BoreSize = "";
+                                    if (!!rowobject.boresize) {
+                                        BoreSize = "*Φ" + rowobject.boresize;
+                                    }
+                                    return "Φ" + rowobject.thick + BoreSize + "*" + rowobject.length;
+                                }
+                            }
+                        },
+                        { label: '模号', name: 'diecode', width: 80, hidden: true },
+                {
+                    label: '特殊工艺', name: '特殊工艺', width: 80,
+                    formatter: function (cellvalue, options, rowObject) {
+                        var str = "";
+                        if (rowObject.ischamfer) {
+                            str += "倒角,";
+                        }
+                        if (rowObject.liftinghole) {
+                            str += "吊孔,";
+                        }
+                        if (rowObject.cnc) {
+                            str += "CNC,";
+                        }
+                        if (rowObject.ym) {
+                            str += "退火后研磨,";
+                        }
+                        if (rowObject.jq) {
+                            str += "锯切";
+                        }
+                        if (!!str) {
+                            return "<a  style='color:red' >" + str + "</a>";
+                        }
+                        else return "无";
+                    }
+                },
+                { label: '倒角', name: 'ischamfer', width: 100, hidden: true },
+                { label: '吊孔', name: 'liftinghole', width: 100, hidden: true },
+                { label: 'CNC', name: 'cnc', width: 100, hidden: true },
+                { label: '退火后研磨', name: 'ym', width: 100, hidden: true },
+                { label: '锯切', name: 'jq', width: 100, hidden: true },
+
+                { label: '计价余量(长)', name: 'addlength', width: 50, hidden: true },
+                { label: '计价余量(宽)', name: 'addweigh', width: 50, hidden: true },
+                { label: '计价余量(厚)', name: 'addthick', width: 50, hidden: true },
+                { label: '理论重量', name: 'weight', width: 50 },
+                { label: '材料单价', name: 'materialprice', width: 50 },
+                { label: '材料折扣率', name: 'materialless', width: 50, hidden: true },
+                { label: '材料税后金额', name: 'materialamount', width: 50, hidden: true },
+                { label: '小件单价', name: 'workprice', width: 50 },
+                { label: '加工费折扣率', name: 'workless', width: 50, hidden: true },
+                { label: '小件金额', name: 'workamount', width: 50, hidden: true },
+                { label: '加工单价', name: 'smallcost', width: 50 },
+                { label: '加工金额', name: 'smallamount', width: 50, hidden: true },
+                { label: '锯工费', name: 'jkcost', width: 50 },
+                { label: '热处理工艺', name: 'technology', width: 50, hidden: true },
+                { label: '热处理单价', name: 'heatprice', width: 50, hidden: true },
+                { label: '热处理折扣率', name: 'heatless', width: 50, hidden: true },
+                { label: '热处理税后金额', name: 'heatamount', width: 50, hidden: true },
+                { label: '锻打/调制单价', name: 'ddcostper', width: 50 },
+                { label: '总销售金额', name: 'salesamount', width: 60 },
+                { label: '成本', name: 'costamount', width: 60, hidden: true },
+                { label: '送货说明', name: 'shipdescription', width: 100, hidden: true },
+                        { label: "发运备注", name: "customerproduct", index: "customerproduct", width: 100 },
+                        {
+                            label: '用料情况', name: '用料情况', width: 160,
+                            formatter: function (cellvalue, options, rowObject) {
+                                var temp = "";
+                                if (!!rowObject.billcode) {
+                                    temp = "物料号：" + rowObject.billcode;
+                                }
+                                if (!!rowObject.steelpurchasecode) {
+                                    temp = "PO：" + rowObject.steelpurchasecode;
+                                }
+                                return temp;
+                            }
+                        },
+                        { label: 'billcode', name: 'billcode', width: 50, hidden: true },
+                { label: 'steelpurchasecode', name: 'steelpurchasecode', width: 50, hidden: true },
+                { label: 'batchcode', name: 'batchcode', width: 50, hidden: true },
+                    ],
+                    pager: false,
+                    rowNum: 1000,
+                    sortname: 'LineCode',
+                    sortorder: 'asc',
+                    rownumbers: true,
+                    shrinkToFit: false,
+                    autoScroll: true,
+
+                    gridview: true,
+                    ondblClickRow: function (rowid, iRow, iCol, e) {
+                        var QuotationDetailId = GetJqGridRowValue("#gridTable_Detail", "quotationdetailid");
+                        if (!QuotationDetailId) {
+                            alertDialog("请选择要编辑一行", 0);
+                            return false;
+                        }
+                        var CustMaterial = GetJqGridRowValue("#gridTable", "custmaterial");
+                        var FreeBill = GetJqGridRowValue("#gridTable", "freebill");
+                        var CustomerId = GetJqGridRowValue("#gridTable", "customerid");
+                        var QuotationId = GetJqGridRowValue("#gridTable", "quotationid");
+                        var LineCode = GetJqGridRowValue("#gridTable_Detail", "linecode");
+                        var url = "/QuotationModule/QuotationInput/DetailForm?KeyValue=" + QuotationDetailId + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill + "&checkstatus=1" + "&QuotationId=" + QuotationId;
+                        openDialog(url, "DetailForm", "报价单行编辑【" + $("#ShortName").val() + "】", 700, 520, function (iframe) {
+                            top.frames[iframe].AcceptClick()
+                        });
+
+                    }
+                });
+            }
+    function OpearLog(BillId, BillCode) {
+        Dialog("/QuotationModule/QuotationQuery/QuotationOpearLog?BillId=" + BillId + "&BillCode=" + BillCode, "QuotationOpearLog", "订单操作记录【" + BillCode + "】", 650, 250);
+    }
+
+    //暂挂
+    function btn_SuspendMode() {
+        var billstatus = GetJqGridRowValue("#gridTable", "billstatus");
+        if (billstatus == "合同取消") {
+            tipDialog("合同取消已取消，不能暂挂！", 3, -1);
+            return false;
+        }
+
+        var KeyValue = GetJqGridRowValue("#gridTable", "quotationid");
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要暂挂选中报价单吗？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/QuotationModule/QuotationManage/SubmitSuspendMode?KeyValue=" + KeyValue, { Mode: 1 }, function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    //取消暂挂
+    function btn_CancelSuspendMode() {
+        var PauseUserId = GetJqGridRowValue("#gridTable", "pauseuserid");
+        if (!PauseUserId) {
+            alertDialog("操作无效，此报价单未暂挂", 0);
+            return false;
+        }
+        var billstatus = GetJqGridRowValue("#gridTable", "billstatus");
+        if (billstatus == "合同取消") {
+            tipDialog("合同取消已取消，不能暂挂！", 3, -1);
+            return false;
+        }
+        var KeyValue = GetJqGridRowValue("#gridTable", "quotationid");
+        if (IsChecked(KeyValue)) {
+            confirmDialog("提示", "确定要取消暂挂选中报价单吗？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/QuotationModule/QuotationManage/SubmitSuspendMode?KeyValue=" + KeyValue, { Mode: 2 }, function (data) {
+                            tipDialog(data.Message, 3, data.Code);
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    //取消合同
+    function btn_CancelContract() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "quotationid");
+        if (IsChecked(KeyValue)) {
+            var url = "/QuotationModule/QuotationManage/CloseBills?KeyValue=" + KeyValue
+            openDialog(url, "Form", "取消报价单", 350, 140, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+    }
+
+    //粗料单打印预览
+    function BCPrintPreview() {
+        var QuotationId = GetJqGridRowValue("#gridTable", "quotationid");
+        if (IsChecked(QuotationId)) {
+            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreview?QuotationId=" + QuotationId, "PrintPage", "报价单打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    function BCPrintPreview2() {
+        var QuotationId = GetJqGridRowValue("#gridTable", "quotationid");
+        if (IsChecked(QuotationId)) {
+            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreview1?QuotationId=" + QuotationId, "PrintPage", "报价单打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+
+    //粗料单打印预览
+    function BCPrintPreview1() {
+        var QuotationId = GetJqGridRowValue("#gridTable", "quotationid");
+        if (IsChecked(QuotationId)) {
+            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreview?YH=1&QuotationId=" + QuotationId, "PrintPage", "报价单打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+
+    //function BCPrintPreview2() {
+    //    var QuotationId = GetJqGridRowValue("#gridTable", "quotationid");
+    //    if (IsChecked(QuotationId)) {
+    //        PrintDialog("/QuotationModule/QuotationPrint/BCPrintPreview?YH=1&QuotationId=" + QuotationId, "PrintPage", "报价单打印", 850, 500, function (iframe) {
+    //            top.frames[iframe].AcceptClick();
+    //        });
+    //    }
+    //}
+    //详细页面
+    function btn_detail() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "quotationid");
+        if (IsChecked(KeyValue)) {
+            AddTabMenu('65590e2c-f46c-41de-8cfb-9be9a6bf74bf', '@Url.Content("~/QuotationModule/QuotationAudit/Detail")?KeyValue=' + KeyValue, '报价单详细', "application_view_detail.png", true, true);
+        }
+    }
+
+    function btn_Print() {
+
+        var billstatus = GetJqGridRowValue("#gridTable", "billstatus");
+        if (billstatus != "已落单") {
+            tipDialog("合同未落单，请落单后打印！", 3, -1);
+            return false;
+        }
+        var customercode = GetJqGridRowValue("#gridTable", "customercode");
+        var quotationid = GetJqGridRowValue("#gridTable", "quotationid");
+        if (IsChecked(quotationid)) {
+            //PrintDialog("/DeliveryModule/BY_Delivery/Print?DeliveryId=" + DeliveryId, "PrintPage", "打印发货单", 1200, 500);
+            //PrintDialog("/DeliveryModule/BY_Delivery/Print?DeliveryId=" + DeliveryId + "&printType=" + printType, "PrintPage", "打印发货单", 900, 550, function (iframe) {
+            //    top.frames[iframe].AcceptClick();
+            //});
+
+            //openDialog("/DeliveryModule/BY_Delivery/ChoosePrint?KeyValue=" + quotationid, "DeriveDialog", "打印", 750, 400, function (iframe) {
+            //    top.frames[iframe].AcceptClick();
+            //});
+            var url = "/DeliveryModule/BY_Delivery/ChoosePrint?KeyValue=" + quotationid + "&customercode=" + customercode;
+            openDialogFName(url, "DeriveDialog", "打印", 750, 400, "直接打印", "编辑打印",
+                function (iframe) {
+                    top.frames[iframe].AcceptClick();
+                },
+            function (iframe) {
+                top.frames[iframe].AcceptClick2();
+            });
+        }
+    }
+
+    function btn_Printed() {
+        var quotationid = GetJqGridRowValue("#gridTable", "quotationid");
+        var billstatus = GetJqGridRowValue("#gridTable", "billstatus");
+        if (billstatus != "已落单") {
+            tipDialog("合同未落单，请落单后打印！", 3, -1);
+            return false;
+        }
+        if (IsChecked(quotationid)) {
+            confirmDialog("提示", "确定此报价单已打印？", function (r) {
+                if (r) {
+                    Loading(true, "正在提交数据...");
+                    window.setTimeout(function () {
+                        AjaxJson("/DeliveryModule/BY_Delivery/Update", { KeyValue: quotationid, PrintUserId: "1" }, function (data) {
+                            windowload();
+                        });
+                    }, 200);
+                }
+            });
+        }
+    }
+    //粗料单打印预览
+    function DeliveryPrint(perType, printType, edit) {
+        var QuotationId = GetJqGridRowValue("#gridTable", "quotationid");
+        if (IsChecked(QuotationId)) {
+            PrintDialog("/DeliveryModule/BY_Delivery/" + printType + "?QuotationId=" + QuotationId + "&perType=" + perType + "&edit=" + edit, "PrintPage", "报价单打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+
+</script>
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px; ">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline topline QueryArea" style="margin: 1px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>助记编码：</th>
+            <td>
+                <input id="MnemonicCode" type="text" class="txt" style="width: 80px" />
+            </td>
+            <th>客户：</th>
+            <td>
+                <input id="CustomerCode" type="text" class="txt" style="width: 80px" />
+            </td>
+            <th>报价单号：</th>
+            <td>
+                <input id="QuotationCode" type="text" class="txt" style="width: 80px" />
+            </td>
+            
+            <th>入单日期：</th>
+            <td>
+                <input id="StartTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()" style="width: 100px" onfocus="var endDate=$dp.$('EndTime');WdatePicker({onpicked:function(){EndTime.focus();},maxDate:'#F{$dp.$D(\'EndTime\')}'})" />
+            </td>
+            
+            <td>
+                <input id="EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()" style="width: 100px" onfocus="WdatePicker({minDate:'#F{$dp.$D(\'StartTime\')}'})" />
+            </td>
+             @*<td>
+                <span class="item" style="cursor: pointer;">
+                                    <input type="checkbox" class="checkbox" name="checkbox" id="A1" checked="checked" />
+                                    <label for="A1">门市</label></span>
+                <span class="item" style="cursor: pointer;">
+                                    <input type="checkbox" class="checkbox" name="checkbox" id="A2" checked="checked" />
+                                    <label for="A2">同行</label></span>
+                <span class="item" style="cursor: pointer;">
+                                    <input type="checkbox" class="checkbox" name="checkbox" id="A3" checked="checked" />
+                                    <label for="A3">客户</label></span>
+               <span class="item" style="cursor: pointer;">
+                                    <input type="checkbox" class="checkbox" name="checkbox" id="a4" checked="checked" />
+                                    <label for="4">外协</label></span>
+            </td>*@
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                <input id="btnSearch1" type="button" class="btnSearch" value="明细搜索" onclick="btn_query()" />
+                <input id="btn_print" type="button" class="btnSearch" value="报价单1" onclick="BCPrintPreview()" />
+                <input id="btn_print" type="button" class="btnSearch" value="报价单2" onclick="BCPrintPreview2()" />
+                <input id="btn_sdt" type="button" class="btnSearch" value="编辑" onclick="btn_detail()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <table id="gridTable_Detail"></table>
+</div>

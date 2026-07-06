@@ -1,0 +1,239 @@
+@{
+    ViewBag.Title = "BY_CSBReport";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+
+<link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
+<script src="~/Content/Scripts/uploadify/jquery.uploadify.js?ver=@DateTime.Now.Ticks"></script>
+
+
+
+<link href="~/Content/Scripts/imgGreate/00540/kao/css/index.css" rel="stylesheet" />
+<script src="~/Content/Scripts/imgGreate/00540/kao/js/ToolTip.js"></script>
+
+
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+        }, 200);
+    })
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/QualityModule/BY_CSBReport/GridPageJson")",
+            datatype: "json",
+            height: $(window).height() - 149,
+            autowidth: true,
+            colModel: [
+                    { label: 'CSBReportId', name: 'CSBReportId', sortable: true, hidden: true },
+                    { label: '订单明细ID', name: 'OrderDetailId', index: 'OrderDetailId', hidden: true },
+                    { label: '编号', name: 'OrderLineCode', index: 'OrderLineCode', width: 100, align: 'left', sortable: true },
+                    { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 80, align: 'left', sortable: true },
+                    { label: '钢种', name: 'SteelDescription', index: 'SteelDescription', width: 80, align: 'left', sortable: true },
+                    { label: '尺寸', name: 'Size', index: 'Size', width: 100, align: 'left', sortable: true },
+                    { label: '数量', name: 'Qty', index: 'Qty', width: 60, align: 'left', sortable: true },
+                    { label: '模具编号', name: 'CustomerProduct', index: 'CustomerProduct', width: 100, align: 'left', sortable: true },
+                    { label: '备注信息', name: 'Remark', index: 'Remark', width: 100, align: 'left', sortable: true },
+                    {
+                        label: '创建时间', name: 'CreateDate', index: 'CreateDate', width: 80, align: 'left', sortable: true,
+                        formatter: function (cellvalue, options, rowObject) {
+                            return formatDate(cellvalue, 'yyyy-MM-dd');
+                        }
+                    },
+                    {
+                        label: '图示', name: 'imgshow', index: 'imgshow',
+                        formatter: function (cellvalue, options, rowObject) {
+                            if (!!rowObject.CSBReportId) {
+                                var nums = Math.random();
+                                return "<div  ><img style='width:30px;' src='../../Resource/Document/BY_CSBReport/" + rowObject.CSBReportId + ".jpg?" + nums + "'  onMouseOver='toolTip(\"<img style=width:600px src=../../Resource/Document/BY_CSBReport/" + rowObject.CSBReportId + ".jpg?" + nums + ">\")' onMouseOut='toolTip()' /></div> ";
+                            }
+                            return "";
+                        }
+                    },
+                        {
+                            label: '操作', name: 'asdf', index: 'asdf', 
+                            formatter: function (cellvalue, options, rowObject) {
+                                if (!!rowObject.CSBReportId) {
+                                    return '<div><input id="' + options.rowId + 'uploadify" name="uploadify" type="file" /></div>';
+                                }
+                                return "";
+                            }
+                        },
+            ],
+            viewrecords: true,
+            rowNum: 30,
+            rowList: [30, 50, 100, 500, 5000],
+            pager: "#gridPager",
+            sortname: 'CreateDate',
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            gridview: true,
+            gridComplete: function () {
+                var data = $("#gridTable").jqGrid("getRowData");
+                for (var i = 0; i < data.length; i++) {
+                    var item = i + 1;
+                    uploadify(item, data[i].CSBReportId);
+                }
+            },
+            ondblClickRow: function (rowid, iRow, iCol, e) {
+                btn_edit();
+            }
+        });
+    } //编辑
+
+    function uploadify(id, CSBReportId) {
+        // $("#" + id + "uploadify").uploadify('destroy');
+        try {
+            if ($("#" + id + "uploadify").length > 0) { //注意jquery下检查一个元素是否存在必须使用 .length >0 来判断
+                $("#" + id + "uploadify").uploadify('destroy');
+            }
+            $("#" + id + "uploadify").uploadify({
+                uploader: '/Utility/Upload?saveDocument=BY_CSBReport&filenameid=' + CSBReportId,
+                swf: '/Content/Scripts/uploadify/uploadify.swf',
+                buttonText: "上传文件",
+                height: 24,
+                width: 70,
+                onFallback: function () {
+                    alert("您未安装FLASH控件，无法上传！请安装FLASH控件后再试。");
+                },
+                onUploadSuccess: function (file, data, response) {
+                    //var DataJson = JSON.parse(data);
+                    windowload();
+                    //window.location.reload();
+                }
+            });
+        } catch (e) {
+        }
+    }
+    function DeleteFile(id) {
+        var $Id = $("#" + id);
+        var path = $Id.attr('path');
+        AjaxJson("/Utility/DeleteFile", { Path: path }, function (Data) {
+            $Id.parent().remove();
+        });
+    }
+
+    function btn_edit() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "CSBReportId");
+        if (IsChecked(KeyValue)) {
+            var url = "/QualityModule/BY_CSBReport/Form?KeyValue=" + KeyValue;
+            openDialog(url, "form", "超声波探伤编辑", 1000, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+            
+        }
+    }
+
+    //新增
+    function btn_add() {
+        var url = "/QualityModule/BY_CSBReport/Form";
+        openDialog(url, "form1", "超声波探伤新增", 1000, 500, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+
+
+    //删除
+    function btn_delete() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "CSBReportId");
+        if (IsDelData(KeyValue)) {
+            delConfig('/QualityModule/BY_CSBReport/Delete?KeyValue=' + KeyValue);
+        }
+    }
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+        
+    }
+
+    function btn_Print() {
+        var KeyValue = GetJqGridRowValue("#gridTable", "CSBReportId");
+        if (IsChecked(KeyValue)) {
+            PrintDialog("/QualityModule/BY_CSBReport/Print?KeyValue=" + KeyValue, "PrintPage12", "超声波检测打印", 850, 600, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
+    }
+    function btn_Search() {
+        var Parameter = [{
+            paramName: "OrderLineCode",
+            paramValue: escape($("#OrderLineCode").val()),
+            Operation: "Like",
+            Logic: "AND",
+        },
+        {
+            paramName: "CustomerName",
+            paramValue: escape($("#CustomerName").val()),
+            Operation: "Like",
+            Logic: "AND",
+        },
+        {
+            paramName: "SteelDescription",
+            paramValue: escape($("#SteelDescription").val()),
+            Operation: "Like",
+            Logic: "AND",
+        }, {
+            paramName: "Size",
+            paramValue: escape($("#Size").val()),
+            Operation: "Like",
+            Logic: "AND",
+        }, {
+            paramName: "Qty",
+            paramValue: $("#Qty").val(),
+            Operation: "Like",
+            Logic: "AND",
+        }, {
+            paramName: "CustomerProduct",
+            paramValue: escape($("#CustomerProduct").val()),
+            Operation: "Like",
+            Logic: "AND",
+        }, ]
+
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/QualityModule/BY_CSBReport/GridPageJson")?ParameterJson=" + JSON.stringify(Parameter), page: 1 }).trigger('reloadGrid');
+    }
+</script>
+<!--工具栏-->
+<div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">
+    <div class="PartialButton">
+        @Html.Partial("_PartialButton")
+    </div>
+</div>
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+    <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>编号：</th>
+            <td>
+                <input id="OrderLineCode" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>客户名称：</th>
+            <td>
+                <input id="CustomerName" type="text" class="txt" style="width: 100px" />
+            </td>
+             <th>钢种：</th>
+            <td>
+                <input id="SteelDescription" type="text" class="txt" style="width: 100px" />
+            </td>
+             <th>尺寸：</th>
+            <td>
+                <input id="Size" type="text" class="txt" style="width: 100px" />
+            </td>
+             <th>数量：</th>
+            <td>
+                <input id="Qty" type="text" class="txt" style="width: 100px" />
+            </td>
+             <th>模具编号：</th>
+            <td>
+                <input id="CustomerProduct" type="text" class="txt" style="width: 100px" />
+            </td>
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+            </td>
+        </tr>
+    </table>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>

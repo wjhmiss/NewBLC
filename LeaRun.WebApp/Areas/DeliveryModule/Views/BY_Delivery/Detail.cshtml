@@ -1,0 +1,283 @@
+@{
+    ViewBag.Title = "发运单》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/DeliveryModule/BY_Delivery/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <table class="form">
+        <tr>
+            <th class='formTitle'>发运单ID：</th>
+            <td class='formValue'>
+                <label id="DeliveryId" />
+            </td>
+            <th class='formTitle'>报价单号：</th>
+            <td class='formValue'>
+                <label id="QuotationCode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>订单ID：</th>
+            <td class='formValue'>
+                <label id="OrderId" />
+            </td>
+            <th class='formTitle'>订单号：</th>
+            <td class='formValue'>
+                <label id="OrderCode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>客户PO：</th>
+            <td class='formValue'>
+                <label id="CustomerPO" />
+            </td>
+            <th class='formTitle'>客户ID：</th>
+            <td class='formValue'>
+                <label id="CustomerId" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>客户编号：</th>
+            <td class='formValue'>
+                <label id="CustomerCode" />
+            </td>
+            <th class='formTitle'>客户名称：</th>
+            <td class='formValue'>
+                <label id="CustomerName" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>客户简称：</th>
+            <td class='formValue'>
+                <label id="ShortName" />
+            </td>
+            <th class='formTitle'>联系人：</th>
+            <td class='formValue'>
+                <label id="ContactName" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>联系电话：</th>
+            <td class='formValue'>
+                <label id="ContactTel" />
+            </td>
+            <th class='formTitle'>传真：</th>
+            <td class='formValue'>
+                <label id="ContactFax" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>邮箱：</th>
+            <td class='formValue'>
+                <label id="ContactMail" />
+            </td>
+            <th class='formTitle'>手机：</th>
+            <td class='formValue'>
+                <label id="MobileCode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>客户地址：</th>
+            <td class='formValue'>
+                <label id="CustomerAddress" />
+            </td>
+            <th class='formTitle'>订单类型：</th>
+            <td class='formValue'>
+                <label id="OrderType" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>数量：</th>
+            <td class='formValue'>
+                <label id="Qty" />
+            </td>
+            <th class='formTitle'>总金额：</th>
+            <td class='formValue'>
+                <label id="TotalAmount" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>折扣率：</th>
+            <td class='formValue'>
+                <label id="LessRate" />
+            </td>
+            <th class='formTitle'>折扣后总额：</th>
+            <td class='formValue'>
+                <label id="LessedAmount" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>账期：</th>
+            <td class='formValue'>
+                <label id="PaymentMode" />
+            </td>
+            <th class='formTitle'>送货方式：</th>
+            <td class='formValue'>
+                <label id="ShipMode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>出货组织：</th>
+            <td class='formValue'>
+                <label id="ShipGroup" />
+            </td>
+            <th class='formTitle'>销售方式：</th>
+            <td class='formValue'>
+                <label id="SalesMode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>销售员：</th>
+            <td class='formValue'>
+                <label id="SalesMan" />
+            </td>
+            <th class='formTitle'>销售区域：</th>
+            <td class='formValue'>
+                <label id="SalesArea" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>送货路线：</th>
+            <td class='formValue'>
+                <label id="ShipRoute" />
+            </td>
+            <th class='formTitle'>是否紧急：</th>
+            <td class='formValue'>
+                <label id="IsEmergency" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>收单地址：</th>
+            <td class='formValue'>
+                <label id="CollectAddress" />
+            </td>
+            <th class='formTitle'>送货地址：</th>
+            <td class='formValue'>
+                <label id="ShipAddress" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue'>
+                <label id="Remark" />
+            </td>
+            <th class='formTitle'>打印时间：</th>
+            <td class='formValue'>
+                <label id="PrintDate" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>打印人：</th>
+            <td class='formValue'>
+                <label id="PrintUserId" />
+            </td>
+            <th class='formTitle'>最后打印时间：</th>
+            <td class='formValue'>
+                <label id="LastPrintDate" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>最后打印人：</th>
+            <td class='formValue'>
+                <label id="LastPrintUserId" />
+            </td>
+            <th class='formTitle'>发货说明：</th>
+            <td class='formValue'>
+                <label id="ShipDescription" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <label id="Enabled" />
+            </td>
+            <th class='formTitle'>排序码：</th>
+            <td class='formValue'>
+                <label id="SortCode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>删除标记：</th>
+            <td class='formValue'>
+                <label id="DeleteMark" />
+            </td>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <label id="CreateDate" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>创建用户主键：</th>
+            <td class='formValue'>
+                <label id="CreateUserId" />
+            </td>
+            <th class='formTitle'>创建用户：</th>
+            <td class='formValue'>
+                <label id="CreateUserName" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>修改时间：</th>
+            <td class='formValue'>
+                <label id="ModifyDate" />
+            </td>
+            <th class='formTitle'>修改用户主键：</th>
+            <td class='formValue'>
+                <label id="ModifyUserId" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>修改用户：</th>
+            <td class='formValue'>
+                <label id="ModifyUserName" />
+            </td>
+            <th class='formTitle'>运输条款：</th>
+            <td class='formValue'>
+                <label id="ShipClause" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>钢材质量证明书：</th>
+            <td class='formValue'>
+                <label id="SteelQualityCert" />
+            </td>
+            <th class='formTitle'>品质证明书：</th>
+            <td class='formValue'>
+                <label id="QualityCert" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>原厂证明书：</th>
+            <td class='formValue'>
+                <label id="FactoryCert" />
+            </td>
+            <th class='formTitle'>按件计价：</th>
+            <td class='formValue'>
+                <label id="ByPiece" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>客来料：</th>
+            <td class='formValue'>
+                <label id="CustMaterial" />
+            </td>
+            <th class='formTitle'>补料单：</th>
+            <td class='formValue'>
+                <label id="FreeBill" />
+            </td>
+        </tr>
+        <tr>
+        </tr>
+    </table>
+</form>

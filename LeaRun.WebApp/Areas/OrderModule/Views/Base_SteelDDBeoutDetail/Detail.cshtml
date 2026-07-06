@@ -1,0 +1,477 @@
+@{
+    ViewBag.Title = "Base_SteelDDBeoutDetail》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/OrderModule/Base_SteelDDBeoutDetail/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <table class="form">
+        <tr>
+            <th class='formTitle'>报价单明细ID：</th>
+            <td class='formValue'>
+                <label id="Base_SteelDDBeoutDetailId" />
+            </td>
+            <th class='formTitle'>Base_SteelDDBeoutId：</th>
+            <td class='formValue'>
+                <label id="Base_SteelDDBeoutId" />
+            </td>
+            <th class='formTitle'>行号：</th>
+            <td class='formValue'>
+                <label id="LineCode" />
+            </td>
+            <th class='formTitle'>板件编码：</th>
+            <td class='formValue'>
+                <label id="BoardId" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>板件描述：</th>
+            <td class='formValue'>
+                <label id="BoardDescription" />
+            </td>
+            <th class='formTitle'>数量：</th>
+            <td class='formValue'>
+                <label id="Qty" />
+            </td>
+            <th class='formTitle'>项目编号：</th>
+            <td class='formValue'>
+                <label id="ProjectCode" />
+            </td>
+            <th class='formTitle'>磨四角：</th>
+            <td class='formValue'>
+                <label id="IsGrindAngle" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>倒角：</th>
+            <td class='formValue'>
+                <label id="IsChamfer" />
+            </td>
+            <th class='formTitle'>钢种：</th>
+            <td class='formValue'>
+                <label id="SteelId" />
+            </td>
+            <th class='formTitle'>钢种编号：</th>
+            <td class='formValue'>
+                <label id="SteelCode" />
+            </td>
+            <th class='formTitle'>钢种描述：</th>
+            <td class='formValue'>
+                <label id="SteelDescription" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>钢种其它描述：</th>
+            <td class='formValue'>
+                <label id="SteelOtherDescription" />
+            </td>
+            <th class='formTitle'>钢种状态：</th>
+            <td class='formValue'>
+                <label id="SteelState" />
+            </td>
+            <th class='formTitle'>模号：</th>
+            <td class='formValue'>
+                <label id="DieCode" />
+            </td>
+            <th class='formTitle'>厚度：</th>
+            <td class='formValue'>
+                <label id="Thick" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>宽：</th>
+            <td class='formValue'>
+                <label id="Weigh" />
+            </td>
+            <th class='formTitle'>长：</th>
+            <td class='formValue'>
+                <label id="Length" />
+            </td>
+            <th class='formTitle'>计价余量(厚度)：</th>
+            <td class='formValue'>
+                <label id="AddThick" />
+            </td>
+            <th class='formTitle'>计价余量(宽)：</th>
+            <td class='formValue'>
+                <label id="AddWeigh" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>计价余量(长)：</th>
+            <td class='formValue'>
+                <label id="AddLength" />
+            </td>
+            <th class='formTitle'>工艺：</th>
+            <td class='formValue'>
+                <label id="Technology" />
+            </td>
+            <th class='formTitle'>理论重量：</th>
+            <td class='formValue'>
+                <label id="Weight" />
+            </td>
+            <th class='formTitle'>材料单价：</th>
+            <td class='formValue'>
+                <label id="MaterialPrice" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>材料折扣：</th>
+            <td class='formValue'>
+                <label id="MaterialLess" />
+            </td>
+            <th class='formTitle'>金额（材料）：</th>
+            <td class='formValue'>
+                <label id="MaterialAmount" />
+            </td>
+            <th class='formTitle'>小件单价：</th>
+            <td class='formValue'>
+                <label id="WorkPrice" />
+            </td>
+            <th class='formTitle'>加工费折扣：</th>
+            <td class='formValue'>
+                <label id="WorkLess" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>小件金额（加工费）：</th>
+            <td class='formValue'>
+                <label id="WorkAmount" />
+            </td>
+            <th class='formTitle'>热处理单价：</th>
+            <td class='formValue'>
+                <label id="HeatPrice" />
+            </td>
+            <th class='formTitle'>热处理折扣：</th>
+            <td class='formValue'>
+                <label id="HeatLess" />
+            </td>
+            <th class='formTitle'>金额（热处理）：</th>
+            <td class='formValue'>
+                <label id="HeatAmount" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>销售额：</th>
+            <td class='formValue'>
+                <label id="SalesAmount" />
+            </td>
+            <th class='formTitle'>成本：</th>
+            <td class='formValue'>
+                <label id="CostAmount" />
+            </td>
+            <th class='formTitle'>毛利润：</th>
+            <td class='formValue'>
+                <label id="ProfitAmount" />
+            </td>
+            <th class='formTitle'>毛利率：</th>
+            <td class='formValue'>
+                <label id="ProfitRate" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>送货说明：</th>
+            <td class='formValue'>
+                <label id="ShipDescription" />
+            </td>
+            <th class='formTitle'>备注：</th>
+            <td class='formValue'>
+                <label id="Remark" />
+            </td>
+            <th class='formTitle'>有效：</th>
+            <td class='formValue'>
+                <label id="Enabled" />
+            </td>
+            <th class='formTitle'>排序码：</th>
+            <td class='formValue'>
+                <label id="SortCode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>删除标记：</th>
+            <td class='formValue'>
+                <label id="DeleteMark" />
+            </td>
+            <th class='formTitle'>创建时间：</th>
+            <td class='formValue'>
+                <label id="CreateDate" />
+            </td>
+            <th class='formTitle'>创建用户主键：</th>
+            <td class='formValue'>
+                <label id="CreateUserId" />
+            </td>
+            <th class='formTitle'>创建用户：</th>
+            <td class='formValue'>
+                <label id="CreateUserName" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>修改时间：</th>
+            <td class='formValue'>
+                <label id="ModifyDate" />
+            </td>
+            <th class='formTitle'>修改用户主键：</th>
+            <td class='formValue'>
+                <label id="ModifyUserId" />
+            </td>
+            <th class='formTitle'>修改用户：</th>
+            <td class='formValue'>
+                <label id="ModifyUserName" />
+            </td>
+            <th class='formTitle'>落单状态：</th>
+            <td class='formValue'>
+                <label id="PlaceOrderStatus" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>加工类型：</th>
+            <td class='formValue'>
+                <label id="OrderType" />
+            </td>
+            <th class='formTitle'>客户订单号：</th>
+            <td class='formValue'>
+                <label id="CustomerOrder" />
+            </td>
+            <th class='formTitle'>客户货品号：</th>
+            <td class='formValue'>
+                <label id="CustomerProduct" />
+            </td>
+            <th class='formTitle'>报价单号：</th>
+            <td class='formValue'>
+                <label id="QuotationCode" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>打底重量：</th>
+            <td class='formValue'>
+                <label id="LimitWeight" />
+            </td>
+            <th class='formTitle'>打底厚度：</th>
+            <td class='formValue'>
+                <label id="LimitThick" />
+            </td>
+            <th class='formTitle'>加工费：</th>
+            <td class='formValue'>
+                <label id="WorkCost" />
+            </td>
+            <th class='formTitle'>材料费：</th>
+            <td class='formValue'>
+                <label id="MaterialCost" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>管理费：</th>
+            <td class='formValue'>
+                <label id="ManagerCost" />
+            </td>
+            <th class='formTitle'>税费：</th>
+            <td class='formValue'>
+                <label id="InvoiceCost" />
+            </td>
+            <th class='formTitle'>替代料：</th>
+            <td class='formValue'>
+                <label id="RepalceMl" />
+            </td>
+            <th class='formTitle'>计价类型：按kg，按件：</th>
+            <td class='formValue'>
+                <label id="JJtype" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>品名（一般钢材名加加工类型）可修改：</th>
+            <td class='formValue'>
+                <label id="ProductName" />
+            </td>
+            <th class='formTitle'>吊孔：</th>
+            <td class='formValue'>
+                <label id="LiftingHole" />
+            </td>
+            <th class='formTitle'>气割：</th>
+            <td class='formValue'>
+                <label id="GasCuttingSteel" />
+            </td>
+            <th class='formTitle'>孔径：</th>
+            <td class='formValue'>
+                <label id="BoreSize" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>钢材类型：</th>
+            <td class='formValue'>
+                <label id="SteelType" />
+            </td>
+            <th class='formTitle'>Area：</th>
+            <td class='formValue'>
+                <label id="Area" />
+            </td>
+            <th class='formTitle'>理论重量：</th>
+            <td class='formValue'>
+                <label id="TheoryWeight" />
+            </td>
+            <th class='formTitle'>磨铣：</th>
+            <td class='formValue'>
+                <label id="MandXSteel" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>磨面：</th>
+            <td class='formValue'>
+                <label id="MorXSteel" />
+            </td>
+            <th class='formTitle'>类型洗边：</th>
+            <td class='formValue'>
+                <label id="BSteel" />
+            </td>
+            <th class='formTitle'>0：</th>
+            <td class='formValue'>
+                <label id="MianCostArea" />
+            </td>
+            <th class='formTitle'>面单价：</th>
+            <td class='formValue'>
+                <label id="MianCostPer" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>面总费用：</th>
+            <td class='formValue'>
+                <label id="MianCost" />
+            </td>
+            <th class='formTitle'>BianCostLong：</th>
+            <td class='formValue'>
+                <label id="BianCostLong" />
+            </td>
+            <th class='formTitle'>边单价：</th>
+            <td class='formValue'>
+                <label id="BianCostPer" />
+            </td>
+            <th class='formTitle'>边总价：</th>
+            <td class='formValue'>
+                <label id="BianCost" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>锯口费：</th>
+            <td class='formValue'>
+                <label id="JKCost" />
+            </td>
+            <th class='formTitle'>加工费：</th>
+            <td class='formValue'>
+                <label id="SmallCost" />
+            </td>
+            <th class='formTitle'>加工费计算员工费用：</th>
+            <td class='formValue'>
+                <label id="WorkCostForWork" />
+            </td>
+            <th class='formTitle'>类型精洗边：</th>
+            <td class='formValue'>
+                <label id="JBSteel" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>加工费计算员工费用：</th>
+            <td class='formValue'>
+                <label id="WorkCostForWorkTemp" />
+            </td>
+            <th class='formTitle'>面类型  2，两面，1，单面：</th>
+            <td class='formValue'>
+                <label id="MianType" />
+            </td>
+            <th class='formTitle'>边类型，4，四边，3，长短，2，两长，1两短：</th>
+            <td class='formValue'>
+                <label id="BianType" />
+            </td>
+            <th class='formTitle'>按件计算：</th>
+            <td class='formValue'>
+                <label id="MianCostUnit" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>按件计算：</th>
+            <td class='formValue'>
+                <label id="BianCostUnit" />
+            </td>
+            <th class='formTitle'>按件计算：</th>
+            <td class='formValue'>
+                <label id="WorkUnit" />
+            </td>
+            <th class='formTitle'>铣面：</th>
+            <td class='formValue'>
+                <label id="XorMSteel" />
+            </td>
+            <th class='formTitle'>计算公式：</th>
+            <td class='formValue'>
+                <label id="CountShow" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>面总费用：</th>
+            <td class='formValue'>
+                <label id="MianCostWork" />
+            </td>
+            <th class='formTitle'>边总价：</th>
+            <td class='formValue'>
+                <label id="BianCostWork" />
+            </td>
+            <th class='formTitle'>CNC：</th>
+            <td class='formValue'>
+                <label id="CNC" />
+            </td>
+            <th class='formTitle'>研磨：</th>
+            <td class='formValue'>
+                <label id="YM" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>锯切：</th>
+            <td class='formValue'>
+                <label id="JQ" />
+            </td>
+            <th class='formTitle'>Kprocess：</th>
+            <td class='formValue'>
+                <label id="Kprocess" />
+            </td>
+            <th class='formTitle'>锯口费单价：</th>
+            <td class='formValue'>
+                <label id="JKCostPer" />
+            </td>
+            <th class='formTitle'>几刀：</th>
+            <td class='formValue'>
+                <label id="JKCostQty" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>加工金额（加工费）：</th>
+            <td class='formValue'>
+                <label id="SmallAmount" />
+            </td>
+            <th class='formTitle'>二放三放：</th>
+            <td class='formValue'>
+                <label id="Fang" />
+            </td>
+            <th class='formTitle'>切角单价：</th>
+            <td class='formValue'>
+                <label id="DDCostPer" />
+            </td>
+            <th class='formTitle'>切角费用：</th>
+            <td class='formValue'>
+                <label id="DDCost" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>DD：</th>
+            <td class='formValue'>
+                <label id="DD" />
+            </td>
+        </tr>
+    </table>
+</form>

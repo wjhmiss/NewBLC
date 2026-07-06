@@ -1,0 +1,247 @@
+@{
+    ViewBag.Title = "发运单明细";
+    Layout = "~/Views/Shared/_LayoutIndex.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            GetGrid();
+            //GetGrid2();
+            btn_Search();
+        }, 200);
+
+        //Loadlayout2();
+
+
+    })
+    function btn_Export1() {
+        SetDeriveExcel("#gridTable", "业务绩效");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+    function btn_Export2() {
+        SetDeriveExcel("#gridTable2", "营业员绩效");
+
+        Loading(true, "正在处理要导出数据...");
+        window.setTimeout(function () {
+            location.href = "/Utility/GetDeriveExcel";
+            Loading(false);
+        }, 200);
+    }
+    function Loadlayout2() {
+        if ($('.layout2').length > 0) {
+            $("#layout2").splitter({
+                type: "v",
+                outline: true,
+                sizeLeft: 650,
+                minLeft: 200,
+                minRight: 200,
+                anchorToWindow: true,
+                accessKey: "L",
+            });
+        }
+    }
+
+
+    //加载表格
+    function GetGrid() {
+        $("#gridTable").jqGrid({
+            url: "@Url.Content("~/ReportModule/Delivery/SummeryDetailgrid")",
+            datatype: "json",
+            height: $(window).height() -171,
+            autowidth: true,
+            colModel: [
+                    { label: '客户名称', name: 'fullname', index: 'fullname', width: 80, align: 'left', sortable: true },
+                    { label: '业务员', name: 'sellpeople', index: 'sellpeople', width: 80, align: 'left', sortable: true },
+                    { label: '类型', name: 'category', index: 'category', width: 80, align: 'left', sortable: true },
+
+                    { label: 'H13', name: 'h13amount', index: 'h13amount', width: 80, align: 'left', sortable: true },
+                    { label: 'YH13', name: 'yh13amount', index: 'yh13amount', width: 80, align: 'left', sortable: true },
+                    { label: 'P20', name: 'p20amount', index: 'p20amount', width: 80, align: 'left', sortable: true },
+                    { label: 'FS445', name: 'fs445amount', index: 'fs445amount', width: 80, align: 'left', sortable: true },
+                    { label: 'FS438', name: 'fs438amount', index: 'fs438amount', width: 80, align: 'left', sortable: true },
+                    { label: 'FS448', name: 'fs448amount', index: 'fs448amount', width: 80, align: 'left', sortable: true },
+                    { label: 'CR12MOV', name: 'cr12movamount', index: 'cr12movamount', width: 80, align: 'left', sortable: true },
+                    { label: 'A45', name: 'a45amount', index: 'a45amount', width: 80, align: 'left', sortable: true },
+                    { label: '加工费', name: 'jgfamount', index: 'jgfamount', width: 80, align: 'left', sortable: true },
+                    { label: '其他', name: 'gcqtamount', index: 'gcqtamount', width: 80, align: 'left', sortable: true },
+
+                    { label: '真空淬火', name: 'zkchamount', index: 'zkchamount', width: 80, align: 'left', sortable: true },
+                    { label: '常规淬火', name: 'cgchamount', index: 'cgchamount', width: 80, align: 'left', sortable: true },
+                    { label: '调质', name: 'tzamount', index: 'tzamount', width: 80, align: 'left', sortable: true },
+                    { label: '软氮化', name: 'rdhamount', index: 'rdhamount', width: 80, align: 'left', sortable: true },
+                    { label: '硬氮化', name: 'ydhamount', index: 'ydhamount', width: 80, align: 'left', sortable: true },
+                    { label: '去应力', name: 'qylamount', index: 'qylamount', width: 80, align: 'left', sortable: true },
+                    { label: '回火', name: 'hhamount', index: 'hhamount', width: 80, align: 'left', sortable: true },
+                    { label: '其他', name: 'rclqtamount', index: 'rclqtamount', width: 80, align: 'left', sortable: true },
+
+            ],
+            viewrecords: true,
+            rowNum: 9999,
+            rowList: [9999, 9999, 9999, 9999, 9999],
+            
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            
+            footerrow: true,
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "category": "合计",
+                    "h13amount": FormatCurrency($("#gridTable").getCol('h13amount', false, 'sum')),
+                    "yh13amount": FormatCurrency($("#gridTable").getCol('yh13amount', false, 'sum')),
+                    "p20amount": FormatCurrency($("#gridTable").getCol('p20amount', false, 'sum')),
+                    "fs445amount": FormatCurrency($("#gridTable").getCol('fs445amount', false, 'sum')),
+                    "fs438amount": FormatCurrency($("#gridTable").getCol('fs438amount', false, 'sum')),
+                    "fs448amount": FormatCurrency($("#gridTable").getCol('fs448amount', false, 'sum')),
+                    "cr12movamount": FormatCurrency($("#gridTable").getCol('cr12movamount', false, 'sum')),
+                    "a45amount": FormatCurrency($("#gridTable").getCol('a45amount', false, 'sum')),
+                    "jgfamount": FormatCurrency($("#gridTable").getCol('jgfamount', false, 'sum')),
+                    "gcqtamount": FormatCurrency($("#gridTable").getCol('gcqtamount', false, 'sum')),
+                    "zkchamount": FormatCurrency($("#gridTable").getCol('zkchamount', false, 'sum')),
+                    "cgchamount": FormatCurrency($("#gridTable").getCol('cgchamount', false, 'sum')),
+                    "tzamount": FormatCurrency($("#gridTable").getCol('tzamount', false, 'sum')),
+                    "rdhamount": FormatCurrency($("#gridTable").getCol('rdhamount', false, 'sum')),
+                    "ydhamount": FormatCurrency($("#gridTable").getCol('ydhamount', false, 'sum')),
+                    "qylamount": FormatCurrency($("#gridTable").getCol('qylamount', false, 'sum')),
+                    "hhamount": FormatCurrency($("#gridTable").getCol('hhamount', false, 'sum')),
+                    "rclqtamount": FormatCurrency($("#gridTable").getCol('rclqtamount', false, 'sum')),
+
+                });
+            }
+        });
+        //表头合并
+        $("#gridTable").jqGrid('setGroupHeaders', {
+            useColSpanStyle: true,
+            groupHeaders: [
+              { startColumnName: 'h13amount', numberOfColumns: 10, titleText: '钢材' },
+              { startColumnName: 'zkchamount', numberOfColumns: 8, titleText: '热处理' },
+
+            ]
+        });
+    }
+
+    //加载表格
+    function GetGrid2() {
+        $("#gridTable2").jqGrid({
+            url: "@Url.Content("~/ReportModule/Delivery/SummeryDetailgrid2")",
+            datatype: "json",
+            height: $(window).height() - 171,
+            autowidth: true,
+            colModel: [
+                     { label: '营业员', name: 'createusername', index: 'createusername', width: 80, align: 'left', sortable: true },
+                    { label: '钢种', name: 'steeldescription', index: 'steeldescription', width: 80, align: 'left', sortable: true },
+                    { label: '类型', name: 'technology', index: 'technology', width: 80, align: 'left', sortable: true },
+                    { label: '重量(吨)', name: 'weight', index: 'weight', width: 60, align: 'left', sortable: true },
+                    { label: '金额(万)', name: 'totalamount', index: 'totalamount', width: 60, align: 'left', sortable: true },
+                    { label: '区域', name: 'sellarea', index: 'sellarea', width: 60, align: 'left', sortable: true },
+            ],
+            viewrecords: true,
+            rowNum: 9999,
+            rowList: [9999, 9999, 9999, 9999, 9999],
+           
+            sortorder: 'desc',
+            rownumbers: true,
+            shrinkToFit: false,
+            altRows: true,
+            altclass: 'altclass',
+            gridview: true,
+            footerrow: true,
+
+            gridComplete: function () {
+                //合计
+                $(this).footerData("set", {
+                    "createusername": "合计",
+                    "weight": FormatCurrency($("#gridTable2").getCol('weight', false, 'sum')),
+                    "totalamount": FormatCurrency($("#gridTable2").getCol('totalamount', false, 'sum')),
+
+                });
+            }
+        });
+    }
+
+
+    //刷新
+    function windowload() {
+        $("#gridTable").trigger("reloadGrid"); //重新载入
+
+    }
+    //查询
+    function btn_Search() {
+        $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/ReportModule/Delivery/SummeryDetailgrid")?Sellpeople=" + escape($("#Sellpeople").val()) + "&StartTime=" + escape($("#StartTime").val()) + "&EndTime=" + escape($("#EndTime").val()) + "&fullname=" + escape($("#fullname").val()), page: 1 }).trigger('reloadGrid');
+        $("#gridTable2").jqGrid('setGridParam', { url: "@Url.Content("~/ReportModule/Delivery/SummeryDetailgrid2")?Sellpeople=" + escape($("#Sellpeople").val()) + "&CreateUserName=" + escape($("#CreateUserName").val()) + "&StartTime=" + escape($("#StartTime").val()) + "&EndTime=" + escape($("#EndTime").val()) + "&LType=" + escape($("#LType").val()), page: 1 }).trigger('reloadGrid');
+    }
+    
+</script>
+
+<div class="leftline rightline QueryArea" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+   
+</div>
+
+<div id="grid_List">
+    <div class="bottomline QueryArea" id="QueryParameter" style="margin: 1px; margin-top: 0px; margin-bottom: 0px;">
+         <table border="0" class="form-find" style="height: 45px;">
+        <tr>
+            <th>创建日期 从：</th>
+            <td>
+                <input id="StartTime" type="text" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth()"  class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />至
+            <input id="EndTime" type="text" class="txt Wdate" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth()"  onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd'})" style="width: 100px" />
+                </td>
+            
+            <th>业务员：</th>
+            <td>
+                <input id="Sellpeople" type="text" class="txt" style="width: 100px" />
+            </td>
+            <th>客户：</th>
+            <td>
+                <input id="fullname" type="text" class="txt" style="width: 100px" />
+            </td>
+            
+            <td>
+                <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
+                <input id="btn_expo2rt" type="button" class="btnSearch" value="导出" onclick="btn_Export1()" />
+                @*<input id="btn_expo3rt" type="button" class="btnSearch" value="营业员导出" onclick="btn_Export2()" />*@
+            </td>
+            @*<td>
+                <input id="btnEdit" type="button" class="btnSearch" value="编 辑" onclick="btn_Edit()" />
+            </td>*@
+        </tr>
+    </table>
+    </div>
+</div>
+<div class="topline rightline" style="margin: 1px; margin-top: -1px;">
+    <table id="gridTable"></table>
+    <div id="gridPager"></div>
+</div>
+
+@*<div id="layout2" class="layout2">
+    <!--左边-->
+    <div class="layoutPanel layout-west" style=" ">
+        <div class="btnbartitle">
+            <div>
+                业务信息
+            </div>
+        </div>
+        <table id="gridTable"></table>
+        <div id="gridPager"></div>
+    </div>
+    <!--中间-->
+    <div class="layoutPanel layout-center">
+        <div class="btnbartitle">
+            <div>
+                营业员信息
+            </div>
+        </div>
+        <!--视图-->
+        <table id="gridTable2"></table>
+        <div id="gridPager2"></div>
+    </div>
+</div>*@

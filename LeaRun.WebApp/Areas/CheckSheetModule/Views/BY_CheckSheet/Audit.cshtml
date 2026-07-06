@@ -1,0 +1,48 @@
+﻿@{
+    ViewBag.Title = "报价单审核";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script>
+    var KeyValue = GetQuery('KeyValue');//主键
+    //保存事件
+    function AcceptClick() {
+        if (!CheckDataValid('#form1')) {
+            return false;
+        }
+        $(".ui_state_highlight").attr("disabled", true);
+        Loading(true, "正在提交数据...");
+        window.setTimeout(function () {
+          
+            AjaxJson("/CheckSheetModule/BY_CheckSheet/Comfrim?KeyValue=" + KeyValue + "&Remark=" + escape($("#Remark").val()), "", function (data) {
+                    tipDialog(data.Message, 3, data.Code);
+                    top.frames[tabiframeId()].windowload();
+                    window.setTimeout(function () {closeDialog();}, 500);
+                });
+           
+        }, 200);
+    }
+    $(function () {
+        InitControl();
+    })
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CheckSheetModule/BY_CheckSheet/SetForm", { KeyValue: KeyValue }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <div id="message" style="display: none"></div>
+    <table class="form">
+        <tr>
+            <th class="formTitle">对账备注：
+            </th>
+            <td class="formValue">
+                <textarea id="Remark" maxlength="200" class="txtArea" rows="4" ></textarea>
+            </td>
+        </tr>
+        
+    </table>
+</form>
+

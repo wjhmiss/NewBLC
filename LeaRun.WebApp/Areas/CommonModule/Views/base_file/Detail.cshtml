@@ -1,0 +1,67 @@
+@{
+    ViewBag.Title = "base_file》明细页面";
+    Layout = "~/Views/Shared/_LayoutForm.cshtml";
+}
+<script type="text/javascript">
+    $(function () {
+        InitControl();
+    })
+    //得到一个对象实体
+    function InitControl() {
+        if (!!GetQuery('KeyValue')) {
+            AjaxJson("/CommonModule/base_file/SetForm", { KeyValue: GetQuery('KeyValue') }, function (data) {
+                SetWebControls(data);
+            });
+        }
+    }
+</script>
+<form id="form1" style="margin: 1px">
+    <table class="form">
+        <tr>
+            <th class='formTitle'>Id：</th>
+            <td class='formValue'>
+                <label id="Id" />
+            </td>
+            <th class='formTitle'>Name：</th>
+            <td class='formValue'>
+                <label id="Name" />
+            </td>
+            <th class='formTitle'>Size：</th>
+            <td class='formValue'>
+                <label id="Size" />
+            </td>
+            <th class='formTitle'>Type：</th>
+            <td class='formValue'>
+                <label id="Type" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>Eextension：</th>
+            <td class='formValue'>
+                <label id="Eextension" />
+            </td>
+            <th class='formTitle'>CreateDate：</th>
+            <td class='formValue'>
+                <label id="CreateDate" />
+            </td>
+            <th class='formTitle'>ModifyDate：</th>
+            <td class='formValue'>
+                <label id="ModifyDate" />
+            </td>
+            <th class='formTitle'>Path：</th>
+            <td class='formValue'>
+                <label id="Path" />
+            </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>Status：</th>
+            <td class='formValue'>
+                <label id="Status" />
+            </td>
+            <th class='formTitle'>AttachId：</th>
+            <td class='formValue'>
+                <label id="AttachId" />
+            </td>
+        </tr>
+    </table>
+</form>

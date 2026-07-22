@@ -92,14 +92,11 @@ namespace DNS.Business
                 StringBuilder WhereSql = new StringBuilder();
                 
                     Base_DataDictionaryDetail base_datadictionarydetail = DataFactory.Database().FindEntity<Base_DataDictionaryDetail>("FullName", FullName);
-
-                    WhereSql.Append(" and ParentId =@ParentId and Enabled=1 AND DataDictionaryId IN(SELECT DataDictionaryId FROM Base_DataDictionary WHERE Code=@Code)");
+                    WhereSql.AppendFormat(@" and ParentId in (
+select DataDictionaryDetailId  from Base_DataDictionaryDetail where
+Enabled=1 AND DataDictionaryId IN(SELECT DataDictionaryId FROM Base_DataDictionary WHERE Code='{0}')
+and FullName = '{1}')", Code, FullName);
                     WhereSql.Append(" ORDER BY SortCode ASC");
-                    parameter.Add(DbFactory.CreateDbParameter("@Code", Code));
-                    parameter.Add(DbFactory.CreateDbParameter("@ParentId", base_datadictionarydetail.DataDictionaryDetailId == null ? "koa" : base_datadictionarydetail.DataDictionaryDetailId));
-
-               
-
                 return DataFactory.Database().FindList<Base_DataDictionaryDetail>(WhereSql.ToString(), parameter.ToArray());
             }
             else

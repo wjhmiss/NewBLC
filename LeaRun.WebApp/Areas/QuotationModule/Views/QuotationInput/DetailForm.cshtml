@@ -541,42 +541,39 @@
             return false;
         }
         AjaxJsonNoMassge("/QuotationModule/QuotationInput/SubmitDetailForm?KeyValue=" + KeyValue + "&ShipDescription=" + $("#ShipDescription").val() + "&CustomerProduct=" + $("#CustomerProduct").val(), postData, function (data) {
-            if (data.Code < 0) {
+            
+            if (data.Code < 0 || !data.Code) {
                 //tipDialog(data.Message, 2, data.Code);
                 tipCss("#Remark", data.Message);
                 return false;
-
             }
+            if (data.Code > 0) {
+                top.frames[tabiframeId()].windowload();
+                $("#LineCode").val(Number($("#LineCode").val()) + Number(num));
+                AjaxJsonNoMassge("/QuotationModule/QuotationInput/SetDetailFormByLine", { QuotationId: $("#QuotationId").val(), LineCode: Number($("#LineCode").val()) }, function (data1) {
+                    if (!data1.Qty) {
+                        window.setTimeout(function () { closeDialog(); }, 500);
+                        return false;
+                    }
+                    else {
+                        SetWebControls(data1);
 
+                        KeyValue = data1.QuotationDetailId;
 
-            top.frames[tabiframeId()].windowload();
-            $("#LineCode").val(Number($("#LineCode").val()) + Number(num));
-            AjaxJsonNoMassge("/QuotationModule/QuotationInput/SetDetailFormByLine", { QuotationId: $("#QuotationId").val(), LineCode: Number($("#LineCode").val()) }, function (data) {
-                if (!data.Qty) {
-                    window.setTimeout(function () {closeDialog();}, 500);
-                    return false;
-                }
-                SetWebControls(data);
-
-                KeyValue = data.QuotationDetailId;
-
-                if (!!KeyValue && !!obj) {
-                    //编辑
-                    //$("#SteelCode").select();
-                    obj.select();
-                }
-                else {
-                    $("#Length").select();
-                }
-            });
+                        if (!!KeyValue && !!obj) {
+                            //编辑
+                            //$("#SteelCode").select();
+                            obj.select();
+                        }
+                        else {
+                            $("#Length").select();
+                        }
+                    }
+                });
+            }
         });
     }
-    function UP() {
-        AcceptClick2(-1)
-    }
-    function Next() {
-        AcceptClick2(1)
-    }
+
     function setname() {
         var Mheipi = $("#Mheipi").prop("checked") == true ? 1 : 0;
         if (Mheipi == 1) {

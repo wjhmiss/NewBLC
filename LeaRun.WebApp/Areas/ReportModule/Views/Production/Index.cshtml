@@ -143,40 +143,40 @@
             autowidth: true,
             colModel: [
                  { label: 'orderdetailid', name: 'orderdetailid', index: 'orderdetailid', width: 100, hidden: true },
-    { label: '编号', name: 'mnemoniccode', index: 'mnemoniccode', width: 100, sortable: true },
-                    { label: '订单单号', name: 'ordercode', index: 'ordercode', width: 100, sortable: true, hidden: true },
-                    { label: '行号', name: 'linecode', index: 'linecode', width: 60, align: 'center', sortable: true },
-                { label: '客户编号', name: 'customercode', index: 'customercode', width: 80, align: 'left', sortable: true, hidden: true },
-                { label: '客户简称', name: 'shortname', index: 'shortname', width: 80, align: 'left', sortable: true },
-                { label: '配件名称', name: 'ljtype', index: 'ljtype', width: 60, align: 'left', sortable: true },
-                { label: '品名', name: 'productname', index: 'productname', width: 60, align: 'left', sortable: true },
-                { label: '零件名称', name: 'steelcode', index: 'steelcode', width: 60, align: 'left', sortable: true, },
-                    { label: '钢种', name: 'steelcode', index: 'steelcode', width: 60, align: 'left', sortable: true,  },
-                    { label: '尺寸', name: 'size', index: 'size', width: 100, align: 'left', sortable: true },
+    { label: '编号', name: 'mnemoniccode', index: 'mnemoniccode', width: 100, sortable: false },
+                    { label: '订单单号', name: 'ordercode', index: 'ordercode', width: 100, sortable: false, hidden: true },
+                    { label: '行号', name: 'linecode', index: 'linecode', width: 60, align: 'center', sortable: false },
+                { label: '客户编号', name: 'customercode', index: 'customercode', width: 80, align: 'left', sortable: false, hidden: true },
+                { label: '客户简称', name: 'shortname', index: 'shortname', width: 80, align: 'left', sortable: false },
+                { label: '配件名称', name: 'ljtype', index: 'ljtype', width: 60, align: 'left', sortable: false },
+                { label: '品名', name: 'productname', index: 'productname', width: 60, align: 'left', sortable: false },
+                { label: '零件名称', name: 'steelcode', index: 'steelcode', width: 60, align: 'left', sortable: false, },
+                    { label: '钢种', name: 'steelcode', index: 'steelcode', width: 60, align: 'left', sortable: false,  },
+                    { label: '尺寸', name: 'size', index: 'size', width: 100, align: 'left', sortable: false },
                     {
-                        label: '落单日期', name: 'createdate', index: 'createdate', width: 100, align: 'center', sortable: true,
+                        label: '落单日期', name: 'createdate', index: 'createdate', width: 100, align: 'center', sortable: false,
                         formatter: function (cellvalue, options, rowObject) {
                             return formatDate(cellvalue, 'yyyy-MM-dd');
                         }
                     },
                     {
-                        label: '要求完工期', name: 'delivery', index: 'delivery', width: 100, align: 'center', sortable: true
+                        label: '要求完工期', name: 'delivery', index: 'delivery', width: 100, align: 'center', sortable: false
                 },
                 { label: '过期天数', name: 'overday', index: 'overday', width: 50, align: 'center', sortable: true },
-                     { label: '重量', name: 'weight', index: 'weight', width: 50, align: 'center', sortable: true },
-                { label: '订单数量', name: 'qty', index: 'qty', width: 50, align: 'left', sortable: true },
+                     { label: '重量', name: 'weight', index: 'weight', width: 50, align: 'center', sortable: false },
+                { label: '订单数量', name: 'qty', index: 'qty', width: 50, align: 'left', sortable: false },
                 {
-                    label: '委外加工', name: 'isbeout', index: 'isbeout', width: 80, align: 'center', sortable: true
+                    label: '委外加工', name: 'isbeout', index: 'isbeout', width: 80, align: 'center', sortable: false
                 },
 
                     { label: "过磅数", name: "oqty", index: "oqty", width: 50, align: "right" },
                 { label: "过磅重量", name: "oweight", index: "oweight", width: 50, align: "right" },
 
-                    { label: '已完成数', name: 'completeqty', index: 'completeqty', width: 50, align: 'center', sortable: true },
-                    { label: '未完成数', name: 'uncompleteqty', index: 'uncompleteqty', width: 50, align: 'center', sortable: true },
+                    { label: '已完成数', name: 'completeqty', index: 'completeqty', width: 50, align: 'center', sortable: false },
+                    { label: '未完成数', name: 'uncompleteqty', index: 'uncompleteqty', width: 50, align: 'center', sortable: false },
                 { label: "出货件数", name: "deliveryqty", index: "deliveryqty", width: 50, align: "right" },
                     {
-                        label: '当前状态', name: 'billstatus1', index: 'billstatus1', width: 80, align: 'center', sortable: true,
+                        label: '当前状态', name: 'billstatus1', index: 'billstatus1', width: 80, align: 'center', sortable: false,
                         formatter: function (cellvalue, options, rowobject) {
                             if (rowobject.billstatus == "正常生产") {
                                 return !!rowobject.billstatus1 ? rowobject.billstatus1 : "正在开料";
@@ -186,27 +186,27 @@
                             }
                         }
                 },
-                { label: '类型', name: 'ordertype', index: 'ordertype', width: 80, align: 'center', sortable: true },
-                { label: '模号', name: 'customerproduct', index: 'customerproduct', width: 60, align: 'left', sortable: true },
+                { label: '类型', name: 'ordertype', index: 'ordertype', width: 80, align: 'center', sortable: false },
+                { label: '模号', name: 'customerproduct', index: 'customerproduct', width: 60, align: 'left', sortable: false },
 
                     
                    
                     {
-                        label: '发运日期', name: 'shipcreatedate', index: 'shipcreatedate', width: 100, align: 'left', sortable: true,
+                        label: '发运日期', name: 'shipcreatedate', index: 'shipcreatedate', width: 100, align: 'left', sortable: false,
                         formatter: function (cellvalue, options, rowObject) {
                             return formatDate(cellvalue, 'yyyy-MM-dd');
                     }
                 },
-                { label: '业务员', name: 'salesman', index: 'salesman', width: 60, align: 'left', sortable: true },
-                { label: '备注', name: 'remark', index: 'remark', width: 150, align: 'left', sortable: true, hidden: true },
+                { label: '业务员', name: 'salesman', index: 'salesman', width: 60, align: 'left', sortable: false },
+                { label: '备注', name: 'remark', index: 'remark', width: 150, align: 'left', sortable: false, hidden: true },
 
             ],
             viewrecords: true,
             rowNum: 1000,
             rowList: [100, 200, 500, 1000, 5000],
             pager: "#gridPager",
-            sortname: 'CreateDate',
-            sortorder: 'desc',
+            sortname: 'mnemoniccode,linecode',
+            sortorder: 'asc',
             rownumbers: true,
             shrinkToFit: false,
             gridview: true,

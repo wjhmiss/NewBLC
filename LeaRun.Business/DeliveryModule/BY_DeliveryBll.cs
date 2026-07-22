@@ -35,13 +35,17 @@ namespace DNS.Business
         d.CustomerName '客户名称' ,        d.shortname '简称' ,
 
         dd.ProductName '产品名称' ,
-        CASE WHEN dd.Weigh > 0
+               CASE WHEN dd.Weigh > 0 
              THEN  CAST(CONVERT(FLOAT, dd.Thick) AS VARCHAR(50))+ '*'
                   + CAST(CONVERT(FLOAT, dd.Weigh) AS VARCHAR(50)) + '*'
                   + CAST(CONVERT(FLOAT, dd.Length) AS VARCHAR(50))
-             ELSE 'Φ' + CAST(CONVERT(FLOAT, dd.Thick) AS VARCHAR(50)) + '*'
+			 WHEN dd.BoreSize = 0
+             THEN 'Φ' + CAST(CONVERT(FLOAT, dd.Thick) AS VARCHAR(50)) + '*'
                   + CAST(CONVERT(FLOAT, dd.Length) AS VARCHAR(50))
-        END AS '规格' ,
+				  WHEN dd.BoreSize > 0
+				  THEN 'Φ' + CAST(CONVERT(FLOAT, dd.Thick) AS VARCHAR(50)) +'Φ' + CAST(CONVERT(FLOAT, dd.BoreSize) AS VARCHAR(50)) + '*'
+                  + CAST(CONVERT(FLOAT, dd.Length) AS VARCHAR(50))
+        END AS '规格',
         dd.Qty '数量' ,
         dd.TheoryWeight '理重' ,
         dd.Weight AS '重量' ,

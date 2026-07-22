@@ -334,7 +334,16 @@
                 top.frames[iframe].AcceptClick();
             });
         }
+}
+    function btn_printall3() {
+        var Base_SteelDDPerchaseId = GetJqGridRowValue("#gridTable", "Base_SteelDDPerchaseId");
+        if (IsChecked(Base_SteelDDPerchaseId)) {
+            PrintDialog("/OrderModule/Base_SteelDDPerchase/BeOutPrintList2?perType=A5&Base_SteelDDPerchaseId=" + Base_SteelDDPerchaseId, "PrintPage", "打印", 850, 500, function (iframe) {
+                top.frames[iframe].AcceptClick();
+            });
+        }
     }
+    
     //导出
     function btn_Export() {
         SetDeriveExcel("#gridTable", "钢材购买报表");
@@ -387,9 +396,13 @@
             </td>
             <td colspan="3">
                 <input id="btnSearch" type="button" class="btnSearch" value="搜 索" onclick="btn_Search()" />
-                 <input id="btn_export" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
-                 <input id="btn_expaaort" type="button" class="btnSearch" value="打印A4" onclick="btn_printall1()" />
-                 <input id="btn_expaaort2" type="button" class="btnSearch" value="打印A5" onclick="btn_printall2()" />
+                <input id="btn_export" type="button" class="btnSearch" value="导 出" onclick="btn_Export()" />
+                <input id="btn_expaaort" type="button" class="btnSearch" value="打印A4" onclick="btn_printall1()" />
+                <input id="btn_expaaort2" type="button" class="btnSearch" value="打印A5" onclick="btn_printall2()" />
+
+                <input id="btn_expaaort3" type="button" class="btnSearch" value="无价格打印" onclick="btn_printall3()" />
+
+                
             </td>
             </tr>
     </table>

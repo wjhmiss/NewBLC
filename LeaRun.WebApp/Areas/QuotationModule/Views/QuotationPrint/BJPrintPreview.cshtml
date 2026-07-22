@@ -239,7 +239,7 @@ var DDCostPer = 0;
                             var YUBoreSize = "";
                             if (!!QuotationDetail[i].BoreSize) {
                                 BoreSize = "xΦ" + QuotationDetail[i].BoreSize;
-                                YUBoreSize = "xΦ" + QuotationDetail[i].AddBoreSize;
+                                YUBoreSize = "xΦ" + QuotationDetail[i].BoreSizeAdd;
                             }
                             size = "Φ" + parseFloat(QuotationDetail[i].Thick) + BoreSize + '*' + parseFloat(QuotationDetail[i].Length);
                             yusize = "Φ" + parseFloat(QuotationDetail[i].AddThick) + YUBoreSize + '*' + parseFloat(QuotationDetail[i].AddLength);

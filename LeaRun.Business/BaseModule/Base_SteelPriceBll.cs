@@ -1112,8 +1112,9 @@ namespace DNS.Business
                     else
                     {
 
-                         if (item.WhereQ == "重量小于等于" && CommonHelper.GetDecimal(item.WhereQty) >= TheoryWeight && CommonHelper.GetDecimal(item.WhereQty) >= WorkWeight)
-                        {
+                         //if (item.WhereQ == "重量小于等于" && CommonHelper.GetDecimal(item.WhereQty) >= TheoryWeight && CommonHelper.GetDecimal(item.WhereQty) >= WorkWeight)
+                         if (item.WhereQ == "重量小于等于" && CommonHelper.GetDecimal(item.WhereQty) >= Weight && CommonHelper.GetDecimal(item.WhereQty) >= WorkWeight)
+                            {
                             if (CommonHelper.GetDecimal(priceHt["WorkPrice"]) == 0 && string.IsNullOrEmpty(item.SteelCode.Replace("&nbsp;", "")))
                             {
                                 priceHt["WorkPrice"] = CommonHelper.GetDecimal(item.Price);

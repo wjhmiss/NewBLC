@@ -166,7 +166,7 @@
                         Orderhtml += '        <td colspan="10"  style="vertical-align:top;">';
                         Orderhtml += '            <table id="tb_OrderDetail" border="0" cellpadding="0" cellspacing="0" class="form-print" style="width: 100%;border-collapse:collapse;border: 1px solid #000;">';
                         Orderhtml += '<tr style="height: 4mm;">';
-                        Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >钢种</td>';
+                        //Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >钢种</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >品名</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >厚*宽*长</td>';
 
@@ -181,7 +181,7 @@
                     if (OrderDetail[i].SteelCode == "") {
                         Orderhtml += '<tr style="height: 4mm;">';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;<br/>&nbsp;</td>';
-                        Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
+                        // Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
@@ -195,7 +195,7 @@
                         if (!OrderDetail[i].XLsize) {
                             OrderDetail[i].XLsize = "";
                         }
-                        Orderhtml += '    <td  style="font-size: 10pt;border-bottom: 1px dashed #000;text-align: center;word-break:break-all"  >' + OrderDetail[i].SteelCode + OrderDetail[i].OrderType.substr(0,2) + '</td>';
+                        // Orderhtml += '    <td  style="font-size: 10pt;border-bottom: 1px dashed #000;text-align: center;word-break:break-all"  >' + OrderDetail[i].SteelCode + OrderDetail[i].OrderType.substr(0,2) + '</td>';
 
                         Orderhtml += '    <td style="font-size: 13pt;white-space:nowrap;border-bottom: 1px dashed #000;text-align: center;" >' + OrderDetail[i].ProductName + '<span style="font-size: 11px;"></span></td>';
                         Orderhtml += '    <td style="font-size: 13pt;white-space:nowrap;border-bottom: 1px dashed #000;text-align: center;" >' + size + '<span style="font-size: 11px;"></span></td>';
@@ -326,8 +326,7 @@
 
         }
         else {
-            //LODOP.SET_PRINT_PAGESIZE(2, "", "", "A5");
-            LODOP.SET_PRINT_PAGESIZE(1, "217mm", "140mm", "")
+            LODOP.SET_PRINT_PAGESIZE(2, "", "", "A5");
         }
         var strHTML = document.getElementsByTagName("html")[0].innerHTML;
         LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);

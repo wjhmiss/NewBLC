@@ -43,13 +43,17 @@ namespace DNS.Business
         o.shortname '客户简称' ,
         qd.ProductName '产品名称' ,
         qd.SteelDescription '钢种' ,
-        CASE WHEN qd.Weigh > 0
-             THEN  CAST(CONVERT(FLOAT, qd.Thick) AS VARCHAR(50)) + '*'
+               CASE WHEN qd.Weigh > 0 
+             THEN  CAST(CONVERT(FLOAT, qd.Thick) AS VARCHAR(50))+ '*'
                   + CAST(CONVERT(FLOAT, qd.Weigh) AS VARCHAR(50)) + '*'
                   + CAST(CONVERT(FLOAT, qd.Length) AS VARCHAR(50))
-             ELSE 'Φ' + CAST(CONVERT(FLOAT, qd.Thick) AS VARCHAR(50)) + '*'
+			 WHEN qd.BoreSize = 0
+             THEN 'Φ' + CAST(CONVERT(FLOAT, qd.Thick) AS VARCHAR(50)) + '*'
                   + CAST(CONVERT(FLOAT, qd.Length) AS VARCHAR(50))
-        END AS '规格' ,
+				  WHEN qd.BoreSize > 0
+				  THEN 'Φ' + CAST(CONVERT(FLOAT, qd.Thick) AS VARCHAR(50)) +'Φ' + CAST(CONVERT(FLOAT, qd.BoreSize) AS VARCHAR(50)) + '*'
+                  + CAST(CONVERT(FLOAT, qd.Length) AS VARCHAR(50))
+        END AS '规格',
         qd.Qty '数量' ,
 qd.Thick '厚度',
         qd.Weight AS '重量' ,

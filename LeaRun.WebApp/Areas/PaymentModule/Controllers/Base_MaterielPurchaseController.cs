@@ -247,7 +247,7 @@ WHERE   mp.MaterielPurchaseId IN (" + WhereSql + ") ");
                 }
                 if (ds.Tables[0].Rows.Count >0)
                 {
-                    base_supplier = DataFactory.Database().FindEntity<Base_Supplier>("Code", ds.Tables[0].Rows[0]["CustomerCode"].ToString());
+                    base_supplier = DataFactory.Database().FindEntityByWhere<Base_Supplier>(" and code like '%" + ds.Tables[0].Rows[0]["CustomerCode"].ToString() + "%' or FullName like '%" + ds.Tables[0].Rows[0]["CustomerCode"].ToString() + "%'");
                 }
                 var JsonData = new
                 {

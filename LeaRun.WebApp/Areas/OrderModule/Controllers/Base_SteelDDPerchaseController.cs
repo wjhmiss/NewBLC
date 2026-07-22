@@ -105,6 +105,10 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
         {
             return View();
         }
+        public virtual ActionResult BeOutPrintList2()
+        {
+            return View();
+        }
         public ActionResult BeOutListJson(string Base_SteelDDPerchaseId)
         {
             IDatabase database = DataFactory.Database();

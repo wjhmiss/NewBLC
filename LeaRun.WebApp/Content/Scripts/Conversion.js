@@ -6,11 +6,11 @@
     var Qty = ToNumber($("#Qty").val());
 
 
-    if (_WorkWeight > _TheoryWeight) {
+    if (_WorkWeight > _Weight) {
         $("#SmallAmount").val(preciseCalculate(_WorkWeight, $("#SmallCost").val(), '*', 2));//材料费用 金额
     }
     else {
-        $("#SmallAmount").val(preciseCalculate($("#TheoryWeight").val(), $("#SmallCost").val(), '*', 2));//材料费用 金额
+        $("#SmallAmount").val(preciseCalculate(_Weight, $("#SmallCost").val(), '*', 2));//材料费用 金额
     }
     if (LType == "GC") {
         if ($("#JJtype").val() == "按公斤") {
@@ -20,7 +20,7 @@
 
             }
             else {
-                $("#MaterialAmount").val(preciseCalculate(_TheoryWeight, $("#MaterialPrice").val(), '*', 2));//材料费用 金额
+                $("#MaterialAmount").val(preciseCalculate(_Weight, $("#MaterialPrice").val(), '*', 2));//材料费用 金额
 
             }
             //$("#MaterialAmount").val(($("#Weight").val() * $("#MaterialPrice").val()).toFixed(2));//材料费用 金额

@@ -1021,6 +1021,7 @@
     <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LF1ForLJ4.cshtml" />
     <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LF1ForLJ5.cshtml" />
     <Content Include="Areas\DeliveryModule\Views\BY_Delivery\LF1ForLJ6.cshtml" />
+    <Content Include="Areas\OrderModule\Views\Base_SteelDDPerchase\BeOutPrintList2.cshtml" />
     <None Include="Properties\PublishProfiles\LR-FDMS.pubxml" />
     <Content Include="Views\Home\SkinIndex.cshtml" />
     <Content Include="Views\Login\Default.cshtml" />

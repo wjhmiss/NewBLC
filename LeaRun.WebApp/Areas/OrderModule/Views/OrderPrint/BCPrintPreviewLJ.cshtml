@@ -149,18 +149,21 @@
                         Orderhtml += '            <span style="font-size: 22px; font-weight: bold;">' + data.company.FullName + '</span><span style="font-size: 12px; font-weight: bold;">共：' + data.OrderDetailTotal + '件（' + pageindex + '/' + total + '）</span>';
                         Orderhtml += '        </td>';
                         Orderhtml += '    </tr>';
-
+                        if (!QuotationEntiy.TransitMode) {
+                            QuotationEntiy.TransitMode = ""
+                        }
                         Orderhtml += '    <tr>';
                         Orderhtml += '        <th style="height: 14px;line-height:14px;font-size: 10pt;">编码：</th>';
                         Orderhtml += '        <td style="height: 14px;line-height:14px;font-size: 10pt;" >' + QuotationEntiy.MnemonicCode + '</td>';
-                        Orderhtml += '        <th style="height: 14px;line-height:14px;font-size: 10pt;">客户：</th>';
-                        Orderhtml += '        <td style="height: 14px;line-height:14px;font-size: 10pt;" >' + QuotationEntiy.CustomerName + '</td>';
+                        Orderhtml += '        <th style="height: 14px;line-height:14px;font-size: 10pt;">客户/运输：</th>';
+                        Orderhtml += '        <td style="height: 14px;line-height:14px;font-size: 10pt;" >' + QuotationEntiy.ShortName + "/" + QuotationEntiy.TransitMode + '</td>';
                         Orderhtml += '        <th style="height: 14px;line-height:14px;font-size: 10pt;">交期：</th>';
                         Orderhtml += '        <td style="height: 14px;line-height:14px;font-size: 10pt;" >' + OrderDetail.Delivery + '</td>';
                         Orderhtml += '        <th style="height: 14px;line-height:14px;font-size: 10pt;">下单：</th>';
                         Orderhtml += '        <td style="height: 14px;line-height:14px;font-size: 10pt;" >' + formatDate(OrderDetail.CreateDate, 'yyyy-MM-dd') +  '</td>';
                         Orderhtml += '        <th style="height: 14px;line-height:14px;font-size: 10pt;">客服：</th>';
                         Orderhtml += '        <td style="height: 14px;line-height:14px;font-size: 10pt;" >' + QuotationEntiy.CreateUserName + '</td>';
+                       
                         Orderhtml += '    </tr>';
 
                         Orderhtml += '    <tr>';
@@ -183,7 +186,7 @@
                     Orderhtml += '                               <td align="center" style="border: 1px solid #000;  text-align: center;">' + OrderDetail.ProductName + '</td>';
                     Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + OrderDetail.SteelCode + '</td>';
                     Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
-                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + OrderDetail.Qty + '</td>';
+                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + OrderDetail.Qty + '/' + data.OrderDetailTotal.toFixed(0) +'</td>';
                     Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + OrderDetail.Weight + '</td>';
                     Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + OrderDetail.NowStatus + '</td>';
                     Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + OrderDetail.CustomerProduct + '</td>';
@@ -247,8 +250,8 @@
                         Orderhtml += '    <tr>';
                         Orderhtml += '        <td colspan="6"  style="vertical-align:top;font-size: 10pt;">';
                         Orderhtml += '        下单：' + formatDate(OrderEntiy.CreateDate, 'yyyy-MM-dd');
-                        Orderhtml += '        &nbsp;&nbsp;重量：' + totalweightPer.toFixed(0) + "kg";
-                        Orderhtml += '        &nbsp;&nbsp;件数：' + totalper;
+                        Orderhtml += '        &nbsp;&nbsp;总重量：' + data.WeightTotal.toFixed(2) + "kg";
+                        Orderhtml += '        &nbsp;&nbsp;总件数：' + data.OrderDetailTotal.toFixed(0);
                         Orderhtml += '        &nbsp;&nbsp;交期：' + Delivery;
                         Orderhtml += '        </td>';
                         //Orderhtml += '        <td colspan="2"   style="vertical-align:top;">';
@@ -325,14 +328,14 @@
         LODOP.PRINT_INIT("打印初始化");
 
         if (GetQuery('perType') == "A4") {
-            LODOP.SET_PRINT_PAGESIZE(1, "", "", "A4");
+            LODOP.SET_PRINT_PAGESIZE(2, "", "", "A4");
             var strHTML = document.getElementsByTagName("html")[0].innerHTML;
             LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
 
             LODOP.SET_SHOW_MODE("LANDSCAPE_DEFROTATED", 1);//横向时的正向显示
         }
         else {
-            LODOP.SET_PRINT_PAGESIZE(1, "217mm", "140.5mm", "")
+            LODOP.SET_PRINT_PAGESIZE(2, "217mm", "140.5mm", "")
             var strHTML = document.getElementsByTagName("html")[0].innerHTML;
             LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
 

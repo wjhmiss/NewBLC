@@ -39,7 +39,7 @@ namespace DNS.Business
             strSql.Append(@"SELECT  WorkerId ,
                                     WorkerName ,
                                     WorkerCode ,
-                                    Degree ,
+                                    Degree ,mobile,
                                     d.FullName AS DepartName
                             FROM    BY_Worker w
                                     INNER JOIN dbo.Base_Department d ON w.DepartId = d.DepartmentId 

@@ -1,10 +1,10 @@
-ï»¿@{
-    ViewBag.Title = "è®¢å•æŸ¥è¯¢";
+@{
+    ViewBag.Title = "¶©µ¥²éÑ¯";
     Layout = "~/Views/Shared/_LayoutIndex.cshtml";
 }
 
 <link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
-<script src="~/Content/Scripts/uploadify/jquery.uploadify.js?ver=@DateTime.Now.Ticks"></script>
+<script src="~/Content/Scripts/uploadify/native-uploadify.js?ver=@DateTime.Now.Ticks"></script>
 
 
 
@@ -18,7 +18,7 @@
             GetGridDetail();
         }, 200);
     })
-    //æŸ¥è¯¢
+    //²éÑ¯
     function btn_Search() {
         var Condition = GetParameterJson("QueryParameter");
         $("#gridTable").jqGrid('setGridParam', { url: "@Url.Content("~/OrderModule/OrderQuery/GridPageListJson")?Condition=" + escape(Condition), page: 1 }).trigger('reloadGrid');
@@ -26,7 +26,7 @@
     }
     function btn_DownLoad() {
         var Condition = GetParameterJson("QueryParameter");
-        Loading(true, "æ­£åœ¨å¤„ç†è¦å¯¼å‡ºæ•°æ®...");
+        Loading(true, "ÕıÔÚ´¦ÀíÒªµ¼³öÊı¾İ...");
         window.setTimeout(function () {
             location.href = "@Url.Content("~/OrderModule/OrderQuery/DownLoadExcel")?Condition=" + escape(Condition);
             Loading(false);
@@ -34,13 +34,13 @@
     }
     function btn_DownLoad1() {
         var Condition = GetParameterJson("QueryParameter");
-        Loading(true, "æ­£åœ¨å¤„ç†è¦å¯¼å‡ºæ•°æ®...");
+        Loading(true, "ÕıÔÚ´¦ÀíÒªµ¼³öÊı¾İ...");
         window.setTimeout(function () {
             location.href = "@Url.Content("~/OrderModule/OrderQuery/DownLoadExcel1")?Condition=" + escape(Condition);
             Loading(false);
         }, 200);
     }
-    //åŠ è½½è®¢å•è¡¨æ ¼
+    //¼ÓÔØ¶©µ¥±í¸ñ
     function GetGrid() {
         var SelectRowIndx = 1;
         var Condition = GetParameterJson("QueryParameter");
@@ -50,32 +50,32 @@
             height: 170,
             autowidth: true,
             colModel: [
-                { label: 'ä¸»é”®', name: 'orderid', hidden: true }, 
+                { label: 'Ö÷¼ü', name: 'orderid', hidden: true }, 
                 { label: 'quotationid', name: 'quotationid', hidden: true }, 
-                { label: 'å…¬å¸', name: 'companyname', index: 'companyname', width: 120, align: 'left', sortable: true },
-                    { label: 'åŠ©è®°ç¼–å·', name: 'mnemoniccode', index: 'mnemoniccode', width: 120, align: 'left', sortable: true },
-                    { label: 'è®¢å•å•å·', name: 'ordercode', index: 'ordercode', width: 120, align: 'left', sortable: true },
-                    { label: 'æŠ¥ä»·å•å·', name: 'quotationcode', index: 'quotationcode', width: 120, align: 'left', sortable: true },
-                { label: 'åŸå•å·/å®¢æˆ·å•å·', name: 'customerpo', index: 'customerpo', width: 80, align: 'left', sortable: true },
-                    { label: 'å®¢æˆ·ç¼–å·', name: 'customercode', index: 'customercode', width: 80, align: 'left', sortable: true },
-                    { label: 'å®¢æˆ·ç®€ç§°', name: 'shortname', index: 'shortname', width: 80, align: 'left', sortable: true },
+                { label: '¹«Ë¾', name: 'companyname', index: 'companyname', width: 120, align: 'left', sortable: true },
+                    { label: 'Öú¼Ç±àºÅ', name: 'mnemoniccode', index: 'mnemoniccode', width: 120, align: 'left', sortable: true },
+                    { label: '¶©µ¥µ¥ºÅ', name: 'ordercode', index: 'ordercode', width: 120, align: 'left', sortable: true },
+                    { label: '±¨¼Ûµ¥ºÅ', name: 'quotationcode', index: 'quotationcode', width: 120, align: 'left', sortable: true },
+                { label: 'Ô­µ¥ºÅ/¿Í»§µ¥ºÅ', name: 'customerpo', index: 'customerpo', width: 80, align: 'left', sortable: true },
+                    { label: '¿Í»§±àºÅ', name: 'customercode', index: 'customercode', width: 80, align: 'left', sortable: true },
+                    { label: '¿Í»§¼ò³Æ', name: 'shortname', index: 'shortname', width: 80, align: 'left', sortable: true },
                      {
-                         label: 'å®¢æ¥æ–™', name: 'custmaterial', index: 'custmaterial', width: 50, align: 'left', sortable: true,
+                         label: '¿ÍÀ´ÁÏ', name: 'custmaterial', index: 'custmaterial', width: 50, align: 'left', sortable: true,
                          formatter: function (cellvalue, options, rowObject) {
                              if (!!cellvalue) {
-                                 return "æ˜¯";
+                                 return "ÊÇ";
                              }
-                             return "å¦";
+                             return "·ñ";
                          }
                      },
-                    { label: 'å®¢æˆ·PO', name: 'customerpo', index: 'customerpo', width: 80, align: 'left', sortable: true, hidden: true },
-                    { label: 'æ€»æ•°é‡', name: 'qty', index: 'qty', width: 50, align: 'right', sortable: true },
-                    { label: 'æ€»é‡‘é¢', name: 'amount', index: 'amount', width: 50, align: 'right', sortable: true, hidden: true },
+                    { label: '¿Í»§PO', name: 'customerpo', index: 'customerpo', width: 80, align: 'left', sortable: true, hidden: true },
+                    { label: '×ÜÊıÁ¿', name: 'qty', index: 'qty', width: 50, align: 'right', sortable: true },
+                    { label: '×Ü½ğ¶î', name: 'amount', index: 'amount', width: 50, align: 'right', sortable: true, hidden: true },
                     {
-                        label: 'è®¢å•çŠ¶æ€', name: 'orderstatus', index: 'orderstatus', width: 60, align: 'center', sortable: true
+                        label: '¶©µ¥×´Ì¬', name: 'orderstatus', index: 'orderstatus', width: 60, align: 'center', sortable: true
                         //,
                         //formatter: function (cellvalue, options, rowobject) {
-                        //    if (cellvalue == "æ­£å¸¸ç”Ÿäº§") {
+                        //    if (cellvalue == "Õı³£Éú²ú") {
                         //        return "<a  style='color:red' onclick='OpearLog(\"" + rowobject.orderid + "\",\"" + rowobject.ordercode + "\")'>" + cellvalue + "</a>";
                         //    }
                         //    else{
@@ -84,27 +84,27 @@
                         //    }
                         //}
                     },
-                    { label: 'å‘è¿å¤‡æ³¨', name: 'shipdescription', index: 'shipdescription', width: 100, align: 'left', sortable: true },
-                { label: 'çŠ¶æ€å˜æ›´å¤‡æ³¨', name: 'remark', index: 'remark', width: 100, align: 'left', sortable: true, hidden: true },
+                    { label: '·¢ÔË±¸×¢', name: 'shipdescription', index: 'shipdescription', width: 100, align: 'left', sortable: true },
+                { label: '×´Ì¬±ä¸ü±¸×¢', name: 'remark', index: 'remark', width: 100, align: 'left', sortable: true, hidden: true },
                     {
-                        label: 'è½å•æ—¥æœŸ', name: 'placeorderdate', index: 'placeorderdate', width: 80, align: 'left', sortable: true,
+                        label: 'Âäµ¥ÈÕÆÚ', name: 'placeorderdate', index: 'placeorderdate', width: 80, align: 'left', sortable: true,
                         formatter: function (cellvalue, options, rowObject) {
                             return formatDate(cellvalue, 'yyyy-MM-dd');
                         }
                     },
-                    { label: 'è½å•äººå‘˜', name: 'placeorderuserid', index: 'placeorderuserid', width: 70, align: 'left', sortable: true },
+                    { label: 'Âäµ¥ÈËÔ±', name: 'placeorderuserid', index: 'placeorderuserid', width: 70, align: 'left', sortable: true },
 
                     {
-                        label: 'å®¡æ ¸æ—¥æœŸ', name: 'checkdate', index: 'checkdate', width: 100, align: 'left', sortable: true,
+                        label: 'ÉóºËÈÕÆÚ', name: 'checkdate', index: 'checkdate', width: 100, align: 'left', sortable: true,
                         formatter: function (cellvalue, options, rowObject) {
                             return formatDate(cellvalue, 'yyyy-MM-dd');
                         }, hidden: true
                     },
-                { label: 'å®¡æ ¸äººå‘˜', name: 'checkuserid', index: 'checkuserid', width: 80, align: 'left', sortable: true, hidden: true },
-                { label: 'ä¸‹å‘äºº', name: 'issueduserid', index: 'issueduserid', width: 80, align: 'left', sortable: true, hidden: true},
-                { label: 'ä¸‹å‘æ—¶é—´', name: 'issueddate', index: 'issueddate', width: 100, align: 'left', sortable: true, hidden: true },
+                { label: 'ÉóºËÈËÔ±', name: 'checkuserid', index: 'checkuserid', width: 80, align: 'left', sortable: true, hidden: true },
+                { label: 'ÏÂ·¢ÈË', name: 'issueduserid', index: 'issueduserid', width: 80, align: 'left', sortable: true, hidden: true},
+                { label: 'ÏÂ·¢Ê±¼ä', name: 'issueddate', index: 'issueddate', width: 100, align: 'left', sortable: true, hidden: true },
                 {
-                    label: 'ç›¸å…³æ–‡ä»¶', name: 'fileattach', index: 'fileattach', width: 500, align: 'left', sortable: true,
+                    label: 'Ïà¹ØÎÄ¼ş', name: 'fileattach', index: 'fileattach', width: 500, align: 'left', sortable: true,
                     formatter: function (cellvalue, options, rowObject) {
                         if (!!cellvalue) {
                             return HtmlUtil.htmlDecode(cellvalue);
@@ -138,7 +138,7 @@
             }
         });
             }
-            //è®¢å•æ˜ç»†åˆ—è¡¨
+            //¶©µ¥Ã÷Ï¸ÁĞ±í
     function GetGridDetail() {
         $("#gridTable_Detail").jqGrid({
             url: "@Url.Content("~/OrderModule/OrderQuery/GridOrderDetailListJson")",
@@ -146,20 +146,20 @@
             height: $(window).height() - 374,
             autowidth: true,
             colModel: [
-                { label: "ä¸»é”®", name: "orderdetailid", hidden: true },
+                { label: "Ö÷¼ü", name: "orderdetailid", hidden: true },
                 { label: "quotationdetailid", name: "quotationdetailid", hidden: true},
                 { label: "weightfact", name: "weightfact", hidden: true },
-                { label: "è¡Œå·", name: "linecode", index: "linecode", width: 40 },
-                { label: "é’¢æç¼–ç ", name: "steelcode", index: "steelcode", width: 50, hidden: true },
-                { label: "é’¢æåç§°", name: "steeldescription", index: "steeldescription", width: 80 },
-                { label: "å®¢æˆ·å“å", name: "productname", index: "productname", width: 50 },
-                { label: "åŠ å·¥ç±»å‹", name: "ordertype", index: "ordertype", width: 50, align: "center" },
+                { label: "ĞĞºÅ", name: "linecode", index: "linecode", width: 40 },
+                { label: "¸Ö²Ä±àÂë", name: "steelcode", index: "steelcode", width: 50, hidden: true },
+                { label: "¸Ö²ÄÃû³Æ", name: "steeldescription", index: "steeldescription", width: 80 },
+                { label: "¿Í»§Æ·Ãû", name: "productname", index: "productname", width: 50 },
+                { label: "¼Ó¹¤ÀàĞÍ", name: "ordertype", index: "ordertype", width: 50, align: "center" },
 
-                { label: "é•¿åº¦", name: "length", index: "length", width: 60, align: 'left', sortable: true, hidden: true },
-                { label: "å®½åº¦", name: "weigh", index: "weigh", width: 60, align: 'left', sortable: true, hidden: true },
-                { label: "åš/ç›´å¾„", name: "thick", index: "thick", width: 60, align: 'left', sortable: true, hidden: true },
+                { label: "³¤¶È", name: "length", index: "length", width: 60, align: 'left', sortable: true, hidden: true },
+                { label: "¿í¶È", name: "weigh", index: "weigh", width: 60, align: 'left', sortable: true, hidden: true },
+                { label: "ºñ/Ö±¾¶", name: "thick", index: "thick", width: 60, align: 'left', sortable: true, hidden: true },
                 {
-                    label: "è§„æ ¼(é•¿å®½åš)", name: "thick", index: "thick", width: 170,
+                    label: "¹æ¸ñ(³¤¿íºñ)", name: "thick", index: "thick", width: 170,
                     formatter: function (cellvalue, options, rowobject) {
                         if (!!rowobject.weigh) {
                             return parseFloat(rowobject.length) + "*" + parseFloat(rowobject.weigh) + "*" + parseFloat(rowobject.thick);
@@ -167,32 +167,32 @@
                         else {
                             var BoreSize = "";
                             if (!!rowobject.boresize) {
-                                BoreSize = "*Î¦" + rowobject.boresize;
+                                BoreSize = "*¦µ" + rowobject.boresize;
                             }
-                            return "Ï†" + parseFloat(rowobject.thick) + BoreSize + "*" + parseFloat(rowobject.length);
+                            return "¦Õ" + parseFloat(rowobject.thick) + BoreSize + "*" + parseFloat(rowobject.length);
                         }
                     }
                 },
 
 
-                { label: "ä»¶æ•°", name: "qty", index: "qty", width: 50, align: "right" },
-                { label: "ç†é‡", name: "weight", index: "weight", width: 50, align: "right" },
-                { label: "äº¤æœŸ", name: "delivery", index: "delivery", width: 80, align: "right" },
+                { label: "¼şÊı", name: "qty", index: "qty", width: 50, align: "right" },
+                { label: "ÀíÖØ", name: "weight", index: "weight", width: 50, align: "right" },
+                { label: "½»ÆÚ", name: "delivery", index: "delivery", width: 80, align: "right" },
                 {
-                    label: 'é€è´§å•æ—¥æœŸ', name: 'createdate1', index: 'createdate1', width: 100, align: 'right', sortable: true,
+                    label: 'ËÍ»õµ¥ÈÕÆÚ', name: 'createdate1', index: 'createdate1', width: 100, align: 'right', sortable: true,
                     formatter: function (cellvalue, options, rowObject) {
                         return formatDate(cellvalue, 'yyyy-MM-dd');
                     }
                 },
-                { label: "å®Œå·¥ä»¶æ•°", name: "completeqty", index: "completeqty", width: 50, align: "right" },
-                { label: "æ‰“å•ä»¶æ•°", name: "printqty", index: "printqty", width: 50, align: "right" },
-                { label: 'å½“å‰çŠ¶æ€', name: 'billstatus1', index: 'billstatus', width: 60, align: 'center', sortable: true},
+                { label: "Íê¹¤¼şÊı", name: "completeqty", index: "completeqty", width: 50, align: "right" },
+                { label: "´òµ¥¼şÊı", name: "printqty", index: "printqty", width: 50, align: "right" },
+                { label: 'µ±Ç°×´Ì¬', name: 'billstatus1', index: 'billstatus', width: 60, align: 'center', sortable: true},
 
                 {
-                    label: "è®¢å•çŠ¶æ€", name: "billstatus", index: "billstatus", width: 60, align: "center",
+                    label: "¶©µ¥×´Ì¬", name: "billstatus", index: "billstatus", width: 60, align: "center",
                     formatter: function (cellvalue, options, rowobject) {
-                        if (rowobject.billstatus == "æ­£å¸¸ç”Ÿäº§") {
-                            return !!rowobject.billstatus1 ? rowobject.billstatus1 : "æ­£åœ¨å¼€æ–™";
+                        if (rowobject.billstatus == "Õı³£Éú²ú") {
+                            return !!rowobject.billstatus1 ? rowobject.billstatus1 : "ÕıÔÚ¿ªÁÏ";
                         }
                         else {
                             return cellvalue;
@@ -202,47 +202,47 @@
 
 
                 {
-                    label: "æ˜¯å¦å§”å¤–", name: "isbeout", index: "isbeout", width: 50,
+                    label: "ÊÇ·ñÎ¯Íâ", name: "isbeout", index: "isbeout", width: 50,
                     formatter: function (cellvalue, options, rowobject) {
-                        return cellvalue == 1 ? "<a style='color:red'>æ˜¯</a>" : "å¦";
+                        return cellvalue == 1 ? "<a style='color:red'>ÊÇ</a>" : "·ñ";
                     }
                 },
-                { label: "è¿‡ç£…æ•°", name: "oqty", index: "oqty", width: 50, align: "right", hidden: true },
-                { label: "è¿‡ç£…é‡é‡", name: "oweight", index: "oweight", width: 50, align: "right", hidden: true },
-                { label: "è¡Œå¤‡æ³¨", name: "execremark", index: "execremark", width: 180 },
-                { label: "çŠ¶æ€å˜æ›´å¤‡æ³¨", name: "remark", index: "execremark", width: 180, hidden: true },
+                { label: "¹ı°õÊı", name: "oqty", index: "oqty", width: 50, align: "right", hidden: true },
+                { label: "¹ı°õÖØÁ¿", name: "oweight", index: "oweight", width: 50, align: "right", hidden: true },
+                { label: "ĞĞ±¸×¢", name: "execremark", index: "execremark", width: 180 },
+                { label: "×´Ì¬±ä¸ü±¸×¢", name: "remark", index: "execremark", width: 180, hidden: true },
                 {
-                    label: 'ç‰¹æ®Šå·¥è‰º', name: 'ç‰¹æ®Šå·¥è‰º', width: 100,
+                    label: 'ÌØÊâ¹¤ÒÕ', name: 'ÌØÊâ¹¤ÒÕ', width: 100,
                     formatter: function (cellvalue, options, rowObject) {
                         var str = "";
                         if (rowObject.ischamfer) {
-                            str += "å€’è§’,";
+                            str += "µ¹½Ç,";
                         }
                         if (rowObject.liftinghole) {
-                            str += "åŠå­”,";
+                            str += "µõ¿×,";
                         }
                         if (rowObject.cnc) {
                             str += "CNC,";
                         }
                         if (rowObject.ym) {
-                            str += "é€€ç«åç ”ç£¨,";
+                            str += "ÍË»ğºóÑĞÄ¥,";
                         }
                         if (rowObject.jq) {
-                            str += "é”¯åˆ‡";
+                            str += "¾âÇĞ";
                         }
                         if (!!str) {
                             return "<a  style='color:red' >" + str + "</a>";
                         }
-                        else return "æ— ";
+                        else return "ÎŞ";
                     }, hidden: true
                 },
-                { label: 'å€’è§’', name: 'ischamfer', width: 100, hidden: true },
-                { label: 'åŠå­”', name: 'liftinghole', width: 100, hidden: true },
+                { label: 'µ¹½Ç', name: 'ischamfer', width: 100, hidden: true },
+                { label: 'µõ¿×', name: 'liftinghole', width: 100, hidden: true },
                 { label: 'CNC', name: 'cnc', width: 100, hidden: true },
-                { label: 'é€€ç«åç ”ç£¨', name: 'ym', width: 100, hidden: true },
-                { label: 'é”¯åˆ‡', name: 'jq', width: 100, hidden: true },
+                { label: 'ÍË»ğºóÑĞÄ¥', name: 'ym', width: 100, hidden: true },
+                { label: '¾âÇĞ', name: 'jq', width: 100, hidden: true },
                 {
-                    label: 'æ“ä½œ', name: '', index: '', width: 80, align: 'left', sortable: true,
+                    label: '²Ù×÷', name: '', index: '', width: 80, align: 'left', sortable: true,
                     formatter: function (cellvalue, options, rowObject) {
                         if (!!rowObject.quotationdetailid) {
                             var nums = Math.random();
@@ -252,7 +252,7 @@
                     }
                 },
                 {
-                    label: 'ç›¸å…³æ–‡ä»¶', name: 'fang1', index: 'fang1', width: 300, align: 'left', sortable: true,
+                    label: 'Ïà¹ØÎÄ¼ş', name: 'fang1', index: 'fang1', width: 300, align: 'left', sortable: true,
                     formatter: function (cellvalue, options, rowObject) {
                         if (!!rowObject.quotationdetailid) {
                             return HtmlUtil.htmlDecode(cellvalue);
@@ -283,7 +283,7 @@
                     var item = i + 1;
                     uploadifyQuodetail(item, data[i].quotationdetailid);
                     var dB = new Date(data[i].delivery.replace(/-/g, "/"));
-                    if (new Date() > Date.parse(dB) && data[i].billstatus != "å·²å‘è¿") {
+                    if (new Date() > Date.parse(dB) && data[i].billstatus != "ÒÑ·¢ÔË") {
                         $("#gridTable_Detail").find("#" + item).find('td').css("background-color", "#CC0000");
                     }
 
@@ -314,15 +314,15 @@
                     width: 189,
                     autowidth: true,
                     colModel: [
-                        { label: 'å·¥å•å·¥åºID', name: 'OrderDetailProcessId', index: 'OrderDetailProcessId', width: 0, align: 'left', sortable: true, hidden: true },
-                        { label: 'å·¥åº', name: 'TechnologyId', index: 'TechnologyId', width: 80, align: 'left', sortable: true },
-                        { label: 'å·¥åºåç§°', name: 'TechnologyName', index: 'TechnologyName', width: 80, align: 'left', sortable: true },
-                        { label: 'åŠ å·¥è´¹', name: 'WorkerTotal', index: 'WorkerTotal', width: 80, align: 'left', sortable: true },
-                        { label: 'æ€»æ•°é‡', name: 'Qty', index: 'Qty', width: 80, align: 'left', sortable: true },
-                        { label: 'å·²åŠ æ•°', name: 'Area', index: 'Area', width: 80, align: 'left', sortable: true },
-                        { label: 'å¤‡æ³¨', name: 'Remark', index: 'Remark', width: 180, align: 'left', sortable: true },
+                        { label: '¹¤µ¥¹¤ĞòID', name: 'OrderDetailProcessId', index: 'OrderDetailProcessId', width: 0, align: 'left', sortable: true, hidden: true },
+                        { label: '¹¤Ğò', name: 'TechnologyId', index: 'TechnologyId', width: 80, align: 'left', sortable: true },
+                        { label: '¹¤ĞòÃû³Æ', name: 'TechnologyName', index: 'TechnologyName', width: 80, align: 'left', sortable: true },
+                        { label: '¼Ó¹¤·Ñ', name: 'WorkerTotal', index: 'WorkerTotal', width: 80, align: 'left', sortable: true },
+                        { label: '×ÜÊıÁ¿', name: 'Qty', index: 'Qty', width: 80, align: 'left', sortable: true },
+                        { label: 'ÒÑ¼ÓÊı', name: 'Area', index: 'Area', width: 80, align: 'left', sortable: true },
+                        { label: '±¸×¢', name: 'Remark', index: 'Remark', width: 180, align: 'left', sortable: true },
                         {
-                            label: 'æ“ä½œ', name: '', index: '', width: 80, align: 'left', sortable: true,
+                            label: '²Ù×÷', name: '', index: '', width: 80, align: 'left', sortable: true,
                             formatter: function (cellvalue, options, rowObject) {
                                 if (!!rowObject.OrderDetailProcessId) {
                                     var nums = Math.random();
@@ -332,7 +332,7 @@
                             }
                         },
                         {
-                            label: 'ç›¸å…³æ–‡ä»¶', name: 'SteelOtherDescription', index: 'SteelOtherDescription', width: 300, align: 'left', sortable: true,
+                            label: 'Ïà¹ØÎÄ¼ş', name: 'SteelOtherDescription', index: 'SteelOtherDescription', width: 300, align: 'left', sortable: true,
                             formatter: function (cellvalue, options, rowObject) {
                                 if (!!rowObject.OrderDetailProcessId) {
                                     return HtmlUtil.htmlDecode(cellvalue);
@@ -364,17 +364,17 @@
         });
         function uploadify(id, OrderDetailProcessId) {
             try {
-                if ($("#" + id + "uploadify").length > 0) { //æ³¨æ„jqueryä¸‹æ£€æŸ¥ä¸€ä¸ªå…ƒç´ æ˜¯å¦å­˜åœ¨å¿…é¡»ä½¿ç”¨ .length >0 æ¥åˆ¤æ–­
+                if ($("#" + id + "uploadify").length > 0) { //×¢ÒâjqueryÏÂ¼ì²éÒ»¸öÔªËØÊÇ·ñ´æÔÚ±ØĞëÊ¹ÓÃ .length >0 À´ÅĞ¶Ï
                     $("#" + id + "uploadify").uploadify('destroy');
                 }
                 $("#" + id + "uploadify").uploadify({
                     uploader: '/Utility/Upload?saveDocument=LJ/' + $("#QuotationCode").val().substring(2, 6) + $("#QuotationCode").val().substring(8) + '/' + OrderDetailProcessId + '&filenameid=' + OrderDetailProcessId,
                     swf: '/Content/Scripts/uploadify/uploadify.swf',
-                    buttonText: "ä¸Šä¼ ",
+                    buttonText: "ÉÏ´«",
                     height: 24,
                     width: 70,
                     onFallback: function () {
-                        alert("æ‚¨æœªå®‰è£…FLASHæ§ä»¶ï¼Œæ— æ³•ä¸Šä¼ ï¼è¯·å®‰è£…FLASHæ§ä»¶åå†è¯•ã€‚");
+                        alert("ÄúÎ´°²×°FLASH¿Ø¼ş£¬ÎŞ·¨ÉÏ´«£¡Çë°²×°FLASH¿Ø¼şºóÔÙÊÔ¡£");
                     },
                     onUploadSuccess: function (file, data, response) {
                         //var DataJson = JSON.parse(data);
@@ -387,17 +387,17 @@
         }
         function uploadifyQuodetail(id, QuotationDetailId) {
             try {
-                if ($("#" + id + "uploadifyQuodetail").length > 0) { //æ³¨æ„jqueryä¸‹æ£€æŸ¥ä¸€ä¸ªå…ƒç´ æ˜¯å¦å­˜åœ¨å¿…é¡»ä½¿ç”¨ .length >0 æ¥åˆ¤æ–­
+                if ($("#" + id + "uploadifyQuodetail").length > 0) { //×¢ÒâjqueryÏÂ¼ì²éÒ»¸öÔªËØÊÇ·ñ´æÔÚ±ØĞëÊ¹ÓÃ .length >0 À´ÅĞ¶Ï
                     $("#" + id + "uploadifyQuodetail").uploadify('destroy');
                 }
                 $("#" + id + "uploadifyQuodetail").uploadify({
                     uploader: '/Utility/Upload?saveDocument=LJ/' + $("#QuotationCode").val().substring(2, 6) + $("#QuotationCode").val().substring(8) + '/' + QuotationDetailId + '&filenameid=' + QuotationDetailId,
                     swf: '/Content/Scripts/uploadify/uploadify.swf',
-                    buttonText: "ä¸Šä¼ ",
+                    buttonText: "ÉÏ´«",
                     height: 24,
                     width: 70,
                     onFallback: function () {
-                        alert("æ‚¨æœªå®‰è£…FLASHæ§ä»¶ï¼Œæ— æ³•ä¸Šä¼ ï¼è¯·å®‰è£…FLASHæ§ä»¶åå†è¯•ã€‚");
+                        alert("ÄúÎ´°²×°FLASH¿Ø¼ş£¬ÎŞ·¨ÉÏ´«£¡Çë°²×°FLASH¿Ø¼şºóÔÙÊÔ¡£");
                     },
                     onUploadSuccess: function (file, data, response) {
                         //var DataJson = JSON.parse(data);
@@ -410,58 +410,58 @@
         }
     }
     function OpearLog(BillId, BillCode) {
-        Dialog("/QuotationModule/QuotationQuery/QuotationOpearLog?BillId=" + BillId + "&BillCode=" + BillCode, "QuotationOpearLog", "è®¢å•æ“ä½œè®°å½•ã€" + BillCode + "ã€‘", 650, 250);
+        Dialog("/QuotationModule/QuotationQuery/QuotationOpearLog?BillId=" + BillId + "&BillCode=" + BillCode, "QuotationOpearLog", "¶©µ¥²Ù×÷¼ÇÂ¼¡¾" + BillCode + "¡¿", 650, 250);
     }
 
     function windowload() {
-        $("#gridTable").trigger("reloadGrid"); //é‡æ–°è½½å…¥
-        $("#gridTable_Detail").trigger("reloadGrid"); //é‡æ–°è½½å…¥
+        $("#gridTable").trigger("reloadGrid"); //ÖØĞÂÔØÈë
+        $("#gridTable_Detail").trigger("reloadGrid"); //ÖØĞÂÔØÈë
     }
-    //æ•´å•å˜æ›´çŠ¶æ€
+    //Õûµ¥±ä¸ü×´Ì¬
     function btn_ModifyOrderStatus() {
         var OrderId = GetJqGridRowValue("#gridTable", "orderid");
         var OrderStatus = GetJqGridRowValue("#gridTable", "orderstatus");
         if (!OrderStatus || !OrderId) {
             return false;
         }
-        if (OrderStatus.indexOf("æ­£å¸¸ç”Ÿäº§") >= 0 || OrderStatus.indexOf("å·²å–æ¶ˆ") >= 0 || OrderStatus.indexOf("æš‚åœ") >= 0 || OrderStatus.indexOf("å·²å®¡æ ¸") >= 0 || OrderStatus.indexOf("éƒ¨åˆ†æš‚åœ") >= 0 || OrderStatus.indexOf("éƒ¨åˆ†å–æ¶ˆ") >= 0) {
+        if (OrderStatus.indexOf("Õı³£Éú²ú") >= 0 || OrderStatus.indexOf("ÒÑÈ¡Ïû") >= 0 || OrderStatus.indexOf("ÔİÍ£") >= 0 || OrderStatus.indexOf("ÒÑÉóºË") >= 0 || OrderStatus.indexOf("²¿·ÖÔİÍ£") >= 0 || OrderStatus.indexOf("²¿·ÖÈ¡Ïû") >= 0) {
             if (IsChecked(OrderId)) {
                 var url = "/OrderModule/OrderStatus/Form?OrderId=" + OrderId + "&BillStatus=" + escape(OrderStatus)
-                openDialog(url, "Form", "æ•´å•å˜æ›´çŠ¶æ€", 400, 120, function (iframe) {
+                openDialog(url, "Form", "Õûµ¥±ä¸ü×´Ì¬", 400, 120, function (iframe) {
                     top.frames[iframe].AcceptClick();
                 });
             }
         } else {
-            tipDialog("å½“å‰è®¢å•çŠ¶æ€ä¸å…è®¸å˜æ›´", 3, 0);
+            tipDialog("µ±Ç°¶©µ¥×´Ì¬²»ÔÊĞí±ä¸ü", 3, 0);
         }
     }
-    //ä¿®æ”¹æ•°é‡
+    //ĞŞ¸ÄÊıÁ¿
     function btn_ModifyQty() {
-        tipDialog("æƒé™ä¸è¶³ï¼", 3, 0);
+        tipDialog("È¨ÏŞ²»×ã£¡", 3, 0);
         return false;
         var OrderDetailId = GetJqGridRowValue("#gridTable_Detail", "OrderDetailId");
         var BillStatus = GetJqGridRowValue("#gridTable_Detail", "BillStatus");
         var Qty = GetJqGridRowValue("#gridTable_Detail", "Qty");
         var Weight = GetJqGridRowValue("#gridTable_Detail", "Weight");
-        if (BillStatus.indexOf("æ­£å¸¸ç”Ÿäº§") >= 0) {
+        if (BillStatus.indexOf("Õı³£Éú²ú") >= 0) {
             if (IsChecked(OrderDetailId)) {
                 var url = "/OrderModule/OrderStatus/UpdataNumber?OrderDetailId=" + OrderDetailId + "&present=" + escape(Qty) + "&Weight=" + escape(Weight)
-                openDialog(url, "Form", "ä¿®æ”¹æ•°é‡", 400, 120, function (iframe) {
+                openDialog(url, "Form", "ĞŞ¸ÄÊıÁ¿", 400, 120, function (iframe) {
                     top.frames[iframe].AcceptClick();
                 });
             }
         } else {
-            tipDialog("åªæœ‰æ­£å¸¸ç”Ÿäº§çŠ¶æ€æ‰å…è®¸å˜æ›´", 3, 0);
+            tipDialog("Ö»ÓĞÕı³£Éú²ú×´Ì¬²ÅÔÊĞí±ä¸ü", 3, 0);
         }
     }
-    //æŸè¡Œå˜æ›´çŠ¶æ€
+    //Ä³ĞĞ±ä¸ü×´Ì¬
     function btn_ModifyLineStatus() {
         var OrderStatus = GetJqGridRowValue("#gridTable_Detail", "billstatus");
         if (!OrderStatus) {
             return false;
         }
-        if (OrderStatus.indexOf("å‘è¿") >= 0 || OrderStatus.indexOf("å®Œå·¥") >= 0) {
-            tipDialog("å½“å‰è®¢å•çŠ¶æ€ä¸å…è®¸å˜æ›´", 3, 0);
+        if (OrderStatus.indexOf("·¢ÔË") >= 0 || OrderStatus.indexOf("Íê¹¤") >= 0) {
+            tipDialog("µ±Ç°¶©µ¥×´Ì¬²»ÔÊĞí±ä¸ü", 3, 0);
             return false;
         }
 
@@ -470,7 +470,7 @@
         var BillStatus = GetJqGridRowValue("#gridTable_Detail", "billstatus");
         if (IsChecked(OrderDetailId)) {
             var url = "/OrderModule/OrderStatus/OrderDetailStatus?OrderDetailId=" + OrderDetailId + "&BillStatus=" + escape(BillStatus) + "&OrderId=" + OrderId;
-            openDialog(url, "Form", "æŸè¡Œå˜æ›´çŠ¶æ€", 400, 120, function (iframe) {
+            openDialog(url, "Form", "Ä³ĞĞ±ä¸ü×´Ì¬", 400, 120, function (iframe) {
                 top.frames[iframe].AcceptClick();
             });
         }
@@ -492,12 +492,12 @@
             }
 
             var url = "/OrderModule/BY_OrderDetailBeOut/AllFrom?IsPurchaseOrBeout=Purchase&s=" + s + "&MnemonicCode=" + MnemonicCode + "&remark=" + remark;
-            openDialog(url, "Form", "å§”å¤–åŠ å·¥", 870, 470, function (iframe) {
+            openDialog(url, "Form", "Î¯Íâ¼Ó¹¤", 870, 470, function (iframe) {
                 top.frames[iframe].AcceptClick();
             });
         }
     }
-    //å§”å¤–åŠ å·¥
+    //Î¯Íâ¼Ó¹¤
     function OrderBeOut() {
         var MnemonicCode = GetJqGridRowValue("#gridTable", "mnemoniccode");
 
@@ -513,14 +513,14 @@
             }
 
             var url = "/OrderModule/BY_OrderDetailBeOut/AllFrom?IsPurchaseOrBeout=Beout&s=" + s + "&MnemonicCode=" + MnemonicCode + "&remark=" + remark;
-            openDialog(url, "Form", "å§”å¤–åŠ å·¥", 870, 470, function (iframe) {
+            openDialog(url, "Form", "Î¯Íâ¼Ó¹¤", 870, 470, function (iframe) {
                 top.frames[iframe].AcceptClick();
             });
         }
 
     }
 
-    //ç²¾æ–™å•æ‰“å°é¢„è§ˆ
+    //¾«ÁÏµ¥´òÓ¡Ô¤ÀÀ
     function BJPrintPreview() {
         var selr = jQuery('#gridTable_Detail').jqGrid('getGridParam', 'selarrrow');
         var s = "";
@@ -529,13 +529,13 @@
                 var myrow = jQuery('#gridTable_Detail').jqGrid('getRowData', selr[i]);
                 s = s + myrow.OrderDetailId + ","
             }
-            PrintDialog("/OrderModule/OrderPrint/BJPrintPreview?ids=" + s, "PrintPage", "æ‰“å°", 440, 450, function (iframe) {
+            PrintDialog("/OrderModule/OrderPrint/BJPrintPreview?ids=" + s, "PrintPage", "´òÓ¡", 440, 450, function (iframe) {
                 top.frames[iframe].AcceptClick();
             });
         }
 
     }
-    //ç²¾æ–™å•æ‰“å°é¢„è§ˆ
+    //¾«ÁÏµ¥´òÓ¡Ô¤ÀÀ
     function BJPrintPreview2() {
         var selr = jQuery('#gridTable_Detail').jqGrid('getGridParam', 'selarrrow');
         var s = "";
@@ -544,13 +544,13 @@
                 var myrow = jQuery('#gridTable_Detail').jqGrid('getRowData', selr[i]);
                 s = s + myrow.OrderDetailId + ","
             }
-            PrintDialog("/OrderModule/OrderPrint/BCPrintPreview?ids=" + s, "PrintPage", "æ‰“å°", 850, 500, function (iframe) {
+            PrintDialog("/OrderModule/OrderPrint/BCPrintPreview?ids=" + s, "PrintPage", "´òÓ¡", 850, 500, function (iframe) {
                 top.frames[iframe].AcceptClick();
             });
         }
 
     }
-    //ç²¾æ–™å•æ‰“å°é¢„è§ˆ
+    //¾«ÁÏµ¥´òÓ¡Ô¤ÀÀ
     function BJPrintPreview1() {
         var selr = jQuery('#gridTable_Detail').jqGrid('getGridParam', 'selarrrow');
         var s = "";
@@ -559,7 +559,7 @@
                 var myrow = jQuery('#gridTable_Detail').jqGrid('getRowData', selr[i]);
                 s = s + myrow.OrderDetailId + ","
             }
-            PrintDialog("/OrderModule/OrderPrint/BJPrintList?ids=" + s, "PrintPage", "æ‰“å°", 850, 500, function (iframe) {
+            PrintDialog("/OrderModule/OrderPrint/BJPrintList?ids=" + s, "PrintPage", "´òÓ¡", 850, 500, function (iframe) {
                 top.frames[iframe].AcceptClick();
             });
         }
@@ -578,7 +578,7 @@
     function btn_detail() {
         var KeyValue = GetJqGridRowValue("#gridTable", "quotationid");
         if (IsChecked(KeyValue)) {
-            AddTabMenu('65590e2c-f46c-41de-8cfb-9be9a6bf74bf', '@Url.Content("~/QuotationModule/QuotationAudit/Detail")?KeyValue=' + KeyValue, 'æŠ¥ä»·å•è¯¦ç»†', "application_view_detail.png", true, true);
+            AddTabMenu('65590e2c-f46c-41de-8cfb-9be9a6bf74bf', '@Url.Content("~/QuotationModule/QuotationAudit/Detail")?KeyValue=' + KeyValue, '±¨¼Ûµ¥ÏêÏ¸', "application_view_detail.png", true, true);
         }
     }
 </script>
@@ -595,83 +595,83 @@
 <div class="leftline rightline topline QueryArea" style="margin: 1px; margin-bottom: 0px;">
     <table id="QueryParameter" border="0" class="form-find" style="height: 45px;">
         <tr>
-            <th>åŠ©è®°ç¼–ç ï¼š</th>
+            <th>Öú¼Ç±àÂë£º</th>
             <td>
                 <input id="MnemonicCode" type="text" class="txt" style="width: 120px" />
                 <input id="LType" type="hidden" value="LJ" />
             </td>
-            <th>æŠ¥ä»·å•å·ï¼š</th>
+            <th>±¨¼Ûµ¥ºÅ£º</th>
             <td>
                 <input id="QuotationCode" type="text" class="txt" style="width: 120px" />
             </td>
-            <th>åŸå•å·/å®¢æˆ·å•å·ï¼š</th>
+            <th>Ô­µ¥ºÅ/¿Í»§µ¥ºÅ£º</th>
             <td>
                 <input id="CustomerPO" type="text" class="txt" style="width: 120px" />
             </td>
 
-            <th>è®¢å•æ—¥æœŸ ä»ï¼š</th>
+            <th>¶©µ¥ÈÕÆÚ ´Ó£º</th>
             <td>
                 <input id="CreateDate_StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" value="@DNS.Utilities.DateTimeHelper.FirstDayOfMonth() 00:00:00" style="width: 120px" />
             </td>
-            <th>è®¢å•æ—¥æœŸ è‡³ï¼š</th>
+            <th>¶©µ¥ÈÕÆÚ ÖÁ£º</th>
             <td>
                 <input id="CreateDate_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" value="@DNS.Utilities.DateTimeHelper.LastDayOfMonth() 23:59:59" style="width: 120px" />
             </td>
-            <th>è®¢å•çŠ¶æ€ï¼š</th>
+            <th>¶©µ¥×´Ì¬£º</th>
             <td>
                 <select id="OrderStatus" class="select" style="width: 120px">
                     <option></option>
-                    <option value="å·²å®¡æ ¸">å·²å®¡æ ¸</option>
-                    <option value="æ­£å¸¸ç”Ÿäº§">æ­£å¸¸ç”Ÿäº§</option>
-                    <option value="å·²å®Œå·¥">å·²å®Œå·¥</option>
-                    <option value="éƒ¨åˆ†å®Œå·¥">éƒ¨åˆ†å®Œå·¥</option>
-                    <option value="å·²å‘è¿">å·²å‘è¿</option>
-                    <option value="éƒ¨åˆ†å‘è¿">éƒ¨åˆ†å‘è¿</option>
-                    <option value="å·²å–æ¶ˆ">å·²å–æ¶ˆ</option>
-                    <option value="éƒ¨åˆ†å–æ¶ˆ">éƒ¨åˆ†å–æ¶ˆ</option>
-                    <option value="æš‚åœ">æš‚åœ</option>
-                    <option value="éƒ¨åˆ†æš‚åœ">éƒ¨åˆ†æš‚åœ</option>
+                    <option value="ÒÑÉóºË">ÒÑÉóºË</option>
+                    <option value="Õı³£Éú²ú">Õı³£Éú²ú</option>
+                    <option value="ÒÑÍê¹¤">ÒÑÍê¹¤</option>
+                    <option value="²¿·ÖÍê¹¤">²¿·ÖÍê¹¤</option>
+                    <option value="ÒÑ·¢ÔË">ÒÑ·¢ÔË</option>
+                    <option value="²¿·Ö·¢ÔË">²¿·Ö·¢ÔË</option>
+                    <option value="ÒÑÈ¡Ïû">ÒÑÈ¡Ïû</option>
+                    <option value="²¿·ÖÈ¡Ïû">²¿·ÖÈ¡Ïû</option>
+                    <option value="ÔİÍ£">ÔİÍ£</option>
+                    <option value="²¿·ÖÔİÍ£">²¿·ÖÔİÍ£</option>
                 </select>
             </td>
             <td>
                 <span class="item" style="cursor: pointer;">
                     <input type="checkbox" class="checkbox" name="checkbox" id="CSstatus" />
-                    <label for="CSstatus">è¶…æ—¶</label>
+                    <label for="CSstatus">³¬Ê±</label>
                 </span>
-                <input id="btnSearch" type="button" class="btnSearch" value="æŸ¥ è¯¢" onclick="btn_Search()" />
+                <input id="btnSearch" type="button" class="btnSearch" value="²é Ñ¯" onclick="btn_Search()" />
 
-                @*    <input id="btn_print" type="button" class="btnSearch" value="å·¥ä½œå°å•æ‰“å°" onclick="BJPrintPreview()" />*@
+                @*    <input id="btn_print" type="button" class="btnSearch" value="¹¤×÷Ğ¡µ¥´òÓ¡" onclick="BJPrintPreview()" />*@
             </td>
         </tr>
         <tr>
-            <th>å®¢æˆ·ç¼–å·ï¼š</th>
+            <th>¿Í»§±àºÅ£º</th>
             <td>
                 <input id="CustomerCode" type="text" class="txt" style="width: 120px" />
             </td>
 
-            <th>å®¢æˆ·åç§°ï¼š</th>
+            <th>¿Í»§Ãû³Æ£º</th>
             <td>
                 <input id="ShortName" type="text" class="txt " style="width: 120px" />
             </td>
-            <th>äº¤è´§æ—¥æœŸ ä»ï¼š</th>
+            <th>½»»õÈÕÆÚ ´Ó£º</th>
             <td>
                 <input id="Delivery_StartTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 00:00'})" style="width: 120px" />
             </td>
-            <th>äº¤è´§æ—¥æœŸ è‡³ï¼š</th>
+            <th>½»»õÈÕÆÚ ÖÁ£º</th>
             <td>
                 <input id="Delivery_EndTime" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd 23:59'})" style="width: 120px" />
             </td>
-            <th>è®¢å•å•å·ï¼š</th>
+            <th>¶©µ¥µ¥ºÅ£º</th>
             <td>
                 <input id="OrderCode" type="text" class="txt" style="width: 120px" />
             </td>
             <td colspan="2">
-                @*<input id="btnDownLoad" type="button" class="btnSearch" value="æ˜ç»†å¯¼å‡º" onclick="btn_DownLoad()" />*@
-                <input id="btnSearsch1" type="button" class="btnSearch" value="æ›´æ–°çŠ¶æ€" onclick="btn_tb()" />
-                @*                <input id="btnDownLoad1" type="button" class="btnSearch" value="åŠ å·¥å•å¯¼å‡º" onclick="btn_DownLoad1();" />*@
-                @*      <input id="btn_print1" type="button" class="btnSearch" value="å·¥ä½œå•æ‰“å°" onclick="BJPrintPreview1()" />
-        <input type="button" class="btnSearch" value="å¼€æ–™å•æ‰“å°" onclick="BJPrintPreview2()" />*@
-                <input id="btn_sdt" type="button" class="btnSearch" value="ç¼–è¾‘" onclick="btn_detail()" />
+                @*<input id="btnDownLoad" type="button" class="btnSearch" value="Ã÷Ï¸µ¼³ö" onclick="btn_DownLoad()" />*@
+                <input id="btnSearsch1" type="button" class="btnSearch" value="¸üĞÂ×´Ì¬" onclick="btn_tb()" />
+                @*                <input id="btnDownLoad1" type="button" class="btnSearch" value="¼Ó¹¤µ¥µ¼³ö" onclick="btn_DownLoad1();" />*@
+                @*      <input id="btn_print1" type="button" class="btnSearch" value="¹¤×÷µ¥´òÓ¡" onclick="BJPrintPreview1()" />
+        <input type="button" class="btnSearch" value="¿ªÁÏµ¥´òÓ¡" onclick="BJPrintPreview2()" />*@
+                <input id="btn_sdt" type="button" class="btnSearch" value="±à¼­" onclick="btn_detail()" />
 
             </td>
         </tr>

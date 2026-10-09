@@ -767,27 +767,73 @@ WHERE  PayReimburseSheetCode = '{0}'", PayReimburseSheetCode);
                     List<DbParameter> parameter = new List<DbParameter>();
                     IList conditions = ParameterJson.JonsToList<Condition>();
                     string WhereSql = ConditionBuilder.GetWhereSql(conditions, out parameter);
-                    if (ManageProvider.Provider.Current().ObjectId.IndexOf("9d04b362-c9fe-4c67-95a5-d24d6ad9177d") < 0 && ManageProvider.Provider.Current().UserName != "超级管理员")
-                    {
-                        WhereSql += @"  AND CreateUserName NOT IN (SELECT  b.RealName
-FROM    Base_ObjectUserRelation o ,
-        Base_User b
-WHERE   ObjectId = '9d04b362-c9fe-4c67-95a5-d24d6ad9177d'
-        AND o.UserId = b.UserId) ";
-                    }
-                    ListData = repositoryfactory.Repository().FindListPage(WhereSql, parameter.ToArray(), ref jqgridparam);
+//                    if (ManageProvider.Provider.Current().ObjectId.IndexOf("9d04b362-c9fe-4c67-95a5-d24d6ad9177d") < 0 && ManageProvider.Provider.Current().UserName != "超级管理员")
+//                    {
+//                        WhereSql += @"  AND CreateUserName NOT IN (SELECT  b.RealName
+//FROM    Base_ObjectUserRelation o ,
+//        Base_User b
+//WHERE   ObjectId = '9d04b362-c9fe-4c67-95a5-d24d6ad9177d'
+//        AND o.UserId = b.UserId) ";
+//                    }
+                    ListData = repositoryfactory.Repository().FindListPageBySql(@"SELECT TOP (1000) [PayReimburseSheetID]
+      ,[PayReimburseSheetCode]
+ ,Code
+      ,[CodeType]
+      ,[RequiredMan]
+      ,[RequiredDate]
+      ,[RequiredMoney]
+      ,[AuditMan]
+      ,[AuditDateTime]
+      ,[AuditRemark]
+      ,[Status]
+      ,[Remark]
+      ,[Enabled]
+      ,[SortCode]
+      ,[DeleteMark]
+      ,[CreateDate]
+      ,[CreateUserId]
+      ,[CreateUserName]
+      ,[ModifyDate]
+      ,[ModifyUserId]
+      ,[ModifyUserName]
+      ,[CustomerId]
+      ,[CustomerCode]
+      ,[CustomerName]
+      ,[MnemonicCode]
+      ,[QuotationCode]
+      ,[ZRMoney]
+      ,[GETMoney]
+      ,[NotGetMoney]
+      ,[GetType]
+      ,[Opions]
+      ,[CanUseMoney]
+      ,[TotalAmount]
+      --,[InvoiceNum]
+      ,[BankNum]
+      ,[Type3]
+      ,[Type2]
+      ,[Type1]
+      ,[ZRRemark]
+      ,[WorkerId]
+      ,[WorkerName]
+      ,[WorkerCode]
+      ,[DepartmentName]
+      ,[Remark1]
+      ,[Type0]
+      ,(select pc.InvoiceNum from BY_PayCheckSheel pc where pc.PayCheckSheetCode= ps.Code) as 'InvoiceNum'
+      from BY_PayReimburseSheet ps where 1=1 " + WhereSql, parameter.ToArray(), ref jqgridparam);
                 }
                 else
                 {
                     string WhereSql = "";
-                    if (ManageProvider.Provider.Current().ObjectId.IndexOf("9d04b362-c9fe-4c67-95a5-d24d6ad9177d") < 0 && ManageProvider.Provider.Current().UserName != "超级管理员")
-                    {
-                        WhereSql += @"  AND CreateUserName NOT IN (SELECT  b.RealName
-FROM    Base_ObjectUserRelation o ,
-        Base_User b
-WHERE   ObjectId = '9d04b362-c9fe-4c67-95a5-d24d6ad9177d'
-        AND o.UserId = b.UserId) ";
-                    }
+//                    if (ManageProvider.Provider.Current().ObjectId.IndexOf("9d04b362-c9fe-4c67-95a5-d24d6ad9177d") < 0 && ManageProvider.Provider.Current().UserName != "超级管理员")
+//                    {
+//                        WhereSql += @"  AND CreateUserName NOT IN (SELECT  b.RealName
+//FROM    Base_ObjectUserRelation o ,
+//        Base_User b
+//WHERE   ObjectId = '9d04b362-c9fe-4c67-95a5-d24d6ad9177d'
+//        AND o.UserId = b.UserId) ";
+//                    }
                     ListData = repositoryfactory.Repository().FindListPage(WhereSql, ref jqgridparam);
                 }
                 var JsonData = new

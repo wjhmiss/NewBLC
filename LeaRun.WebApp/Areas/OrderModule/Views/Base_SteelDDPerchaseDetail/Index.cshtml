@@ -50,6 +50,7 @@
             sortname: 'base_steelddperchasecode',
             sortorder: 'desc',
             rownumbers: true,
+            multiselect: true,
             shrinkToFit: false,
             gridview: true,
             footerrow: true,
@@ -97,19 +98,30 @@
 
     function btn_audit() {
         var KeyValue = GetJqGridRowValue("#gridTable", "base_steelddperchasedetailid");
-        if (IsChecked(KeyValue)) {
-            confirmDialog("提示", "确定回仓？", function (r) {
+        //回仓支持勾选多条记录：只拦截未勾选，多条放行
+        if (KeyValue == undefined || KeyValue == "" || KeyValue == 'null' || KeyValue == 'undefined') {
+            tipDialog('您没有选中任何项,请您选中后再操作。', 4, 'warning');
+            return;
+        }
+        confirmDialog("提示", "确定回仓？", function (r) {
                 if (r) {
                     Loading(true, "正在提交数据...");
                     window.setTimeout(function () {
-                        AjaxJson("/OrderModule/Base_SteelDDPerchaseDetail/Update?Base_SteelDDPerchaseDetailId=" + KeyValue, "", function (data) {
-                            tipDialog(data.Message, 3, data.Code);
-                            windowload();
-                        });
+                        //勾选多行时逐条回单
+                        var ids = KeyValue.split(",");
+                        var done = 0;
+                        for (var i = 0; i < ids.length; i++) {
+                            AjaxJson("/OrderModule/Base_SteelDDPerchaseDetail/Update?Base_SteelDDPerchaseDetailId=" + ids[i], "", function (data) {
+                                done++;
+                                if (done == ids.length) {
+                                    tipDialog(data.Message, 3, data.Code);
+                                    windowload();
+                                }
+                            });
+                        }
                     }, 200);
                 }
             });
-        }
     }
 
 </script>

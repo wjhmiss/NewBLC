@@ -36,18 +36,18 @@ namespace DNS.WebApp.Areas.CheckSheetModule.Controllers
                 by_deliverydetailRCL.MaterialPrice = by_deliverydetailRCL.Qty == 0 ? 0 : by_deliverydetailRCL.MaterialAmount / by_deliverydetailRCL.Qty;
                 by_deliverydetailRCL.ProductName = "热处理合计";
                 by_deliverydetailRCL.Weight = by_deliverydetails1.Where<BY_DeliveryDetail>(p => p.MaterialAmount != 0 && p.Enabled > 0 && p.Length == 0 && p.SteelCode != "FY").Sum(p => p.Weight);
-                if (CommonHelper.GetDecimal(by_deliverydetailRCL.MaterialAmount) > 0)
+                if (CommonHelper.GetDecimal(by_deliverydetailRCL.MaterialAmount) != 0)
                 {
                     by_deliverydetails.Add(by_deliverydetailRCL);
                 }
                 //其他
                 BY_DeliveryDetail by_deliverydetailFY = new BY_DeliveryDetail();
-                by_deliverydetailFY.Qty = by_deliverydetails1.Where<BY_DeliveryDetail>(p => p.SalesAmount != 0 && p.Enabled > 0 && p.Length == 0 && p.SteelCode == "FY").Sum(p => p.Qty);
-                by_deliverydetailFY.MaterialAmount = by_deliverydetails1.Where<BY_DeliveryDetail>(p => p.SalesAmount != 0 && p.Enabled > 0 && p.Length == 0 && p.SteelCode == "FY").Sum(p => p.SalesAmount);
+                by_deliverydetailFY.Qty = by_deliverydetails1.Where<BY_DeliveryDetail>(p => p.SteelCode == "FY").Sum(p => p.Qty);
+                by_deliverydetailFY.MaterialAmount = by_deliverydetails1.Where<BY_DeliveryDetail>(p =>  p.SteelCode == "FY").Sum(p => p.SalesAmount);
                 by_deliverydetailFY.MaterialPrice = by_deliverydetailFY.Qty == 0 ? 0 : by_deliverydetailFY.MaterialAmount / by_deliverydetailFY.Qty;
                 by_deliverydetailFY.ProductName = "其他费用";
-                by_deliverydetailFY.Weight = by_deliverydetails1.Where<BY_DeliveryDetail>(p => p.SalesAmount != 0 && p.Enabled > 0 && p.Length == 0 && p.SteelCode == "FY").Sum(p => p.Weight);
-                if (CommonHelper.GetDecimal(by_deliverydetailFY.MaterialAmount) > 0)
+                by_deliverydetailFY.Weight = by_deliverydetails1.Where<BY_DeliveryDetail>(p => p.SteelCode == "FY").Sum(p => p.Weight);
+                if (CommonHelper.GetDecimal(by_deliverydetailFY.MaterialAmount) != 0)
                 {
                     by_deliverydetails.Add(by_deliverydetailFY);
                 }
@@ -58,9 +58,20 @@ namespace DNS.WebApp.Areas.CheckSheetModule.Controllers
                 by_deliverydetailworkJ.MaterialPrice = by_deliverydetailworkJ.Qty == 0 ? 0 : by_deliverydetailworkJ.MaterialAmount / by_deliverydetailworkJ.Qty;
                 by_deliverydetailworkJ.ProductName = "锯工费";
                 by_deliverydetailworkJ.Weight = by_deliverydetails1.Where<BY_DeliveryDetail>(p => Convert.ToDecimal(p.JKCost) != 0).Sum(p => p.Weight);
-                if (CommonHelper.GetDecimal(by_deliverydetailworkJ.MaterialAmount) > 0)
+                if (CommonHelper.GetDecimal(by_deliverydetailworkJ.MaterialAmount) != 0)
                 {
                     by_deliverydetails.Add(by_deliverydetailworkJ);
+                }
+                //切角
+                BY_DeliveryDetail by_deliverydetailZJ = new BY_DeliveryDetail();
+                by_deliverydetailZJ.Qty = by_deliverydetails1.Where<BY_DeliveryDetail>(p => Convert.ToDecimal(p.DDCost) != 0).Sum(p => p.Qty);
+                by_deliverydetailZJ.MaterialAmount = by_deliverydetails1.Where<BY_DeliveryDetail>(p => Convert.ToDecimal(p.DDCost) != 0).Sum(p => p.DDCost);
+                by_deliverydetailZJ.MaterialPrice = by_deliverydetailZJ.Qty == 0 ? 0 : by_deliverydetailZJ.MaterialAmount / by_deliverydetailZJ.Qty;
+                by_deliverydetailZJ.ProductName = "切角";
+                by_deliverydetailZJ.Weight = by_deliverydetails1.Where<BY_DeliveryDetail>(p => Convert.ToDecimal(p.DDCost) != 0).Sum(p => p.Weight);
+                if (CommonHelper.GetDecimal(by_deliverydetailZJ.MaterialAmount) != 0)
+                {
+                    by_deliverydetails.Add(by_deliverydetailZJ);
                 }
                 //加工
                 BY_DeliveryDetail by_deliverydetailwork = new BY_DeliveryDetail();
@@ -69,7 +80,7 @@ namespace DNS.WebApp.Areas.CheckSheetModule.Controllers
                 by_deliverydetailwork.MaterialPrice = by_deliverydetailwork.Qty == 0 ? 0 : by_deliverydetailwork.MaterialAmount / by_deliverydetailwork.Qty;
                 by_deliverydetailwork.ProductName = "加工费(件)";
                 by_deliverydetailwork.Weight = by_deliverydetails1.Where<BY_DeliveryDetail>(p => Convert.ToDecimal(p.WorkAmount) != 0).Sum(p => p.Weight);
-                if (CommonHelper.GetDecimal(by_deliverydetailwork.MaterialAmount) > 0)
+                if (CommonHelper.GetDecimal(by_deliverydetailwork.MaterialAmount) != 0)
                 {
                     by_deliverydetails.Add(by_deliverydetailwork);
                 }
@@ -82,7 +93,7 @@ namespace DNS.WebApp.Areas.CheckSheetModule.Controllers
                 by_deliverydetailwork1.MaterialPrice = by_deliverydetailwork1.Qty == 0 ? 0 : by_deliverydetailwork1.MaterialAmount / by_deliverydetailwork1.Weight;
                 by_deliverydetailwork1.ProductName = "加工费(KG)";
 
-                if (CommonHelper.GetDecimal(by_deliverydetailwork1.MaterialAmount) > 0)
+                if (CommonHelper.GetDecimal(by_deliverydetailwork1.MaterialAmount) != 0)
                 {
                     by_deliverydetails.Add(by_deliverydetailwork1);
                 }
@@ -93,7 +104,7 @@ namespace DNS.WebApp.Areas.CheckSheetModule.Controllers
                 by_deliverydetailhot.Weight = by_deliverydetails1.Where<BY_DeliveryDetail>(p => Convert.ToDecimal(p.HeatAmount) != 0).Sum(p => p.Weight);
                 by_deliverydetailhot.MaterialPrice = by_deliverydetailhot.Qty == 0 ? 0 : by_deliverydetailhot.MaterialAmount / by_deliverydetailhot.Weight;
                 by_deliverydetailhot.ProductName = "热处理费";
-                if (CommonHelper.GetDecimal(by_deliverydetailhot.Qty) > 0)
+                if (CommonHelper.GetDecimal(by_deliverydetailhot.Qty) != 0)
                 {
                     by_deliverydetails.Add(by_deliverydetailhot);
                 }

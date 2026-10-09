@@ -197,12 +197,16 @@ namespace DNS.WebApp.Areas.QuotationModule.Controllers
             obj2.SalesAmount = grouped.Where(p => string.IsNullOrWhiteSpace(p.LJtype1)).FirstOrDefault()?.SalesAmountSum ?? 0;
             obj2.LineCode = quotationdetailsadd.Count * 10 ;
             obj2.SteelCode = "zu";
-            quotationdetailsaddok.Add(obj2);
+            if (obj2.Qty > 0 || obj2.Weight > 0 || obj2.SalesAmount > 0)
+            {
+                quotationdetailsaddok.Add(obj2);
+            }
 
 
             BY_QuotationDetail obj1 = BY_QuotationDetail.GetNewBY_OrderDetail();
             obj1.LineCode = 99999;
-            obj1.Qty = quotationdetailsaddok.Count;
+            //obj1.Qty = quotationdetailsaddok.Count;
+            obj1.Qty = grouped.Sum(p => p.QtySum);
             obj1.Weight = quotationdetails.Where(p => p.Length > 0).Sum<BY_QuotationDetail>(m => m.Weight);
             obj1.SalesAmount = quotationdetails.Sum<BY_QuotationDetail>(m => m.SalesAmount);
             obj1.WorkAmount = quotationdetails.Sum<BY_QuotationDetail>(m => m.WorkAmount);

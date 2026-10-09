@@ -249,9 +249,11 @@ WHERE   mp.MaterielPurchaseId IN (" + WhereSql + ") ");
                 {
                     base_supplier = DataFactory.Database().FindEntityByWhere<Base_Supplier>(" and code like '%" + ds.Tables[0].Rows[0]["CustomerCode"].ToString() + "%' or FullName like '%" + ds.Tables[0].Rows[0]["CustomerCode"].ToString() + "%'");
                 }
+                DataView dv = ds.Tables[0].DefaultView;
+                dv.Sort = "CreateDate desc";
                 var JsonData = new
                 {
-                    ListData = ds.Tables[0],
+                    ListData = dv.ToTable(),
                     Base_Supplier = base_supplier,
                 };
                 return Content(JsonData.ToJson());
@@ -392,6 +394,7 @@ WHERE   mp.MaterielPurchaseId IN (" + WhereSql + ") ");
             DbTransaction isOpenTrans = database.BeginTrans();
             try
             {
+                entity.Status = entity.Status == 1 ? 0 : 1;
                 int IsOk = 0;
                 if (!string.IsNullOrEmpty(MaterielPurchaseIds))
                 {
@@ -400,71 +403,100 @@ WHERE   mp.MaterielPurchaseId IN (" + WhereSql + ") ");
                     {
                         Base_MaterielPurchase base_materielpurchase = repositoryfactory.Repository().FindEntity(ids[i]);
 
-                        if (base_materielpurchase.Status != 1 && entity.IsPay == 1)
+                        if (entity.GetedAmount > 0 || !string.IsNullOrWhiteSpace( entity.PayCheckSheetCode ))
                         {
-                            Base_MaterielStorage base_materielstorage = DataFactory.Database().FindEntity<Base_MaterielStorage>("MaterielId", base_materielpurchase.MaterielId);
-                            Base_MaterielType base_materieltype = DataFactory.Database().FindEntity<Base_MaterielType>(base_materielpurchase.MaterielId);
-                            if (base_materielstorage != null && base_materielstorage.MaterielStorageId != null)
-                            {
-                                base_materielstorage.Modify(base_materielstorage.MaterielStorageId);
-                                base_materielstorage.Qty += base_materielpurchase.Qty;
-                                base_materielstorage.PricePer = base_materielpurchase.PricePer;
-                                base_materielstorage.AlarmNumber = base_materieltype.AlarmNumber;
-                                DataFactory.Database().Update(base_materielstorage, isOpenTrans);
-                            }
-                            else
-                            {
-                                CommonHelper.CopySameFieldsObject<Base_MaterielPurchase, Base_MaterielStorage>(base_materielpurchase, ref base_materielstorage);
-                                base_materielstorage.Create();
-                                base_materielstorage.PricePer = base_materielpurchase.PricePer;
-                                base_materielstorage.AlarmNumber = base_materieltype.AlarmNumber;
-                                DataFactory.Database().Insert(base_materielstorage, isOpenTrans);
-                            }
-
-                            base_materielpurchase.Status = 1;
-                            base_materielpurchase.IsPay = entity.IsPay;
-                            DataFactory.Database().Update(base_materielpurchase, isOpenTrans);
-                            DataFactory.Database().Commit();
+                            return Content(new JsonMessage { Success = false, Code = "-1", Message = "操作失败！ 已付钱或已对账！"  }.ToString());
                         }
-                        else if (base_materielpurchase.Status == 1 && entity.IsPay == 1)
-                        {
-                            base_materielpurchase.Status = base_materielpurchase.Status==1?0:1;
-                            base_materielpurchase.IsPay = entity.IsPay;
-                            DataFactory.Database().Update(base_materielpurchase, isOpenTrans);
-                            DataFactory.Database().Commit();
-                        }
-                        else if (entity.Status == 1 && entity.IsPay != 1)
-                        {
-                            Base_MaterielStorage base_materielstorage = DataFactory.Database().FindEntity<Base_MaterielStorage>("MaterielId", base_materielpurchase.MaterielId);
-                            Base_MaterielType base_materieltype = DataFactory.Database().FindEntity<Base_MaterielType>(base_materielpurchase.MaterielId);
-                            if (base_materielstorage != null && base_materielstorage.MaterielStorageId != null)
-                            {
-                                base_materielstorage.Modify(base_materielstorage.MaterielStorageId);
-                                base_materielstorage.Qty += base_materielpurchase.Qty;
-                                base_materielstorage.PricePer = base_materielpurchase.PricePer;
-                                base_materielstorage.AlarmNumber = base_materieltype.AlarmNumber;
-                                DataFactory.Database().Update(base_materielstorage, isOpenTrans);
-                            }
-                            else
-                            {
-                                CommonHelper.CopySameFieldsObject<Base_MaterielPurchase, Base_MaterielStorage>(base_materielpurchase, ref base_materielstorage);
-                                base_materielstorage.Create();
-                                base_materielstorage.PricePer = base_materielpurchase.PricePer;
-                                base_materielstorage.AlarmNumber = base_materieltype.AlarmNumber;
-                                DataFactory.Database().Insert(base_materielstorage, isOpenTrans);
-                            }
 
-                            base_materielpurchase.Status = base_materielpurchase.Status == 1 ? 0 : 1;
-                            base_materielpurchase.IsPay = entity.IsPay;
-                            DataFactory.Database().Update(base_materielpurchase, isOpenTrans);
-                            DataFactory.Database().Commit();
+                        Base_MaterielStorage base_materielstorage = DataFactory.Database().FindEntity<Base_MaterielStorage>("MaterielId", base_materielpurchase.MaterielId);
+                        Base_MaterielType base_materieltype = DataFactory.Database().FindEntity<Base_MaterielType>(base_materielpurchase.MaterielId);
+                        if (base_materielstorage != null && base_materielstorage.MaterielStorageId != null)
+                        {
+                            base_materielstorage.Modify(base_materielstorage.MaterielStorageId);
+                            base_materielstorage.Qty += entity.Status== 1? base_materielpurchase.Qty : -base_materielpurchase.Qty;
+                            base_materielstorage.PricePer = base_materielpurchase.PricePer;
+                            base_materielstorage.AlarmNumber = base_materieltype.AlarmNumber;
+                            DataFactory.Database().Update(base_materielstorage, isOpenTrans);
                         }
                         else
                         {
-                            entity.Modify(ids[i]);
-                            DataFactory.Database().Update(entity, isOpenTrans);
-                            DataFactory.Database().Commit();
+                            CommonHelper.CopySameFieldsObject<Base_MaterielPurchase, Base_MaterielStorage>(base_materielpurchase, ref base_materielstorage);
+                            base_materielstorage.Create();
+                            base_materielstorage.PricePer = base_materielpurchase.PricePer;
+                            base_materielstorage.AlarmNumber = base_materieltype.AlarmNumber;
+                            DataFactory.Database().Insert(base_materielstorage, isOpenTrans);
                         }
+
+                        base_materielpurchase.Status = entity.Status;
+                        base_materielpurchase.IsPay = entity.IsPay;
+                        DataFactory.Database().Update(base_materielpurchase, isOpenTrans);
+                        DataFactory.Database().Commit();
+
+                        //if (base_materielpurchase.Status != 1 && entity.IsPay == 1)
+                        //{
+                        //    Base_MaterielStorage base_materielstorage = DataFactory.Database().FindEntity<Base_MaterielStorage>("MaterielId", base_materielpurchase.MaterielId);
+                        //    Base_MaterielType base_materieltype = DataFactory.Database().FindEntity<Base_MaterielType>(base_materielpurchase.MaterielId);
+                        //    if (base_materielstorage != null && base_materielstorage.MaterielStorageId != null)
+                        //    {
+                        //        base_materielstorage.Modify(base_materielstorage.MaterielStorageId);
+                        //        base_materielstorage.Qty += base_materielpurchase.Qty;
+                        //        base_materielstorage.PricePer = base_materielpurchase.PricePer;
+                        //        base_materielstorage.AlarmNumber = base_materieltype.AlarmNumber;
+                        //        DataFactory.Database().Update(base_materielstorage, isOpenTrans);
+                        //    }
+                        //    else
+                        //    {
+                        //        CommonHelper.CopySameFieldsObject<Base_MaterielPurchase, Base_MaterielStorage>(base_materielpurchase, ref base_materielstorage);
+                        //        base_materielstorage.Create();
+                        //        base_materielstorage.PricePer = base_materielpurchase.PricePer;
+                        //        base_materielstorage.AlarmNumber = base_materieltype.AlarmNumber;
+                        //        DataFactory.Database().Insert(base_materielstorage, isOpenTrans);
+                        //    }
+
+                        //    base_materielpurchase.Status = 1;
+                        //    base_materielpurchase.IsPay = entity.IsPay;
+                        //    DataFactory.Database().Update(base_materielpurchase, isOpenTrans);
+                        //    DataFactory.Database().Commit();
+                        //}
+                        //else if (base_materielpurchase.Status == 1 && entity.IsPay == 1)
+                        //{
+                        //    base_materielpurchase.Status = base_materielpurchase.Status==1?0:1;
+                        //    base_materielpurchase.IsPay = entity.IsPay;
+                        //    DataFactory.Database().Update(base_materielpurchase, isOpenTrans);
+                        //    DataFactory.Database().Commit();
+                        //}
+                        //else if (entity.Status == 1 && entity.IsPay != 1)
+                        //{
+                        //    Base_MaterielStorage base_materielstorage = DataFactory.Database().FindEntity<Base_MaterielStorage>("MaterielId", base_materielpurchase.MaterielId);
+                        //    Base_MaterielType base_materieltype = DataFactory.Database().FindEntity<Base_MaterielType>(base_materielpurchase.MaterielId);
+                        //    if (base_materielstorage != null && base_materielstorage.MaterielStorageId != null)
+                        //    {
+                        //        base_materielstorage.Modify(base_materielstorage.MaterielStorageId);
+                        //        base_materielstorage.Qty += base_materielpurchase.Qty;
+                        //        base_materielstorage.PricePer = base_materielpurchase.PricePer;
+                        //        base_materielstorage.AlarmNumber = base_materieltype.AlarmNumber;
+                        //        DataFactory.Database().Update(base_materielstorage, isOpenTrans);
+                        //    }
+                        //    else
+                        //    {
+                        //        CommonHelper.CopySameFieldsObject<Base_MaterielPurchase, Base_MaterielStorage>(base_materielpurchase, ref base_materielstorage);
+                        //        base_materielstorage.Create();
+                        //        base_materielstorage.PricePer = base_materielpurchase.PricePer;
+                        //        base_materielstorage.AlarmNumber = base_materieltype.AlarmNumber;
+                        //        DataFactory.Database().Insert(base_materielstorage, isOpenTrans);
+                        //    }
+
+                        //    base_materielpurchase.Status = base_materielpurchase.Status == 1 ? 0 : 1;
+                        //    base_materielpurchase.IsPay = entity.IsPay;
+                        //    DataFactory.Database().Update(base_materielpurchase, isOpenTrans);
+                        //    DataFactory.Database().Commit();
+                        //}
+                        //else
+                        //{
+                        //    entity.Modify(ids[i]);
+                        //    DataFactory.Database().Update(entity, isOpenTrans);
+                        //    DataFactory.Database().Commit();
+                        //}
                     }
                 }
                 return Content(new JsonMessage { Success = true, Code = "1", Message = "操作成功！" }.ToString());

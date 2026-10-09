@@ -1,4 +1,4 @@
-ï»¿using DNS.Business;
+using DNS.Business;
 using DNS.DataAccess;
 using DNS.Entity;
 using DNS.Repository;
@@ -28,12 +28,12 @@ using static System.Net.Mime.MediaTypeNames;
 namespace DNS.WebApp.Controllers
 {
     /// <summary>
-    /// ç™»å½•æ§åˆ¶å™¨
+    /// µÇÂ¼¿ØÖÆÆ÷
     /// </summary>
     public class LoginController : Controller
     {
         /// <summary>
-        /// å¯¼å…¥æ•°æ®å¤„ç†
+        /// µ¼ÈëÊı¾İ´¦Àí
         /// </summary>
         public void ImportingData()
         {
@@ -58,14 +58,14 @@ namespace DNS.WebApp.Controllers
             //}
         }
         /// <summary>
-        /// è°ƒè¯•æ—¥å¿—
+        /// µ÷ÊÔÈÕÖ¾
         /// </summary>
         public static DNS.Utilities.LogHelper log = DNS.Utilities.LogFactory.GetLogger("LoginController");
 
         Base_UserBll base_userbll = new Base_UserBll();
         Base_ObjectUserRelationBll base_objectuserrelationbll = new Base_ObjectUserRelationBll();
         /// <summary>
-        /// é»˜è®¤é¡µé¢
+        /// Ä¬ÈÏÒ³Ãæ
         /// </summary>
         /// <returns></returns>
          [OutputCache(CacheProfile = "Cache1Hour")]
@@ -74,7 +74,7 @@ namespace DNS.WebApp.Controllers
             return View();
         }
         /// <summary>
-        /// ç™»å½•è§†å›¾
+        /// µÇÂ¼ÊÓÍ¼
         /// </summary>
         /// <returns></returns>
          [OutputCache(CacheProfile = "Cache1Hour")]
@@ -100,7 +100,7 @@ namespace DNS.WebApp.Controllers
              return View();
          }
         /// <summary>
-        /// ç”ŸæˆéªŒè¯ç 
+        /// Éú³ÉÑéÖ¤Âë
         /// </summary>
         /// <returns></returns>
         public ActionResult VerifyCode()
@@ -109,25 +109,25 @@ namespace DNS.WebApp.Controllers
             int codeH = 22;
             int fontSize = 16;
             string chkCode = string.Empty;
-            //é¢œè‰²åˆ—è¡¨ï¼Œç”¨äºéªŒè¯ç ã€å™ªçº¿ã€å™ªç‚¹ 
+            //ÑÕÉ«ÁĞ±í£¬ÓÃÓÚÑéÖ¤Âë¡¢ÔëÏß¡¢Ôëµã 
             Color[] color = { Color.Black, Color.Red, Color.Blue, Color.Green, Color.Orange, Color.Brown, Color.Brown, Color.DarkBlue };
-            //å­—ä½“åˆ—è¡¨ï¼Œç”¨äºéªŒè¯ç  
+            //×ÖÌåÁĞ±í£¬ÓÃÓÚÑéÖ¤Âë 
             string[] font = { "Times New Roman", "Verdana", "Arial", "Gungsuh", "Impact" };
-            //éªŒè¯ç çš„å­—ç¬¦é›†ï¼Œå»æ‰äº†ä¸€äº›å®¹æ˜“æ··æ·†çš„å­—ç¬¦ 
+            //ÑéÖ¤ÂëµÄ×Ö·û¼¯£¬È¥µôÁËÒ»Ğ©ÈİÒ×»ìÏıµÄ×Ö·û 
             char[] character = { '2', '3', '4', '5', '6', '8', '9', 'a', 'b', 'd', 'e', 'f', 'h', 'k', 'm', 'n', 'r', 'x', 'y', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'J', 'K', 'L', 'M', 'N', 'P', 'R', 'S', 'T', 'W', 'X', 'Y' };
             Random rnd = new Random();
-            //ç”ŸæˆéªŒè¯ç å­—ç¬¦ä¸² 
+            //Éú³ÉÑéÖ¤Âë×Ö·û´® 
             for (int i = 0; i < 4; i++)
             {
                 chkCode += character[rnd.Next(character.Length)];
             }
-            //å†™å…¥Sessionã€éªŒè¯ç åŠ å¯†
+            //Ğ´ÈëSession¡¢ÑéÖ¤Âë¼ÓÃÜ
             Session["session_verifycode"] = Md5Helper.MD5(chkCode.ToLower(), 16);
-            //åˆ›å»ºç”»å¸ƒ
+            //´´½¨»­²¼
             Bitmap bmp = new Bitmap(codeW, codeH);
             Graphics g = Graphics.FromImage(bmp);
             g.Clear(Color.White);
-            //ç”»å™ªçº¿ 
+            //»­ÔëÏß 
             for (int i = 0; i < 1; i++)
             {
                 int x1 = rnd.Next(codeW);
@@ -137,7 +137,7 @@ namespace DNS.WebApp.Controllers
                 Color clr = color[rnd.Next(color.Length)];
                 g.DrawLine(new Pen(clr), x1, y1, x2, y2);
             }
-            //ç”»éªŒè¯ç å­—ç¬¦ä¸² 
+            //»­ÑéÖ¤Âë×Ö·û´® 
             for (int i = 0; i < chkCode.Length; i++)
             {
                 string fnt = font[rnd.Next(font.Length)];
@@ -145,7 +145,7 @@ namespace DNS.WebApp.Controllers
                 Color clr = color[rnd.Next(color.Length)];
                 g.DrawString(chkCode[i].ToString(), ft, new SolidBrush(clr), (float)i * 18 + 2, (float)0);
             }
-            //å°†éªŒè¯ç å›¾ç‰‡å†™å…¥å†…å­˜æµï¼Œå¹¶å°†å…¶ä»¥ "image/Png" æ ¼å¼è¾“å‡º 
+            //½«ÑéÖ¤ÂëÍ¼Æ¬Ğ´ÈëÄÚ´æÁ÷£¬²¢½«ÆäÒÔ "image/Png" ¸ñÊ½Êä³ö 
             MemoryStream ms = new MemoryStream();
             try
             {
@@ -163,15 +163,15 @@ namespace DNS.WebApp.Controllers
             }
         }
         /// <summary>
-        /// ç™»å½•éªŒè¯
+        /// µÇÂ¼ÑéÖ¤
         /// </summary>
-        /// <param name="Account">è´¦æˆ·</param>
-        /// <param name="Password">å¯†ç </param>
+        /// <param name="Account">ÕË»§</param>
+        /// <param name="Password">ÃÜÂë</param>
         /// <returns></returns>
         public ActionResult CheckLogin(string Account, string Password, string Token, string PasswordMobile = "")
         {
             //LeaRun.WebApp._01_Extension.BarCode.Code128 _Code = new LeaRun.WebApp._01_Extension.BarCode.Code128();
-            //_Code.ValueFont = new Font("å®‹ä½“", 20);
+            //_Code.ValueFont = new Font("ËÎÌå", 20);
             //System.Drawing.Bitmap imgTemp = _Code.GetCodeImage("A002-A0037-2/5-CR12MOV-228*65.5*37!@#$%^&*()", LeaRun.WebApp._01_Extension.BarCode.Code128.Encode.Code128A);
             //imgTemp.Save(System.AppDomain.CurrentDomain.BaseDirectory + "\\" + "BarCode.gif", System.Drawing.Imaging.ImageFormat.Gif);
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create("http://47.99.118.200:801/Index.asmx/CheckCompany?Code=BLC");
@@ -195,9 +195,10 @@ namespace DNS.WebApp.Controllers
                 if (DateTime.Now > Convert.ToDateTime(checkdate))
                 {
                     Dictionary<string, string> modulesError = new Dictionary<string, string>();
-                    modulesError.Add("å†…éƒ¨é”™è¯¯ï¼š", "ç”µè¯è”ç³»ï¼š15012791005");
+                    modulesError.Add("ÄÚ²¿´íÎó£º", "µç»°ÁªÏµ£º15012791005");
                     Session["error"] = modulesError;
                     //return RedirectToRoute(new { controller = "Error", action = "Index" });
+                    WriteLoginFileLog(Account, "Ê§°Ü", "ÊÚÈ¨¹ıÆÚ");
                     return Content("200");
                 }
                 //}
@@ -209,7 +210,7 @@ namespace DNS.WebApp.Controllers
                 string IPAddressName = objScan.IPLocation();
                 string outmsg = "";
                 VerifyIPAddress(Account, IPAddress, IPAddressName, Token);
-                //ç³»ç»Ÿç®¡ç†
+                //ÏµÍ³¹ÜÀí
                 if (Account.ToLower() == "admin")//ConfigHelper.AppSettings("CurrentUserName"))
                 {
                     if ("admin123" == Password.ToLower())
@@ -217,25 +218,26 @@ namespace DNS.WebApp.Controllers
                         IManageUser imanageuser = new IManageUser();
                         imanageuser.UserId = "System";
                         imanageuser.Account = "System";
-                        imanageuser.UserName = "è¶…çº§ç®¡ç†å‘˜";
-                        imanageuser.Gender = "ç”·";
+                        imanageuser.UserName = "³¬¼¶¹ÜÀíÔ±";
+                        imanageuser.Gender = "ÄĞ";
                         imanageuser.Code = "System";
                         imanageuser.LogTime = DateTime.Now;
-                        imanageuser.CompanyId = "ç³»ç»Ÿ";
-                        imanageuser.DepartmentId = "ç³»ç»Ÿ";
+                        imanageuser.CompanyId = "ÏµÍ³";
+                        imanageuser.DepartmentId = "ÏµÍ³";
                         imanageuser.IPAddress = IPAddress;
                         imanageuser.IPAddressName = IPAddressName;
                         imanageuser.IsSystem = true;
                         imanageuser.ObjectId = "20178431-3604-46b6-a75b-f7ba13548aed";
                         ManageProvider.Provider.AddCurrent(imanageuser);
-                        //å¯¹åœ¨çº¿äººæ•°å…¨å±€å˜é‡è¿›è¡ŒåŠ 1å¤„ç†
+                        //¶ÔÔÚÏßÈËÊıÈ«¾Ö±äÁ¿½øĞĞ¼Ó1´¦Àí
                         HttpContext rq = System.Web.HttpContext.Current;
                         rq.Application["OnLineCount"] = (int)rq.Application["OnLineCount"] + 1;
-                        Msg = "3";//éªŒè¯æˆåŠŸ
-                        Base_SysLogBll.Instance.WriteLog(Account, OperationType.Login, "1", "ç™»é™†æˆåŠŸã€IPæ‰€åœ¨åŸå¸‚ï¼š" + IPAddressName);
+                        Msg = "3";//ÑéÖ¤³É¹¦
+                        Base_SysLogBll.Instance.WriteLog(Account, OperationType.Login, "1", "µÇÂ½³É¹¦¡¢IPËùÔÚ³ÇÊĞ£º" + IPAddressName);
                     }
                     else
                     {
+                        WriteLoginFileLog(Account, "Ê§°Ü", "ÃÜÂë´íÎó");
                         return Content("4");
                     }
                 }
@@ -244,7 +246,7 @@ namespace DNS.WebApp.Controllers
                     Base_User base_user = base_userbll.UserLogin(Account, Password, out outmsg);
                     switch (outmsg)
                     {
-                        case "-1":      //è´¦æˆ·ä¸å­˜åœ¨
+                        case "-1":      //ÕË»§²»´æÔÚ
                             if (isCustomerCount(Account, PasswordMobile, IPAddress))
                             {
                                 Msg = "3";
@@ -256,17 +258,20 @@ namespace DNS.WebApp.Controllers
                                 break;
                             }
                             Msg = "-1";
-                            Base_SysLogBll.Instance.WriteLog(Account, OperationType.Login, "-1", "è´¦æˆ·ä¸å­˜åœ¨ã€IPæ‰€åœ¨åŸå¸‚ï¼š" + IPAddressName);
+                            Base_SysLogBll.Instance.WriteLog(Account, OperationType.Login, "-1", "ÕË»§²»´æÔÚ¡¢IPËùÔÚ³ÇÊĞ£º" + IPAddressName);
+                            WriteLoginFileLog(Account, "Ê§°Ü", "ÕË»§²»´æÔÚ");
                             break;
-                        case "lock":    //è´¦æˆ·é”å®š
+                        case "lock":    //ÕË»§Ëø¶¨
                             Msg = "2";
-                            Base_SysLogBll.Instance.WriteLog(Account, OperationType.Login, "-1", "è´¦æˆ·é”å®šã€IPæ‰€åœ¨åŸå¸‚ï¼š" + IPAddressName);
+                            Base_SysLogBll.Instance.WriteLog(Account, OperationType.Login, "-1", "ÕË»§Ëø¶¨¡¢IPËùÔÚ³ÇÊĞ£º" + IPAddressName);
+                            WriteLoginFileLog(Account, "Ê§°Ü", "ÕË»§Ëø¶¨");
                             break;
-                        case "error":   //å¯†ç é”™è¯¯
+                        case "error":   //ÃÜÂë´íÎó
                             Msg = "4";
-                            Base_SysLogBll.Instance.WriteLog(Account, OperationType.Login, "-1", "å¯†ç é”™è¯¯ã€IPæ‰€åœ¨åŸå¸‚ï¼š" + IPAddressName);
+                            Base_SysLogBll.Instance.WriteLog(Account, OperationType.Login, "-1", "ÃÜÂë´íÎó¡¢IPËùÔÚ³ÇÊĞ£º" + IPAddressName);
+                            WriteLoginFileLog(Account, "Ê§°Ü", "ÃÜÂë´íÎó");
                             break;
-                        case "succeed": //éªŒè¯æˆåŠŸ
+                        case "succeed": //ÑéÖ¤³É¹¦
                             IManageUser imanageuser = new IManageUser();
                             imanageuser.UserId = base_user.UserId;
                             imanageuser.Account = base_user.Account;
@@ -285,11 +290,11 @@ namespace DNS.WebApp.Controllers
                             imanageuser.IsSystem = false;
                             imanageuser.IsMobileUser = false;
                             ManageProvider.Provider.AddCurrent(imanageuser);
-                            //å¯¹åœ¨çº¿äººæ•°å…¨å±€å˜é‡è¿›è¡ŒåŠ 1å¤„ç†
+                            //¶ÔÔÚÏßÈËÊıÈ«¾Ö±äÁ¿½øĞĞ¼Ó1´¦Àí
                             HttpContext rq = System.Web.HttpContext.Current;
                             rq.Application["OnLineCount"] = (int)rq.Application["OnLineCount"] + 1;
-                            Msg = "3";//éªŒè¯æˆåŠŸ
-                            Base_SysLogBll.Instance.WriteLog(Account, OperationType.Login, "1", "ç™»é™†æˆåŠŸã€IPæ‰€åœ¨åŸå¸‚ï¼š" + IPAddressName);
+                            Msg = "3";//ÑéÖ¤³É¹¦
+                            Base_SysLogBll.Instance.WriteLog(Account, OperationType.Login, "1", "µÇÂ½³É¹¦¡¢IPËùÔÚ³ÇÊĞ£º" + IPAddressName);
                             break;
                         default:
                             break;
@@ -300,8 +305,33 @@ namespace DNS.WebApp.Controllers
             catch (Exception ex)
             {
                 Msg = ex.Message;
+                WriteLoginFileLog(Account ?? "", "Òì³£", ex.Message);
             }
             return Content(Msg);
+        }
+
+        //µÇÂ¼ÎÄ¼şÈÕÖ¾£ºĞ´Èë¸ùÄ¿Â¼logsÎÄ¼ş¼Ğ£¬°´Ìì·ÖÎÄ¼ş£»Ğ´ÈÕÖ¾Ê§°Ü²»Ó°ÏìµÇÂ¼Á÷³Ì
+        private static readonly object LoginFileLogLock = new object();
+        private void WriteLoginFileLog(string account, string result, string note)
+        {
+            try
+            {
+                string dir = Server.MapPath("~/logs");
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                string file = Path.Combine(dir, "logs-" + DateTime.Now.ToString("yyyyMMdd") + ".log");
+                string line = string.Format("[{0:yyyy-MM-dd HH:mm:ss}] ÕËºÅ£º{1} | IP£º{2} | ½á¹û£º{3} | ±¸×¢£º{4}",
+                    DateTime.Now, account, NetHelper.GetIPAddress(), result, note);
+                lock (LoginFileLogLock)
+                {
+                    System.IO.File.AppendAllText(file, line + Environment.NewLine, Encoding.UTF8);
+                }
+            }
+            catch
+            {
+            }
         }
 
         private bool isCustomerCount(string name ,string password,string ip)
@@ -317,19 +347,20 @@ FROM    dbo.Base_Customer c
                 imanageuser.UserId = name;
                 imanageuser.Account = base_customer.Rows[0]["CustomerId"].ToString();
                 imanageuser.UserName = base_customer.Rows[0]["Contact"].ToString();
-                imanageuser.Gender = base_customer.Rows[0]["Contact"].ToString().IndexOf("å§") >= 0 ? "å¥³" : "ç”·"; 
+                imanageuser.Gender = base_customer.Rows[0]["Contact"].ToString().IndexOf("½ã") >= 0 ? "Å®" : "ÄĞ"; 
                 imanageuser.LogTime = DateTime.Now;
                 imanageuser.CompanyName = base_customer.Rows[0]["FullName"].ToString();
-                imanageuser.ObjectId = "955c51de-89c6-45ed-8652-9e9439466b6d";//commonè§’è‰²çš„bojectid
+                imanageuser.ObjectId = "955c51de-89c6-45ed-8652-9e9439466b6d";//common½ÇÉ«µÄbojectid
                 imanageuser.IPAddress = ip;
                 imanageuser.IPAddressName = base_customer.Rows[0]["DetailAddress"].ToString();
                 imanageuser.IsSystem = false;
                 imanageuser.IsMobileUser = true;
                 ManageProvider.Provider.AddCurrent(imanageuser);
-                //å¯¹åœ¨çº¿äººæ•°å…¨å±€å˜é‡è¿›è¡ŒåŠ 1å¤„ç†
+                //¶ÔÔÚÏßÈËÊıÈ«¾Ö±äÁ¿½øĞĞ¼Ó1´¦Àí
                 HttpContext rq = System.Web.HttpContext.Current;
                 rq.Application["OnLineCount"] = (int)rq.Application["OnLineCount"] + 1;
-                Base_SysLogBll.Instance.WriteLog(name, OperationType.Login, "1", "ç™»é™†æˆåŠŸã€IPæ‰€åœ¨åŸå¸‚ï¼š" + ip);
+                Base_SysLogBll.Instance.WriteLog(name, OperationType.Login, "1", "µÇÂ½³É¹¦¡¢IPËùÔÚ³ÇÊĞ£º" + ip);
+                WriteLoginFileLog(name, "³É¹¦", "µÇÂ¼³É¹¦£¨¿Í»§/Ô±¹¤£©");
                 return true;
             }
             return false;
@@ -348,7 +379,7 @@ FROM    dbo.BY_Worker w
                 imanageuser.UserId = base_customer.Rows[0]["WorkerId"].ToString(); 
                 imanageuser.Account = base_customer.Rows[0]["WorkerCode"].ToString();
                 imanageuser.UserName = base_customer.Rows[0]["WorkerName"].ToString();
-                imanageuser.Gender = "ç”·";
+                imanageuser.Gender = "ÄĞ";
                 imanageuser.LogTime = DateTime.Now;
                 imanageuser.CompanyName = base_customer.Rows[0]["DepartId"].ToString();
                 imanageuser.ObjectId = base_customer.Rows[0]["mobile"].ToString();
@@ -357,17 +388,18 @@ FROM    dbo.BY_Worker w
                 imanageuser.IsSystem = false;
                 imanageuser.IsMobileUser = true;
                 ManageProvider.Provider.AddCurrent(imanageuser);
-                //å¯¹åœ¨çº¿äººæ•°å…¨å±€å˜é‡è¿›è¡ŒåŠ 1å¤„ç†
+                //¶ÔÔÚÏßÈËÊıÈ«¾Ö±äÁ¿½øĞĞ¼Ó1´¦Àí
                 HttpContext rq = System.Web.HttpContext.Current;
                 rq.Application["OnLineCount"] = (int)rq.Application["OnLineCount"] + 1;
-                Base_SysLogBll.Instance.WriteLog(name, OperationType.Login, "1", "ç™»é™†æˆåŠŸã€IPæ‰€åœ¨åŸå¸‚ï¼š" + ip);
+                Base_SysLogBll.Instance.WriteLog(name, OperationType.Login, "1", "µÇÂ½³É¹¦¡¢IPËùÔÚ³ÇÊĞ£º" + ip);
+                WriteLoginFileLog(name, "³É¹¦", "µÇÂ¼³É¹¦£¨¿Í»§/Ô±¹¤£©");
                 return true;
             }
             return false;
         }
 
         /// <summary>
-        /// éªŒè¯å¼ºè¿«é€€å‡º ä¸‹çº¿
+        /// ÑéÖ¤Ç¿ÆÈÍË³ö ÏÂÏß
         /// </summary>
         /// <returns></returns>
         public ActionResult CheckForceOutLogin()
@@ -375,9 +407,9 @@ FROM    dbo.BY_Worker w
             return null;
         }
         /// <summary>
-        /// åŒè´¦å·ä¸å…è®¸é‡å¤ç™»å½•
+        /// Í¬ÕËºÅ²»ÔÊĞíÖØ¸´µÇÂ¼
         /// </summary>
-        /// <param name="Account">è´¦æˆ·</param>
+        /// <param name="Account">ÕË»§</param>
         /// <returns></returns>
         public bool CheckOnLine(string Account)
         {
@@ -394,7 +426,7 @@ FROM    dbo.BY_Worker w
             {
                 if (Account == (list[i] as string))
                 {
-                    //å·²ç»ç™»å½•äº†ï¼Œæç¤ºé”™è¯¯ä¿¡æ¯ 
+                    //ÒÑ¾­µÇÂ¼ÁË£¬ÌáÊ¾´íÎóĞÅÏ¢ 
                     return false;
                 }
             }
@@ -402,24 +434,24 @@ FROM    dbo.BY_Worker w
             return true;
         }
         /// <summary>
-        /// å®‰å…¨é€€å‡º
+        /// °²È«ÍË³ö
         /// </summary>
         /// <returns></returns>
         public ActionResult OutLogin()
         {
             string UserId = ManageProvider.Provider.Current().UserId;
-            //æ›´æ”¹æ•°æ®åº“ç”¨æˆ·è¡¨åœ¨çº¿çŠ¶æ€
+            //¸ü¸ÄÊı¾İ¿âÓÃ»§±íÔÚÏß×´Ì¬
             Base_User entity = new Base_User();
             entity.UserId = UserId; entity.Online = 0;
             base_userbll.Repository().Update(entity);
-            //æ¸…ç©ºå½“å‰ç™»å½•ç”¨æˆ·ä¿¡æ¯
+            //Çå¿Õµ±Ç°µÇÂ¼ÓÃ»§ĞÅÏ¢
             ManageProvider.Provider.EmptyCurrent();
-            Session.Abandon();  //å–æ¶ˆå½“å‰ä¼šè¯
-            Session.Clear();    //æ¸…é™¤å½“å‰æµè§ˆå™¨æ‰€ä»¥Session
+            Session.Abandon();  //È¡Ïûµ±Ç°»á»°
+            Session.Clear();    //Çå³ıµ±Ç°ä¯ÀÀÆ÷ËùÒÔSession
             return Content("1");
         }
         /// <summary>
-        /// IPé™åˆ¶éªŒè¯
+        /// IPÏŞÖÆÑéÖ¤
         /// </summary>
         /// <param name="Account"></param>
         /// <param name="IPAddress"></param>
@@ -456,7 +488,7 @@ FROM    dbo.BY_Worker w
             DateTime dt = DateTime.Now;
             //by_checksheetcontroller.BuildCheckSheetForXJ(dt.Year.ToString(), dt.Month.ToString());
             //LeaRun.WebApp._01_Extension.BarCode.Code128 _Code = new LeaRun.WebApp._01_Extension.BarCode.Code128();
-            //_Code.ValueFont = new Font("å®‹ä½“", 20);
+            //_Code.ValueFont = new Font("ËÎÌå", 20);
            
             //List<Base_DataDictionaryDetail> base_datadictionarydetails = DataFactory.Database().FindList<Base_DataDictionaryDetail>(" and DataDictionaryId='21d16fdf-780d-43ac-9bab-2c5142ba6a7c' AND Enabled=1 ");
             //foreach (Base_DataDictionaryDetail item in base_datadictionarydetails)
@@ -501,7 +533,7 @@ FROM    dbo.BY_Worker w
                 {
                     nt = new BY_Inventory();
                     nt.BatchCode = batchCode;
-                    nt.ChildBatch = "0Ã—0Ã—0";
+                    nt.ChildBatch = "0¡Á0¡Á0";
                     nt.DeleteMark = 0;
                     nt.Enabled = 1;
                     nt.MaterialType = 1;

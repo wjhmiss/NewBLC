@@ -15,6 +15,8 @@
         WorkerNameAutocomplete();
         InitControl();
         document.onkeydown = enterInput;
+        //类型切换：退货时金额、数量为负，进仓为正
+        $("#TypeJC").change(function () { applyTypeSign(); });
     })
     function WorkerNameAutocomplete() {
         var $WorkerName = $("#WorkerName");
@@ -139,6 +141,10 @@
         if (!!GetQuery('KeyValue')) {
             AjaxJson("/PaymentModule/Base_MaterielPurchase/SetForm", { KeyValue: KeyValue }, function (data) {
                 SetWebControls(data);
+                //旧数据无类型：按数量/金额正负推断（负数视为退货）
+                if (!data.TypeJC && (Number(data.Qty) < 0 || Number(data.TotalAmount) < 0)) {
+                    $("#TypeJC").val("退货");
+                }
                 if (data.Status == 1) {
                     $(".pppp").hide();
                 }
@@ -151,6 +157,8 @@
         if (!CheckDataValid('#form1')) {
             return false;
         }
+        //按类型强制正负号：退货为负，进仓为正
+        applyTypeSign();
         $(".ui_state_highlight").attr("disabled", true);
         var postData = GetWebControls("#form1");
         AjaxJson("/PaymentModule/Base_MaterielPurchase/SubmitForm?KeyValue=" + KeyValue, postData, function (data) {
@@ -162,10 +170,26 @@
     }
     function Count() {
         if (!!$("#PricePer").val() && $("#Qty").val()) {
-            $("#TotalAmount").val(Number($("#PricePer").val())*Number($("#Qty").val()))
+            var v = Math.abs(Number($("#PricePer").val()) * Number($("#Qty").val()));
+            if ($("#TypeJC").val() == "退货") { v = -v; }
+            $("#TotalAmount").val(v)
         }
         else {
             $("#TotalAmount").val("0");
+        }
+    }
+    //按类型调整正负号：退货时数量、金额为负；进仓为正
+    function applyTypeSign() {
+        var t = $("#TypeJC").val();
+        var qty = Number($("#Qty").val());
+        var total = Number($("#TotalAmount").val());
+        if (t == "退货") {
+            if (qty > 0) { $("#Qty").val(-qty); }
+            if (total > 0) { $("#TotalAmount").val(-total); }
+        }
+        else {
+            if (qty < 0) { $("#Qty").val(-qty); }
+            if (total < 0) { $("#TotalAmount").val(-total); }
         }
     }
 </script>
@@ -238,6 +262,17 @@
                 <input id="WorkerCode"  type="hidden"   />
                 <input id="WorkerName" maxlength=200 type="text" class="txt" datacol="yes" err="员工姓名" checkexpession="NotNull"  />
             </td>
+        </tr>
+        <tr>
+            <th class='formTitle'>类型：</th>
+            <td class='formValue'>
+                <select id="TypeJC" class="txtselect" style="width: 96%">
+                    <option value="进仓">进仓</option>
+                    <option value="退货">退货</option>
+                </select>
+            </td>
+            <th class='formTitle'></th>
+            <td class='formValue'></td>
         </tr>
         <tr>
             <th class='formTitle'>总金额：</th>

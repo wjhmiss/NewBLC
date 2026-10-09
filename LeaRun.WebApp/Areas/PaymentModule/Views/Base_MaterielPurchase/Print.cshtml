@@ -55,6 +55,7 @@
                     QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielPurchaseCode + '</td>';
                     QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielName + '</td>';
                     QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielType + '</td>';
+                    QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielCode + '</td>';
                     QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielSize + '</td>';
                     QuotationDetailhtml += '     <td>' + data.ListData[i].Unit + '</td>';
                     QuotationDetailhtml += '     <td>' + data.ListData[i].PricePer + '</td>';
@@ -71,11 +72,12 @@
 
                 var tempfoot = "";
                 tempfoot += '<tr>';
-                tempfoot += '     <td colspan="6" align="center">合   计</td>';
+                tempfoot += '     <td colspan="7" align="center">合   计</td>';
 
                 tempfoot += '     <td>' + SumQty + '</td>';
-                tempfoot += '     <td>￥' + SumTotalMoney + '</td>';
-                tempfoot += '     <td> <img id="logo" style="z-index: -1; position: absolute;right:35px;float:right; width: 4cm;" src="@Url.Content("~/Content/Images/123.png")" /></td>';
+                tempfoot += '     <td>￥' + SumTotalMoney.toFixed(2) + '</td>';
+                tempfoot += '     <td></td>';
+                //tempfoot += '     <td> <img id="logo" style="z-index: -1; position: absolute;right:35px;float:right; width: 4cm;" src="@Url.Content("~/Content/Images/123.png")" /></td>';
                 tempfoot += '</tr>';
 
                 $("#tb_QuotationDetail").append(tempfoot);
@@ -147,15 +149,17 @@
                     <div>
                         <table id="tb_QuotationDetail" border="1" class="form-print" style="width: 100%; border: 1px solid #000; border-collapse: collapse;">
                             <tr>
-                                <td style="width: 10%" align="center">单号</td>
-                                <td style="width: 10%">物料名称</td>
-                                <td style="width: 10%">物料类型</td>
-                                <td style="width: 10%">尺寸</td>
-                                <td style="width: 5%">单位</td>
-                                <td style="width: 8%">单价</td>
-                                <td style="width: 7%">数量</td>
-                                <td style="width: 8%">总价</td>
-                                <td style="width: 8%">备注
+                                <td style="" align="center">单号</td>
+                                <td style="">物料名称</td>
+                                <td style="">物料类型</td>
+                                <td style="">物料号</td>
+                                <td style="">尺寸</td>
+                                <td style="">单位</td>
+                                <td style="">单价</td>
+                                <td style="">数量</td>
+                                <td style="">总价</td>
+                                <td style="">
+                                    备注
 
                                 </td>
                             </tr>
@@ -182,11 +186,17 @@
                     交货到我公司，如有特殊请致电。</td>
             </tr>*@
             
-            <tr>
-                <td colspan="4">
-
-                </td>
-            </tr>
+        <tr>
+            <td colspan="4">
+                备注:
+                1、供货方需严格按清单规格、数量供货，货品须为合格正品，满足现场使用要求和相关标准要求;
+                2、货品送货时，需附带清晰标识，保证外包装完好，内部数量准确无短装;送
+                货单上备注好我司采购单号;
+                相关运费;
+                3、到货后我方验收，品质、规格、数量不符的，供方无条件接受退换货并承担
+                4、供货方收到此单据时未提出异议的，视作默认接受本订单全部要求，包括备注内容。
+            </td>
+        </tr>
             <tr>
                 <td style="white-space: nowrap;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;供方：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
                 <td style="white-space: nowrap;">审核：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
@@ -201,7 +211,11 @@
         ////var LODOP = getLodop();
         LODOP.PRINT_INIT("打印初始化");
         LODOP.SET_PRINT_COPIES(1);
-        LODOP.SET_PRINT_PAGESIZE(1, "210mm", "297mm", "A4")
+        if (GetQuery('TYPE') == 'A5') {
+            LODOP.SET_PRINT_PAGESIZE(2, "", "", "A5")
+        }
+        else { LODOP.SET_PRINT_PAGESIZE(1, "", "", "A4") }
+        
         var strHTML = document.getElementsByTagName("html")[0].innerHTML;
         LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
         LODOP.PREVIEW();

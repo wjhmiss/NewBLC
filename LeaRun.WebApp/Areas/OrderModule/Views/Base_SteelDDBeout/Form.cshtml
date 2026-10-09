@@ -166,7 +166,7 @@
         for (var i = 0; i < data.length; i++) {
            TotalAmountall = TotalAmountall + Number(data[i].TotalAmount);
         }
-        $("#TotalAmount").val(TotalAmountall);
+        $("#TotalAmount").val(TotalAmountall.toFixed(2));
 
         var postData = GetWebControls("#form1");
         postData["SteelListJson"] = JSON.stringify($("#gridTable").jqGrid("getRowData"));
@@ -345,7 +345,7 @@
                 for (var i = 0; i < data.length; i++) {
                     TotalAmountall = TotalAmountall + Number(data[i].MaterialAmount);
                 }
-                $("#TotalAmount").val(TotalAmountall);
+                $("#TotalAmount").val(TotalAmountall.toFixed(2));
                 $('#gridTable').setGridHeight(300);
             }
 
@@ -562,6 +562,45 @@
 
     }
 
+    //分配：按行理论重量(Weight)比例分配毛料合称重量，并同步重算总价
+    function btn_ToFen() {
+        if (!!Number($('#TotalWeights').val())) {
+            //先保存当前正在编辑的行
+            if (!!lastsel) {
+                var RowData = {
+                    Weight: $("[name='Weight']").val(),
+                    MaterialPrice: $("[name='MaterialPrice']").val(),
+                }
+                $('#gridTable').jqGrid('setRowData', lastsel, RowData, '');
+            }
+            var data = $("#gridTable").jqGrid("getRowData");
+            var ids = $("#gridTable").jqGrid("getDataIDs");
+            var totalweight = 0;
+            for (var i = 0; i < data.length; i++) {
+                totalweight = totalweight + Number(data[i].Weight);
+            }
+            var temweight = 0;
+            for (var i = 0; i < data.length; i++) {
+                var w;
+                if (i == data.length - 1) {
+                    w = (Number($('#TotalWeights').val()) - temweight).toFixed(2);
+                }
+                else {
+                    w = (Number(data[i].Weight) * Number($('#TotalWeights').val()) / totalweight).toFixed(2);
+                }
+                temweight = temweight + Number(w);
+                $("#gridTable").jqGrid('setRowData', ids[i], { Weight: w, MaterialAmount: (Number(data[i].MaterialPrice) * Number(w)).toFixed(2) });
+            }
+            //汇总总金额
+            var data2 = $("#gridTable").jqGrid("getRowData");
+            var TotalAmountall = 0;
+            for (var i = 0; i < data2.length; i++) {
+                TotalAmountall = TotalAmountall + Number(data2[i].MaterialAmount);
+            }
+            $("#TotalAmount").val(TotalAmountall.toFixed(2));
+            $('#TotalWeights').val('');
+        }
+    }
     //新增一行
     function addrow() {
         var SortCode = 0;
@@ -679,6 +718,9 @@
                     <div id="lr-choose-Row" class="nui-toolbar-item nui-btn-left">
                         <span class="nui-btn-text" onclick="btn_Quotationquery();">选择</span>
                     </div>
+                    毛料合称重量：
+                    <input id="TotalWeights" type="text" class="txt" style="width: 100px" value="0" onfocus="IsMoney(this.id);" />
+                    <input type="button" class="btnSearch" value="分配" onclick="btn_ToFen()" />
                 </div>
             </div>
             <div class="rightline">

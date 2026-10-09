@@ -36,8 +36,7 @@ namespace DNS.Business
         getQTY ,
         backQTY,
 (SELECT m1.PricePer FROM Base_MaterielType m1 WHERE m1.MaterielCode = a.MaterielCode) pepermoney,
-        (ISNULL(getQTY,0) - ISNULL(backQTY,0))*(SELECT m1.PricePer FROM Base_MaterielType m1 WHERE m1.MaterielCode = a.MaterielCode) TotalAmount,
-        (SELECT m2.Qty FROM Base_MaterielStorage m2 WHERE m2.MaterielCode = a.MaterielCode) qty
+        (ISNULL(getQTY,0) - ISNULL(backQTY,0))*(SELECT m1.PricePer FROM Base_MaterielType m1 WHERE m1.MaterielCode = a.MaterielCode) TotalAmount
 FROM    ( SELECT    MaterielCode ,MaterielType,
                     MaterielName ,
                     WorkerName ,DepartmentName,
@@ -120,8 +119,7 @@ FROM    ( SELECT    MaterielCode ,MaterielType,
         getQTY ,
         backQTY,
 (SELECT m1.PricePer FROM Base_MaterielType m1 WHERE m1.MaterielCode = a.MaterielCode) pepermoney,
-        (ISNULL(getQTY,0) - ISNULL(backQTY,0))*(SELECT m1.PricePer FROM Base_MaterielType m1 WHERE m1.MaterielCode = a.MaterielCode) TotalAmount,
-        (SELECT m2.Qty FROM Base_MaterielStorage m2 WHERE m2.MaterielCode = a.MaterielCode) qty
+        (ISNULL(getQTY,0) - ISNULL(backQTY,0))*(SELECT m1.PricePer FROM Base_MaterielType m1 WHERE m1.MaterielCode = a.MaterielCode) TotalAmount
 FROM    ( SELECT    MaterielCode ,MaterielType,
                     MaterielName ,
                     DepartmentName,

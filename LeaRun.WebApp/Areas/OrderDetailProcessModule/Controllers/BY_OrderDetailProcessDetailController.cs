@@ -1,4 +1,5 @@
 using DNS.Business;
+using DNS.Business.Utility.Enum;
 using DNS.DataAccess;
 using DNS.Entity;
 using DNS.Repository;
@@ -8,11 +9,11 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
+using System.Security.Principal;
 using System.Web;
 using System.Web.Mvc;
-using DNS.Business.Utility.Enum;
-using System.Diagnostics;
 
 namespace DNS.WebApp.Areas.OrderDetailProcessModule.Controllers
 {
@@ -174,20 +175,23 @@ namespace DNS.WebApp.Areas.OrderDetailProcessModule.Controllers
                 ReturnMessage.DbType = DbType.String;
                 parameter.Add(ReturnMessage);
 
-                DbParameter ReturnID = DbFactory.CreateDbParameter();
-                ReturnID.Direction = ParameterDirection.Output;
-                ReturnID.ParameterName = "@processdetailid";
-                ReturnID.Size = 50;
-                ReturnID.DbType = DbType.String;
+                //DbParameter ReturnID = DbFactory.CreateDbParameter();
+                //ReturnID.Direction = ParameterDirection.Output;
+                //ReturnID.ParameterName = "@processdetailid";
+                //ReturnID.Size = 50;
+                //ReturnID.DbType = DbType.String;
 
-                parameter.Add(ReturnID);
+                //parameter.Add(ReturnID);
                 DataFactory.Database().ExecuteByProc("StoredPBYERP", parameter.ToArray());
                 if (ReturnMessage.Value.ToString() == "1")
                 {
+
                     return Content(new JsonMessage { Success = false, Code = "1", Message = "²Ù×÷³É¹¦£¡" }.ToString());
+
                 }
                 else
                 {
+                    WriteLoginFileLog("É¨Ãè", "StoredPBYERP", "Ê§°Ü", ReturnMessage.Value.ToString());
                     return Content(new JsonMessage { Success = false, Code = "-1", Message = "²Ù×÷Ê§°Ü£º" + ReturnMessage.Value }.ToString());
                 }
                 //}

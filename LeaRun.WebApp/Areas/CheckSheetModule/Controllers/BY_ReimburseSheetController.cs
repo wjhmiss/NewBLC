@@ -32,9 +32,57 @@ namespace DNS.WebApp.Areas.CheckSheetModule.Controllers
                 {
                     List<DbParameter> parameter = new List<DbParameter>();
                     IList conditions = ParameterJson.JonsToList<Condition>();
-                    string sql = @"  SELECT r.*
- FROM   BY_ReimburseSheet r left join 
-        dbo.Base_Customer c on r.CustomerId = c.CustomerId 
+                    string sql = @"
+SELECT  [ReimburseSheetID]
+      ,[ReimburseSheetCode]
+      --,[Code]
+      ,[CodeType]
+      ,[RequiredMan]
+      ,[RequiredDate]
+      ,[RequiredMoney]
+      ,[AuditMoney]
+      ,[AuditMan]
+      ,[AuditDateTime]
+      ,[AuditRemark]
+      ,[Status]
+      ,[Remark]
+      ,[Enabled]
+      ,[SortCode]
+      ,[DeleteMark]
+      ,[CreateDate]
+      ,[CreateUserId]
+      ,[CreateUserName]
+      ,[ModifyDate]
+      ,[ModifyUserId]
+      ,[ModifyUserName]
+      ,[CustomerId]
+      ,[CustomerCode]
+      ,[CustomerName]
+      ,[MnemonicCode]
+      ,[QuotationCode]
+      ,[ZRMoney]
+      ,[GETMoney]
+      ,[NotGetMoney]
+      ,[GetType]
+      ,[Opions]
+      ,[CanUseMoney]
+      ,[TotalAmount]
+      --,[InvoiceNum]
+      ,[BankNum]
+      ,[Type3]
+      ,[Type2]
+      ,[Type1]
+      ,[ZRRemark]
+      ,[WorkerId]
+      ,[WorkerName]
+      ,[WorkerCode]
+      ,[DepartmentName]
+      ,[Remark1]
+      ,[Type0]
+      ,[LType]
+    ,ISNULL(STUFF(( SELECT ',' + c.Code FROM BY_ReimburseSheet c WHERE c.ReimburseSheetCode = p.ReimburseSheetID ORDER BY c.ReimburseSheetID FOR XML PATH( '' ), TYPE
+    ). value ( '.' , 'nvarchar(max)' ), 1 , 1 , '' ), Code) as  'Code'
+    FROM BY_ReimburseSheet p 
  WHERE  1=1 ";
                     string WhereSql = ConditionBuilder.GetWhereSql(conditions, out parameter);
 //                    if (ManageProvider.Provider.Current().ObjectId.IndexOf("9d04b362-c9fe-4c67-95a5-d24d6ad9177d") < 0 && ManageProvider.Provider.Current().UserName != "超级管理员")
@@ -60,6 +108,23 @@ namespace DNS.WebApp.Areas.CheckSheetModule.Controllers
 //                    }
                     ListData = repositoryfactory.Repository().FindListPage(WhereSql, ref jqgridparam);
                 }
+
+
+                foreach (var item in ListData)
+                {
+                    if (item.Code != null)
+                    {
+                        foreach (var code in item.Code.Split(','))
+                        {
+                            By_InvoiceForDetail by_invoicefordetail = DataFactory.Database().FindEntity<By_InvoiceForDetail>("CheckSheetCode", code);
+                            item.InvoiceNum += by_invoicefordetail.InvoiceNum + ",";
+                        }
+                        item.InvoiceNum = item.InvoiceNum.Trim(',');
+                    }
+                }
+                
+
+
                 var JsonData = new
                 {
                     total = jqgridparam.total,

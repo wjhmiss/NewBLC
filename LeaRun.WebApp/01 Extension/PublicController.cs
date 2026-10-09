@@ -7,6 +7,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -22,6 +23,30 @@ namespace DNS.WebApp
     /// <typeparam name="TEntity"></typeparam>
     public class PublicController<TEntity> : Controller where TEntity : BaseEntity, new()
     {
+        //登录文件日志：写入根目录logs文件夹，按天分文件；写日志失败不影响登录流程
+        private static readonly object LoginFileLogLock = new object();
+        public void WriteLoginFileLog(string type,string account, string result, string note)
+        {
+            try
+            {
+                string dir = Server.MapPath("~/logs");
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                string file = Path.Combine(dir, "logs-" + type + "-" + DateTime.Now.ToString("yyyyMMdd") + ".log");
+                string line = string.Format("[{0:yyyy-MM-dd HH:mm:ss}] 账号：{1} | IP：{2} | 结果：{3} | 备注：{4}",
+                    DateTime.Now, account, NetHelper.GetIPAddress(), result, note);
+                lock (LoginFileLogLock)
+                {
+                    System.IO.File.AppendAllText(file, line + Environment.NewLine, Encoding.UTF8);
+                }
+            }
+            catch
+            {
+            }
+        }
+
         public readonly RepositoryFactory<TEntity> repositoryfactory = new RepositoryFactory<TEntity>();
 
         #region 列表

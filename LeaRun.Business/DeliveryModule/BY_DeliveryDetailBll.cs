@@ -200,7 +200,7 @@ WHERE 1 = 1 AND dd.Weigh > 0  and d.DeleteMark = 0  ");
         public List<BY_DeliveryDetail> GetPageList1(string CheckSheetId, ref JqGridParam jqgridparam)
         {
             StringBuilder strSql = new StringBuilder();
-            strSql.AppendFormat(@" SELECT  dd.ProductName ,
+            strSql.AppendFormat(@" SELECT  dd.ProductName ,dd.SteelCode ,
         dd.MaterialPrice ,
         SUM(dd.Qty)  Qty,
         SUM(dd.Weight)  Weight,
@@ -213,8 +213,8 @@ WHERE 1 = 1 AND dd.Weigh > 0  and d.DeleteMark = 0  ");
 FROM    BY_DeliveryDetail dd
         INNER JOIN BY_Delivery d ON dd.DeliveryId = d.DeliveryId
         INNER JOIN BY_CheckSheet cs ON d.CheckSheetCode = cs.CheckSheetCode
-WHERE   cs.CheckSheetId = '{0}'   and d.Enabled > 0 and dd.Length > 0  and d.DeleteMark = 0 
-GROUP BY dd.ProductName ,
+WHERE   cs.CheckSheetId = '{0}'   and d.Enabled > 0 and d.DeleteMark = 0 and dd.SteelCode != 'FY' 
+GROUP BY dd.ProductName ,dd.SteelCode ,
         dd.MaterialPrice
 
          ", CheckSheetId);

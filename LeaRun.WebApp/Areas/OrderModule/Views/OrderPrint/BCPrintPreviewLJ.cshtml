@@ -141,6 +141,9 @@
                     if (!OrderDetail.Remark) {
                         OrderDetail.Remark = "";
                     }
+                    if (!OrderDetail.ExecRemark) {
+                        OrderDetail.ExecRemark = "";
+                    }
                     if (index % num == 0) {
                         pageindex++;
                         Orderhtml += '<table id="tb_Order" border="0" class="form-print" style="width: 100%;page-break-after:always;">';
@@ -177,40 +180,42 @@
                         Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">件数</td>';
                         Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">重量</td>';
                         Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">现状</td>';
-                        Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">备注/模号</td>';
+                        Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;font-size: 10pt;">' + OrderDetail.ExecRemark +'</td>';
                         Orderhtml += '                           </tr>';
                     }
 
                     Orderhtml += '<tr>';
-                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + OrderDetail.LineCode + '</td>';
-                    Orderhtml += '                               <td align="center" style="border: 1px solid #000;  text-align: center;">' + OrderDetail.ProductName + '</td>';
-                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + OrderDetail.SteelCode + '</td>';
-                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + size + '</td>';
-                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + OrderDetail.Qty + '/' + data.OrderDetailTotal.toFixed(0) +'</td>';
-                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + OrderDetail.Weight + '</td>';
-                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + OrderDetail.NowStatus + '</td>';
-                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;">' + OrderDetail.CustomerProduct + '</td>';
+                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;font-size: 12pt;">' + QuotationEntiy.MnemonicCode + '-'+ OrderDetail.LineCode + '</td>';
+                    Orderhtml += '                               <td align="center" style="border: 1px solid #000;  text-align: center;font-size: 12pt;">' + OrderDetail.ProductName + '</td>';
+                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;font-size: 12pt;">' + OrderDetail.SteelCode + '</td>';
+                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;font-size: 12pt;">' + size + '</td>';
+                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;font-size: 12pt;">' + OrderDetail.Qty + '/' + data.OrderDetailTotal.toFixed(0) +'</td>';
+                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;font-size: 12pt;">' + OrderDetail.Weight + '</td>';
+                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;font-size: 12pt;">' + OrderDetail.NowStatus + '</td>';
+                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;font-size: 12pt;">' + OrderDetail.CustomerProduct + '</td>';
                     Orderhtml += '</tr>';
                     
                     Orderhtml += '<tr> <td colspan="10"  style="vertical-align:top;"><table  border="0" class="form-print" style="width: 100%; border-collapse: collapse">';
 
                     Orderhtml += '<tr>';
                     Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;">工序名称</td>';
-                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;">工艺顺序</td>';
+                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 20px;font-size:10px;">工艺顺序</td>';
                     Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;">排产日期</td>';
                     Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;">发出日期</td>';
                     Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;">上机时间</td>';
+                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;">下机时间</td>';
                     Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;">所耗工时</td>';
                     Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;">签名</td>';
-                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;">工艺要求</td>';
-                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;">是否委外</td>';
+                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 100px;font-size:10px;">工艺要求</td>';
+                    Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 20px;font-size:10px;">是否委外</td>';
                     Orderhtml += '</tr>';
 
                     by_orderdetailprocesss = TEMPorderdetailss[i].by_orderdetailprocesss;
                     var leleleng = by_orderdetailprocesss.length;
                     for (var j = 0; j < by_orderdetailprocesss.length; j = j + 1) {
                         Orderhtml += '<tr>';
-                        Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;">' + by_orderdetailprocesss[j].TechnologyName + '</td>';
+                        Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;line-height: 10.6px;">' + by_orderdetailprocesss[j].TechnologyName + '</td>';
+                        Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;"></td>';
                         Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;"></td>';
                         Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;"></td>';
                         Orderhtml += '                               <td style="border: 1px solid #000; text-align: center;width: 70px;font-size:10px;"></td>';
@@ -369,7 +374,7 @@
         font-family: Arial;
         font-weight: bold;
         background-color: #fff;
-        height: 35.6px;
+        height: 30.6px;
         line-height: 18.6px;
         white-space: nowrap;
         width: 80px;
@@ -381,7 +386,7 @@
         font-size: 12pt;
         font-family: Arial;
         font-weight: bold;
-        height: 35.6px;
+        height: 30.6px;
         line-height: 18.6px;
         padding-right: 2px;
     }

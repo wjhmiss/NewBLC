@@ -1,10 +1,10 @@
-ï»¿@{
-    ViewBag.Title = "æŠ¥ä»·å•å½•å…¥";
+@{
+    ViewBag.Title = "±¨¼Ûµ¥Â¼Èë";
     Layout = "~/Views/Shared/_LayoutIndex.cshtml";
 }
 
 <link href="~/Content/Scripts/uploadify/uploadify.css" rel="stylesheet" />
-<script src="~/Content/Scripts/uploadify/jquery.uploadify.js?ver=@DateTime.Now.Ticks"></script>
+<script src="~/Content/Scripts/uploadify/native-uploadify.js?ver=@DateTime.Now.Ticks"></script>
 
 
 
@@ -19,17 +19,17 @@
         document.onkeydown = enterInput;
 
         $("#Detail_button").css({ top: $(".bd").offset().top + 2 });
-        //åŠ å·¥ç±»å‹
-        //BindDropItem("#OrderType", "ProcessType", "==è¯·é€‰æ‹©==");
-        //è´¦æœŸ
-        BindDropItem("#PaymentMode", "PaymentMode", "==è¯·é€‰æ‹©==");
-        //é€è´§æ–¹å¼
-        BindDropItem("#ShipMode", "TransitMode", "==è¯·é€‰æ‹©==");
-        //å®¢æˆ·ç¼–ç è‡ªåŠ¨è¡¥å…¨
+        //¼Ó¹¤ÀàĞÍ
+        //BindDropItem("#OrderType", "ProcessType", "==ÇëÑ¡Ôñ==");
+        //ÕËÆÚ
+        BindDropItem("#PaymentMode", "PaymentMode", "==ÇëÑ¡Ôñ==");
+        //ËÍ»õ·½Ê½
+        BindDropItem("#ShipMode", "TransitMode", "==ÇëÑ¡Ôñ==");
+        //¿Í»§±àÂë×Ô¶¯²¹È«
         CustomerAutocomplete();
 
         getAjax('/CommonModule/Company/ListJson', { ParentId: "1" }, function (data) {
-            $("#CompanyName").append($("<option></option>").val("").html("è¯·é€‰æ‹©ï¼"));
+            $("#CompanyName").append($("<option></option>").val("").html("ÇëÑ¡Ôñ£¡"));
             var itemjson = eval("(" + data + ")");
             $.each(itemjson, function (i) {
                 $("#CompanyName").append($("<option></option>").val(itemjson[i].FullName).html(itemjson[i].FullName));
@@ -37,7 +37,7 @@
             Loading(false);
         });
 
-        //å‡ºè´§ç»„ç»‡
+        //³ö»õ×éÖ¯
         $("#ShipGroup").focus(function () {
             var objId = this.id;
             SelectTree(objId, "150px");
@@ -49,7 +49,7 @@
             };
             $("#comboBoxTree" + objId).treeview(itemtree);
         });
-        //æ˜ç»†è¡¨æ ¼
+        //Ã÷Ï¸±í¸ñ
         window.setTimeout(function () {
             GetGrid();
         }, 200);
@@ -57,24 +57,24 @@
     function uploadify2() {
 
         try {
-            if ($("#wokkkka").length > 0) { //æ³¨æ„jqueryä¸‹æ£€æŸ¥ä¸€ä¸ªå…ƒç´ æ˜¯å¦å­˜åœ¨å¿…é¡»ä½¿ç”¨ .length >0 æ¥åˆ¤æ–­
+            if ($("#wokkkka").length > 0) { //×¢ÒâjqueryÏÂ¼ì²éÒ»¸öÔªËØÊÇ·ñ´æÔÚ±ØĞëÊ¹ÓÃ .length >0 À´ÅĞ¶Ï
                 $("#wokkkka").uploadify('destroy');
             }
             $("#wokkkka").uploadify({
                 uploader: '/Utility/Upload?saveDocument=LJ/' + $("#QuotationCode").val().substring(2, 6) + $("#QuotationCode").val().substring(8) + '&filenameid=' + $("#QuotationCode").val(),
                 swf: '/Content/Scripts/uploadify/uploadify.swf',
-                buttonText: "ä¸Šä¼ ",
+                buttonText: "ÉÏ´«",
                 height: 24,
                 width: 70,
                 onFallback: function () {
-                    alert("æ‚¨æœªå®‰è£…FLASHæ§ä»¶ï¼Œæ— æ³•ä¸Šä¼ ï¼è¯·å®‰è£…FLASHæ§ä»¶åå†è¯•ã€‚");
+                    alert("ÄúÎ´°²×°FLASH¿Ø¼ş£¬ÎŞ·¨ÉÏ´«£¡Çë°²×°FLASH¿Ø¼şºóÔÙÊÔ¡£");
                 },
                 onUploadSuccess: function (file, data, response) {
                     //var DataJson = JSON.parse(data);
                     //windowload();
                     //window.location.reload();
                     if (data == "-1" || !data) {
-                        alert("è¯·å…ˆä¿å­˜æŠ¥ä»·å•ï¼Œä¹‹åå†ä¸Šä¼ æ–‡ä»¶ï¼");
+                        alert("ÇëÏÈ±£´æ±¨¼Ûµ¥£¬Ö®ºóÔÙÉÏ´«ÎÄ¼ş£¡");
                     }
                     else {
                         InitControl(KeyValue);
@@ -92,7 +92,7 @@
 
         var e = e || window.event || arguments.callee.caller.arguments[0];
         var tar = e.srcElement || e.target;
-        if (event.keyCode == 38) {//ä¸Š
+        if (event.keyCode == 38) {//ÉÏ
             if (SelectRowIndx == 0) {
                 $("#gridTable").jqGrid('setSelection', 1);
             }
@@ -101,7 +101,7 @@
             }
             //$(".ui-jqgrid-bdiv").first().scrollTop(rowScrod+50);
         }
-        if (event.keyCode == 40) {//ä¸‹
+        if (event.keyCode == 40) {//ÏÂ
             if (SelectRowIndx == 0) {
                 $("#gridTable").jqGrid('setSelection', 1);
             }
@@ -110,12 +110,12 @@
             }
             $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod - 30);
         }
-        //if (event.keyCode == 13) {//ä¸‹
+        //if (event.keyCode == 13) {//ÏÂ
         //    $("#lr-edit-Row").click();
         //}
     }
 
-    //å®¢æˆ·ç¼–ç è‡ªåŠ¨è¡¥å…¨
+    //¿Í»§±àÂë×Ô¶¯²¹È«
     function CustomerAutocomplete() {
         var $CustomerCode = $("#CustomerCode");
         $CustomerCode.bind("keyup", function (e) {
@@ -126,7 +126,7 @@
             $(this).select();
             DataSource();
         });
-        //ä¸Šï¼Œä¸‹é”®ç›˜å›è°ƒ
+        //ÉÏ£¬ÏÂ¼üÅÌ»Øµ÷
         autocompletekeydown("CustomerCode", function (data) {
             $("#CustomerId").val(data.CustomerId);
             $("#CustomerCode").val(data.CustomerCode);
@@ -154,7 +154,7 @@
             $("#CompanyName").val(data.CompanyName);
 
         });
-        //è·å–æ•°æ®æº
+        //»ñÈ¡Êı¾İÔ´
         function DataSource() {
             $("#CustomerId").val('');
             AjaxJson("/CommonModule/Customer/GetAutoCompleJson", { keywords: $CustomerCode.val() }, function (DataJson) {
@@ -176,7 +176,7 @@
 
                     html += "</tr>";
                 });
-                //ç‚¹å‡»äº‹ä»¶å›è°ƒ
+                //µã»÷ÊÂ¼ş»Øµ÷
                 autocomplete("CustomerCode", "300px", "200px", html, function (data) {
                     $("#CustomerId").val(data.CustomerId);
                     $("#CustomerCode").val(data.CustomerCode);
@@ -204,7 +204,7 @@
                     $('input').customInput();
                     $("#CompanyName").val(data.CompanyName);
                 });
-                //ä»»æ„é”®å…³é—­
+                //ÈÎÒâ¼ü¹Ø±Õ
                 document.onclick = function (e) {
                     var e = e ? e : window.event;
                     var tar = e.srcElement || e.target;
@@ -241,7 +241,7 @@
                 }
             });
         }
-        //è”ç³»äºº
+        //ÁªÏµÈË
         function LoadContactName(CustomerId) {
             if (!!CustomerId) {
                 AjaxJson("/CommonModule/Customer/CustomerAddressListJson", { CustomerId: CustomerId }, function (data) {
@@ -265,7 +265,7 @@
                 })
             }
         }
-        //å‘è´§åœ°å€ä¸‹æ‹‰æ¡†é€‰æ‹©
+        //·¢»õµØÖ·ÏÂÀ­¿òÑ¡Ôñ
         $("#ShipAddress").change(function () {
             var data = JSON.parse($(this).find("option:selected").attr('data'));
             $("#ContactTel").val(data.Telephone);
@@ -278,13 +278,13 @@
             $("#ShipAddress").val( data.DetailAddress);
         })
     }
-    //æŸ¥è¯¢
+    //²éÑ¯
     function btn_query() {
-        openDialog("/QuotationModule/QuotationInput/QueryQuotation?LType=LJ", "QueryQuotation", "æŠ¥ä»·å•æŸ¥è¯¢", 650, 260, function (iframe) {
+        openDialog("/QuotationModule/QuotationInput/QueryQuotation?LType=LJ", "QueryQuotation", "±¨¼Ûµ¥²éÑ¯", 650, 260, function (iframe) {
             top.frames[iframe].AcceptClick()
         });
     }
-    //æ–°å¢
+    //ĞÂÔö
     function btn_add() {
         KeyValue = "";
         windowload();
@@ -296,8 +296,8 @@
             $("#QuotationCode").val(QuotationCode);
         }
         else {
-            $("#QuotationCode").val("ä¿å­˜åè‡ªåŠ¨ç”Ÿæˆ");
-            $("#MnemonicCode").val("é»˜è®¤ä¸ºæŠ¥ä»·å•å·");
+            $("#QuotationCode").val("±£´æºó×Ô¶¯Éú³É");
+            $("#MnemonicCode").val("Ä¬ÈÏÎª±¨¼Ûµ¥ºÅ");
         }
 
         $("#CheckStatusName").html("").attr('CheckStatus', "");
@@ -309,23 +309,23 @@
         $("#LType").val("LJ");
         uploadify2();
     }
-    //ç¼–è¾‘
+    //±à¼­
     function btn_edit() {
-        if ($("#lr-edit").hasClass('disabled') && "@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "è¶…çº§ç®¡ç†å‘˜") { return false; }
+        if ($("#lr-edit").hasClass('disabled') && "@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "³¬¼¶¹ÜÀíÔ±") { return false; }
         $("#tb_rderFrom").find("input,select,label").removeAttr('disabled');
         $("#lr-add,#lr-edit,#lr-delete").addClass('disabled');
         $("#lr-save,#lr-cancel").removeClass('disabled');
         $('#OrderType').attr("disabled", "disabled");
         uploadify2();
     }
-    //åˆ é™¤
+    //É¾³ı
     function btn_delete() {
-        if ($("#lr-delete").hasClass('disabled') && "@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "è¶…çº§ç®¡ç†å‘˜") { return false; }
+        if ($("#lr-delete").hasClass('disabled') && "@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "³¬¼¶¹ÜÀíÔ±") { return false; }
         if (IsDelData(KeyValue)) {
             var delparm = 'KeyValue=' + KeyValue;
-            confirmDialog("æç¤º", "ç¡®è®¤è¦åˆ é™¤æŠ¥ä»·å•å—ï¼Ÿ", function (r) {
+            confirmDialog("ÌáÊ¾", "È·ÈÏÒªÉ¾³ı±¨¼Ûµ¥Âğ£¿", function (r) {
                 if (r) {
-                    Loading(true, "æ­£åœ¨åˆ é™¤æ•°æ®...");
+                    Loading(true, "ÕıÔÚÉ¾³ıÊı¾İ...");
                     window.setTimeout(function () {
                         AjaxJson("/QuotationModule/QuotationInput/Delete1", { KeyValue: KeyValue }, function (data) {
                             tipDialog(data.Message, 3, data.Code);
@@ -342,21 +342,21 @@
 
     function btn_Delivery() {
         if ($("#lr-Delivery").hasClass('disabled')) { return false; }
-        @*if ("@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "è¶…çº§ç®¡ç†å‘˜") { return false; }*@
+        @*if ("@DNS.Utilities.ManageProvider.Provider.Current().UserName" != "³¬¼¶¹ÜÀíÔ±") { return false; }*@
         if (IsDelData(KeyValue)) {
-            confirmDialog("æç¤º", "ç¡®è®¤è¦ç›´æ¥å‘è¿å—ï¼Ÿ", function (r) {
+            confirmDialog("ÌáÊ¾", "È·ÈÏÒªÖ±½Ó·¢ÔËÂğ£¿", function (r) {
                 if (r) {
-                    Loading(true, "æ­£åœ¨å‘è¿...");
+                    Loading(true, "ÕıÔÚ·¢ÔË...");
                     window.setTimeout(function () {
 
-                        //æäº¤
+                        //Ìá½»
                         if ($("#lr-submit").hasClass('disabled')) { return false; }
                         if (!KeyValue) {
-                            alertDialog("è¯·å…ˆä¿å­˜æŠ¥ä»·å•ä¿¡æ¯", 0);
+                            alertDialog("ÇëÏÈ±£´æ±¨¼Ûµ¥ĞÅÏ¢", 0);
                             return false;
                         }
                         if ($("#gridTable").getGridParam("reccount") == 0) {
-                            alertDialog("è¯·è¾“å…¥æŠ¥ä»·å•è¡Œæ˜ç»†", 0);
+                            alertDialog("ÇëÊäÈë±¨¼Ûµ¥ĞĞÃ÷Ï¸", 0);
                             return false;
                         }
                         //AjaxJson("/QuotationModule/QuotationInput/SubmitAuditRun", { KeyValue: KeyValue, CheckStatus: 0 }, function (data) {
@@ -387,7 +387,7 @@
     }
 
 
-    //ä¿å­˜
+    //±£´æ
     function btn_save() {
         if ($("#lr-save").hasClass('disabled')) { return false; }
 
@@ -395,7 +395,7 @@
         if (!CheckDataValid('#form1')) {
             return false;
         }
-        Loading(true, "æ­£åœ¨ä¿å­˜æ•°æ®...");
+        Loading(true, "ÕıÔÚ±£´æÊı¾İ...");
         window.setTimeout(function () {
             var postData = GetWebControls("#form1");
             AjaxJson("/QuotationModule/QuotationInput/SubmitQuotationInputForm?KeyValue=" + KeyValue, postData, function (data) {
@@ -406,7 +406,7 @@
             });
         }, 200);
     }
-    //å–æ¶ˆ
+    //È¡Ïû
     function btn_cancel() {
         if ($("#lr-cancel").hasClass('disabled')) { return false; }
         if (!KeyValue) {
@@ -418,7 +418,7 @@
                 $("#QuotationCode").val(QuotationCode);
             }
             else {
-                $("#QuotationCode").val("ä¿å­˜åè‡ªåŠ¨ç”Ÿæˆ");
+                $("#QuotationCode").val("±£´æºó×Ô¶¯Éú³É");
             }
 
         } else {
@@ -428,20 +428,20 @@
         }
         uploadify2();
     }
-    //æäº¤
+    //Ìá½»
     function btn_submit() {
         if ($("#lr-submit").hasClass('disabled')) { return false; }
         if (!KeyValue) {
-            alertDialog("è¯·å…ˆä¿å­˜æŠ¥ä»·å•ä¿¡æ¯", 0);
+            alertDialog("ÇëÏÈ±£´æ±¨¼Ûµ¥ĞÅÏ¢", 0);
             return false;
         }
         if ($("#gridTable").getGridParam("reccount") == 0) {
-            alertDialog("è¯·è¾“å…¥æŠ¥ä»·å•è¡Œæ˜ç»†", 0);
+            alertDialog("ÇëÊäÈë±¨¼Ûµ¥ĞĞÃ÷Ï¸", 0);
             return false;
         }
-        confirmDialog("æç¤º", "è¡Œæ˜¯å¦éœ€è¦æ‹†åˆ†ï¼Ÿç¡®è®¤åæäº¤æŠ¥ä»·å•ï¼", function (r) {
+        confirmDialog("ÌáÊ¾", "ĞĞÊÇ·ñĞèÒª²ğ·Ö£¿È·ÈÏºóÌá½»±¨¼Ûµ¥£¡", function (r) {
             if (r) {
-                Loading(true, "æ­£åœ¨æäº¤æ•°æ®...");
+                Loading(true, "ÕıÔÚÌá½»Êı¾İ...");
                 window.setTimeout(function () {
                     AjaxJson("/QuotationModule/QuotationInput/SubmitAuditRun", { KeyValue: KeyValue, CheckStatus: 0 }, function (data) {
                         tipDialog(data.Message, 3, data.Code);
@@ -454,20 +454,20 @@
         });
     }
 
-    //è·å–æŠ¥ä»·å•å¯¹è±¡
+    //»ñÈ¡±¨¼Ûµ¥¶ÔÏó
     function InitControl(_KeyValue) {
         KeyValue = _KeyValue;
         AjaxJson("/QuotationModule/QuotationInput/SetFormForImg", { KeyValue: _KeyValue }, function (data) {
             SetWebControls(data);
             $("#CheckStatusName").attr('CheckStatus', data.CheckStatus);
             if (data.CheckStatus == 0) {
-                $("#CheckStatusName").html("(å¾…å®¡æ ¸)")
+                $("#CheckStatusName").html("(´ıÉóºË)")
                 $("#CheckStatusName").attr("title", "");
             } else if (data.CheckStatus == 1) {
-                $("#CheckStatusName").html("(å·²å®¡æ ¸)")
+                $("#CheckStatusName").html("(ÒÑÉóºË)")
                 $("#CheckStatusName").attr("title", "");
             } else {
-                $("#CheckStatusName").html("(æœªæäº¤)")
+                $("#CheckStatusName").html("(Î´Ìá½»)")
                 $("#CheckStatusName").attr("title", "");
             }
             if (data.CheckStatus != null) {
@@ -479,14 +479,14 @@
                 $("input,select,label").attr('disabled', 'disabled');
             }
             if (data.CheckStatus == '-1') {
-                $("#CheckStatusName").html("(å·²é©³å›)")
+                $("#CheckStatusName").html("(ÒÑ²µ»Ø)")
                 $("#CheckStatusName").attr("title", data.CheckRemark);
                 $("#lr-add,#lr-edit,#lr-delete,#lr-submit,#lr-Delivery").removeClass('disabled');
             }
             AjaxJson("/CommonModule/Customer/CustomerAddressListJson", { CustomerId: data.CustomerId }, function (data) {
                 var datajson = data.rows;
                 $.each(datajson, function (i) {
-                    if (datajson[i].Application == "å‘è´§åœ°å€") {
+                    if (datajson[i].Application == "·¢»õµØÖ·") {
                         $("#ShipAddress").append($("<option data='" + JSON.stringify(datajson[i]) + "'></option>").val( datajson[i].DetailAddress).html( datajson[i].DetailAddress));
                     } else {
                         $("#CollectAddress").append($("<option data='" + JSON.stringify(datajson[i]) + "'></option>").val( datajson[i].DetailAddress).html( datajson[i].DetailAddress));
@@ -502,8 +502,8 @@
             uploadify2();
         });
     }
-    /*æ˜ç»†begin=======================================*/
-    //åˆ†å½•
+    /*Ã÷Ï¸begin=======================================*/
+    //·ÖÂ¼
     var rowScrod = 0;
     function GetGrid() {
         $("#gridTable").jqGrid({
@@ -512,93 +512,93 @@
             height: $(window).height() - 360,
             autowidth: true,
             colModel: [
-                { label: 'ä¸»é”®', name: 'QuotationDetailId', hidden: true },
-                { label: "è¡Œå·", name: "LineCode", index: "LineCode", width: 40 },
-                { label: 'åŠ å·¥ç±»å‹', name: "OrderType", width: 70, hidden: true },
-                { label: 'ä¸€çº§ç±»å‹', name: "LJtype1", width: 70 },
-                { label: 'äºŒçº§ç±»å‹', name: "LJtype2", width: 70 },
-                { label: 'é…ä»¶è§„æ ¼', name: "LJsize", width: 70 },
-                { label: 'é’¢æç¼–ç ', name: 'SteelCode', width: 50, hidden: true },
-                { label: 'é’¢æåç§°', name: 'SteelDescription', width: 90, hidden: true },
-                { label: 'åç§°', name: 'ProductName', width: 90 },
-                { label: 'é•¿åº¦', name: 'Length', width: 50 },
-                { label: 'å®½åº¦', name: 'Weigh', width: 50 },
+                { label: 'Ö÷¼ü', name: 'QuotationDetailId', hidden: true },
+                { label: "ĞĞºÅ", name: "LineCode", index: "LineCode", width: 40 },
+                { label: '¼Ó¹¤ÀàĞÍ', name: "OrderType", width: 70, hidden: true },
+                { label: 'Ò»¼¶ÀàĞÍ', name: "LJtype1", width: 70 },
+                { label: '¶ş¼¶ÀàĞÍ', name: "LJtype2", width: 70 },
+                { label: 'Åä¼ş¹æ¸ñ', name: "LJsize", width: 70 },
+                { label: '¸Ö²Ä±àÂë', name: 'SteelCode', width: 50, hidden: true },
+                { label: '¸Ö²ÄÃû³Æ', name: 'SteelDescription', width: 90, hidden: true },
+                { label: 'Ãû³Æ', name: 'ProductName', width: 90 },
+                { label: '³¤¶È', name: 'Length', width: 50 },
+                { label: '¿í¶È', name: 'Weigh', width: 50 },
 
-                { label: 'åš/ç›´å¾„', name: 'Thick', width: 50 },
+                { label: 'ºñ/Ö±¾¶', name: 'Thick', width: 50 },
 
-                { label: 'å­”å¾„', name: 'BoreSize', width: 50 },
-                { label: 'æ•°é‡', name: "Qty", width: 50 },
-                { label: 'å‘è¿å¤‡æ³¨', name: "CustomerProduct", width: 80  },
-                { label: 'å…¬å·®å¤‡æ³¨', name: 'Remark', width: 100 },
+                { label: '¿×¾¶', name: 'BoreSize', width: 50 },
+                { label: 'ÊıÁ¿', name: "Qty", width: 50 },
+                { label: '·¢ÔË±¸×¢', name: "CustomerProduct", width: 80  },
+                { label: '¹¤ÒÕÒªÇó', name: 'Remark', width: 100 },
 
-                { label: 'é’¢æçŠ¶æ€', name: 'SteelState', width: 50, hidden: true },
-                { label: 'æ¨¡å·', name: 'DieCode', width: 80, hidden: true },
+                { label: '¸Ö²Ä×´Ì¬', name: 'SteelState', width: 50, hidden: true },
+                { label: 'Ä£ºÅ', name: 'DieCode', width: 80, hidden: true },
                 {
-                    label: 'ç‰¹æ®Šå·¥è‰º', name: 'ç‰¹æ®Šå·¥è‰º', width: 80, hidden: true,
+                    label: 'ÌØÊâ¹¤ÒÕ', name: 'ÌØÊâ¹¤ÒÕ', width: 80, hidden: true,
                     formatter: function (cellvalue, options, rowObject) {
                         var str = "";
                         if (rowObject.IsChamfer) {
-                            str += "å€’è§’,";
+                            str += "µ¹½Ç,";
                         }
                         if (rowObject.LiftingHole) {
-                            str += "åŠå­”,";
+                            str += "µõ¿×,";
                         }
                         if (rowObject.CNC) {
                             str += "CNC,";
                         }
                         if (rowObject.YM) {
-                            str += "é€€ç«åç ”ç£¨,";
+                            str += "ÍË»ğºóÑĞÄ¥,";
                         }
                         if (rowObject.JQ) {
-                            str += "é”¯åˆ‡";
+                            str += "¾âÇĞ";
                         }
                         if (!!str) {
                             return "<a  style='color:red' >" + str + "</a>";
                         }
-                        else return "æ— ";
+                        else return "ÎŞ";
                     }
                 },
                 {
-                    label: 'ä½™é‡(é•¿å®½åš)', name: 'ä½™é‡', width: 80,
+                    label: 'ÓàÁ¿(³¤¿íºñ)', name: 'ÓàÁ¿', width: 80,
                     formatter: function (cellvalue, options, rowObject) {
                         return rowObject.AddLength+"*"+rowObject.AddWeigh+"*"+rowObject.AddThick;
                     }, hidden: true
                 },
-                { label: 'å€’è§’', name: 'IsChamfer', width: 100, hidden: true },
-                { label: 'åŠå­”', name: 'LiftingHole', width: 100, hidden: true },
+                { label: 'µ¹½Ç', name: 'IsChamfer', width: 100, hidden: true },
+                { label: 'µõ¿×', name: 'LiftingHole', width: 100, hidden: true },
                 { label: 'CNC', name: 'CNC', width: 100, hidden: true },
-                { label: 'é€€ç«åç ”ç£¨', name: 'YM', width: 100, hidden: true },
-                { label: 'é”¯åˆ‡', name: 'JQ', width: 100, hidden: true },
+                { label: 'ÍË»ğºóÑĞÄ¥', name: 'YM', width: 100, hidden: true },
+                { label: '¾âÇĞ', name: 'JQ', width: 100, hidden: true },
 
-                { label: 'è®¡ä»·ä½™é‡(é•¿)', name: 'AddLength', width: 50, hidden: true },
-                { label: 'è®¡ä»·ä½™é‡(å®½)', name: 'AddWeigh', width: 50, hidden: true },
-                { label: 'è®¡ä»·ä½™é‡(åš)', name: 'AddThick', width: 50, hidden: true },
+                { label: '¼Æ¼ÛÓàÁ¿(³¤)', name: 'AddLength', width: 50, hidden: true },
+                { label: '¼Æ¼ÛÓàÁ¿(¿í)', name: 'AddWeigh', width: 50, hidden: true },
+                { label: '¼Æ¼ÛÓàÁ¿(ºñ)', name: 'AddThick', width: 50, hidden: true },
 
-                { label: 'é‡é‡', name: 'Weight', width: 50 },
-                { label: 'ææ–™å•ä»·', name: 'MaterialPrice', width: 50 },
-                { label: 'ææ–™é‡‘é¢', name: 'MaterialAmount', width: 50 },
-                { label: 'åŠ å·¥å•ä»·', name: 'SmallCost', width: 50, hidden: true},
-                { label: 'åŠ å·¥é‡‘é¢', name: 'SmallAmount', width: 50, hidden: true},
-                { label: 'å°ä»¶å•ä»·', name: 'WorkPrice', width: 50, hidden: true},
-                { label: 'åŠ å·¥è´¹é‡‘é¢', name: 'WorkAmount', width: 50 },
-                { label: 'é”»æ‰“/è°ƒåˆ¶å•ä»·', name: 'DDCostPer', width: 50, hidden: true},
-                { label: 'é”»æ‰“/è°ƒåˆ¶é‡‘é¢', name: 'DDCost', width: 50, hidden: true},
+                { label: 'ÖØÁ¿', name: 'Weight', width: 50 },
+                { label: '²ÄÁÏµ¥¼Û', name: 'MaterialPrice', width: 50 },
+                { label: '²ÄÁÏ½ğ¶î', name: 'MaterialAmount', width: 50 },
+                { label: '¼Ó¹¤µ¥¼Û', name: 'SmallCost', width: 50, hidden: true},
+                { label: '¼Ó¹¤½ğ¶î', name: 'SmallAmount', width: 50, hidden: true},
+                { label: 'Ğ¡¼şµ¥¼Û', name: 'WorkPrice', width: 50, hidden: true},
+                { label: '¼Ó¹¤·Ñ½ğ¶î', name: 'WorkAmount', width: 50 },
+                { label: '¶Í´ò/µ÷ÖÆµ¥¼Û', name: 'DDCostPer', width: 50, hidden: true},
+                { label: '¶Í´ò/µ÷ÖÆ½ğ¶î', name: 'DDCost', width: 50, hidden: true},
 
-                { label: 'åŠ å·¥è´¹æŠ˜æ‰£ç‡', name: 'WorkLess', width: 50, hidden: true },
-                { label: 'çƒ­å¤„ç†å·¥è‰º', name: 'Technology', width: 50, hidden: true },
-                { label: 'çƒ­å¤„ç†å•ä»·', name: 'HeatPrice', width: 50, hidden: true },
-                { label: 'é”¯åˆ‡å‡ åˆ€', name: 'JKCostQty', width: 50, hidden: true },
-                { label: 'é”¯åˆ‡å•ä»·/ä»¶', name: 'JKCostPer', width: 50, hidden: true},
-                { label: 'é”¯åˆ‡é‡‘é¢', name: 'JKCost', width: 50, hidden: true},
+                { label: '¼Ó¹¤·ÑÕÛ¿ÛÂÊ', name: 'WorkLess', width: 50, hidden: true },
+                { label: 'ÈÈ´¦Àí¹¤ÒÕ', name: 'Technology', width: 50, hidden: true },
+                { label: 'ÈÈ´¦Àíµ¥¼Û', name: 'HeatPrice', width: 50, hidden: true },
+                { label: '¾âÇĞ¼¸µ¶', name: 'JKCostQty', width: 50, hidden: true },
+                { label: '¾âÇĞµ¥¼Û/¼ş', name: 'JKCostPer', width: 50, hidden: true},
+                { label: '¾âÇĞ½ğ¶î', name: 'JKCost', width: 50, hidden: true},
 
-                { label: 'æ€»é”€å”®é‡‘é¢', name: 'SalesAmount', width: 60 },
-                { label: 'æˆæœ¬', name: 'CostAmount', width: 60, hidden: true },
-                { label: 'é€è´§è¯´æ˜', name: 'ShipDescription', width: 100, hidden: true },
-                { label: 'äº¤æœŸ', name: 'Delivery', width: 80 },
+                { label: '×ÜÏúÊÛ½ğ¶î', name: 'SalesAmount', width: 60 },
+                { label: '³É±¾', name: 'CostAmount', width: 60, hidden: true },
+                { label: 'ËÍ»õËµÃ÷', name: 'ShipDescription', width: 100, hidden: true },
+                { label: '½»ÆÚ', name: 'Delivery', width: 80 },
 
-                { label: 'ç£¨å››ä¾§', name: 'IsGrindAngle', width: 50, hidden: true },
+                { label: 'Ä¥ËÄ²à', name: 'IsGrindAngle', width: 50, hidden: true },
                 {
-                    label: 'æ“ä½œ', name: '', index: '', width: 80, align: 'left', sortable: true,
+                    label: '²Ù×÷', name: '', index: '', width: 80, align: 'left', sortable: true,
                     formatter: function (cellvalue, options, rowObject) {
                         if (!!rowObject.QuotationDetailId) {
                             var nums = Math.random();
@@ -608,7 +608,7 @@
                     }
                 },
                 {
-                    label: 'ç›¸å…³æ–‡ä»¶', name: 'Fang', index: 'Fang', width: 300, align: 'left', sortable: true,
+                    label: 'Ïà¹ØÎÄ¼ş', name: 'Fang', index: 'Fang', width: 300, align: 'left', sortable: true,
                     formatter: function (cellvalue, options, rowObject) {
                         if (!!rowObject.QuotationDetailId) {
                             return HtmlUtil.htmlDecode(cellvalue);
@@ -642,7 +642,7 @@
                 $(".ui-jqgrid-bdiv").first().scrollTop(rowScrod);
 
                 $(this).footerData("set", {
-                    "LineCode": "åˆè®¡",
+                    "LineCode": "ºÏ¼Æ",
                     "Weight": FormatCurrency($("#gridTable").getCol('Weight', false, 'sum')),
                     "MaterialAmount": FormatCurrency($("#gridTable").getCol('MaterialAmount', false, 'sum')),
                     "SmallAmount": FormatCurrency($("#gridTable").getCol('SmallAmount', false, 'sum')),
@@ -671,7 +671,7 @@
                 if (SteelCode == "FY") {
                     $("#lr-edit-RowQ").click();
                 }
-                //else if (SteelCode != "FY" && SteelDescription.indexOf("åœ†")>=0) {
+                //else if (SteelCode != "FY" && SteelDescription.indexOf("Ô²")>=0) {
                 //    $("#lr-edit-RowY").click();
                 //}
                 else {
@@ -706,15 +706,15 @@
                     width: 189,
                     autowidth: true,
                     colModel: [
-                        { label: 'å·¥å•å·¥åºID', name: 'OrderDetailProcessId', index: 'OrderDetailProcessId', width: 0, align: 'left', sortable: true, hidden: true },
-                        { label: 'å·¥åº', name: 'TechnologyId', index: 'TechnologyId', width: 80, align: 'left', sortable: true },
-                        { label: 'å·¥åºåç§°', name: 'TechnologyName', index: 'TechnologyName', width: 80, align: 'left', sortable: true },
-                        { label: 'é‡é‡/é•¿åº¦/ä½“ç§¯', name: 'SaleMc', index: 'SaleMc', width: 100, align: 'left', sortable: true },
-                        { label: 'å•ä»·', name: 'SalePer', index: 'SalePer', width: 60, align: 'left', sortable: true },
-                        { label: 'åŠ å·¥è´¹', name: 'SaleTotal', index: 'SaleTotal', width: 60, align: 'left', sortable: true },
-                        { label: 'å¤‡æ³¨', name: 'Remark', index: 'Remark', width: 180, align: 'left', sortable: true },
+                        { label: '¹¤µ¥¹¤ĞòID', name: 'OrderDetailProcessId', index: 'OrderDetailProcessId', width: 0, align: 'left', sortable: true, hidden: true },
+                        { label: '¹¤Ğò', name: 'TechnologyId', index: 'TechnologyId', width: 80, align: 'left', sortable: true },
+                        { label: '¹¤ĞòÃû³Æ', name: 'TechnologyName', index: 'TechnologyName', width: 80, align: 'left', sortable: true },
+                        { label: 'ÖØÁ¿/³¤¶È/Ìå»ı', name: 'SaleMc', index: 'SaleMc', width: 100, align: 'left', sortable: true },
+                        { label: 'µ¥¼Û', name: 'SalePer', index: 'SalePer', width: 60, align: 'left', sortable: true },
+                        { label: '¼Ó¹¤·Ñ', name: 'SaleTotal', index: 'SaleTotal', width: 60, align: 'left', sortable: true },
+                        { label: '±¸×¢', name: 'Remark', index: 'Remark', width: 180, align: 'left', sortable: true },
                         {
-                            label: 'æ“ä½œ', name: '', index: '', width: 80, align: 'left', sortable: true,
+                            label: '²Ù×÷', name: '', index: '', width: 80, align: 'left', sortable: true,
                             formatter: function (cellvalue, options, rowObject) {
                                 if (!!rowObject.OrderDetailProcessId) {
                                     var nums = Math.random();
@@ -724,7 +724,7 @@
                             }
                         },
                         {
-                            label: 'ç›¸å…³æ–‡ä»¶', name: 'SteelOtherDescription', index: 'SteelOtherDescription', width: 300, align: 'left', sortable: true,
+                            label: 'Ïà¹ØÎÄ¼ş', name: 'SteelOtherDescription', index: 'SteelOtherDescription', width: 300, align: 'left', sortable: true,
                             formatter: function (cellvalue, options, rowObject) {
                                 if (!!rowObject.OrderDetailProcessId) {
                                     return HtmlUtil.htmlDecode(cellvalue);
@@ -757,17 +757,17 @@
 
         function uploadify(id, OrderDetailProcessId) {
             try {
-                if ($("#" + id + "uploadify").length > 0) { //æ³¨æ„jqueryä¸‹æ£€æŸ¥ä¸€ä¸ªå…ƒç´ æ˜¯å¦å­˜åœ¨å¿…é¡»ä½¿ç”¨ .length >0 æ¥åˆ¤æ–­
+                if ($("#" + id + "uploadify").length > 0) { //×¢ÒâjqueryÏÂ¼ì²éÒ»¸öÔªËØÊÇ·ñ´æÔÚ±ØĞëÊ¹ÓÃ .length >0 À´ÅĞ¶Ï
                     $("#" + id + "uploadify").uploadify('destroy');
                 }
                 $("#" + id + "uploadify").uploadify({
                     uploader: '/Utility/Upload?saveDocument=LJ/' + $("#QuotationCode").val().substring(2, 6) + $("#QuotationCode").val().substring(8)+ '/' + OrderDetailProcessId + '&filenameid=' + OrderDetailProcessId,
                     swf: '/Content/Scripts/uploadify/uploadify.swf',
-                    buttonText: "ä¸Šä¼ ",
+                    buttonText: "ÉÏ´«",
                     height: 24,
                     width: 70,
                     onFallback: function () {
-                        alert("æ‚¨æœªå®‰è£…FLASHæ§ä»¶ï¼Œæ— æ³•ä¸Šä¼ ï¼è¯·å®‰è£…FLASHæ§ä»¶åå†è¯•ã€‚");
+                        alert("ÄúÎ´°²×°FLASH¿Ø¼ş£¬ÎŞ·¨ÉÏ´«£¡Çë°²×°FLASH¿Ø¼şºóÔÙÊÔ¡£");
                     },
                     onUploadSuccess: function (file, data, response) {
                         //var DataJson = JSON.parse(data);
@@ -780,17 +780,17 @@
         }
         function uploadifyQuodetail(id, QuotationDetailId) {
             try {
-                if ($("#" + id + "uploadifyQuodetail").length > 0) { //æ³¨æ„jqueryä¸‹æ£€æŸ¥ä¸€ä¸ªå…ƒç´ æ˜¯å¦å­˜åœ¨å¿…é¡»ä½¿ç”¨ .length >0 æ¥åˆ¤æ–­
+                if ($("#" + id + "uploadifyQuodetail").length > 0) { //×¢ÒâjqueryÏÂ¼ì²éÒ»¸öÔªËØÊÇ·ñ´æÔÚ±ØĞëÊ¹ÓÃ .length >0 À´ÅĞ¶Ï
                     $("#" + id + "uploadifyQuodetail").uploadify('destroy');
                 }
                 $("#" + id + "uploadifyQuodetail").uploadify({
                     uploader: '/Utility/Upload?saveDocument=LJ/' + $("#QuotationCode").val().substring(2, 6) + $("#QuotationCode").val().substring(8) + '/' + QuotationDetailId + '&filenameid=' + QuotationDetailId,
                     swf: '/Content/Scripts/uploadify/uploadify.swf',
-                    buttonText: "ä¸Šä¼ ",
+                    buttonText: "ÉÏ´«",
                     height: 24,
                     width: 70,
                     onFallback: function () {
-                        alert("æ‚¨æœªå®‰è£…FLASHæ§ä»¶ï¼Œæ— æ³•ä¸Šä¼ ï¼è¯·å®‰è£…FLASHæ§ä»¶åå†è¯•ã€‚");
+                        alert("ÄúÎ´°²×°FLASH¿Ø¼ş£¬ÎŞ·¨ÉÏ´«£¡Çë°²×°FLASH¿Ø¼şºóÔÙÊÔ¡£");
                     },
                     onUploadSuccess: function (file, data, response) {
                         //var DataJson = JSON.parse(data);
@@ -803,19 +803,19 @@
         }
 
 
-        //æ–°å¢æ˜ç»†ä¸€è¡Œ
+        //ĞÂÔöÃ÷Ï¸Ò»ĞĞ
         $("#lr-add-Row").click(function () {
             if (!KeyValue) {
-                alertDialog("è¯·å…ˆä¿å­˜æŠ¥ä»·å•ä¿¡æ¯", 0);
+                alertDialog("ÇëÏÈ±£´æ±¨¼Ûµ¥ĞÅÏ¢", 0);
                 return false;
             }
             var checkstatus = $("#CheckStatusName").attr('checkstatus');
             //if (checkstatus == "") {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»æäº¤äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­Ìá½»ÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
             //if (checkstatus == 1) {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»å®¡æ ¸äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­ÉóºËÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
             var LineCode = 1;
@@ -831,23 +831,23 @@
             var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
             var CustomerId = $("#CustomerId").val();
             var url = "/QuotationModule/AssembleParts/DetailForm?QuotationId=" + KeyValue + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill;
-            openDialog(url, "DetailForm", "æŠ¥ä»·å•è¡Œè¾“å…¥ã€" + $("#ShortName").val() + "ã€‘", 1400,820, function (iframe) {
+            openDialog(url, "DetailForm", "±¨¼Ûµ¥ĞĞÊäÈë¡¾" + $("#ShortName").val() + "¡¿", 1400,820, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
         })
-        //æ–°å¢æ˜ç»†ä¸€è¡Œ
+        //ĞÂÔöÃ÷Ï¸Ò»ĞĞ
         $("#lr-add-RowY").click(function () {
             if (!KeyValue) {
-                alertDialog("è¯·å…ˆä¿å­˜æŠ¥ä»·å•ä¿¡æ¯", 0);
+                alertDialog("ÇëÏÈ±£´æ±¨¼Ûµ¥ĞÅÏ¢", 0);
                 return false;
             }
             var checkstatus = $("#CheckStatusName").attr('checkstatus');
             //if (checkstatus == "") {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»æäº¤äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­Ìá½»ÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
             //if (checkstatus == 1) {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»å®¡æ ¸äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­ÉóºËÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
             var LineCode = 1;
@@ -863,23 +863,23 @@
             var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
             var CustomerId = $("#CustomerId").val();
             var url = "/QuotationModule/QuotationInput/DetailFormForY?QuotationId=" + KeyValue + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill;
-            openDialog(url, "DetailFormForY", "æŠ¥ä»·å•è¡Œè¾“å…¥ã€" + $("#ShortName").val() + "ã€‘", 700, 520, function (iframe) {
+            openDialog(url, "DetailFormForY", "±¨¼Ûµ¥ĞĞÊäÈë¡¾" + $("#ShortName").val() + "¡¿", 700, 520, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
         })
-        //æ–°å¢æ˜ç»†ä¸€è¡Œ
+        //ĞÂÔöÃ÷Ï¸Ò»ĞĞ
         $("#lr-add-RowQ").click(function () {
             if (!KeyValue) {
-                alertDialog("è¯·å…ˆä¿å­˜æŠ¥ä»·å•ä¿¡æ¯", 0);
+                alertDialog("ÇëÏÈ±£´æ±¨¼Ûµ¥ĞÅÏ¢", 0);
                 return false;
             }
             var checkstatus = $("#CheckStatusName").attr('checkstatus');
             //if (checkstatus == "") {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»æäº¤äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­Ìá½»ÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
             //if (checkstatus == 1) {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»å®¡æ ¸äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­ÉóºËÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
             var LineCode = 1;
@@ -895,128 +895,128 @@
             var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
             var CustomerId = $("#CustomerId").val();
             var url = "/QuotationModule/QuotationInput/DetailFormForQ?QuotationId=" + KeyValue + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill;
-            openDialog(url, "DetailFormForQ", "æŠ¥ä»·å•è¡Œè¾“å…¥ã€" + $("#ShortName").val() + "ã€‘", 700, 520, function (iframe) {
+            openDialog(url, "DetailFormForQ", "±¨¼Ûµ¥ĞĞÊäÈë¡¾" + $("#ShortName").val() + "¡¿", 700, 520, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
         })
-        //ç¼–è¾‘æ˜ç»†ä¸€è¡Œ
+        //±à¼­Ã÷Ï¸Ò»ĞĞ
         $("#lr-edit-Row").click(function () {
             var QuotationDetailId = GetJqGridRowValue("#gridTable", "QuotationDetailId");
             if (!QuotationDetailId) {
-                alertDialog("è¯·é€‰æ‹©è¦ç¼–è¾‘ä¸€è¡Œ", 0);
+                alertDialog("ÇëÑ¡ÔñÒª±à¼­Ò»ĞĞ", 0);
                 return false;
             }
             var checkstatus = $("#CheckStatusName").attr('checkstatus');
             //if (checkstatus == "") {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»æäº¤äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­Ìá½»ÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
             //if (checkstatus == 1) {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»å®¡æ ¸äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­ÉóºËÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
            @* var user = $("#CreateUserName").val();
             if (user != "@DNS.Utilities.ManageProvider.Provider.Current().UserName") {
-                alertDialog("ä½ ä¸æ˜¯åˆ›å»ºäººï¼Œæ— æƒæ“ä½œ!", 0);
+                alertDialog("Äã²»ÊÇ´´½¨ÈË£¬ÎŞÈ¨²Ù×÷!", 0);
                 return false;
             }*@
             var LineCode = GetJqGridRowValue("#gridTable", "LineCode");
             if (!LineCode) {
-                alertDialog("è¯·é€‰æ‹©ä¸€è¡Œ!", 0);
+                alertDialog("ÇëÑ¡ÔñÒ»ĞĞ!", 0);
                 return false;
             }
             var CustMaterial = $("#CustMaterial").prop("checked") == true ? "1" : "0";
             var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
             var CustomerId = $("#CustomerId").val();
             var url = "/QuotationModule/AssembleParts/DetailForm?KeyValue=" + QuotationDetailId + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill + "&checkstatus=" + checkstatus + "&QuotationId=" + KeyValue;
-            openDialog(url, "DetailForm", "æŠ¥ä»·å•è¡Œç¼–è¾‘ã€" + $("#ShortName").val() + "ã€‘", 1400, 820, function (iframe) {
+            openDialog(url, "DetailForm", "±¨¼Ûµ¥ĞĞ±à¼­¡¾" + $("#ShortName").val() + "¡¿", 1400, 820, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
         });
         $("#lr-edit-RowQ").click(function () {
             var QuotationDetailId = GetJqGridRowValue("#gridTable", "QuotationDetailId");
             if (!QuotationDetailId) {
-                alertDialog("è¯·é€‰æ‹©è¦ç¼–è¾‘ä¸€è¡Œ", 0);
+                alertDialog("ÇëÑ¡ÔñÒª±à¼­Ò»ĞĞ", 0);
                 return false;
             }
             var checkstatus = $("#CheckStatusName").attr('checkstatus');
             //if (checkstatus == "") {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»æäº¤äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­Ìá½»ÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
             //if (checkstatus == 1) {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»å®¡æ ¸äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­ÉóºËÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
            @* var user = $("#CreateUserName").val();
             if (user != "@DNS.Utilities.ManageProvider.Provider.Current().UserName") {
-                alertDialog("ä½ ä¸æ˜¯åˆ›å»ºäººï¼Œæ— æƒæ“ä½œ!", 0);
+                alertDialog("Äã²»ÊÇ´´½¨ÈË£¬ÎŞÈ¨²Ù×÷!", 0);
                 return false;
             }*@
             var LineCode = GetJqGridRowValue("#gridTable", "LineCode");
             if (!LineCode) {
-                alertDialog("è¯·é€‰æ‹©ä¸€è¡Œ!", 0);
+                alertDialog("ÇëÑ¡ÔñÒ»ĞĞ!", 0);
                 return false;
             }
             var CustMaterial = $("#CustMaterial").prop("checked") == true ? "1" : "0";
             var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
             var CustomerId = $("#CustomerId").val();
             var url = "/QuotationModule/QuotationInput/DetailFormForQ?KeyValue=" + QuotationDetailId + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill + "&checkstatus=" + checkstatus + "&QuotationId=" + KeyValue;
-            openDialog(url, "DetailForm", "æŠ¥ä»·å•è¡Œç¼–è¾‘ã€" + $("#ShortName").val() + "ã€‘", 700, 520, function (iframe) {
+            openDialog(url, "DetailForm", "±¨¼Ûµ¥ĞĞ±à¼­¡¾" + $("#ShortName").val() + "¡¿", 700, 520, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
         });
         $("#lr-edit-RowY").click(function () {
             var QuotationDetailId = GetJqGridRowValue("#gridTable", "QuotationDetailId");
             if (!QuotationDetailId) {
-                alertDialog("è¯·é€‰æ‹©è¦ç¼–è¾‘ä¸€è¡Œ", 0);
+                alertDialog("ÇëÑ¡ÔñÒª±à¼­Ò»ĞĞ", 0);
                 return false;
             }
             var checkstatus = $("#CheckStatusName").attr('checkstatus');
             //if (checkstatus == "") {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»æäº¤äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­Ìá½»ÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
             //if (checkstatus == 1) {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»å®¡æ ¸äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­ÉóºËÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
            @* var user = $("#CreateUserName").val();
             if (user != "@DNS.Utilities.ManageProvider.Provider.Current().UserName") {
-                alertDialog("ä½ ä¸æ˜¯åˆ›å»ºäººï¼Œæ— æƒæ“ä½œ!", 0);
+                alertDialog("Äã²»ÊÇ´´½¨ÈË£¬ÎŞÈ¨²Ù×÷!", 0);
                 return false;
             }*@
             var LineCode = GetJqGridRowValue("#gridTable", "LineCode");
             if (!LineCode) {
-                alertDialog("è¯·é€‰æ‹©ä¸€è¡Œ!", 0);
+                alertDialog("ÇëÑ¡ÔñÒ»ĞĞ!", 0);
                 return false;
             }
             var CustMaterial = $("#CustMaterial").prop("checked") == true ? "1" : "0";
             var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
             var CustomerId = $("#CustomerId").val();
             var url = "/QuotationModule/QuotationInput/DetailFormForY?KeyValue=" + QuotationDetailId + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill + "&checkstatus=" + checkstatus + "&QuotationId=" + KeyValue;
-            openDialog(url, "DetailForm", "æŠ¥ä»·å•è¡Œç¼–è¾‘ã€" + $("#ShortName").val() + "ã€‘", 700, 520, function (iframe) {
+            openDialog(url, "DetailForm", "±¨¼Ûµ¥ĞĞ±à¼­¡¾" + $("#ShortName").val() + "¡¿", 700, 520, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
         });
-        ////æ’å…¥æ˜ç»†ä¸€è¡Œ
+        ////²åÈëÃ÷Ï¸Ò»ĞĞ
         //$("#lr-insert-Row").click(function () {
         //    if (!KeyValue) {
-        //        alertDialog("è¯·å…ˆä¿å­˜æŠ¥ä»·å•ä¿¡æ¯", 0);
+        //        alertDialog("ÇëÏÈ±£´æ±¨¼Ûµ¥ĞÅÏ¢", 0);
         //        return false;
         //    }
         //    var LineCode = GetJqGridRowValue("#gridTable", "LineCode");
         //    if (!LineCode) {
-        //        alertDialog("è¯·é€‰æ‹©ä¸€è¡Œ!", 0);
+        //        alertDialog("ÇëÑ¡ÔñÒ»ĞĞ!", 0);
         //        return false;
         //    }
         //    var checkstatus = $("#CheckStatusName").attr('checkstatus');
         //    if (checkstatus == "") {
-        //        alertDialog("æŠ¥ä»·å•å·²ç»æäº¤äº†,ä¸èƒ½æ“ä½œ", 0);
+        //        alertDialog("±¨¼Ûµ¥ÒÑ¾­Ìá½»ÁË,²»ÄÜ²Ù×÷", 0);
         //        return false;
         //    }
         //    if (checkstatus == 1) {
-        //        alertDialog("æŠ¥ä»·å•å·²ç»å®¡æ ¸äº†,ä¸èƒ½æ“ä½œ", 0);
+        //        alertDialog("±¨¼Ûµ¥ÒÑ¾­ÉóºËÁË,²»ÄÜ²Ù×÷", 0);
         //        return false;
         //    }
 
@@ -1024,24 +1024,24 @@
         //    var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
         //    var CustomerId = $("#CustomerId").val();
         //    var url = "/QuotationModule/QuotationInput/DetailForm?QuotationId=" + KeyValue + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill + "&Insert=1";
-        //    openDialog(url, "DetailForm", "æŠ¥ä»·å•è¡Œè¾“å…¥ã€" + $("#ShortName").val() + "ã€‘", 700,520, function (iframe) {
+        //    openDialog(url, "DetailForm", "±¨¼Ûµ¥ĞĞÊäÈë¡¾" + $("#ShortName").val() + "¡¿", 700,520, function (iframe) {
         //        top.frames[iframe].AcceptClick()
         //    });
         //});
-        //å¤åˆ¶æ˜ç»†ä¸€è¡Œ
+        //¸´ÖÆÃ÷Ï¸Ò»ĞĞ
         $("#lr-copy-Row").click(function () {
             var QuotationDetailId = GetJqGridRowValue("#gridTable", "QuotationDetailId");
             if (!QuotationDetailId) {
-                alertDialog("è¯·é€‰æ‹©è¦å¤åˆ¶ä¸€è¡Œ", 0);
+                alertDialog("ÇëÑ¡ÔñÒª¸´ÖÆÒ»ĞĞ", 0);
                 return false;
             }
             //var checkstatus = $("#CheckStatusName").attr('checkstatus');
             //if (checkstatus == "") {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»æäº¤äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­Ìá½»ÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
             //if (checkstatus == 1) {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»å®¡æ ¸äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­ÉóºËÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
             var LineCode = 1;
@@ -1058,31 +1058,31 @@
             // var url = "/QuotationModule/QuotationInput/DetailForm?CopyKeyValue=" + QuotationDetailId + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill;
 
             var url = "/QuotationModule/AssembleParts/DetailForm?CopyKeyValue=" + QuotationDetailId + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill  + "&QuotationId=" + KeyValue;
-            openDialog(url, "DetailForm", "æŠ¥ä»·å•è¡Œç¼–è¾‘ã€" + $("#ShortName").val() + "ã€‘", 1400, 820, function (iframe) {
+            openDialog(url, "DetailForm", "±¨¼Ûµ¥ĞĞ±à¼­¡¾" + $("#ShortName").val() + "¡¿", 1400, 820, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
 
 
         });
-        //åˆ é™¤æ˜ç»†ä¸€è¡Œ
+        //É¾³ıÃ÷Ï¸Ò»ĞĞ
         $("#lr-delete-Row").click(function () {
             var QuotationDetailId = GetJqGridRowValue("#gridTable", "QuotationDetailId");
             if (!QuotationDetailId) {
-                alertDialog("è¯·é€‰æ‹©è¦åˆ é™¤ä¸€è¡Œ", 0);
+                alertDialog("ÇëÑ¡ÔñÒªÉ¾³ıÒ»ĞĞ", 0);
                 return false;
             }
             var checkstatus = $("#CheckStatusName").attr('checkstatus');
             //if (checkstatus == "") {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»æäº¤äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­Ìá½»ÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
             //if (checkstatus == 1) {
-            //    alertDialog("æŠ¥ä»·å•å·²ç»å®¡æ ¸äº†,ä¸èƒ½æ“ä½œ", 0);
+            //    alertDialog("±¨¼Ûµ¥ÒÑ¾­ÉóºËÁË,²»ÄÜ²Ù×÷", 0);
             //    return false;
             //}
             @*var user = $("#CreateUserName").val();
             if (user != "@DNS.Utilities.ManageProvider.Provider.Current().UserName") {
-                alertDialog("ä½ ä¸æ˜¯åˆ›å»ºäººï¼Œæ— æƒæ“ä½œ!", 0);
+                alertDialog("Äã²»ÊÇ´´½¨ÈË£¬ÎŞÈ¨²Ù×÷!", 0);
                 return false;
             }*@
             var delparm = 'KeyValue=' + QuotationDetailId;
@@ -1091,7 +1091,7 @@
         $("#lr-chai-Row").click(function () {
             var QuotationDetailId = GetJqGridRowValue("#gridTable", "QuotationDetailId");
             if (!QuotationDetailId) {
-                alertDialog("è¯·é€‰æ‹©ä¸€è¡Œ", 0);
+                alertDialog("ÇëÑ¡ÔñÒ»ĞĞ", 0);
                 return false;
             }
             var checkstatus = $("#CheckStatusName").attr('checkstatus');
@@ -1106,7 +1106,7 @@
         
         $("#lr-Import-Row").click(function () {
             if (!KeyValue) {
-                alertDialog("è¯·å…ˆä¿å­˜æŠ¥ä»·å•ä¿¡æ¯", 0);
+                alertDialog("ÇëÏÈ±£´æ±¨¼Ûµ¥ĞÅÏ¢", 0);
                 return false;
             }
             var LineCode = 1;
@@ -1122,22 +1122,22 @@
             var FreeBill = $("#FreeBill").prop("checked") == true ? "1" : "0";
             var CustomerId = $("#CustomerId").val();
             var url = "/QuotationModule/QuotationInput/ExcelImportDialog?QuotationId=" + KeyValue + "&LineCode=" + LineCode + "&CustomerId=" + CustomerId + "&CustomerName=" + escape($("#CustomerName").val()) + "&CustMaterial=" + CustMaterial + "&FreeBill=" + FreeBill;
-            openDialog(url, "DetailForm", "æŠ¥ä»·å•è¡Œè¾“å…¥ã€" + $("#ShortName").val() + "ã€‘", 700, 450, function (iframe) {
+            openDialog(url, "DetailForm", "±¨¼Ûµ¥ĞĞÊäÈë¡¾" + $("#ShortName").val() + "¡¿", 700, 450, function (iframe) {
                 top.frames[iframe].AcceptClick()
             });
         })
     }
-    //åˆ·æ–°
+    //Ë¢ĞÂ
     function windowload() {
         $("#gridTable").jqGrid('setGridParam', {
             url: "@Url.Content("~/QuotationModule/QuotationInput/GridDetail")?QuotationId=" + KeyValue
         }).trigger('reloadGrid');
     }
-    /*æ˜ç»†end=======================================*/
-    //ç²¾æ–™å•æ‰“å°é¢„è§ˆ
+    /*Ã÷Ï¸end=======================================*/
+    //¾«ÁÏµ¥´òÓ¡Ô¤ÀÀ
     //function btn_Print(){
     //    if (IsChecked(KeyValue)) {
-    //        PrintDialog("/OrderModule/OrderPrint/BCPrintPreviewLJ?KeyValueQ=" + KeyValue, "PrintPage123", "æ‰“å°", 850, 500, function (iframe) {
+    //        PrintDialog("/OrderModule/OrderPrint/BCPrintPreviewLJ?KeyValueQ=" + KeyValue, "PrintPage123", "´òÓ¡", 850, 500, function (iframe) {
     //            top.frames[iframe].AcceptClick();
     //        });
     //    }
@@ -1146,7 +1146,7 @@
     function btn_Print() {
         if (IsChecked(KeyValue)) {
             var url = "/OrderModule/OrderPrint/ChoosePrint?LType=LJ&QuotationId=" + KeyValue + "&customercode=" + $("#CustomerCode").val();
-            openDialogFName(url, "DeriveDialog", "æ‰“å°", 800, 550, "ç›´æ¥æ‰“å°", "ç¼–è¾‘æ‰“å°",
+            openDialogFName(url, "DeriveDialog", "´òÓ¡", 800, 550, "Ö±½Ó´òÓ¡", "±à¼­´òÓ¡",
                 function (iframe) {
                     top.frames[iframe].AcceptClick();
                 },
@@ -1155,24 +1155,24 @@
                 });
         }
     }
-    //ç²—æ–™å•æ‰“å°é¢„è§ˆ
+    //´ÖÁÏµ¥´òÓ¡Ô¤ÀÀ
     function BCPrintPreview() {
         if (IsChecked(KeyValue)) {
-            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreviewLJ?QuotationId=" + KeyValue, "PrintPage12", "æŠ¥ä»·å•æ‰“å°", 850, 500, function (iframe) {
+            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreviewLJ?QuotationId=" + KeyValue, "PrintPage12", "±¨¼Ûµ¥´òÓ¡", 850, 500, function (iframe) {
                 top.frames[iframe].AcceptClick();
             });
         }
     }
     function BCPrintPreview4() {
         if (IsChecked(KeyValue)) {
-            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreviewLJ4?QuotationId=" + KeyValue, "PrintPage12", "æŠ¥ä»·å•æ‰“å°", 850, 500, function (iframe) {
+            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreviewLJ4?QuotationId=" + KeyValue, "PrintPage12", "±¨¼Ûµ¥´òÓ¡", 850, 500, function (iframe) {
                 top.frames[iframe].AcceptClick();
             });
         }
     }
     function BCPrintPreview2() {
         if (IsChecked(KeyValue)) {
-            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreviewLJ2?QuotationId=" + KeyValue, "PrintPage12", "æŠ¥ä»·å•æ‰“å°", 850, 500, function (iframe) {
+            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreviewLJ2?QuotationId=" + KeyValue, "PrintPage12", "±¨¼Ûµ¥´òÓ¡", 850, 500, function (iframe) {
                 top.frames[iframe].AcceptClick();
             });
         }
@@ -1180,7 +1180,7 @@
 
     function BCPrintPreview3() {
         if (IsChecked(KeyValue)) {
-            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreviewLJ3?QuotationId=" + KeyValue, "PrintPage12", "æŠ¥ä»·å•æ‰“å°", 850, 500, function (iframe) {
+            PrintDialog("/QuotationModule/QuotationPrint/BJPrintPreviewLJ3?QuotationId=" + KeyValue, "PrintPage12", "±¨¼Ûµ¥´òÓ¡", 850, 500, function (iframe) {
                 top.frames[iframe].AcceptClick();
             });
         }
@@ -1207,8 +1207,8 @@
             </script>
         </div>
         <div>
-            <div style="font-family: åæ–‡æ¥·ä½“; font-size: x-large; height: 40px; line-height: 40px; text-align: center;">
-                æŠ¥ä»·å•å½•å…¥&nbsp;<span id="CheckStatusName" checkstatus="" style="color: red; font-family: åæ–‡æ¥·ä½“; font-size: x-large;cursor:pointer;"></span>
+            <div style="font-family: »ªÎÄ¿¬Ìå; font-size: x-large; height: 40px; line-height: 40px; text-align: center;">
+                ±¨¼Ûµ¥Â¼Èë&nbsp;<span id="CheckStatusName" checkstatus="" style="color: red; font-family: »ªÎÄ¿¬Ìå; font-size: x-large;cursor:pointer;"></span>
             </div>
             <div style="position: absolute; top: 60px; right: 5px;width:400px;">
                 <span style="color: red;"></span>
@@ -1218,29 +1218,29 @@
             <tr>
 
 
-                <th class="form-bill-th">å®¢æˆ·ç¼–ç ï¼š</th>
+                <th class="form-bill-th">¿Í»§±àÂë£º</th>
                 <td class="form-bill-td">
                     <input id="LType" type="hidden" value="LJ" />
                     <input id="CustomerId" type="hidden" />
                     <input id="IsMobileInput" type="hidden" />
-                    <input id="CustomerCode" type="text" class="txt" style="width: 95%" datacol="yes" err="å®¢æˆ·ç¼–ç " checkexpession="NotNull" />
+                    <input id="CustomerCode" type="text" class="txt" style="width: 95%" datacol="yes" err="¿Í»§±àÂë" checkexpession="NotNull" />
                 </td>
-                <th class="form-bill-th">å®¢æˆ·åç§°ï¼š</th>
+                <th class="form-bill-th">¿Í»§Ãû³Æ£º</th>
                 <td class="form-bill-td">
                     <input id="CustomerName" type="text" class="txt" style="width: 95%" />
                 </td>
-                <th class="form-bill-th">æŠ¥ä»·å•å·ï¼š</th>
+                <th class="form-bill-th">±¨¼Ûµ¥ºÅ£º</th>
                 <td class="form-bill-td">
-                    <input id="QuotationCode" readonly type="text" class="txt" style="width: 95%" value="ä¿å­˜åè‡ªåŠ¨ç”Ÿæˆ" />
+                    <input id="QuotationCode" readonly type="text" class="txt" style="width: 95%" value="±£´æºó×Ô¶¯Éú³É" />
                 </td>
 
-                <th class="form-bill-th">è”ç³»äººï¼š</th>
+                <th class="form-bill-th">ÁªÏµÈË£º</th>
                 <td class="form-bill-td">
                     <input id="ContactName" type="text" class="txt" style="width: 95%" />
                 </td>
-                <th class="form-bill-th">è´¦æœŸï¼š</th>
+                <th class="form-bill-th">ÕËÆÚ£º</th>
                 <td class="form-bill-td">
-                    <select id="PaymentMode" class="select" style="width: 96%" datacol="yes" err="è´¦æœŸ" checkexpession="NotNull"></select>
+                    <select id="PaymentMode" class="select" style="width: 96%" datacol="yes" err="ÕËÆÚ" checkexpession="NotNull"></select>
                 </td>
 
                 
@@ -1248,25 +1248,25 @@
 
             </tr>
             <tr>
-                <th class="form-bill-th">åŸå•å·/å®¢æˆ·å•å·ï¼š</th>
+                <th class="form-bill-th">Ô­µ¥ºÅ/¿Í»§µ¥ºÅ£º</th>
                 <td class="form-bill-td">
                     <input id="CustomerPO" type="text" class="txt" style="width: 95%" />
                 </td>
-                <th class="form-bill-th">åˆ¶é€ å·ï¼š</th>
+                <th class="form-bill-th">ÖÆÔìºÅ£º</th>
                 <td class="form-bill-td">
                     <input id="BuildNum" type="text" class="txt" style="width: 95%" />
                 </td>
-                <th class="form-bill-th">äº§å“å‹å·ï¼š</th>
+                <th class="form-bill-th">²úÆ·ĞÍºÅ£º</th>
                 <td class="form-bill-td">
                     <input id="CreateUserName" type="hidden" />
                     <input id="ShortName" type="hidden" />
                     <input id="ProductCode" type="text" class="txt" style="width: 95%" />
                 </td>
-                <th class="form-bill-th">é…ä»¶åç§°ï¼š</th>
+                <th class="form-bill-th">Åä¼şÃû³Æ£º</th>
                 <td class="form-bill-td">
                     <input id="BuildName" type="text" class="txt" style="width: 95%" />
                 </td>
-                <th class="form-bill-th">æ¨¡å…·åç§°ï¼š</th>
+                <th class="form-bill-th">Ä£¾ßÃû³Æ£º</th>
                 <td class="form-bill-td">
                     <input id="DieName" type="text" class="txt" style="width: 95%" />
 
@@ -1278,19 +1278,19 @@
             </tr>
             <tr>
 
-                <th class="form-bill-th">å…¬å¸</th>
+                <th class="form-bill-th">¹«Ë¾</th>
                 <td class="form-bill-td">
-                    <select id="CompanyName" class="select" style="width: 96%" datacol="yes" err="å…¬å¸" checkexpession="NotNull"></select>
+                    <select id="CompanyName" class="select" style="width: 96%" datacol="yes" err="¹«Ë¾" checkexpession="NotNull"></select>
                 </td>
-                <th class="form-bill-th">æ¨¡å…·å›¾å·ï¼š</th>
+                <th class="form-bill-th">Ä£¾ßÍ¼ºÅ£º</th>
                 <td class="form-bill-td">
                     <input id="PicCode" type="text" class="txt" style="width: 95%" />
                 </td>
-                <th class="form-bill-th">æ¨¡å…·ç¼–å·ï¼š</th>
+                <th class="form-bill-th">Ä£¾ß±àºÅ£º</th>
                 <td class="form-bill-td">
                     <input id="DieCode" type="text" class="txt" style="width: 95%" />
                 </td>
-                <th class="form-bill-th">é€è´§åœ°å€ï¼š</th>
+                <th class="form-bill-th">ËÍ»õµØÖ·£º</th>
                 <td class="form-bill-td">
                     <input id="ContactTel" type="hidden" />
                     <input id="MobileCode" type="hidden" />
@@ -1303,7 +1303,7 @@
 
             </tr>
             @*<tr>
-                    <th class="form-bill-th">å‡ºè´§å•ä½ï¼š</th>
+                    <th class="form-bill-th">³ö»õµ¥Î»£º</th>
                     <td class="form-bill-td">
                         <input id="ShipGroup" type="text" class="txt Autotree" style="width: 95%" value="@DNS.Utilities.ManageProvider.Provider.Current().CompanyName" />
                     </td>
@@ -1312,11 +1312,11 @@
                 </tr>*@
             @*<tr>
 
-                    <th class="form-bill-th">æ€»æŠ˜æ‰£ç‡ï¼š</th>
+                    <th class="form-bill-th">×ÜÕÛ¿ÛÂÊ£º</th>
                     <td class="form-bill-td">
                         <input id="LessRate" readonly type="text" class="txt readonly" style="width: 70%" value="0" />
                         <span style="color: red; font-weight: bold;">%</span>                </td>
-                    <th class="form-bill-th">æŠ˜æ‰£åæ€»é¢ï¼š</th>
+                    <th class="form-bill-th">ÕÛ¿Ûºó×Ü¶î£º</th>
                     <td class="form-bill-td">
                         <input id="LessedAmount" readonly type="text" class="txt readonly" style="width: 95%" value="0.00" />
                     </td>
@@ -1326,43 +1326,43 @@
                 </tr>*@
         <tr>
 
-            <th class="form-bill-th">åŠ©è®°ç¼–å·ï¼š</th>
+            <th class="form-bill-th">Öú¼Ç±àºÅ£º</th>
             <td class="form-bill-td">
-                <input id="MnemonicCode" type="text" class="txt" style="width: 95%" value="é»˜è®¤ä¸ºæŠ¥ä»·å•å·" disabled />
+                <input id="MnemonicCode" type="text" class="txt" style="width: 95%" value="Ä¬ÈÏÎª±¨¼Ûµ¥ºÅ" disabled />
             </td>
 
 
-            <th class="form-bill-th">é€‰é¡¹ï¼š</th>
+            <th class="form-bill-th">Ñ¡Ïî£º</th>
             <td class="form-bill-td">
                 <div style="border-bottom: 1px solid #A8A8A8; padding-bottom: 4px; ">
                     <span class="item">
                         <input id="CustMaterial" name="CustMaterial" type="checkbox" style="vertical-align: middle;" />
-                        <label for="CustMaterial" style="vertical-align: middle;">å®¢æ¥æ–™</label>
+                        <label for="CustMaterial" style="vertical-align: middle;">¿ÍÀ´ÁÏ</label>
                     </span>
                     <span class="item">
                         <input id="FreeBill" name="FreeBill" type="checkbox" style="vertical-align: middle;" />
-                        <label for="FreeBill" style="vertical-align: middle;">è¡¥æ–™å•</label>
+                        <label for="FreeBill" style="vertical-align: middle;">²¹ÁÏµ¥</label>
                     </span>
                     <span class="item">
                         <input id="IsInvoice" name="IsEmergency" type="checkbox" style="vertical-align: middle;" checked />
-                        <label for="IsInvoice" style="vertical-align: middle;">åŠ ç¨</label>
+                        <label for="IsInvoice" style="vertical-align: middle;">¼ÓË°</label>
                     </span>
                     <span class="item">
                         <input id="IsReturn" name="IsEmergency" type="checkbox" style="vertical-align: middle;" />
-                        <label for="IsReturn" style="vertical-align: middle;">é€€è´§å•</label>
+                        <label for="IsReturn" style="vertical-align: middle;">ÍË»õµ¥</label>
                     </span>&nbsp;
                 </div>
 
             </td>
-            <th class="form-bill-th">æ€»é‡‘é¢ï¼š</th>
+            <th class="form-bill-th">×Ü½ğ¶î£º</th>
             <td class="form-bill-td">
                 <input id="TotalAmount" type="text" onfocus="IsMoney(this.id);" class="txt" style="width: 95%" value="0.00" readonly />
             </td>
-            <th class="form-bill-th">æ€»æ•°é‡ï¼š</th>
+            <th class="form-bill-th">×ÜÊıÁ¿£º</th>
             <td class="form-bill-td">
                 <input id="Qty" readonly type="text" class="txt readonly" style="width: 95%;" value="0" />
             </td>
-            <th class="form-bill-th">é”€å”®äººå‘˜ï¼š</th>
+            <th class="form-bill-th">ÏúÊÛÈËÔ±£º</th>
             <td class="form-bill-td">
                 <input id="SalesMan" type="text" class="txt" style="width: 95%" />
                 <input id="ShipRoute" type="hidden" />
@@ -1374,17 +1374,17 @@
         </tr>
         <tr>
 
-            <th class="form-bill-th">å¤‡æ³¨ï¼š</th>
+            <th class="form-bill-th">±¸×¢£º</th>
             <td class="form-bill-td" colspan="3">
                 <input id="Remark" type="text" class="txt" style="width: 98.9%" />
             </td>
-            <th class="form-bill-th" rowspan="2" style="text-align: center; vertical-align: middle;">ç»´ä¿®æ–¹æ¡ˆï¼š</th>
+            <th class="form-bill-th" rowspan="2" style="text-align: center; vertical-align: middle;">Î¬ĞŞ·½°¸£º</th>
             <td class="form-bill-td" rowspan="2" colspan="5">
                 <textarea style="height:40px;width: 100%;" id="LJPlan"></textarea>
             </td>
         </tr>
             <tr>
-                <th class="form-bill-th">ç›¸å…³æ–‡ä»¶ï¼š</th>
+                <th class="form-bill-th">Ïà¹ØÎÄ¼ş£º</th>
                 <td class="form-bill-td" colspan="3">
                     <table style="width: 100%">
                         <tr style="width:100%">
@@ -1406,7 +1406,7 @@
         <div class="bd" style="border-bottom: none; border-left: none; border-right: none; margin: 1px; margin-left: 0px; margin-right: 0px;">
             <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
                 <div class="tab_list_top" style="position: absolute">
-                    <div id="TabProcessDiscount" class="tab_list bd actived">æŠ¥ä»·å•æ˜ç»†</div>
+                    <div id="TabProcessDiscount" class="tab_list bd actived">±¨¼Ûµ¥Ã÷Ï¸</div>
                     <input type="button" id="lr-edit-Row" style="display:none;" />
                     <input type="button" id="lr-edit-RowQ" style="display:none;" />
                     <input type="button" id="lr-edit-RowY" style="display:none;" />
@@ -1415,32 +1415,32 @@
         </div>
         <div id="Detail_button" style="height: 32px; padding-top: 0px; position: absolute; right: 3px;">
             <div id="lr-add-Row" class="nui-toolbar-item nui-btn-right">
-                <span class="nui-btn-text">æ–°å¢</span>
+                <span class="nui-btn-text">ĞÂÔö</span>
             </div>
             @*<div id="lr-add-RowY" class="nui-toolbar-item nui-btn-right nui-btn-left">
-            <span class="nui-btn-text">åœ†æ–°å¢</span>
+            <span class="nui-btn-text">Ô²ĞÂÔö</span>
         </div>*@
             <div id="lr-add-RowQ" class="nui-toolbar-item nui-btn-right nui-btn-left">
-                <span class="nui-btn-text">å…¶ä»–</span>
+                <span class="nui-btn-text">ÆäËû</span>
 
             </div>
             <div id="lr-copy-Row" class="nui-toolbar-item nui-btn-right nui-btn-left">
-                <span class="nui-btn-text">å¤åˆ¶</span>
+                <span class="nui-btn-text">¸´ÖÆ</span>
             </div>
             @*<div id="lr-edit-Row" class="nui-toolbar-item nui-btn-right nui-btn-left">
-            <span class="nui-btn-text">ç¼–è¾‘</span>
+            <span class="nui-btn-text">±à¼­</span>
         </div>*@
             @*  <div id="lr-insert-Row" class="nui-toolbar-item nui-btn-right nui-btn-left">
-            <span class="nui-btn-text">æ’å…¥</span>
+            <span class="nui-btn-text">²åÈë</span>
         </div>*@
             <div id="lr-delete-Row" class="nui-toolbar-item nui-btn-left">
-                <span class="nui-btn-text">åˆ é™¤</span>
+                <span class="nui-btn-text">É¾³ı</span>
             </div>
             <div id="lr-chai-Row" class="nui-toolbar-item nui-btn-left">
-                <span class="nui-btn-text">æ‹†åˆ†</span>
+                <span class="nui-btn-text">²ğ·Ö</span>
             </div>
             @*<div id="lr-Import-Row" class="nui-toolbar-item nui-btn-left">
-            <span class="nui-btn-text">å¯¼å…¥</span>
+            <span class="nui-btn-text">µ¼Èë</span>
         </div>*@
         </div>
         <div class="topline" id="grid_List">

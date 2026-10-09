@@ -73,7 +73,12 @@ qd.Thick '厚度',
     ''''+  qd.ExecRemark '公差备注' ,
         CASE WHEN q.CustMaterial = 1 THEN '是'
              ELSE '否'
-        END '客来料',qd.CreateDate ,''''+ qd.customerproduct  '模号',q.ShipAddress '送货地址',q.SalesMan '业务员'
+        END '客来料',qd.CreateDate ,''''+ qd.customerproduct  '模号',q.ShipAddress '送货地址',q.SalesMan '业务员',o.orderstatus '整单', isnull(( SELECT TOP 1
+                    '已' + TechnologyName
+          FROM      BY_OrderDetailProcessDetail opd
+          WHERE     opd.OrderDetailId = qd.OrderDetailId
+          ORDER BY  CreateDate DESC
+        ),'')  '行状态'
 FROM    dbo.BY_OrderDetail qd
         LEFT JOIN dbo.BY_Order o ON qd.OrderCode = o.OrderCode
         LEFT JOIN dbo.BY_QuotationDetail qdd ON qd.QuotationDetailId = qdd.QuotationDetailId

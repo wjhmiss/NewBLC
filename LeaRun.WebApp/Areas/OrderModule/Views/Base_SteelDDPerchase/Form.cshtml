@@ -124,7 +124,7 @@
         for (var i = 0; i < data.length; i++) {
             TotalAmountall = TotalAmountall + Number(data[i].TotalAmount);
         }
-        $("#TotalAmount").val(TotalAmountall);
+        $("#TotalAmount").val(TotalAmountall.toFixed(2));
 
         var postData = GetWebControls("#form1");
         postData["SteelListJson"] = JSON.stringify($("#gridTable").jqGrid("getRowData"));
@@ -147,6 +147,13 @@
             autowidth: true,
             colModel: [
                 //{ label: '主键', name: 'InventoryId', hidden: true },
+                {
+                    label: '勾选', name: 'chkFen', width: 40, align: 'center', sortable: false,
+                    formatter: function (cellvalue, options, rowObject) {
+                        return '<input type="checkbox" class="fenCheck"' + (rowObject.IsFen != '0' ? ' checked' : '') + ' onclick="chkFenClick(event, this, \'' + options.rowId + '\');" />';
+                    }
+                },
+                { label: 'IsFen', name: 'IsFen', hidden: true },
                 { label: 'Density', name: 'Density', hidden: true },
                 { label: '序号', name: 'SortCode', width: 40 },
                 { label: "钢种编码", name: "SteelCode", width: 60, editable: true },
@@ -316,7 +323,7 @@
                     Qty = Qty + Number(data[i].Qty);
                     Weight = Weight + Number(data[i].Weight);
                 }
-                $("#TotalAmount").val(TotalAmountall);
+                $("#TotalAmount").val(TotalAmountall.toFixed(2));
                 $('#gridTable').setGridHeight(300);
                 $("#Qty").val((Qty).toFixed(2));
                 $("#Weight").val((Weight).toFixed(2));
@@ -555,6 +562,69 @@
             index += 1;
         }
     }
+    //分配：按行理论重量(TheoryWeight)比例分配毛料合称重量，并同步重算总价
+    //勾选/取消勾选行：仅记录IsFen标记，不触发行编辑
+    function chkFenClick(e, obj, rowId) {
+        if (e.stopPropagation) { e.stopPropagation(); } else { e.cancelBubble = true; }
+        $('#gridTable').jqGrid('setRowData', rowId, { IsFen: obj.checked ? '1' : '0' });
+    }
+    function btn_ToFen() {
+        if (!!Number($('#TotalWeights').val())) {
+            //先保存当前正在编辑的行
+            if (!!lastsel) {
+                var RowData = {
+                    Weight: $("[name='Weight']").val(),
+                    TheoryWeight: $("[name='TheoryWeight']").val(),
+                    MaterialPrice: $("[name='MaterialPrice']").val(),
+                }
+                $('#gridTable').jqGrid('setRowData', lastsel, RowData, '');
+            }
+            var data = $("#gridTable").jqGrid("getRowData");
+            var ids = $("#gridTable").jqGrid("getDataIDs");
+            //只统计勾选行（IsFen为'0'表示未勾选）的理论重量
+            var totaltheory = 0;
+            var fencount = 0;
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].IsFen != '0') {
+                    totaltheory = totaltheory + Number(data[i].TheoryWeight);
+                    fencount++;
+                }
+            }
+            if (fencount == 0) {
+                tipDialog("请先勾选需要分配的行", 3, -1);
+                return;
+            }
+            if (totaltheory <= 0) {
+                tipDialog("勾选行的理论重量合计为0，无法分配", 3, -1);
+                return;
+            }
+            var temweight = 0;
+            var lastFenIdx = -1;
+            for (var i = data.length - 1; i >= 0; i--) {
+                if (data[i].IsFen != '0') { lastFenIdx = i; break; }
+            }
+            for (var i = 0; i < data.length; i++) {
+                if (data[i].IsFen == '0') continue;
+                var w;
+                if (i == lastFenIdx) {
+                    w = (Number($('#TotalWeights').val()) - temweight).toFixed(2);
+                }
+                else {
+                    w = (Number(data[i].TheoryWeight) * Number($('#TotalWeights').val()) / totaltheory).toFixed(2);
+                }
+                temweight = temweight + Number(w);
+                $("#gridTable").jqGrid('setRowData', ids[i], { Weight: w, MaterialAmount: (Number(data[i].MaterialPrice) * Number(w)).toFixed(2) });
+            }
+            //汇总总金额
+            var data2 = $("#gridTable").jqGrid("getRowData");
+            var TotalAmountall = 0;
+            for (var i = 0; i < data2.length; i++) {
+                TotalAmountall = TotalAmountall + Number(data2[i].MaterialAmount);
+            }
+            $("#TotalAmount").val(TotalAmountall.toFixed(2));
+            $('#TotalWeights').val('');
+        }
+    }
     //新增一行
     function addrow() {
         var SortCode = 0;
@@ -673,6 +743,9 @@
                         <input id="Qty" maxlength="50" type="text" class="txt" disabled />
                     总重量：  
                     <input id="Weight" maxlength="50" type="text" class="txt" disabled />
+                    毛料合称重量：
+                    <input id="TotalWeights" type="text" class="txt" style="width: 100px" value="0" onfocus="IsMoney(this.id);" />
+                    <input type="button" class="btnSearch" value="分配" onclick="btn_ToFen()" />
 
                 </div>
             </div>

@@ -87,17 +87,19 @@ FROM    ( SELECT    '钢材购买' typename ,
                     Remark,CustomerId
           FROM      Base_SteelPurchase
           UNION ALL
-          SELECT    '物料购买' typename ,
+
+ SELECT    '物料购买' typename ,
                     PayCheckSheetCode ,
-                    MaterielName codecc ,
+                    MaterielPurchaseCode codecc ,
                     MaterielPurchaseId idid ,
                     CustomerName ,
                     TotalAmount ,
                     GetedAmount ,
                     WorkerName ,
                     CreateDate ,
-                    Remark,CustomerId
-          FROM      Base_MaterielPurchase
+                    MaterielName as 'Remark',
+                    CustomerId
+          FROM      Base_MaterielPurchase where Status =1
           UNION ALL
           SELECT    '委外加工' typename ,
                     PayCheckSheetCode ,
@@ -109,7 +111,9 @@ FROM    ( SELECT    '钢材购买' typename ,
                     WorkerName ,
                     CreateDate ,
                     Remark,CustomerId
-          FROM      Base_SteelDDBeout
+          FROM      Base_SteelDDBeout t
+where not EXISTS (select 1 from Base_SteelDDBeoutDetail td where td.Base_SteelDDBeoutId = t.Base_SteelDDBeoutId and td.isback = 0 )
+
           UNION ALL
           SELECT    '委外采购' typename ,
                     PayCheckSheetCode ,
@@ -121,7 +125,8 @@ FROM    ( SELECT    '钢材购买' typename ,
                     WorkerName ,
                     CreateDate ,
                     Remark,CustomerId
-          FROM      Base_SteelDDPerchase
+          FROM      Base_SteelDDPerchase p
+where not EXISTS (select 1 from Base_SteelDDPerchaseDetail td where td.Base_SteelDDPerchaseId = p.Base_SteelDDPerchaseId and td.isback = 0 )
           UNION ALL
             SELECT  '热处理委外' typename ,
                     PayCheckSheetCode ,
@@ -148,7 +153,7 @@ FROM    ( SELECT    '钢材购买' typename ,
                     Remark ,
                     CustomerId
              FROM   Base_PayCompany
-        ) a  where 1=1  ";
+        ) a  where 1=1 and (PayCheckSheetCode = '' or PayCheckSheetCode is null  or PayCheckSheetCode ='&nbsp;' )";
 
                 string WhereSql = "";
                 if (!string.IsNullOrEmpty(ParameterJson))

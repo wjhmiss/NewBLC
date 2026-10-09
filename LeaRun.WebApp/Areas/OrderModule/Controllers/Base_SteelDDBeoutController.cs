@@ -227,6 +227,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
             string UserId = ManageProvider.Provider.Current().UserId;
             return base_coderulebll.GetBillCode(UserId, ModuleId);
         }
+        [ValidateInput(false)]
         public ActionResult SubmitForm1(string KeyValue, Base_SteelDDBeout entity, string SteelListJson)
         {
             string Base_SteelDDBeoutCode = BillCode();

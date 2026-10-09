@@ -103,7 +103,7 @@
                     { label: '扫描人id', name: 'operatorid', index: 'operatorid', width: 60, align: 'left', sortable: true },
 
                      {
-                         label: '重量', name: 'weight', index: 'weight', width: 60, align: 'left', sortable: true, formatter: function (cellvalue, options, rowObject) {
+                         label: '重量', name: 'weight', index: 'weight', width: 60, align: 'left', sortable: true, hidden: true, formatter: function (cellvalue, options, rowObject) {
                              if (!!cellvalue) {
                                  if (rowObject.weigh == 0) {
                                      return Number(cellvalue).toFixed(1);
@@ -115,14 +115,14 @@
                          }
                      },
                      {
-                         label: '面积(平方米)', name: 'area', index: 'area', width: 60, align: 'left', sortable: true
+                         label: '面积(平方米)', name: 'area', index: 'area', width: 60, align: 'left', sortable: true, hidden: true
                      },
-                    { label: '长度(米)', name: 'calclength', index: 'calclength', width: 60, align: 'left', sortable: true },
-                     { label: '加工单价', name: 'workerper', index: 'workerper', width: 50, align: 'left', sortable: true },
+                { label: '长度(米)', name: 'calclength', index: 'calclength', width: 60, align: 'left', sortable: true, hidden: true },
+                { label: '加工单价', name: 'workerper', index: 'workerper', width: 50, align: 'left', sortable: true, hidden: true },
                     { label: '单位', name: 'workerunit', index: 'workerunit', width: 60, align: 'left', sortable: true, hidden: true },
 
                     {
-                        label: '获得工分', name: 'workeramount', index: 'workeramount', width: 60, align: 'left', sortable: true
+                        label: '获得工分', name: 'workeramount', index: 'workeramount', width: 60, align: 'left', sortable: true, hidden: true
                     },
 
                     {
@@ -168,8 +168,8 @@
                 btn_edit();
             },
             viewrecords: true,
-            rowNum: 500,
-            rowList: [500, 5000, 10000, 50000,999999],
+            rowNum: 50,
+            rowList: [50, 500, 1000, 5000,99999],
             pager: "#gridPager",
             sortname: 'operatordate',
             sortorder: 'desc',

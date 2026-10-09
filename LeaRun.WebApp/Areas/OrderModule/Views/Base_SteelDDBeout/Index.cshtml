@@ -169,6 +169,22 @@
             return false;
         }
 
+        var Status = GetJqGridRowValue("#gridTable", "Status");
+        if (Status == "是") {
+            alertDialog("当前报价单已审核", 0);
+            return false;
+        }
+        var IsPay = GetJqGridRowValue("#gridTable", "IsPay");
+        if (IsPay == "是") {
+            alertDialog("当前报价单已付款", 0);
+            return false;
+        }
+        var IsInvoice = GetJqGridRowValue("#gridTable", "IsInvoice");
+        if (IsInvoice == "是") {
+            alertDialog("当前报价单已开票", 0);
+            return false;
+        }
+
 
         if ("@DNS.Utilities.ManageProvider.Provider.Current().UserName" == "超级管理员") {
             view = 0;

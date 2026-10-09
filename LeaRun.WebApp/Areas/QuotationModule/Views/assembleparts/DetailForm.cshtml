@@ -294,6 +294,17 @@ $(function() {
             }
         })
 
+        //系统视图搜索过滤：输入文字时，只显示模糊匹配（包含关键字）的行
+        $("#sysViewSearch").bind('input propertychange', function () {
+            var keyword = $.trim($(this).val());
+            $("#AccessView li").each(function () {
+                var $li = $(this);
+                var isShow = keyword == '' || ($li.find('a').text() || '').indexOf(keyword) > -1;
+                $li.toggle(isShow);
+                $li.nextAll('input').slice(0, 4).toggle(isShow);
+            });
+        })
+
         BindDropItemT2index("#LJtype1", "#LJtype2", "配件一级分类", "==请选择==");
         //var OrderType = GetQuery('OrderType');
         //if (OrderType == 'BC') {
@@ -379,7 +390,7 @@ $(function() {
                 var BoreSizeAdd = ToNumber($("#BoreSizeAdd").val());
                 var Qty = ToNumber($("#Qty").val());
 
-
+                Conversion();
             });
         }, 200);
         //if (CustMaterial == "1") {
@@ -1345,6 +1356,7 @@ $(function() {
                             <div class="btnbartitle">
                                 <div style="float: left">
                                     系统视图 <span class="ModuleName"></span>
+                                    <input id="sysViewSearch" type="text" placeholder="输入关键字搜索" style="margin-left: 10px; height: 22px; width: 160px; border: 1px solid #ccc; border-radius: 3px; padding: 0 5px; vertical-align: middle;" />
                                 </div>
                                 <div style="float: right">
                                     <label id="CheckView" class="checkAllOff" title="全选">全选</label>

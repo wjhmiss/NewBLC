@@ -534,7 +534,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
                 temporderdetails.by_orderdetail = item;
                 //BY_OrderDetailProcesss = DataFactory.Database().FindList<BY_OrderDetailProcess>("QuotationDetailId", item.QuotationDetailId);
               
-                BY_OrderDetailProcesss = DataFactory.Database().FindList<BY_OrderDetailProcess>(string.Format("AND QuotationDetailId = '{0}'  and (TechnologyName not like '%账%' and TechnologyName not like '%帐%'  and TechnologyName not like '%优惠%'  and TechnologyName not like '%费%')", item.QuotationDetailId));
+                BY_OrderDetailProcesss = DataFactory.Database().FindList<BY_OrderDetailProcess>(string.Format("AND QuotationDetailId = '{0}'  and (TechnologyName not like '%账%' and TechnologyName not like '%帐%'  and TechnologyName not like '%优惠%'  and TechnologyName not like '%费%') order by SortCode asc ", item.QuotationDetailId));
                 temporderdetails.by_orderdetailprocesss = BY_OrderDetailProcesss;
                 TEMPorderdetailss.Add(temporderdetails);
             }

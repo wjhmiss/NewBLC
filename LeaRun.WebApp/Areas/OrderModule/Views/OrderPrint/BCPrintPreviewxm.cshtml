@@ -24,7 +24,7 @@
                 RowNum = 18;
             }
             else {
-                RowNum = 7;
+                RowNum = 6;
             }
 
             AjaxJson("/OrderModule/OrderPrint/BCPrintListJsonJY", { OrderId: GetQuery('OrderId'), OrderDetailIds: GetQuery('OrderDetailIds'), QuotationId: GetQuery('QuotationId'), KL: "xm", RowNum: RowNum, LType: GetQuery('LType') }, function (data) {
@@ -308,9 +308,18 @@
                         Orderhtml += '    <td style="font-size: 12pt;border-bottom: 1px dashed #000;text-align: center;word-break: break-all;" >' + OrderDetail[i].Qty + '</td>';
                         // Orderhtml += '    <td style="font-size: 10pt;border-bottom: 1px dashed #000;text-align: center;word-break: break-all;" >' + OrderDetail[i].Weight + '</td>';
                         Orderhtml += '    <td style="font-size: 12pt;border-bottom: 1px dashed #000;text-align: center;word-break: break-all;" >' + size + '</td>';
-                        Orderhtml += '    <td  style="font-size: 12pt;border-bottom: 1px dashed #000;word-break:break-all;line-height: 16.6px;" >' + tfang + "(" + OrderDetail[i].OrderType + "," + OrderDetail[i].Kprocess + "," + OrderDetail[i].RemarkKL + "," + OrderDetail[i].ExecRemark + ")" +  OrderDetail[i].CustomerProduct + '</td>';
+                        Orderhtml += '    <td  style="font-size: 12pt;border-bottom: 1px dashed #000;word-break:break-all;line-height: 16.6px;" >' + tfang + "(" + OrderDetail[i].OrderType + "," + OrderDetail[i].Kprocess + "," + OrderDetail[i].RemarkKL + "," + OrderDetail[i].ExecRemark + ")" + OrderDetail[i].CustomerProduct + '</td>';
                         Orderhtml += '    <td  style="text-align: center;border-bottom: 1px dashed #000;;center;" >';
-                        Orderhtml += '            <div style="display: flex;justify-content: space-between; "><div>扫描：</div><div style="margin-top: 0px;" barcode=' + OrderEntiy.OrderCode + "-" + OrderDetail[i].LineCode + '  class="barcodeTarget"></div><div>钢印：</div><div style="margin-top: 0px;" barcode=' + mo + '  class="barcodeTarget"></div></div>';
+                        //Orderhtml += '            <div style="display: flex;justify-content: space-between; "><div>扫描：</div><div style="margin-top: 0px;" barcode=' + OrderEntiy.OrderCode + "-" + OrderDetail[i].LineCode + '  class="barcodeTarget"></div><div>钢印：</div><div style="margin-top: 0px;" barcode=' + mo + '  class="barcodeTarget"></div></div>';
+                        if (i % 2) {
+                            Orderhtml += '            <div style="display: flex;justify-content: space-between; "><div></div><div style="margin-top: 0px;" barcode=""  class="barcodeTarget"></div><div>扫描：</div><div style="margin-top: 0px;" barcode=' + OrderEntiy.OrderCode + "-" + OrderDetail[i].LineCode + '  class="barcodeTarget"></div></div>';
+
+                        }
+                        else
+                        {
+                            Orderhtml += '            <div style="display: flex;justify-content: space-between; "><div>扫描：</div><div style="margin-top: 0px;" barcode=' + OrderEntiy.OrderCode + "-" + OrderDetail[i].LineCode + '  class="barcodeTarget"></div><div></div><div style="margin-top: 0px;" barcode=""  class="barcodeTarget"></div></div>';
+
+                        }
                         Orderhtml += '    </td>';
 
                         Orderhtml += '</tr>';
@@ -323,10 +332,10 @@
                         Orderhtml += '        </td>';
                         Orderhtml += '    </tr>';
 
-                        // Orderhtml += '    <tr>';
-                        // Orderhtml += '        <td style="height: 10pt;line-height:10pt;font-size: 12pt;text-align:left;border-bottom: 1px dashed #000;word-break:break-all" colspan="10">铣磨要求：' + OrderEntiy.XMRequery + OrderEntiy.KLRequery + '</td>';
+                        Orderhtml += '    <tr>';
+                        Orderhtml += '        <td style="height: 14pt;line-height:14pt;font-size: 14pt;text-align:left;border-bottom: 1px dashed #000;word-break:break-all;font-weight: bold;" colspan="10">铣磨要求：' + OrderEntiy.XMRequery + OrderEntiy.KLRequery + '</td>';
 
-                        // Orderhtml += '    </tr>';
+                        Orderhtml += '    </tr>';
                         Orderhtml += '    <tr>';
                         Orderhtml += '        <td  style="vertical-align:top;">';
                         Orderhtml += '        </td>';
@@ -358,10 +367,10 @@
 
                     Orderhtml += '        </td>';
                     Orderhtml += '    </tr>';
-                    // Orderhtml += '    <tr>';
-                    // Orderhtml += '        <td style="height: 10pt;line-height:12pt;font-size: 10pt;text-align:left;border-bottom: 1px dashed #000;word-break:break-all" colspan="10">要求：' + OrderEntiy.XMRequery + OrderEntiy.KLRequery + '</td>';
+                    Orderhtml += '    <tr>';
+                    Orderhtml += '        <td style="height: 14pt;line-height:14pt;font-size: 14pt;text-align:left;border-bottom: 1px dashed #000;word-break:break-all;font-weight: bold;" colspan="10">要求：' + OrderEntiy.XMRequery + OrderEntiy.KLRequery + '</td>';
 
-                    // Orderhtml += '    </tr>';
+                    Orderhtml += '    </tr>';
                     Orderhtml += '    <tr>';
                     Orderhtml += '        <td  style="vertical-align:top;">';
                     Orderhtml += '        </td>';

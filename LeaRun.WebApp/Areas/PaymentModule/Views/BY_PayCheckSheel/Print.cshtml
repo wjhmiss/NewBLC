@@ -55,6 +55,20 @@
                 $("#CustomerAddress").html(base_customer.Address);
                 $("#CheckName").html(CheckData.YearMonth + "月对账单");
 
+                if (!CheckData.CustomerName) {
+                    CheckData.CustomerName = ""
+                }
+                if (!CheckData.GSPhone) {
+                    CheckData.GSPhone = ""
+                }
+                if (!CheckData.SellpeoplePhone) {
+                    CheckData.SellpeoplePhone = ""
+                }
+                if (!CheckData.Fax) {
+                    CheckData.Fax = ""
+                }
+
+
                 var index = 0;
                 var pageindex = 0;
                 var total = 0
@@ -72,8 +86,8 @@
                     if (index % pageNum == 0) {
                         pageindex++;
                         Orderhtml += '<div style="float:left;position: absolute; ">@*<img style="width: 60px;padding: 5px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@</div><table id="tb_Order" border="0" class="form-print" style="width: 100%;">';
-                        Orderhtml += '<tr><td colspan="4" align="center" style="padding: 2px;"><span style="font-size: 25px; font-weight: bold;">' + Name + '</span></td></tr>';
-                        Orderhtml += '<tr><td colspan="4" align="center" style="height: 18.6px;line-height:18.6px;">HUNAN CHAOGUAN  MOULD STEEL CO.，LTD （' + pageindex + '/' + total + '）</td></tr>';
+                        Orderhtml += '<tr><td colspan="4" align="center" style="padding: 2px;"><span style="font-size: 25px; font-weight: bold;">' + Name + '(' + pageindex + '/' + total + ')</span></td></tr>';
+                        Orderhtml += '<tr><td colspan="4" align="center" style="height: 18.6px;line-height:18.6px;"></td></tr>';
                         Orderhtml += '<tr><th style="height: 18.6px;line-height:18.6px;">地址：</th><td style="height: 18.6px;line-height:18.6px;">宁波市北仑区大矸龙潭山三路15号</td><th style="height: 18.6px;line-height:18.6px;">电话：</th><td style="height: 18.6px;line-height:18.6px;">18892600521 </td></tr><tr><th style="height: 18.6px;line-height:18.6px;">传真：</th><td style="height: 18.6px;line-height:18.6px;">18892600521</td><th style="height: 18.6px;line-height:18.6px;">付款对账单：</th><td style="height: 18.6px;line-height:18.6px;">' + CheckData.PayCheckSheetCode + '</td></tr>';
                         Orderhtml += ' <tr><td colspan="4" align="center" style="border-top: 1px solid #000;padding-top:10px;height: 18.6px;line-height:18.6px;"><span style="font-size: 25px; font-weight: bold;" id="CheckName">' + CheckData.YearMonth + '(' + formatDate(CheckData.BeginDate, 'yyyy-MM-dd') + '至' + formatDate(CheckData.EndDate, 'yyyy-MM-dd') + ')月对账单</span></td></tr><tr><th style="height: 18.6px;line-height:18.6px;">供应商名称：</th><td>' + CheckData.CustomerName + '</td><th style="height: 18.6px;line-height:18.6px;">电话:</th><td>' + base_customer.GSPhone + '/' + base_customer.SellpeoplePhone + '</td></tr><tr><th style="height: 18.6px;line-height:18.6px;">传真:</th><td style="height: 18.6px;line-height:18.6px;">' + base_customer.Fax + '</td><th style="height: 18.6px;line-height:18.6px;">联系人：</th><td style="height: 18.6px;line-height:18.6px;">' + base_customer.Sellpeople + '</td></tr>';
                         Orderhtml += '<tr><td colspan="4" valign="top"><div ><table id="tb_QuotationDetail"  class="form-print" style="width: 100%; border-collapse:collapse;">';

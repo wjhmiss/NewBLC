@@ -181,7 +181,7 @@
             rowNum: 10000,
             rowList: [300, 500, 1000, 5000, 10000],
             pager: "#gridPager",
-            sortname: 'mnemoniccode,linecode',
+            sortname: 'createdate',
             sortorder: 'desc',
             rownumbers: true,
             shrinkToFit: false,
@@ -240,7 +240,7 @@
 
 
     function btn_Export() {
-        SetDeriveExcel("#gridTable", "送货单明细");
+        SetDeriveExcel("#gridTable", "零件送货单明细");
 
         Loading(true, "正在处理要导出数据...");
         window.setTimeout(function () {

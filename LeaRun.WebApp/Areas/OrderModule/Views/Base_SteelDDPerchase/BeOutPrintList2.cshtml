@@ -160,7 +160,7 @@
                         Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;" >序号</td>';
                         Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;" >货物名称</td>';
                         Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;" >材质</td>';
-                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" colspan="3">规格(厚宽长)</td>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" colspan="3">规格(长宽厚)</td>';
                         Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;">件数</td>';
                         Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" >单价</td>';
                         Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;">估量</td>';
@@ -221,8 +221,9 @@
                          Orderhtml += '                    <td style="border-top: 1px solid #000;text-align: left;" colspan="2">宁波市北仑区大矸龙潭山三路15号</td>';
                          Orderhtml += '                    <td style="text-align: center;border-top: 1px solid #000;text-align: left;">交货时间：' + formatDate(data.Base_SteelDDPerchase.Delivery, 'yyyy-MM-dd') + '</td>';
                          Orderhtml += '                </tr>';
-                         Orderhtml += '                <tr >';
-                         Orderhtml += '                    <td  colspan="4">备注：1，未回复视为默认接单2，材料探伤合格，符合国家二级标准，不可有夹层，板面要平，无沙眼，无裂纹。3，回复确认后未能达到，影响严重需扣款处理。4，材料上写明材质与规格。</td>';
+                        Orderhtml += '                <tr >';
+                       // Orderhtml += '                    <td  colspan="4">备注:1、钢材材质、外观及内部质量须符合约定标准，无夹层、裂纹、气孔、变形翘曲等缺陷，探伤满足国标二级要求;2、交货时每件材料清晰标注材质、规格尺寸; 送货单上需备注采购单号。偿相关损失;3、我方检验发现质量异常时，请及时配合处理，如拒不配合处理的，我方有权要求赔4、供方收到此单据时未提出异议的，视作默认接受本订单全部要求，包括备注内容。</td>';
+                        Orderhtml += '                    <td  colspan="4">备注:1、钢材材质、外观及内部质量须符合约定标准，无夹层、裂纹、气孔、变形翘曲等缺陷，探伤满足国标二级要求;2、交货时每件材料清晰标注材质、规格尺寸; 送货单上需备注采购单号。偿相关损失;3、我方检验发现质量异常时，请及时配合处理，如拒不配合处理的，我方有权要求赔4、供方收到此单据时未提出异议的，视作默认接受本订单全部要求，包括备注内容。</td>';
                          Orderhtml += '                </tr>';
                          Orderhtml += '                <tr >';
                          Orderhtml += '                    <td style="text-align: left ">供应商认可：</td>';
@@ -255,7 +256,8 @@
                     Orderhtml += '                    <td style="text-align: center;border-top: 1px solid #000;text-align: left;">交货时间：' + formatDate(data.Base_SteelDDPerchase.Delivery, 'yyyy-MM-dd') + '</td>';
                     Orderhtml += '                </tr>';
                     Orderhtml += '                <tr >';
-                    Orderhtml += '                    <td  colspan="4">备注：1，未回复视为默认接单2，材料探伤合格，符合国家二级标准，不可有夹层，板面要平，无沙眼，无裂纹。3，回复确认后未能达到，影响严重需扣款处理。4，材料上写明材质与规格。</td>';
+                    //Orderhtml += '                    <td  colspan="4">备注：1，未回复视为默认接单2，材料探伤合格，符合国家二级标准，不可有夹层，板面要平，无沙眼，无裂纹。3，回复确认后未能达到，影响严重需扣款处理。4，材料上写明材质与规格。</td>';
+                    Orderhtml += '                    <td  colspan="4">备注:1、钢材材质、外观及内部质量须符合约定标准，无夹层、裂纹、气孔、变形翘曲等缺陷，探伤满足国标二级要求;2、交货时每件材料清晰标注材质、规格尺寸; 送货单上需备注采购单号。偿相关损失;3、我方检验发现质量异常时，请及时配合处理，如拒不配合处理的，我方有权要求赔4、供方收到此单据时未提出异议的，视作默认接受本订单全部要求，包括备注内容。</td>';
                     Orderhtml += '                </tr>';
                     Orderhtml += '                <tr >';
                     Orderhtml += '                    <td style="text-align: left ">供应商认可：</td>';

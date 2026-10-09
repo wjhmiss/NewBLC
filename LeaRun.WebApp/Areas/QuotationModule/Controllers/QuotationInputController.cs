@@ -10,10 +10,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Web;
 using System.Web.Mvc;
+using System.Web.Services.Description;
 using static DNS.Business.BY_InStockBll;
 
 namespace DNS.WebApp.Areas.QuotationModule.Controllers
@@ -237,7 +239,14 @@ namespace DNS.WebApp.Areas.QuotationModule.Controllers
                         by_quotationdetail.Fang = item["W"].ToString();
                         by_quotationdetail.Delivery = item["X"].ToString();
                         by_quotationdetail.Kprocess = item["Y"].ToString();
+                        Base_DataDictionaryBll base_datadictionarybll = new Base_DataDictionaryBll();
+                        List<Base_DataDictionaryDetail> list = base_datadictionarybll.GetDataDictionaryDetailListByCode("加工流程");
+                        if (string.IsNullOrWhiteSpace(by_quotationdetail.Kprocess) || list.Where(p=>p.Code == by_quotationdetail.Kprocess).Count() == 0)
+                        {
+                            throw new InvalidOperationException("除数不能为零。");
+                        }
 
+                        new QuotationPlaceOrderController().GentQuotationDetailProcess(by_quotation, by_quotationdetail, new List<BY_OrderDetailProcess>(), "", isOpenTrans);
 
                         //by_quotationdetail.HeatAmount = by_quotationdetail.HeatPrice * by_quotationdetail.Weight;
                         Base_SteelPriceBll base_steelpricebll = new Base_SteelPriceBll();
@@ -1597,14 +1606,14 @@ XYSy
             DbTransaction isOpenTrans = database.BeginTrans();
             try
             {
-
                 BY_QuotationDetail by_quotationdetail = DataFactory.Database().FindEntity<BY_QuotationDetail>(QuotationDetailId);
+                decimal? count = by_quotationdetail.Qty;
 
                 if (by_quotationdetail != null && !string.IsNullOrWhiteSpace(by_quotationdetail.QuotationDetailId))
                 {
                     BY_Quotation quotation = DataFactory.Database().FindEntity<BY_Quotation>(by_quotationdetail.QuotationId);
-                    List<BY_QuotationDetail> list = DataFactory.Database().FindList<BY_QuotationDetail>("QuotationId", quotation.QuotationId).OrderBy(p => p.LineCode).ToList();
                     BY_Order by_order = DataFactory.Database().FindEntity<BY_Order>("QuotationId", quotation.QuotationId);
+                    List<BY_OrderDetailProcess> odplist = DataFactory.Database().FindList<BY_OrderDetailProcess>("QuotationDetailId", by_quotationdetail.QuotationDetailId).ToList();
 
                     if (by_order != null && !string.IsNullOrWhiteSpace(by_order.OrderId))
                     {
@@ -1618,11 +1627,11 @@ XYSy
                     }
 
 
-                    List<BY_QuotationDetail> list2 = list.Where(x => x.LineCode < by_quotationdetail.LineCode).OrderBy(p => p.LineCode).ToList();
-                    foreach (var item in list2)
-                    {
-                        //listend.Add(item);
-                    }
+                    //List<BY_QuotationDetail> list2 = list.Where(x => x.LineCode < by_quotationdetail.LineCode).OrderBy(p => p.LineCode).ToList();
+                    //foreach (var item in list2)
+                    //{
+                    //    //listend.Add(item);
+                    //}
 
                     for (int i = 1; i < by_quotationdetail.Qty; i++)
                     {
@@ -1639,10 +1648,16 @@ XYSy
                         obj.SmallAmount = by_quotationdetail.SmallAmount / by_quotationdetail.Qty;
                         obj.Create();
                         obj.Qty = 1;
-                        obj.LineCode = obj.LineCode + i;
                         database.Insert(obj, isOpenTrans);
+                        foreach (var item in odplist)
+                        {
+                            BY_OrderDetailProcess odp = new BY_OrderDetailProcess();
+                            CommonHelper.CopySameFieldsObjectALL<BY_OrderDetailProcess, BY_OrderDetailProcess>(item, ref odp);
+                            odp.QuotationDetailId = obj.QuotationDetailId;
+                            odp.Create();
+                            database.Insert(odp, isOpenTrans);
+                        }
                     }
-                    by_quotationdetail.Qty = 1;
                     by_quotationdetail.SalesAmount = by_quotationdetail.SalesAmount / by_quotationdetail.Qty;
                     by_quotationdetail.MianCost = by_quotationdetail.MianCost / by_quotationdetail.Qty;
                     by_quotationdetail.BianCost = by_quotationdetail.BianCost / by_quotationdetail.Qty;
@@ -1652,16 +1667,18 @@ XYSy
                     by_quotationdetail.HeatAmount = by_quotationdetail.HeatAmount / by_quotationdetail.Qty;
                     by_quotationdetail.JKCost = by_quotationdetail.JKCost / by_quotationdetail.Qty;
                     by_quotationdetail.SmallAmount = by_quotationdetail.SmallAmount / by_quotationdetail.Qty;
-
+                    by_quotationdetail.Qty = 1;
                     database.Update(by_quotationdetail, isOpenTrans);
-                    List<BY_QuotationDetail> list1 = list.Where(x => x.LineCode > by_quotationdetail.LineCode).OrderBy(p => p.LineCode).ToList();
+                    database.Commit();
+
+                    List<BY_QuotationDetail> list1 = DataFactory.Database().FindList<BY_QuotationDetail>("QuotationId", quotation.QuotationId).OrderBy(p => p.LineCode).ToList();
+                    int line = 1;
                     foreach (var item in list1)
                     {
-                        item.LineCode = item.LineCode + Convert.ToInt32(by_quotationdetail.Qty) - 1;
-                        database.Update(item, isOpenTrans);
+                        item.LineCode = line;
+                        line += 1;
+                        database.Update(item);
                     }
-
-                    database.Commit();
                 }
                 return Content(new JsonMessage { Success = true, Code = "1", Message = "操作成功！" }.ToString());
             }

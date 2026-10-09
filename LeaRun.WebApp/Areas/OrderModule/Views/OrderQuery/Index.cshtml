@@ -225,6 +225,7 @@
                 { label: "完工件数", name: "completeqty", index: "completeqty", width: 50, align: "right" },
                 { label: "出货件数", name: "deliveryqty", index: "deliveryqty", width: 50, align: "right" },
                 { label: '当前状态', name: 'billstatus1', index: 'billstatus', width: 60, align: 'center', sortable: true, hidden: true },
+                { label: "交期", name: "delivery", index: "delivery", width: 80, align: "right" },
 
                 {
                     label: "订单状态", name: "billstatus", index: "billstatus", width: 60, align: "center",
@@ -659,11 +660,11 @@
                 <input id="CustomerProduct" type="text" class="txt" style="width: 120px" />
             </td>
             <td colspan="2">
+                                @*<input id="btnDownLoad1" type="button" class="btnSearch" value="加工单导出" onclick="btn_DownLoad1();" />*@
                 <input id="btnDownLoad" type="button" class="btnSearch" value="明细导出" onclick="btn_DownLoad()" />
-                <input id="btn_print4" type="button" class="btnSearch" value="工单打印" onclick="BJPrintPreview1()" />
-                <input id="btn_print5" type="button" class="btnSearch" value="label打印" onclick="btn_Printlabel()" />
+                @*<input id="btn_print4" type="button" class="btnSearch" value="工单打印" onclick="BJPrintPreview1()" />
+                <input id="btn_print5" type="button" class="btnSearch" value="label打印" onclick="btn_Printlabel()" />*@
                 <input id="btnSearsch1" type="button" class="btnSearch" value="更新状态" onclick="btn_tb()" />
-                @*                <input id="btnDownLoad1" type="button" class="btnSearch" value="加工单导出" onclick="btn_DownLoad1();" />*@
                 @*      <input id="btn_print1" type="button" class="btnSearch" value="工作单打印" onclick="BJPrintPreview1()" />
         <input type="button" class="btnSearch" value="开料单打印" onclick="BJPrintPreview2()" />*@
             </td>

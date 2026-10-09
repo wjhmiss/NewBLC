@@ -285,7 +285,7 @@ var DDCostPer = 0;
                         }
                         QuotationDetailhtml += '<tr>';
                         QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].LineCode + '</td>';
-                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].ProductName + '</td>';
+                        QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].ProductName + QuotationDetail[i].OrderType.substring(0,2) + '</td>';
                         QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + size + '</td>';
                         QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + yusize + '</td>';
                         QuotationDetailhtml += '     <td style="border: 1px solid #000;text-align:center ;">' + QuotationDetail[i].Qty + '</td>';

@@ -99,12 +99,12 @@ FROM    Base_SteelDDPerchase p
             if (!HashtableHelper.IsNullOrDBNull(Condition["StartTime"]))
             {
                 strSql.Append(" AND p.CreateDate > @StartTime ");
-                parameter.Add(DbFactory.CreateDbParameter("@StartTime", CommonHelper.GetDateTime(Condition["StartTime"] + " :00")));
+                parameter.Add(DbFactory.CreateDbParameter("@StartTime", CommonHelper.GetDateTime(Condition["StartTime"] )));
             }
             if (!HashtableHelper.IsNullOrDBNull(Condition["EndTime"]))
             {
                 strSql.Append(" AND p.CreateDate < @EndTime ");
-                parameter.Add(DbFactory.CreateDbParameter("@EndTime", CommonHelper.GetDateTime(Condition["EndTime"] + " :00")));
+                parameter.Add(DbFactory.CreateDbParameter("@EndTime", CommonHelper.GetDateTime(Condition["EndTime"] )));
             }
 
 

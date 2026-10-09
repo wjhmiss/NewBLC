@@ -18,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.Remoting.Messaging;
+using System.Security.Principal;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Web;
@@ -489,11 +490,10 @@ namespace DNS.WebApp.Controllers
                 ReturnID.DbType = DbType.String;
                 parameter.Add(ReturnID);
 
+
                 DataFactory.Database().ExecuteByProc("StoredPBYERP", parameter.ToArray());
                 if (ReturnMessage.Value.ToString() == "1")
                 {
-
-
                     System.Web.HttpFileCollection files = System.Web.HttpContext.Current.Request.Files;
                     for (int i = 0; i < files.AllKeys.Count(); i++)
                     {
@@ -537,6 +537,8 @@ namespace DNS.WebApp.Controllers
                 }
                 else
                 {
+                    string str = "OrderCodeLine:" + strtemp[0] + "-" + strtemp[1] + "-" + strtemp[2] + "@Qty:" + entity.Qty + "@Weight:" + entity.Weight + "@ProcessCode:" + entity.TechnologyId + "@MachineCode:" + entity.MachineId + "@UserId:" + entity.OperatorId;
+                    WriteLoginFileLog("APP scan", "操作失败", str);
                     return Content(new JsonMessage { Success = false, Code = "-1", Message = "操作失败：" + ReturnMessage.Value }.ToString());
                 }
             }
@@ -545,7 +547,28 @@ namespace DNS.WebApp.Controllers
                 return Content(new JsonMessage { Success = false, Code = "-1", Message = "操作失败：" + ex.Message }.ToString());
             }
         }
-
+        private static readonly object LoginFileLogLock = new object();
+        private void WriteLoginFileLog(string account, string result, string note)
+        {
+            try
+            {
+                string dir = Server.MapPath("~/logs");
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                string file = Path.Combine(dir, "logs-" + DateTime.Now.ToString("yyyyMMdd") + ".log");
+                string line = string.Format("[{0:yyyy-MM-dd HH:mm:ss}] 账号：{1} | IP：{2} | 结果：{3} | 备注：{4}",
+                    DateTime.Now, account, NetHelper.GetIPAddress(), result, note);
+                lock (LoginFileLogLock)
+                {
+                    System.IO.File.AppendAllText(file, line + Environment.NewLine, Encoding.UTF8);
+                }
+            }
+            catch
+            {
+            }
+        }
         public ActionResult UploadForUniappHeat(string QuotationHeatList)
         {
             try

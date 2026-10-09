@@ -74,6 +74,7 @@
                     {
                         label: '单号类型', name: 'Opions', index: 'Opions', width: 80, align: 'left', sortable: true
                     },
+                { label: '客户编号', name: 'CustomerCode', index: 'CustomerCode', width: 120, align: 'left', sortable: true },
                     { label: '客户名称', name: 'CustomerName', index: 'CustomerName', width: 120, align: 'left', sortable: true },
                     { label: '人员', name: 'WorkerName', index: 'WorkerName', width: 80, align: 'left', sortable: true },
                     { label: '部门', name: 'DepartmentName', index: 'DepartmentName', width: 80, align: 'left', sortable: true },
@@ -167,7 +168,7 @@
             shrinkToFit: false,
             gridview: true,
             ondblClickRow: function (rowid, iRow, iCol, e) {
-                btn_edit();
+                //btn_edit();
             },
             footerrow: true,
             gridComplete: function () {

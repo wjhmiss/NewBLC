@@ -236,6 +236,11 @@ namespace DNS.Entity
         /// <returns></returns>
         [DisplayName("已获金额")]
         public decimal? GetedAmount { get; set; }
+
+        /// <summary>
+        /// 类型（进仓/退货）
+        /// </summary>
+        public string TypeJC { get; set; }
         #endregion
 
         #region 扩展操作

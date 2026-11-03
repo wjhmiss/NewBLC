@@ -190,7 +190,7 @@ FROM dbo.BY_Order o, BY_OrderDetail od where o.orderid = od.orderid and  o.Quota
             Hashtable QueryParameter = HashtableHelper.JsonToHashtable(Condition);
             DataTable ListData = by_orderbll.GetQuotDetailList(QueryParameter);
             //string[] DataColumn = { "下单日期", "助记码", "交期", "客户名称", "产品名称", "规格", "数量", "重量", "加工类型", "特殊工序", "公差备注" };
-            string[] DataColumn = { "客户编码", "客户简称", "客户名称", "下单日期","交期", "整单", "行状态",  "助记码", "产品名称", "规格", "数量", "重量", "公差备注", "模号","送货地址","业务员" };
+            string[] DataColumn = { "客户编码", "客户简称", "客户名称", "下单日期","交期", "整单", "行状态",  "助记码", "产品名称", "加工类型", "规格", "数量", "重量", "公差备注", "模号","送货地址","业务员" };
             string fileName = "明细汇总";
             DeriveExcel.DataTableToExcel(ListData, DataColumn, fileName);
         }

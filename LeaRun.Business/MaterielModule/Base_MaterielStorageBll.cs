@@ -30,7 +30,7 @@ namespace DNS.Business
             List<DbParameter> parameter = new List<DbParameter>();
             StringBuilder strSql = new StringBuilder();
             strSql.Append(@" SELECT  A.MaterielCode ,A.MaterielType,
-        A.MaterielName ,
+        A.MaterielName ,A.MaterielSize,
         A.WorkerName ,
         A.DepartmentName ,
         getQTY ,
@@ -38,23 +38,23 @@ namespace DNS.Business
 (SELECT m1.PricePer FROM Base_MaterielType m1 WHERE m1.MaterielCode = a.MaterielCode) pepermoney,
         (ISNULL(getQTY,0) - ISNULL(backQTY,0))*(SELECT m1.PricePer FROM Base_MaterielType m1 WHERE m1.MaterielCode = a.MaterielCode) TotalAmount
 FROM    ( SELECT    MaterielCode ,MaterielType,
-                    MaterielName ,
+                    MaterielName ,MaterielSize,
                     WorkerName ,DepartmentName,
                     SUM(Qty) getQTY,SUM(TotalAmount)  getmoney
           FROM      dbo.Base_MaterielGet WHERE 1=1 @WorkerName  @MaterielName @DepartmentName @CreateDate_StartTime @CreateDate_EndTime
           GROUP BY  MaterielCode ,MaterielType,
-                    MaterielName ,
+                    MaterielName ,MaterielSize,
                     WorkerName ,
                     DepartmentName
         ) a
         LEFT JOIN ( SELECT  MaterielCode ,MaterielType,
-                            MaterielName ,
+                            MaterielName ,MaterielSize,
                             WorkerName ,
                             DepartmentName ,
                             SUM(Qty) backQTY,SUM(TotalAmount)  getmoney
                     FROM    dbo.Base_MaterielReturn WHERE 1=1  @WorkerName  @MaterielName @DepartmentName @CreateDate_StartTime @CreateDate_EndTime
                     GROUP BY MaterielCode ,MaterielType,
-                            MaterielName ,
+                            MaterielName ,MaterielSize,
                             WorkerName ,
                             DepartmentName
                   ) b ON a.MaterielCode = b.MaterielCode
@@ -114,28 +114,28 @@ FROM    ( SELECT    MaterielCode ,MaterielType,
             List<DbParameter> parameter = new List<DbParameter>();
             StringBuilder strSql = new StringBuilder();
             strSql.Append(@" SELECT  A.MaterielCode ,A.MaterielType,
-        A.MaterielName ,
+        A.MaterielName ,A.MaterielSize,
         A.DepartmentName ,
         getQTY ,
         backQTY,
 (SELECT m1.PricePer FROM Base_MaterielType m1 WHERE m1.MaterielCode = a.MaterielCode) pepermoney,
         (ISNULL(getQTY,0) - ISNULL(backQTY,0))*(SELECT m1.PricePer FROM Base_MaterielType m1 WHERE m1.MaterielCode = a.MaterielCode) TotalAmount
 FROM    ( SELECT    MaterielCode ,MaterielType,
-                    MaterielName ,
+                    MaterielName ,MaterielSize,
                     DepartmentName,
                     SUM(Qty) getQTY,SUM(TotalAmount)  getmoney
           FROM      dbo.Base_MaterielGet WHERE 1=1   @MaterielName @DepartmentName @CreateDate_StartTime @CreateDate_EndTime
           GROUP BY  MaterielCode ,MaterielType,
-                    MaterielName ,
+                    MaterielName ,MaterielSize,
                     DepartmentName
         ) a
         LEFT JOIN ( SELECT  MaterielCode ,MaterielType,
-                            MaterielName ,
+                            MaterielName ,MaterielSize,
                             DepartmentName ,
                             SUM(Qty) backQTY,SUM(TotalAmount)  getmoney
                     FROM    dbo.Base_MaterielReturn WHERE 1=1    @MaterielName @DepartmentName @CreateDate_StartTime @CreateDate_EndTime
                     GROUP BY MaterielCode ,MaterielType,
-                            MaterielName ,
+                            MaterielName ,MaterielSize,
                             DepartmentName
                   ) b ON a.MaterielCode = b.MaterielCode
                          AND a.DepartmentName = b.DepartmentName
@@ -187,28 +187,28 @@ FROM    ( SELECT    MaterielCode ,MaterielType,
             List<DbParameter> parameter = new List<DbParameter>();
             StringBuilder strSql = new StringBuilder();
             strSql.Append(@" SELECT  A.MaterielCode ,A.MaterielType,
-        A.MaterielName ,
+        A.MaterielName ,A.MaterielSize,
         getQTY ,
         backQTY,
 (SELECT m1.PricePer FROM Base_MaterielType m1 WHERE m1.MaterielCode = a.MaterielCode) pepermoney,
         (ISNULL(getQTY,0) - ISNULL(backQTY,0))*(SELECT m1.PricePer FROM Base_MaterielType m1 WHERE m1.MaterielCode = a.MaterielCode) TotalAmount,
         (SELECT m2.Qty FROM Base_MaterielStorage m2 WHERE m2.MaterielCode = a.MaterielCode) qty
 FROM    ( SELECT    MaterielCode ,MaterielType,
-                    MaterielName ,
+                    MaterielName ,MaterielSize,
                     
                     SUM(Qty) getQTY,SUM(TotalAmount)  getmoney
           FROM      dbo.Base_MaterielGet WHERE 1=1   @MaterielName  @CreateDate_StartTime @CreateDate_EndTime
            GROUP BY  MaterielCode ,MaterielType,
-                    MaterielName 
+                    MaterielName ,MaterielSize
                     
         ) a
         LEFT JOIN ( SELECT  MaterielCode ,MaterielType,
-                            MaterielName ,
+                            MaterielName ,MaterielSize,
                             
                             SUM(Qty) backQTY,SUM(TotalAmount)  getmoney
                     FROM    dbo.Base_MaterielReturn WHERE 1=1   @MaterielName @CreateDate_StartTime @CreateDate_EndTime
                    GROUP BY MaterielCode ,MaterielType,
-                            MaterielName 
+                            MaterielName ,MaterielSize
                            
                   ) b ON a.MaterielCode = b.MaterielCode
          ");
@@ -253,7 +253,7 @@ FROM    ( SELECT    MaterielCode ,MaterielType,
             strSql.Append(@"SELECT  MaterielStorageId ,
         MaterielId ,
         MaterielCode ,
-        MaterielName ,
+        MaterielName ,MaterielSize,
         MaterielType ,
         MaterielSize ,
         Unit ,

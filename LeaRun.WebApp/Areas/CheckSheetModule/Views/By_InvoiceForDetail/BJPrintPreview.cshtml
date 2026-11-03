@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>发票打印预览</title>
+    @Scripts.Render("~/Content/Scripts/frameworkjquery")
+    @Styles.Render("~/Content/Styles/frameworkcss")
+    <script src='http://127.0.0.1:8000/CLodopfuncs.js'></script>
+    <style>
+        .form-print th {
+            font-size: 11pt;
+            font-family: Arial;
+            height: 20.6px;
+            line-height: 20.6px;
+            white-space: nowrap;
+            text-align: right;
+            padding-right: 2px;
+        }
+
+        .form-print td {
+            font-size: 11pt;
+            font-family: Arial;
+            height: 20.6px;
+            line-height: 20.6px;
+            padding-right: 2px;
+        }
+    </style>
+    <script>
+        //空值处理
+        function PrintValue(value) {
+            if (value === null || value === undefined) {
+                return "";
+            }
+            return value;
+        }
+
+        var KeyValue = GetQuery('KeyValue');
+        var checksheetid = GetQuery('checksheetid');
+
+        //初始化
+        $(function () {
+            //发票主表信息
+            AjaxJson("/CheckSheetModule/By_InvoiceForDetail/SetForm", { KeyValue: KeyValue }, function (invoice) {
+                $("#CompanyName").text(invoice.CompanyName);
+                $("#InvoiceCode").text(invoice.InvoiceCode);
+                $("#InvoiceNum").text(invoice.InvoiceNum);
+                $("#InvoiceCustomer").text(invoice.InvoiceCustomer);
+                $("#InvoiceMoney").text(invoice.InvoiceMoney);
+                $("#TypeName").text(invoice.TypeName);
+                $("#CustomerName").text(invoice.CustomerName);
+                $("#CheckSheetCode").text(invoice.CheckSheetCode);
+                if (!!invoice.Remark) {
+                    $("#Remark").text(invoice.Remark.replace(/,/g, "，"));
+                }
+                if (!!invoice.InvoiceDate) {
+                    $("#InvoiceDate").text(invoice.InvoiceDate.toString().substr(0, 10));
+                }
+            });
+
+            //对账明细（发票内容）
+            AjaxJson("/CheckSheetModule/By_InvoiceForDetail/GridPaasdf", { checksheetid: checksheetid, rows: 100000, page: 1 }, function (data) {
+                var rows = data.rows;
+                var qtySum = 0;
+                var weightSum = 0;
+                var amountSum = 0;
+                $.each(rows, function (i) {
+                    var Detailhtml = "";
+                    Detailhtml += '<tr>';
+                    Detailhtml += '     <td style="border: 1px solid #000;text-align:center;">' + PrintValue(rows[i].ProductName) + '</td>';
+                    Detailhtml += '     <td style="border: 1px solid #000;text-align:center;">' + PrintValue(rows[i].SteelCode) + '</td>';
+                    Detailhtml += '     <td style="border: 1px solid #000;text-align:center;">' + PrintValue(rows[i].Qty) + '</td>';
+                    Detailhtml += '     <td style="border: 1px solid #000;text-align:center;">' + PrintValue(rows[i].MaterialPrice) + '</td>';
+                    Detailhtml += '     <td style="border: 1px solid #000;text-align:center;">' + PrintValue(rows[i].Weight) + '</td>';
+                    Detailhtml += '     <td style="border: 1px solid #000;text-align:center;">' + PrintValue(rows[i].MaterialAmount) + '</td>';
+                    Detailhtml += '</tr>';
+                    $("#tb_detail").append(Detailhtml);
+                    qtySum += Number(rows[i].Qty);
+                    weightSum += Number(rows[i].Weight);
+                    amountSum += Number(rows[i].MaterialAmount);
+                });
+                Detailhtml = '<tr>';
+                Detailhtml += '     <td align="center" style="border: 1px solid #000;">合   计</td>';
+                Detailhtml += '     <td style="border: 1px solid #000;"></td>';
+                Detailhtml += '     <td align="center" style="border: 1px solid #000;">' + FormatCurrency(qtySum) + '</td>';
+                Detailhtml += '     <td style="border: 1px solid #000;"></td>';
+                Detailhtml += '     <td align="center" style="border: 1px solid #000;">' + FormatCurrency(weightSum) + '</td>';
+                Detailhtml += '     <td align="center" style="border: 1px solid #000;">' + FormatCurrency(amountSum) + '</td>';
+                Detailhtml += '</tr>';
+                $("#tb_detail").append(Detailhtml);
+            });
+        })
+        //确认打印
+        function AcceptClick() {
+            MyPreview();
+        }
+    </script>
+</head>
+<body>
+    <div id="my_area" style="width: 95%; height: 95%; margin-left: 25px; margin-top: 30px;">
+        <table id="tb_Order" border="0" class="form-print" style="width: 100%;">
+            <tr>
+                <td colspan="4" align="center" style="padding: 2px;"><span style="font-size: 30px; font-weight: bold;" id="CompanyName"></span></td>
+            </tr>
+            <tr>
+                <td colspan="4" align="center" style="border-top: 2px solid #000; height: 35px;"><span style="font-size: 20px; font-weight: bold;">发票信息</span></td>
+            </tr>
+            <tr>
+                <th style="width: 10%">发票日期：</th>
+                <td style="width: 40%"><label style="font-size: 11pt;font-family: Arial;" id="InvoiceDate"></label></td>
+                <th style="width: 10%">发票代码：</th>
+                <td><label style="font-size: 11pt;font-family: Arial;" id="InvoiceCode"></label></td>
+            </tr>
+            <tr>
+                <th>接收单位：</th>
+                <td><label style="font-size: 11pt;font-family: Arial;" id="InvoiceCustomer"></label></td>
+                <th>发票号码：</th>
+                <td><label style="font-size: 11pt;font-family: Arial;" id="InvoiceNum"></label></td>
+            </tr>
+            <tr>
+                <th>客户名称：</th>
+                <td><label style="font-size: 11pt;font-family: Arial;" id="CustomerName"></label></td>
+                <th>类型：</th>
+                <td><label style="font-size: 11pt;font-family: Arial;" id="TypeName"></label></td>
+            </tr>
+            <tr>
+                <th>发票金额：</th>
+                <td><label style="font-size: 11pt;font-family: Arial;" id="InvoiceMoney"></label></td>
+                <th>对账单号：</th>
+                <td><label style="font-size: 11pt;font-family: Arial;" id="CheckSheetCode"></label></td>
+            </tr>
+            <tr>
+                <th>备注：</th>
+                <td colspan="3"><label style="font-size: 11pt;font-family: Arial;" id="Remark"></label></td>
+            </tr>
+            <tr>
+                <td colspan="4" valign="top">
+                    <div>
+                        <table id="tb_detail" border="0" class="form-print" style="width: 100%; border-collapse: collapse">
+                            <tr>
+                                <td style="border: 1px solid #000; text-align: center;">客户品名</td>
+                                <td style="border: 1px solid #000; text-align: center;">分部</td>
+                                <td style="border: 1px solid #000; text-align: center;">数量</td>
+                                <td style="border: 1px solid #000; text-align: center;">单价</td>
+                                <td style="border: 1px solid #000; text-align: center;">重量</td>
+                                <td style="border: 1px solid #000; text-align: center;">金额</td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</body>
+<script language="javascript" type="text/javascript">
+    function MyPreview() {
+        LODOP.PRINT_INIT("打印初始化");
+        LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_MODE("REselect_PAGESIZE", true);
+        LODOP.SET_PRINT_MODE("REselect_ORIENT", true);
+        LODOP.SET_PRINT_PAGESIZE(1, "210mm", "297mm", "A4")
+        var strHTML = document.getElementsByTagName("html")[0].innerHTML;
+        LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);
+        LODOP.PREVIEW();
+        window.setTimeout(function () { closeDialog(); }, 500);
+    };
+</script>
+</html>

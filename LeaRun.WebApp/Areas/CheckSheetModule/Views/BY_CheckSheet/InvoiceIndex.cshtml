@@ -196,7 +196,8 @@
                     { label: '联系人', name: 'contactname', index: 'contactname', width: 60, align: 'left', sortable: true },
                     { label: '联系电话', name: 'contacttel', index: 'contacttel', width: 60, align: 'left', sortable: true },
                     { label: '手机', name: 'mobilecode', index: 'mobilecode', width: 60, align: 'left', sortable: true },
-                    { label: '销售员', name: 'salesman', index: 'salesman', width: 60, align: 'left', sortable: true },
+                { label: '销售员', name: 'salesman', index: 'salesman', width: 60, align: 'left', sortable: true },
+               
             ],
             viewrecords: true,
             rowNum: 30,
@@ -280,6 +281,12 @@
                                 return "";
                             }
                         },
+                        {
+                            label: '操作', name: 'orderstatus', index: 'orderstatus', width: 60, align: 'center', sortable: true,
+                            formatter: function (cellvalue, options, rowobject) {
+                                return "<a  style='color:red;cursor:pointer' onclick='btn_print(\"" + rowobject.InvoiceId + "\",\"" + rowData["checksheetid"] + "\")'>打印</a>";
+                            }
+                        },
                     ],
                     viewrecords: true,
                     rowNum: 999,
@@ -290,10 +297,10 @@
                     sortname: 'SortCode',
                     sortorder: 'asc',
                     gridview: true,
-                    ondblClickRow: function (rowid, iRow, iCol, e) {
+                    ondblClickRow: function(rowid, iRow, iCol, e) {
                         var KeyValue = GetJqGridRowValue("#" + subgrid_table_id, "InvoiceId");
                         if (IsChecked(KeyValue)) {
-                            var url = "/CheckSheetModule/By_InvoiceForDetail/Form?KeyValue=" + KeyValue;
+                            var url = "/CheckSheetModule/By_InvoiceForDetail/Form?KeyValue=" + KeyValue + "&checksheetid=" + rowData["checksheetid"];
                             openDialog(url, "Form", "发票", 870, 470, function (iframe) {
                                 top.frames[iframe].AcceptClick();
                             });
@@ -527,6 +534,17 @@
             });
         }
     }
+
+
+    function btn_print(KeyValue, checksheetid) {
+    if (IsChecked(KeyValue)) {
+        PrintDialog("/CheckSheetModule/By_InvoiceForDetail/BJPrintPreview?KeyValue=" + KeyValue + "&checksheetid=" + checksheetid, "PrintPage12", "打印", 850, 500, function (iframe) {
+            top.frames[iframe].AcceptClick();
+        });
+    }
+    }
+
+
 </script>
 <!--工具栏-->
 <div class="tools_bar leftline rightline" style="margin: 1px; margin-bottom: 0px;">

@@ -159,7 +159,7 @@
                         Orderhtml += '                <tr>';
                         Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;" >序号</td>';
                         Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;" >货物名称</td>';
-                        Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;" >材质</td>';
+                        //Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;" >材质</td>';
                         Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" colspan="3">规格(长宽厚)</td>';
                         Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;">件数</td>';
                         Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" >单价</td>';
@@ -175,7 +175,7 @@
                     Orderhtml += '<tr style="height:25px;">';
                     Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + (index + 1) + '</td>';
                     Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + OrderDetail[i].ProductName + '</td>';
-                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + OrderDetail[i].SteelDescription + '</td>';
+                    //Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + OrderDetail[i].SteelDescription + '</td>';
                     Orderhtml += '    <td  style=" font-weight: bold;text-align:center;border: 1px solid #000;" colspan="3">' + size + '</td>';
                     Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + OrderDetail[i].Qty + '</td>';
                     Orderhtml += '    <td style="text-align:center;border: 1px solid #000;"></td>';
@@ -296,7 +296,8 @@
         ////var LODOP = getLodop();
         LODOP.PRINT_INIT("打印初始化");
         LODOP.SET_PRINT_COPIES(1);
-
+        LODOP.SET_PRINT_MODE("REselect_PAGESIZE", true);
+        LODOP.SET_PRINT_MODE("REselect_ORIENT", true);
         if (GetQuery('perType') == "A5") {
             LODOP.SET_PRINT_PAGESIZE(2, "", "", "A5")
         }

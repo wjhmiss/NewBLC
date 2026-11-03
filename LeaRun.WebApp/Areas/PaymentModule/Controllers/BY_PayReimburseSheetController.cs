@@ -1712,7 +1712,7 @@ WHERE  PayReimburseSheetCode = '{0}'", PayReimburseSheetCode);
                     by_payreimbursesheet.Create();
                     by_payreimbursesheet.AuditMan = DNS.Utilities.ManageProvider.Provider.Current().UserName;
                     by_payreimbursesheet.Code = Code;
-                    by_payreimbursesheet.Status = 1;
+                    by_payreimbursesheet.Status = 0;
                     by_payreimbursesheet.RequiredMan = ManageProvider.Provider.Current().UserName;
 
                     //by_reimbursesheets.Add(by_payreimbursesheet);

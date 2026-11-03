@@ -1580,6 +1580,14 @@ XYSy
                     {
                         new QuotationPlaceOrderController().GentQuotationDetailProcess(by_quotation, entity, by_orderdetailprocesss, by_orderdetail != null ? by_orderdetail.OrderDetailId : "", isOpenTrans);
                     }
+                    else
+                    {
+                        foreach (var item in by_orderdetailprocesss)
+                        {
+                            item.Qty = entity.Qty;
+                        }
+                        DataFactory.Database().Update(by_orderdetailprocesss, isOpenTrans);
+                    }
                 }
 
                 database.Commit();
@@ -1654,6 +1662,7 @@ XYSy
                             BY_OrderDetailProcess odp = new BY_OrderDetailProcess();
                             CommonHelper.CopySameFieldsObjectALL<BY_OrderDetailProcess, BY_OrderDetailProcess>(item, ref odp);
                             odp.QuotationDetailId = obj.QuotationDetailId;
+                            odp.Qty = 1;
                             odp.Create();
                             database.Insert(odp, isOpenTrans);
                         }
@@ -1678,6 +1687,14 @@ XYSy
                         item.LineCode = line;
                         line += 1;
                         database.Update(item);
+                        List<BY_OrderDetailProcess> odplist2 = DataFactory.Database().FindList<BY_OrderDetailProcess>("QuotationDetailId", item.QuotationDetailId).ToList();
+                        foreach (var item2 in odplist2)
+                        {
+                            item2.LineCode = item.LineCode;
+                            item2.Qty = 1;
+                            item2.Modify(item2.OrderDetailProcessId);
+                            database.Update(item2);
+                        }
                     }
                 }
                 return Content(new JsonMessage { Success = true, Code = "1", Message = "操作成功！" }.ToString());

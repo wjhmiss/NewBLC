@@ -2143,7 +2143,7 @@ white-space: nowrap;">
                 <td colspan="11">
                     <table border="0" class="form-print" style="width: 100%;">
                         <tr>
-                            <td colspan="3" style="font-size: 8pt;height: 14.6px;line-height:14.6px;text-align: left;">1,收货人对以上件数、重量、单价、确认无误!  2,本单只作为收获凭证不作收款收据，如有质量问题请在三日内提出，逾期将不予受理【白联存根，红联客户，黄联记账】</td>
+                            <td colspan="3" style="font-size: 8pt;height: 14.6px;line-height:14.6px;text-align: left;">1,收货人对以上件数、重量、单价、确认无误!  2,本单只作为收获凭证不作收款收据，如有质量问题请在三日内提出，逾期将不予受理3.买方存在任何未付清货款的，我司已交付全部货物所有权仍归我司。买方逾期付款经催告不付，我司有权取回货物；货物已加工无法返还复原的，按废品价折价抵扣欠款，抵扣后余款继续清偿，取回相关费用由买方承担</td>
                         </tr>
                     </table>
                 </td>
@@ -2173,6 +2173,8 @@ white-space: nowrap;">
             ////var LODOP = getLodop();
             LODOP.PRINT_INIT("打印初始化");
             LODOP.SET_PRINT_COPIES(1);
+            LODOP.SET_PRINT_MODE("REselect_PAGESIZE", true);
+            LODOP.SET_PRINT_MODE("REselect_ORIENT", true);
             if (perType == "A4") {
                 LODOP.SET_PRINT_PAGESIZE(1, "", "", perType)
             }

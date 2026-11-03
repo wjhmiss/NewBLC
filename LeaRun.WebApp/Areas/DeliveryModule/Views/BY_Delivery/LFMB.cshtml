@@ -2116,7 +2116,7 @@
                 <td colspan="11">
                     <table border="0" class="form-print" style="width: 100%;">
                         <tr>
-                            <td colspan="3" style="font-size: 8pt;height: 14.6px;line-height:14.6px;text-align: left;">1,本送货单视为合约，双方或公司职员签名，或盖章(包括收货章)生效。2,收货后(  )天内结清加工费，有其他书面协议的按书面协议付款，每逾期一天支付违约金2‰。3,收货时进行验证，签收本单即视为质量及数量合格。4,钢材本身的质量问题，收货后30天内提出，否则视为质量合格。如有质量问题我司只负责更换钢材或退款，不承担其他任何责任；如需热处理，仅负责热处理前的钢材质量。5,双方为加工关系，违约方支付对方为维护自身合法权益的所有费用。【白联存根，红联记账，蓝联对账，黄联送货】</td>
+                            <td colspan="3" style="font-size: 8pt;height: 14.6px;line-height:14.6px;text-align: left;">1,本送货单视为合约，双方或公司职员签名，或盖章(包括收货章)生效。2,收货后(  )天内结清加工费，有其他书面协议的按书面协议付款，每逾期一天支付违约金2‰。3,收货时进行验证，签收本单即视为质量及数量合格。4,钢材本身的质量问题，收货后30天内提出，否则视为质量合格。如有质量问题我司只负责更换钢材或退款，不承担其他任何责任；如需热处理，仅负责热处理前的钢材质量。5,双方为加工关系，违约方支付对方为维护自身合法权益的所有费用。6.买方存在任何未付清货款的，我司已交付全部货物所有权仍归我司。买方逾期付款经催告不付，我司有权取回货物；货物已加工无法返还复原的，按废品价折价抵扣欠款，抵扣后余款继续清偿，取回相关费用由买方承担</td>
                         </tr>
                     </table>
                 </td>
@@ -2143,6 +2143,8 @@
             ////var LODOP = getLodop();
             LODOP.PRINT_INIT("打印初始化");
             LODOP.SET_PRINT_COPIES(1);
+            LODOP.SET_PRINT_MODE("REselect_PAGESIZE", true);
+            LODOP.SET_PRINT_MODE("REselect_ORIENT", true);
             if (perType == "A4") {
                 LODOP.SET_PRINT_PAGESIZE(1, "", "", perType)
             }

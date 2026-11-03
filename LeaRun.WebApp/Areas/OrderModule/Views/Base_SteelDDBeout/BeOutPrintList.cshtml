@@ -172,6 +172,8 @@
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >厚*宽*长</td>';
 
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >件数</td>';
+                        Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >重量</td>';
+
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >单价</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >金额</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >序号</td>';
@@ -183,6 +185,7 @@
                         Orderhtml += '<tr style="height: 4mm;">';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;<br/>&nbsp;</td>';
                         // Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
+                        Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
@@ -201,6 +204,7 @@
                         Orderhtml += '    <td style="font-size: 13pt;white-space:nowrap;border-bottom: 1px dashed #000;text-align: center;" >' + OrderDetail[i].ProductName + '<span style="font-size: 11px;"></span></td>';
                         Orderhtml += '    <td style="font-size: 13pt;white-space:nowrap;border-bottom: 1px dashed #000;text-align: center;" >' + size + '<span style="font-size: 11px;"></span></td>';
                         Orderhtml += '    <td style="font-size: 10pt;white-space:nowrap;border-bottom: 1px dashed #000;text-align: center;" >' + OrderDetail[i].Qty + '<span style="font-size: 11px;"></span></td>';
+                        Orderhtml += '    <td style="font-size: 10pt;white-space:nowrap;border-bottom: 1px dashed #000;text-align: center;" >' + OrderDetail[i].Weight + '<span style="font-size: 11px;"></span></td>';
                         Orderhtml += '    <td style="font-size: 10pt;white-space:nowrap;border-bottom: 1px dashed #000;text-align: center;" >' + OrderDetail[i].MaterialPrice + '<span style="font-size: 11px;"></span></td>';
                         Orderhtml += '    <td style="font-size: 10pt;white-space:nowrap;border-bottom: 1px dashed #000;text-align: center;" >' + OrderDetail[i].MaterialAmount + '<span style="font-size: 11px;"></span></td>';
                         Orderhtml += '    <td  style="font-size: 10pt;border-bottom: 1px dashed #000;text-align: center;"  >' + OrderDetail[i].QuotationCode + '</td>';
@@ -329,6 +333,8 @@
         ////var LODOP = getLodop();
         LODOP.PRINT_INIT("打印初始化");
         LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_MODE("REselect_PAGESIZE", true);
+        LODOP.SET_PRINT_MODE("REselect_ORIENT", true);
         if (GetQuery('perType') == "A4") {
             LODOP.SET_PRINT_PAGESIZE(1, "", "", "A4");
 

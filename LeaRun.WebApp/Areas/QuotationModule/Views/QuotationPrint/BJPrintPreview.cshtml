@@ -510,6 +510,8 @@ var DDCostPer = 0;
         ////var LODOP = getLodop();
         LODOP.PRINT_INIT("打印初始化");
         LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_MODE("REselect_PAGESIZE", true);
+        LODOP.SET_PRINT_MODE("REselect_ORIENT", true);
         LODOP.SET_PRINT_PAGESIZE(1, "210mm", "297mm", "A4")
         var strHTML = document.getElementsByTagName("html")[0].innerHTML;
         LODOP.ADD_PRINT_HTM(0, 0, "100%", "100%", strHTML);

@@ -52,16 +52,16 @@
                 $.each(data.ListData, function (i) {
                     var QuotationDetailhtml = "";
                     QuotationDetailhtml += '<tr>';
-                    QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielPurchaseCode + '</td>';
-                    QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielName + '</td>';
-                    QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielType + '</td>';
-                    QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielCode + '</td>';
-                    QuotationDetailhtml += '     <td>' + data.ListData[i].MaterielSize + '</td>';
-                    QuotationDetailhtml += '     <td>' + data.ListData[i].Unit + '</td>';
-                    QuotationDetailhtml += '     <td>' + data.ListData[i].PricePer + '</td>';
-                    QuotationDetailhtml += '     <td>' + data.ListData[i].Qty + '</td>';
-                    QuotationDetailhtml += '     <td>' + data.ListData[i].TotalAmount + '</td>';
-                    QuotationDetailhtml += '     <td>' + data.ListData[i].Remark + '</td>';
+                    QuotationDetailhtml += '     <td  align="center">' + data.ListData[i].MaterielPurchaseCode + '</td>';
+                    QuotationDetailhtml += '     <td align="center">' + data.ListData[i].MaterielName + '</td>';
+                    QuotationDetailhtml += '     <td align="center">' + data.ListData[i].MaterielType + '</td>';
+                    QuotationDetailhtml += '     <td align="center">' + data.ListData[i].MaterielCode + '</td>';
+                    QuotationDetailhtml += '     <td align="center">' + data.ListData[i].MaterielSize + '</td>';
+                    QuotationDetailhtml += '     <td align="center">' + data.ListData[i].Unit + '</td>';
+                    QuotationDetailhtml += '     <td align="center">' + data.ListData[i].PricePer + '</td>';
+                    QuotationDetailhtml += '     <td align="center">' + data.ListData[i].Qty + '</td>';
+                    QuotationDetailhtml += '     <td align="center">' + data.ListData[i].TotalAmount + '</td>';
+                    QuotationDetailhtml += '     <td align="center">' + data.ListData[i].Remark + '</td>';
 
 
                     QuotationDetailhtml += '</tr>';
@@ -74,8 +74,8 @@
                 tempfoot += '<tr>';
                 tempfoot += '     <td colspan="7" align="center">合   计</td>';
 
-                tempfoot += '     <td>' + SumQty + '</td>';
-                tempfoot += '     <td>￥' + SumTotalMoney.toFixed(2) + '</td>';
+                tempfoot += '     <td align="center">' + SumQty + '</td>';
+                tempfoot += '     <td align="center">￥' + SumTotalMoney.toFixed(2) + '</td>';
                 tempfoot += '     <td></td>';
                 //tempfoot += '     <td> <img id="logo" style="z-index: -1; position: absolute;right:35px;float:right; width: 4cm;" src="@Url.Content("~/Content/Images/123.png")" /></td>';
                 tempfoot += '</tr>';
@@ -150,15 +150,15 @@
                         <table id="tb_QuotationDetail" border="1" class="form-print" style="width: 100%; border: 1px solid #000; border-collapse: collapse;">
                             <tr>
                                 <td style="" align="center">单号</td>
-                                <td style="">物料名称</td>
-                                <td style="">物料类型</td>
-                                <td style="">物料号</td>
-                                <td style="">尺寸</td>
-                                <td style="">单位</td>
-                                <td style="">单价</td>
-                                <td style="">数量</td>
-                                <td style="">总价</td>
-                                <td style="">
+                                <td style="" align="center">物料名称</td>
+                                <td style="" align="center">物料类型</td>
+                                <td style="" align="center">物料号</td>
+                                <td style="" align="center">尺寸</td>
+                                <td style="" align="center">单位</td>
+                                <td style="" align="center">单价</td>
+                                <td style="" align="center">数量</td>
+                                <td style="" align="center">总价</td>
+                                <td style="" align="center">
                                     备注
 
                                 </td>
@@ -211,6 +211,8 @@
         ////var LODOP = getLodop();
         LODOP.PRINT_INIT("打印初始化");
         LODOP.SET_PRINT_COPIES(1);
+        LODOP.SET_PRINT_MODE("REselect_PAGESIZE", true);
+        LODOP.SET_PRINT_MODE("REselect_ORIENT", true);
         if (GetQuery('TYPE') == 'A5') {
             LODOP.SET_PRINT_PAGESIZE(2, "", "", "A5")
         }

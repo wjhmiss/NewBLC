@@ -20,7 +20,10 @@ namespace DNS.WebApp.Areas.CheckSheetModule.Controllers
     /// </summary>
     public class By_InvoiceForDetailController : PublicController<By_InvoiceForDetail>
     {
-
+        public virtual ActionResult BJPrintPreview()
+        {
+            return View();
+        }
         BY_DeliveryDetailBll by_deliverydetailbll = new BY_DeliveryDetailBll();
         public ActionResult GridPaasdf(string checksheetid, JqGridParam jqgridparam)
         {

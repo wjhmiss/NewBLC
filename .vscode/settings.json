@@ -1,3 +1,9 @@
 {
-  "dotnet.preferCSharpExtension": true
+  "dotnet.preferCSharpExtension": true,
+  // 项目中有大量 GBK 无 BOM 文件，开启自动猜测编码
+  "files.autoGuessEncoding": true,
+  // 猜测候选顺序：有 BOM 的 UTF-8 文件不受影响，无 BOM 文件优先按 GBK 解码
+  "files.candidateGuessEncodings": ["gbk", "gb2312", "utf8", "gb18030"],
+  // 无 BOM 文件默认按 GBK 解码
+  "files.encoding": "gbk"
 }

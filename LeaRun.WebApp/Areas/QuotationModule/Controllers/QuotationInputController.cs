@@ -243,7 +243,7 @@ namespace DNS.WebApp.Areas.QuotationModule.Controllers
                         List<Base_DataDictionaryDetail> list = base_datadictionarybll.GetDataDictionaryDetailListByCode("加工流程");
                         if (string.IsNullOrWhiteSpace(by_quotationdetail.Kprocess) || list.Where(p=>p.Code == by_quotationdetail.Kprocess).Count() == 0)
                         {
-                            throw new InvalidOperationException("除数不能为零。");
+                            throw new InvalidOperationException("加工要求系统里没有维护！");
                         }
 
                         new QuotationPlaceOrderController().GentQuotationDetailProcess(by_quotation, by_quotationdetail, new List<BY_OrderDetailProcess>(), "", isOpenTrans);

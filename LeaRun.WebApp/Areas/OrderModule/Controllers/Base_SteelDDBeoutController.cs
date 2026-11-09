@@ -17,7 +17,7 @@ using System.Web.Mvc;
 namespace DNS.WebApp.Areas.OrderModule.Controllers
 {
     /// <summary>
-    /// Base_SteelDDBeout¿ØÖÆÆ÷
+    /// Base_SteelDDBeoutæ§åˆ¶å™¨
     /// </summary>
     public class Base_SteelDDBeoutController : PublicController<Base_SteelDDBeout>
     {
@@ -59,7 +59,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
             }
             catch (Exception ex)
             {
-                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "Òì³£´íÎó£º" + ex.Message + "\r\nÌõ¼ş£º" + ParameterJson);
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "å¼‚å¸¸é”™è¯¯ï¼š" + ex.Message + "\r\næ¡ä»¶ï¼š" + ParameterJson);
                 return null;
             }
         }
@@ -85,7 +85,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
                         DataFactory.Database().Update(base_steelddbeout, isOpenTrans);
                         DataFactory.Database().Commit();
 
-                        return Content(new JsonMessage { Success = true, Code = "1", Message = "²Ù×÷³É¹¦:´ı´æ²ÖÎïÁÏÒÑ¾­Èë²Ö¿â£¬¿ÉÔÚ²Ö¿âÖĞ²éÑ¯£¡" }.ToString());
+                        return Content(new JsonMessage { Success = true, Code = "1", Message = "æ“ä½œæˆåŠŸ:å¾…å­˜ä»“ç‰©æ–™å·²ç»å…¥ä»“åº“ï¼Œå¯åœ¨ä»“åº“ä¸­æŸ¥è¯¢ï¼" }.ToString());
 
                     }
                     else
@@ -95,15 +95,14 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
                     }
                 }
 
-                return Content(new JsonMessage { Success = true, Code = "1", Message = "²Ù×÷³É¹¦£¡" }.ToString());
+                return Content(new JsonMessage { Success = true, Code = "1", Message = "æ“ä½œæˆåŠŸï¼" }.ToString());
             }
             catch (Exception ex)
             {
                 DataFactory.Database().Rollback();
-                return Content(new JsonMessage { Success = false, Code = "-1", Message = "²Ù×÷Ê§°Ü£º" + ex.Message }.ToString());
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "æ“ä½œå¤±è´¥ï¼š" + ex.Message }.ToString());
             }
         }
-        [OutputCache(CacheProfile = "Cache1Hour")]
         public virtual ActionResult BeOutPrintList()
         {
             return View();
@@ -140,7 +139,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
             catch (Exception ex)
             {
                 database.Rollback();
-                return Content(new JsonMessage { Success = false, Code = "-1", Message = "²Ù×÷Ê§°Ü£º" + ex.Message }.ToString());
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "æ“ä½œå¤±è´¥ï¼š" + ex.Message }.ToString());
             }
 
         }
@@ -151,7 +150,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
             DbTransaction isOpenTrans = database.BeginTrans();
             try
             {
-                //img£º base_files id  ;  by_quotation.ShortName + "£º" + item.QuotationCode + "-" + item.LineCode + "*" + item.Base_SteelDDBeoutDetailId  
+                //imgï¼š base_files id  ;  by_quotation.ShortName + "ï¼š" + item.QuotationCode + "-" + item.LineCode + "*" + item.Base_SteelDDBeoutDetailId  
                 List<string> ls = imgs.Split('!').Where(p => !string.IsNullOrEmpty(p)).ToList();
                 List<Base_SteelDDBeoutDetail> base_steelddbeoutdetails = DataFactory.Database().FindList<Base_SteelDDBeoutDetail>("Base_SteelDDBeoutId", Base_SteelDDBeoutId);
                 Base_SteelDDBeout base_steelddbeout = DataFactory.Database().FindEntity<Base_SteelDDBeout>(Base_SteelDDBeoutId);
@@ -187,7 +186,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
             catch (Exception ex)
             {
                 database.Rollback();
-                return Content(new JsonMessage { Success = false, Code = "-1", Message = "²Ù×÷Ê§°Ü£º" + ex.Message }.ToString());
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "æ“ä½œå¤±è´¥ï¼š" + ex.Message }.ToString());
             }
 
         }
@@ -203,7 +202,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
             DbTransaction isOpenTrans = database.BeginTrans();
             try
             {
-                var Message = "É¾³ıÊ§°Ü¡£";
+                var Message = "åˆ é™¤å¤±è´¥ã€‚";
                 if (!string.IsNullOrEmpty(KeyValue))
                 {
                     Base_SteelDDBeout Base_SteelDDBeout = DataFactory.Database().FindEntity<Base_SteelDDBeout>(KeyValue);
@@ -211,13 +210,13 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
                     database.Delete<Base_SteelDDBeoutDetail>("Base_SteelDDBeoutCode", Base_SteelDDBeout.Base_SteelDDBeoutCode, isOpenTrans);
                 }
                 database.Commit();
-                Message = "É¾³ı³É¹¦¡£";
+                Message = "åˆ é™¤æˆåŠŸã€‚";
                 return Content(new JsonMessage { Success = true, Code = "1".ToString(), Message = Message }.ToString());
             }
             catch (Exception ex)
             {
                 database.Rollback();
-                return Content(new JsonMessage { Success = false, Code = "-1", Message = "²Ù×÷Ê§°Ü£º" + ex.Message }.ToString());
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "æ“ä½œå¤±è´¥ï¼š" + ex.Message }.ToString());
             }
         }
         string ModuleId = "WF";
@@ -240,7 +239,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
               
                 entity.Qty = Convert.ToInt32(base_steelddbeoutdetails.Sum(p => p.Qty));
 
-                string Message = KeyValue == "" ? "ĞÂÔö³É¹¦¡£" : "±à¼­³É¹¦¡£";
+                string Message = KeyValue == "" ? "æ–°å¢æˆåŠŸã€‚" : "ç¼–è¾‘æˆåŠŸã€‚";
                 if (!string.IsNullOrEmpty(KeyValue))
                 {
                     entity.Modify(KeyValue);
@@ -266,6 +265,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
                     base_steelddbeoutdetail.Base_SteelDDBeoutId = entity.Base_SteelDDBeoutId;
                     base_steelddbeoutdetail.MaterialPrice = item.MaterialPrice;
                     base_steelddbeoutdetail.MaterialAmount = item.MaterialAmount;
+                    base_steelddbeoutdetail.WorkCost = item.WorkCost;
                     base_steelddbeoutdetail.Remark = item.Remark;
                     base_steelddbeoutdetail.SortCode = rownum;
                     base_steelddbeoutdetail.Create();
@@ -286,8 +286,8 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
                     {
                         if (!string.IsNullOrEmpty(item.Remark))
                         {
-                            if ((item.Remark.IndexOf("ÈÈ") >= 0 || item.Remark.IndexOf("Õæ") >= 0 || item.Remark.IndexOf("µª") >= 0 || item.Remark.IndexOf("Àä") >= 0
-                            || item.Remark.IndexOf("µ÷ÖÊ") >= 0 || item.Remark.IndexOf("´¦Àí") >= 0 || item.Remark.IndexOf("»ğ") >= 0))
+                            if ((item.Remark.IndexOf("çƒ­") >= 0 || item.Remark.IndexOf("çœŸ") >= 0 || item.Remark.IndexOf("æ°®") >= 0 || item.Remark.IndexOf("å†·") >= 0
+                            || item.Remark.IndexOf("è°ƒè´¨") >= 0 || item.Remark.IndexOf("å¤„ç†") >= 0 || item.Remark.IndexOf("ç«") >= 0))
                             {
                                 by_deliverydetail.HeatWorkCost = item.MaterialAmount;
                             }
@@ -308,7 +308,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
                 }
                 entity.Remark = string.IsNullOrEmpty(entity.Remark.Replace("&nbsp;", "")) ? BY_Order.XMRequery : entity.Remark;
 
-                if (entity.TypeJC == "½ø²Ö")
+                if (entity.TypeJC == "è¿›ä»“")
                 {
                     entity.TotalAmount = System.Math.Abs(CommonHelper.GetDecimal(base_steelddbeoutdetailsadd.Sum(p => p.MaterialAmount)));
                 }
@@ -335,7 +335,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
             catch (Exception ex)
             {
                 database.Rollback();
-                return Content(new JsonMessage { Success = false, Code = "-1", Message = "²Ù×÷Ê§°Ü£ºÂ¼ÈëµÄÊı¾İÖØ¸´£¬Çë¼ì²é" }.ToString());
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "æ“ä½œå¤±è´¥ï¼šå½•å…¥çš„æ•°æ®é‡å¤ï¼Œè¯·æ£€æŸ¥" }.ToString());
             }
         }
 

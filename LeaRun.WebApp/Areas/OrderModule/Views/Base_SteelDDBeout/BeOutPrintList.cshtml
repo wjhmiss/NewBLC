@@ -138,7 +138,7 @@
                         pageindex++;
                         Orderhtml += '<table id="tb_Order" border="0" class="form-print" style=" width: 100%;page-break-after: always;">';
                         Orderhtml += '    <tr>';
-                        Orderhtml += '        <td colspan="10" align="center" style="height: 30.6px;line-height: 30.6px;" >@*<img style="width: 50px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@';
+                        Orderhtml += '        <td colspan="10" align="center" style="height: 30.6px;line-height: 30.6px;" >';
                         Orderhtml += '            <span style="font-size: 22px; font-weight: bold;">宁波皓丽金属有限公司委外' + title + '</span><span style="font-size: 12px; font-weight: bold;">（' + pageindex + '/' + total + '）</span>';
                         Orderhtml += '        </td>';
                         Orderhtml += '    </tr>';
@@ -175,7 +175,8 @@
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >重量</td>';
 
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >单价</td>';
-                        Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >金额</td>';
+                        Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >加工费</td>';
+                        Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >总价</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >序号</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border: 1px solid #000; text-align: center;" >备注</td>';
 
@@ -185,6 +186,8 @@
                         Orderhtml += '<tr style="height: 4mm;">';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;<br/>&nbsp;</td>';
                         // Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
+                        Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
+                        Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
                         Orderhtml += '    <td style="font-size: 12pt;white-space:nowrap;font-weight: bold;border-bottom: 1px dashed #000;" >&nbsp;</td>';
@@ -206,6 +209,7 @@
                         Orderhtml += '    <td style="font-size: 10pt;white-space:nowrap;border-bottom: 1px dashed #000;text-align: center;" >' + OrderDetail[i].Qty + '<span style="font-size: 11px;"></span></td>';
                         Orderhtml += '    <td style="font-size: 10pt;white-space:nowrap;border-bottom: 1px dashed #000;text-align: center;" >' + OrderDetail[i].Weight + '<span style="font-size: 11px;"></span></td>';
                         Orderhtml += '    <td style="font-size: 10pt;white-space:nowrap;border-bottom: 1px dashed #000;text-align: center;" >' + OrderDetail[i].MaterialPrice + '<span style="font-size: 11px;"></span></td>';
+                        Orderhtml += '    <td style="font-size: 10pt;white-space:nowrap;border-bottom: 1px dashed #000;text-align: center;" >' + (OrderDetail[i].WorkCost ? OrderDetail[i].WorkCost : "0") + '<span style="font-size: 11px;"></span></td>';
                         Orderhtml += '    <td style="font-size: 10pt;white-space:nowrap;border-bottom: 1px dashed #000;text-align: center;" >' + OrderDetail[i].MaterialAmount + '<span style="font-size: 11px;"></span></td>';
                         Orderhtml += '    <td  style="font-size: 10pt;border-bottom: 1px dashed #000;text-align: center;"  >' + OrderDetail[i].QuotationCode + '</td>';
                         Orderhtml += '    <td  style="font-size: 8pt;border-bottom: 1px dashed #000;word-break:break-all;text-align: center;font-size: 10pt;" >' + (!!OrderDetail[i].Remark ? OrderDetail[i].Remark : "") + '</td>';

@@ -1,17 +1,17 @@
-@{
-    ViewBag.Title = "¸Ö²Ä¹ºÂòÉêÇë¡·±íµ¥Ò³Ãæ";
+ï»¿@{
+    ViewBag.Title = "é’¢æè´­ä¹°ç”³è¯·ã€‹è¡¨å•é¡µé¢";
     Layout = "~/Views/Shared/_LayoutForm.cshtml";
 }
 @Scripts.Render("~/Content/Scripts/jqgrid/jqgridjquery")
 @Styles.Render("~/Content/Scripts/jqgrid/css/jqgridcss")
 <script type="text/javascript">
-    var KeyValue = GetQuery('KeyValue');//Ö÷¼ü
+    var KeyValue = GetQuery('KeyValue');//ä¸»é”®
     var Num = 1;
     $(function () {
-        //¹©Ó¦ÉÌ±àÂë×Ô¶¯²¹È«
+        //ä¾›åº”å•†ç¼–ç è‡ªåŠ¨è¡¥å…¨
         CustomerAutocomplete();
-        //ÕËÆÚ
-        BindDropItem("#PayType", "PaymentMode", "==ÇëÑ¡Ôñ==");
+        //è´¦æœŸ
+        BindDropItem("#PayType", "PaymentMode", "==è¯·é€‰æ‹©==");
 
         InitControl();
         document.onkeydown = enterInput;
@@ -43,13 +43,13 @@
             $(this).select();
             DataSource();
         });
-        //ÉÏ£¬ÏÂ¼üÅÌ»Øµ÷
+        //ä¸Šï¼Œä¸‹é”®ç›˜å›è°ƒ
         autocompletekeydown("CustomerCode", function (data) {
             $("#CustomerId").val(data.CustomerId);
             $("#CustomerCode").val(data.CustomerCode);
             $("#CustomerName").val(data.FullName);
         });
-        //»ñÈ¡Êı¾İÔ´
+        //è·å–æ•°æ®æº
         function DataSource() {
             $("#CustomerId").val('');
             AjaxJson("/CommonModule/Base_Supplier/GetAutoCompleJson", { keywords: $CustomerCode.val() }, function (DataJson) {
@@ -62,7 +62,7 @@
                     html += '<td id="PaymentMode" style="width: 30%;">' + DataJson[i].Remark + '</td>';
                     html += "</tr>";
                 });
-                //µã»÷ÊÂ¼ş»Øµ÷
+                //ç‚¹å‡»äº‹ä»¶å›è°ƒ
                 autocomplete("CustomerCode", "300px", "200px", html, function (data) {
                     $("#CustomerId").val(data.CustomerId);
                     $("#CustomerCode").val(data.CustomerCode);
@@ -72,7 +72,7 @@
         }
     }
 
-    //µÃµ½Ò»¸ö¶ÔÏóÊµÌå
+    //å¾—åˆ°ä¸€ä¸ªå¯¹è±¡å®ä½“
     function InitControl() {
         if (!!GetQuery('KeyValue')) {
             AjaxJson("/OrderModule/Base_SteelDDPerchase/SetForm", { KeyValue: KeyValue }, function (data) {
@@ -88,7 +88,7 @@
             $("#view").hide();
         }
     }
-    //±£´æÊÂ¼ş
+    //ä¿å­˜äº‹ä»¶
     function AcceptClick() {
         if (!CheckDataValid('#form1')) {
             return false;
@@ -100,6 +100,7 @@
             TheoryWeight: $("[name='TheoryWeight']").val(),
             Weightcheng: $("[name='Weightcheng']").val(),
             MaterialPrice: $("[name='MaterialPrice']").val(),
+            WorkCost: $("[name='WorkCost']").val(),
             Remark: $("[name='Remark']").val(),
             OrderType: $("[name='OrderType']").val(),
             SteelCode: $("[name='SteelCode']").val(),
@@ -116,13 +117,13 @@
         var data = $("#gridTable").jqGrid("getRowData");
         for (var i = 0; i < data.length; i++) {
             if ("" == data[i].SteelDescription) {
-                tipDialog("¸Ö²Ä±àÂë´íÎó£¬Çë¼ì²é", 3, -1);
+                tipDialog("é’¢æç¼–ç é”™è¯¯ï¼Œè¯·æ£€æŸ¥", 3, -1);
                 return;
             }
         }
         var TotalAmountall = 0;
         for (var i = 0; i < data.length; i++) {
-            TotalAmountall = TotalAmountall + Number(data[i].TotalAmount);
+            TotalAmountall = TotalAmountall + Number(data[i].MaterialAmount);
         }
         $("#TotalAmount").val(TotalAmountall.toFixed(2));
 
@@ -146,43 +147,44 @@
             height: $(window).height() - 150,
             autowidth: true,
             colModel: [
-                //{ label: 'Ö÷¼ü', name: 'InventoryId', hidden: true },
+                //{ label: 'ä¸»é”®', name: 'InventoryId', hidden: true },
                 {
-                    label: '¹´Ñ¡', name: 'chkFen', width: 40, align: 'center', sortable: false,
+                    label: 'å‹¾é€‰', name: 'chkFen', width: 40, align: 'center', sortable: false,
                     formatter: function (cellvalue, options, rowObject) {
                         return '<input type="checkbox" class="fenCheck"' + (rowObject.IsFen != '0' ? ' checked' : '') + ' onclick="chkFenClick(event, this, \'' + options.rowId + '\');" />';
                     }
                 },
                 { label: 'IsFen', name: 'IsFen', hidden: true },
                 { label: 'Density', name: 'Density', hidden: true },
-                { label: 'ĞòºÅ', name: 'SortCode', width: 40 },
-                { label: "¸ÖÖÖ±àÂë", name: "SteelCode", width: 60, editable: true },
-                { label: "¸ÖÖÖÃû³Æ", name: "SteelDescription", width: 80, },
-                { label: "ºñ/Ö±¾¶", name: "Thick", width: 60, align: 'center', editable: true },
-                { label: "¿í", name: "Weigh", width: 60, align: 'center', editable: true },
-                { label: "³¤", name: "Length", width: 60, align: 'center', editable: true },//ÊÕ»õµØÖ·:ÊÕ»õµØÖ·;
-                { label: "ÓàÁ¿³¤", name: "AddLength", width: 60, align: 'center', editable: true },//ÊÕ»õµØÖ·:ÊÕ»õµØÖ·;
-                { label: "ÓàÁ¿¿í", name: "AddWeigh", width: 60, align: 'center', editable: true },
-                { label: "ÓàÁ¿ºñ", name: "AddThick", width: 60, align: 'center', editable: true },
-                { label: "ÊıÁ¿", name: "Qty", width: 60, align: 'center', editable: true },
-                { label: 'ÀíÁ¿', name: 'TheoryWeight', width: 60, align: 'center', editable: true },
-                { label: 'ÊµÖØ', name: 'Weight', width: 60, align: 'center', editable: true },
-                { label: '¹ı°õ', name: 'Weightcheng', width: 60, align: 'center', editable: true },
-                { label: 'µ¥¼Û/KG', name: 'MaterialPrice', width: 60, align: 'center', editable: true },
-                { label: '×Ü¼Û', name: 'MaterialAmount', width: 60, align: 'center', editable: true },
+                { label: 'åºå·', name: 'SortCode', width: 40 },
+                { label: "é’¢ç§ç¼–ç ", name: "SteelCode", width: 60, editable: true },
+                { label: "é’¢ç§åç§°", name: "SteelDescription", width: 80, },
+                { label: "åš/ç›´å¾„", name: "Thick", width: 60, align: 'center', editable: true },
+                { label: "å®½", name: "Weigh", width: 60, align: 'center', editable: true },
+                { label: "é•¿", name: "Length", width: 60, align: 'center', editable: true },//æ”¶è´§åœ°å€:æ”¶è´§åœ°å€;
+                { label: "ä½™é‡é•¿", name: "AddLength", width: 60, align: 'center', editable: true },//æ”¶è´§åœ°å€:æ”¶è´§åœ°å€;
+                { label: "ä½™é‡å®½", name: "AddWeigh", width: 60, align: 'center', editable: true },
+                { label: "ä½™é‡åš", name: "AddThick", width: 60, align: 'center', editable: true },
+                { label: "æ•°é‡", name: "Qty", width: 60, align: 'center', editable: true },
+                { label: 'ç†é‡', name: 'TheoryWeight', width: 60, align: 'center', editable: true },
+                { label: 'å®é‡', name: 'Weight', width: 60, align: 'center', editable: true },
+                { label: 'è¿‡ç£…', name: 'Weightcheng', width: 60, align: 'center', editable: true },
+                { label: 'å•ä»·/KG', name: 'MaterialPrice', width: 60, align: 'center', editable: true },
+                { label: 'åŠ å·¥è´¹', name: 'WorkCost', width: 60, align: 'center', editable: true },
+                { label: 'æ€»ä»·', name: 'MaterialAmount', width: 60, align: 'center', editable: true },
                 {
-                    label: '±¸×¢', name: 'Remark', width: 120, editable: true,
+                    label: 'å¤‡æ³¨', name: 'Remark', width: 120, editable: true,
                     formatter: function (cellvalue, options, rowObject) {
                         if (!!cellvalue) {
-                            return cellvalue.replace(/,/g, "£¬");;
+                            return cellvalue.replace(/,/g, "ï¼Œ");;
 
                         }
                         return "";
                     }
                 },
-                { label: '×´Ì¬', name: 'OrderType', width: 120, editable: true },
-                { label: "ÀàĞÍ", name: "Fang", width: 60, align: 'center', editable: true, hidden: true },
-                { label: "µ¥ºÅ", name: "QuotationCode", width: 120, align: 'center' },
+                { label: 'çŠ¶æ€', name: 'OrderType', width: 120, editable: true },
+                { label: "ç±»å‹", name: "Fang", width: 60, align: 'center', editable: true, hidden: true },
+                { label: "å•å·", name: "QuotationCode", width: 120, align: 'center' },
                 { label: "QuotationDetailId", name: "QuotationDetailId", width: 120, align: 'center', hidden: true },
 
             ],
@@ -203,6 +205,7 @@
                 var postData = {
                     //InventoryId: $("[name='InventoryId']").val(),
                     MaterialPrice: $("[name='MaterialPrice']").val(),
+                    WorkCost: $("[name='WorkCost']").val(),
                     Weight: $("[name='Weight']").val(),
                     Remark: $("[name='Remark']").val(),
                     OrderType: $("[name='OrderType']").val(),
@@ -240,7 +243,7 @@
                             html += '<td id="RepalceMl" style="display: none;">' + DataJson[i].RepalceMl + '</td>';
                             html += "</tr>";
                         });
-                        //µã»÷ÊÂ¼ş»Øµ÷
+                        //ç‚¹å‡»äº‹ä»¶å›è°ƒ
                         autocomplete(id + "_SteelCode", "150px", "250px", html, function (data) {
                             $("#gridTable").jqGrid('setRowData', id, { SteelDescription: data.SteelName });
                             $("#gridTable").jqGrid('setRowData', id, { Density: data.Density });
@@ -296,6 +299,11 @@
                     self(id);
 
                 });
+                jQuery("#" + id + "_WorkCost").keyup(function () {
+                    countUAmount(id);
+                    self(id);
+
+                });
                 jQuery("#" + id + "_Weight").keyup(function () {
                     countUAmount(id);
                     self(id);
@@ -313,7 +321,15 @@
 
             },
             gridComplete: function () {
-                //ºÏ¼Æ
+                //åŠ å·¥è´¹ä¸ºç©ºæ—¶è¡¥0ï¼Œé¿å…ä¿å­˜æ—¶æ•°å€¼è½¬æ¢å¤±è´¥
+                var ids = $("#gridTable").jqGrid("getDataIDs");
+                for (var i = 0; i < ids.length; i++) {
+                    var workCost = $("#gridTable").jqGrid("getCell", ids[i], "WorkCost");
+                    if (workCost == "" || workCost == "&nbsp;" || workCost == null || workCost == "null") {
+                        $("#gridTable").jqGrid('setRowData', ids[i], { WorkCost: "0" });
+                    }
+                }
+                //åˆè®¡
                 var data = $("#gridTable").jqGrid("getRowData");
                 var TotalAmountall = 0;
                 var Qty = 0;
@@ -338,7 +354,7 @@
             var id = Number(id);
             var e = e || window.event || arguments.callee.caller.arguments[0];
             var tar = e.srcElement || e.target;
-            if (event.keyCode == 37) {//×ó
+            if (event.keyCode == 37) {//å·¦
                 if ($(tar).attr('id') == id + "_Length") {
                 }
                 else if ($(tar).attr('id') == id + "_Weigh") {
@@ -362,15 +378,18 @@
                 else if ($(tar).attr('id') == id + "_MaterialPrice") {
                     $("#" + id + "_Qty").select();
                 }
-                else if ($(tar).attr('id') == id + "_Remark") {
+                else if ($(tar).attr('id') == id + "_WorkCost") {
                     $("#" + id + "_MaterialPrice").select();
+                }
+                else if ($(tar).attr('id') == id + "_Remark") {
+                    $("#" + id + "_WorkCost").select();
                 }
                 else {
                     $("#" + id + "_Length").select();
                 }
                 return true;
             }
-            if (event.keyCode == 39) {//ÓÒ
+            if (event.keyCode == 39) {//å³
                 if ($(tar).attr('id') == id + "_Length") {
                     $("#" + id + "_Weigh").select();
                 }
@@ -393,6 +412,9 @@
                     $("#" + id + "_MaterialPrice").select();
                 }
                 else if ($(tar).attr('id') == id + "_MaterialPrice") {
+                    $("#" + id + "_WorkCost").select();
+                }
+                else if ($(tar).attr('id') == id + "_WorkCost") {
                     $("#" + id + "_Remark").select();
                 }
                 else if ($(tar).attr('id') == id + "_Remark") {
@@ -402,7 +424,7 @@
                 }
                 return true;
             }
-            if (event.keyCode == 38) {//ÉÏ
+            if (event.keyCode == 38) {//ä¸Š
                 var aaa = $(tar).attr('id');
                 if (id == 1) {
                     return true;
@@ -415,7 +437,7 @@
                 }, 200);
                 return true;
             }
-            if (event.keyCode == 40 || event.keyCode == 13) {//ÏÂ
+            if (event.keyCode == 40 || event.keyCode == 13) {//ä¸‹
 
                 var aaa = $(tar).attr('id');
 
@@ -433,7 +455,7 @@
                 }, 200);
                 return true;
             }
-            ////if (e && e.keyCode == 13) {//»Ø³µ
+            ////if (e && e.keyCode == 13) {//å›è½¦
             ////    //alert($("#gridTable").getGridParam("reccount"));
             ////    return false;
             ////}
@@ -478,21 +500,22 @@
 
         function countUAmount(id) {
 
-            var MaterialPrice = $("#" + id + "_MaterialPrice").val();
-            var Weight = $("#" + id + "_Weight").val();
-            $("#" + id + "_MaterialAmount").val((MaterialPrice * Weight).toFixed(2))
+            var MaterialPrice = Number($("#" + id + "_MaterialPrice").val() || 0);
+            var Weight = Number($("#" + id + "_Weight").val() || 0);
+            var WorkCost = Number($("#" + id + "_WorkCost").val() || 0);
+            $("#" + id + "_MaterialAmount").val((MaterialPrice * Weight + WorkCost).toFixed(2))
         }
 
-        //É¾³ı
+        //åˆ é™¤
         $("#lr-delete-Row").click(function () {
             var Index = GetJqGridRowIndx("#gridTable");
             $("#gridTable").jqGrid("delRowData", Index);
         });
     }
 
-    //²éÑ¯
+    //æŸ¥è¯¢
     function btn_Quotationquery() {
-        openDialog("/QuotationModule/QuotationQuery/QueryQuotationForSteelP", "Query", "Ã÷Ï¸²éÑ¯", 850, 560, function (iframe) {
+        openDialog("/QuotationModule/QuotationQuery/QueryQuotationForSteelP", "Query", "æ˜ç»†æŸ¥è¯¢", 850, 560, function (iframe) {
             top.frames[iframe].AcceptClick()
         });
     }
@@ -544,6 +567,7 @@
                 Price: "0",
                 Weight: items[11],
                 TheoryWeight: items[11],
+                WorkCost: "0",
                 TotalAmount: "0",
                 Remark: "",
                 OrderType: items[14],
@@ -562,26 +586,27 @@
             index += 1;
         }
     }
-    //·ÖÅä£º°´ĞĞÀíÂÛÖØÁ¿(TheoryWeight)±ÈÀı·ÖÅäÃ«ÁÏºÏ³ÆÖØÁ¿£¬²¢Í¬²½ÖØËã×Ü¼Û
-    //¹´Ñ¡/È¡Ïû¹´Ñ¡ĞĞ£º½ö¼ÇÂ¼IsFen±ê¼Ç£¬²»´¥·¢ĞĞ±à¼­
+    //åˆ†é…ï¼šæŒ‰è¡Œç†è®ºé‡é‡(TheoryWeight)æ¯”ä¾‹åˆ†é…æ¯›æ–™åˆç§°é‡é‡ï¼Œå¹¶åŒæ­¥é‡ç®—æ€»ä»·
+    //å‹¾é€‰/å–æ¶ˆå‹¾é€‰è¡Œï¼šä»…è®°å½•IsFenæ ‡è®°ï¼Œä¸è§¦å‘è¡Œç¼–è¾‘
     function chkFenClick(e, obj, rowId) {
         if (e.stopPropagation) { e.stopPropagation(); } else { e.cancelBubble = true; }
         $('#gridTable').jqGrid('setRowData', rowId, { IsFen: obj.checked ? '1' : '0' });
     }
     function btn_ToFen() {
         if (!!Number($('#TotalWeights').val())) {
-            //ÏÈ±£´æµ±Ç°ÕıÔÚ±à¼­µÄĞĞ
+            //å…ˆä¿å­˜å½“å‰æ­£åœ¨ç¼–è¾‘çš„è¡Œ
             if (!!lastsel) {
                 var RowData = {
                     Weight: $("[name='Weight']").val(),
                     TheoryWeight: $("[name='TheoryWeight']").val(),
                     MaterialPrice: $("[name='MaterialPrice']").val(),
+                    WorkCost: $("[name='WorkCost']").val(),
                 }
                 $('#gridTable').jqGrid('setRowData', lastsel, RowData, '');
             }
             var data = $("#gridTable").jqGrid("getRowData");
             var ids = $("#gridTable").jqGrid("getDataIDs");
-            //Ö»Í³¼Æ¹´Ñ¡ĞĞ£¨IsFenÎª'0'±íÊ¾Î´¹´Ñ¡£©µÄÀíÂÛÖØÁ¿
+            //åªç»Ÿè®¡å‹¾é€‰è¡Œï¼ˆIsFenä¸º'0'è¡¨ç¤ºæœªå‹¾é€‰ï¼‰çš„ç†è®ºé‡é‡
             var totaltheory = 0;
             var fencount = 0;
             for (var i = 0; i < data.length; i++) {
@@ -591,11 +616,11 @@
                 }
             }
             if (fencount == 0) {
-                tipDialog("ÇëÏÈ¹´Ñ¡ĞèÒª·ÖÅäµÄĞĞ", 3, -1);
+                tipDialog("è¯·å…ˆå‹¾é€‰éœ€è¦åˆ†é…çš„è¡Œ", 3, -1);
                 return;
             }
             if (totaltheory <= 0) {
-                tipDialog("¹´Ñ¡ĞĞµÄÀíÂÛÖØÁ¿ºÏ¼ÆÎª0£¬ÎŞ·¨·ÖÅä", 3, -1);
+                tipDialog("å‹¾é€‰è¡Œçš„ç†è®ºé‡é‡åˆè®¡ä¸º0ï¼Œæ— æ³•åˆ†é…", 3, -1);
                 return;
             }
             var temweight = 0;
@@ -613,9 +638,9 @@
                     w = (Number(data[i].TheoryWeight) * Number($('#TotalWeights').val()) / totaltheory).toFixed(2);
                 }
                 temweight = temweight + Number(w);
-                $("#gridTable").jqGrid('setRowData', ids[i], { Weight: w, MaterialAmount: (Number(data[i].MaterialPrice) * Number(w)).toFixed(2) });
+                $("#gridTable").jqGrid('setRowData', ids[i], { Weight: w, MaterialAmount: (Number(data[i].MaterialPrice) * Number(w) + Number(data[i].WorkCost || 0)).toFixed(2) });
             }
-            //»ã×Ü×Ü½ğ¶î
+            //æ±‡æ€»æ€»é‡‘é¢
             var data2 = $("#gridTable").jqGrid("getRowData");
             var TotalAmountall = 0;
             for (var i = 0; i < data2.length; i++) {
@@ -625,7 +650,7 @@
             $('#TotalWeights').val('');
         }
     }
-    //ĞÂÔöÒ»ĞĞ
+    //æ–°å¢ä¸€è¡Œ
     function addrow() {
         var SortCode = 0;
         if (!!Number(GetJqGridValue("#gridTable", $("#gridTable").getGridParam("reccount"), "SortCode"))) {
@@ -648,6 +673,7 @@
             Price: "0",
             Weight: 0,
             TheoryWeight: 0,
+            WorkCost: "0",
             TotalAmount: "0",
             Remark: "",
             OrderType: "",
@@ -670,8 +696,8 @@
     <div class="bd" style="border-bottom: none; margin: 1px;">
         <div class="tipstitle_title settingtable bold bd todayInfoPanelTab rightPanelTitle_normal">
             <div class="tab_list_top" style="position: absolute">
-                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">»ù±¾ĞÅÏ¢</div>
-                <div id="TabSteelInof" class="tab_list bd " onclick="Tabchange('SteelInof');">Ìí¼Ó¸Ö²Ä</div>
+                <div id="Tabbasic" class="tab_list bd actived" onclick="Tabchange('basic')">åŸºæœ¬ä¿¡æ¯</div>
+                <div id="TabSteelInof" class="tab_list bd " onclick="Tabchange('SteelInof');">æ·»åŠ é’¢æ</div>
             </div>
         </div>
     </div>
@@ -679,47 +705,47 @@
         <div id="basic" class="tabPanel">
             <table class="form">
                 <tr>
-                    <th class='formTitle'>¹©Ó¦ÉÌ±àºÅ£º</th>
+                    <th class='formTitle'>ä¾›åº”å•†ç¼–å·ï¼š</th>
                     <td class='formValue'>
                         <input id="MnemonicCode" type="hidden" />
 
                         <input id="Base_SteelDDPerchaseId" type="hidden" />
                         <input id="Base_SteelDDPerchaseCode" type="hidden" />
                         <input id="CustomerId" type="hidden" />
-                        <input id="CustomerCode" maxlength="50" type="text" class="txt" datacol="yes" err="¹©Ó¦ÉÌ±àºÅ" checkexpession="NotNull" />
+                        <input id="CustomerCode" maxlength="50" type="text" class="txt" datacol="yes" err="ä¾›åº”å•†ç¼–å·" checkexpession="NotNull" />
                     </td>
-                    <th class='formTitle'>¹©Ó¦ÉÌÃû³Æ£º</th>
+                    <th class='formTitle'>ä¾›åº”å•†åç§°ï¼š</th>
                     <td class='formValue'>
                         <input id="CustomerName" maxlength="50" type="text" class="txt" disabled />
                     </td>
                 </tr>
                 <tr>
-                    <th class='formTitle'>½»ÆÚ£º</th>
+                    <th class='formTitle'>äº¤æœŸï¼š</th>
                     <td class='formValue'>
-                        <input id="Delivery" value="@DNS.Utilities.DateTimeHelper.GetDate(1)" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})"  datacol="yes" err="²É¹ºÊ±¼ä" checkexpession="NotNull" />
+                        <input id="Delivery" value="@DNS.Utilities.DateTimeHelper.GetDate(1)" type="text" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})"  datacol="yes" err="é‡‡è´­æ—¶é—´" checkexpession="NotNull" />
                     </td>
                     
-                    <th class='formTitle'>²É¹ºÊ±¼ä£º</th>
+                    <th class='formTitle'>é‡‡è´­æ—¶é—´ï¼š</th>
                     <td class='formValue'>
-                        <input id="CreateDate" type="text" value="@DNS.Utilities.DateTimeHelper.GetTime()" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})"  datacol="yes" err="²É¹ºÊ±¼ä" checkexpession="NotNull" />
+                        <input id="CreateDate" type="text" value="@DNS.Utilities.DateTimeHelper.GetTime()" class="txt Wdate" onfocus="WdatePicker({dateFmt: 'yyyy-MM-dd HH:mm:ss'})"  datacol="yes" err="é‡‡è´­æ—¶é—´" checkexpession="NotNull" />
                     </td>
                 </tr>
                 <tr>
-                    <th class='formTitle'>×Ü½ğ¶î£º</th>
+                    <th class='formTitle'>æ€»é‡‘é¢ï¼š</th>
                     <td class='formValue'  >
                         <input id="TotalAmount" disabled maxlength="18" type="text" class="txt"/>
                     </td>
-                     <th class='formTitle'>ÀàĞÍ£º</th>
+                     <th class='formTitle'>ç±»å‹ï¼š</th>
                         <td class='formValue' >
                             <select id="TypeJC" class="txtselect">
-                                <option value="½ø²Ö">½ø²Ö</option>
-                                <option value="ÍË»õ">ÍË»õ</option>
+                                <option value="è¿›ä»“">è¿›ä»“</option>
+                                <option value="é€€è´§">é€€è´§</option>
                             </select>
                         </td>
                 </tr>
 
                 <tr>
-                    <th class='formTitle'>±¸×¢£º</th>
+                    <th class='formTitle'>å¤‡æ³¨ï¼š</th>
                     <td class="formValue" colspan="3">
                         <textarea id="Remark" class="txtArea" rows="5" ></textarea>
                     </td>
@@ -731,21 +757,21 @@
             <div class="nui-toolbar leftline rightline">
                 <div id="toolbar_a">
                     <div id="lr-add-Row" class="nui-toolbar-item nui-btn-right" onclick="addrow();">
-                        <span class="nui-btn-text">ĞÂÔö</span>
+                        <span class="nui-btn-text">æ–°å¢</span>
                     </div>
                     <div id="lr-delete-Row" class="nui-toolbar-item nui-btn-left">
-                        <span class="nui-btn-text">É¾³ı</span>
+                        <span class="nui-btn-text">åˆ é™¤</span>
                     </div>
                     <div id="lr-choose-Row" class="nui-toolbar-item nui-btn-left">
-                        <span class="nui-btn-text" onclick="btn_Quotationquery();">Ñ¡Ôñ</span>
+                        <span class="nui-btn-text" onclick="btn_Quotationquery();">é€‰æ‹©</span>
                     </div>
-                    ×ÜÊıÁ¿£º
+                    æ€»æ•°é‡ï¼š
                         <input id="Qty" maxlength="50" type="text" class="txt" disabled />
-                    ×ÜÖØÁ¿£º  
+                    æ€»é‡é‡ï¼š  
                     <input id="Weight" maxlength="50" type="text" class="txt" disabled />
-                    Ã«ÁÏºÏ³ÆÖØÁ¿£º
+                    æ¯›æ–™åˆç§°é‡é‡ï¼š
                     <input id="TotalWeights" type="text" class="txt" style="width: 100px" value="0" onfocus="IsMoney(this.id);" />
-                    <input type="button" class="btnSearch" value="·ÖÅä" onclick="btn_ToFen()" />
+                    <input type="button" class="btnSearch" value="åˆ†é…" onclick="btn_ToFen()" />
 
                 </div>
             </div>
@@ -755,5 +781,5 @@
             </div>
         </div>
     </div>
-    <span id="view" style="font-size: 14pt; font-family: Arial; font-weight: bold; color: red;">¸Ö²ÄÒÑÈë²Ö£¬»òÒÑ¸¶¿î£¬»òÒÑ¿ªÆ±²»ÄÜĞŞ¸Ä</span>
+    <span id="view" style="font-size: 14pt; font-family: Arial; font-weight: bold; color: red;">é’¢æå·²å…¥ä»“ï¼Œæˆ–å·²ä»˜æ¬¾ï¼Œæˆ–å·²å¼€ç¥¨ä¸èƒ½ä¿®æ”¹</span>
 </form>

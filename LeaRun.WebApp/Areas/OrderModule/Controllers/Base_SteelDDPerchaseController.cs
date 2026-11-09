@@ -16,7 +16,7 @@ using System.Web.Mvc;
 namespace DNS.WebApp.Areas.OrderModule.Controllers
 {
     /// <summary>
-    /// Base_SteelDDPerchase¿ØÖÆÆ÷
+    /// Base_SteelDDPerchaseæ§åˆ¶å™¨
     /// </summary>
     public class Base_SteelDDPerchaseController : PublicController<Base_SteelDDPerchase>
     {
@@ -51,7 +51,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
             }
             catch (Exception ex)
             {
-                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "Òì³£´íÎó£º" + ex.Message + "\r\nÌõ¼ş£º" + ParameterJson);
+                Base_SysLogBll.Instance.WriteLog("", OperationType.Query, "-1", "å¼‚å¸¸é”™è¯¯ï¼š" + ex.Message + "\r\næ¡ä»¶ï¼š" + ParameterJson);
                 return null;
             }
         }
@@ -77,7 +77,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
                         DataFactory.Database().Update(Base_SteelDDPerchase, isOpenTrans);
                         DataFactory.Database().Commit();
 
-                        return Content(new JsonMessage { Success = true, Code = "1", Message = "²Ù×÷³É¹¦:´ı´æ²ÖÎïÁÏÒÑ¾­Èë²Ö¿â£¬¿ÉÔÚ²Ö¿âÖĞ²éÑ¯£¡" }.ToString());
+                        return Content(new JsonMessage { Success = true, Code = "1", Message = "æ“ä½œæˆåŠŸ:å¾…å­˜ä»“ç‰©æ–™å·²ç»å…¥ä»“åº“ï¼Œå¯åœ¨ä»“åº“ä¸­æŸ¥è¯¢ï¼" }.ToString());
 
                     }
                     else
@@ -87,15 +87,14 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
                     }
                 }
 
-                return Content(new JsonMessage { Success = true, Code = "1", Message = "²Ù×÷³É¹¦£¡" }.ToString());
+                return Content(new JsonMessage { Success = true, Code = "1", Message = "æ“ä½œæˆåŠŸï¼" }.ToString());
             }
             catch (Exception ex)
             {
                 DataFactory.Database().Rollback();
-                return Content(new JsonMessage { Success = false, Code = "-1", Message = "²Ù×÷Ê§°Ü£º" + ex.Message }.ToString());
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "æ“ä½œå¤±è´¥ï¼š" + ex.Message }.ToString());
             }
         }
-        [OutputCache(CacheProfile = "Cache1Hour")]
         public virtual ActionResult BeOutPrintList()
         {
             return View();
@@ -136,7 +135,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
             catch (Exception ex)
             {
                 database.Rollback();
-                return Content(new JsonMessage { Success = false, Code = "-1", Message = "²Ù×÷Ê§°Ü£º" + ex.Message }.ToString());
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "æ“ä½œå¤±è´¥ï¼š" + ex.Message }.ToString());
             }
 
         }
@@ -148,7 +147,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
             DbTransaction isOpenTrans = database.BeginTrans();
             try
             {
-                var Message = "É¾³ıÊ§°Ü¡£";
+                var Message = "åˆ é™¤å¤±è´¥ã€‚";
                 if (!string.IsNullOrEmpty(KeyValue))
                 {
                     Base_SteelDDPerchase Base_SteelDDPerchase = DataFactory.Database().FindEntity<Base_SteelDDPerchase>(KeyValue);
@@ -156,13 +155,13 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
                     database.Delete<Base_SteelDDPerchaseDetail>("Base_SteelDDPerchaseCode", Base_SteelDDPerchase.Base_SteelDDPerchaseCode, isOpenTrans);
                 }
                 database.Commit();
-                Message = "É¾³ı³É¹¦¡£";
+                Message = "åˆ é™¤æˆåŠŸã€‚";
                 return Content(new JsonMessage { Success = true, Code = "1".ToString(), Message = Message }.ToString());
             }
             catch (Exception ex)
             {
                 database.Rollback();
-                return Content(new JsonMessage { Success = false, Code = "-1", Message = "²Ù×÷Ê§°Ü£º" + ex.Message }.ToString());
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "æ“ä½œå¤±è´¥ï¼š" + ex.Message }.ToString());
             }
         }
         string ModuleId = "CG";
@@ -183,7 +182,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
 
                 List<Base_SteelDDPerchaseDetail> Base_SteelDDPerchaseDetails = (SteelListJson.JonsToList<Base_SteelDDPerchaseDetail>()).OrderBy(P => P.SortCode).ToList<Base_SteelDDPerchaseDetail>();
                 List<Base_SteelDDPerchaseDetail> Base_SteelDDPerchaseDetailsadd = new List<Base_SteelDDPerchaseDetail>();
-                if (entity.TypeJC == "½ø²Ö")
+                if (entity.TypeJC == "è¿›ä»“")
                 {
                     entity.TotalAmount = System.Math.Abs(CommonHelper.GetDecimal(Base_SteelDDPerchaseDetails.Sum(p => p.MaterialAmount)));
                 }
@@ -196,7 +195,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
                 entity.Weight = Base_SteelDDPerchaseDetails.Sum(p => p.Weight);
 
 
-                string Message = KeyValue == "" ? "ĞÂÔö³É¹¦¡£" : "±à¼­³É¹¦¡£";
+                string Message = KeyValue == "" ? "æ–°å¢æˆåŠŸã€‚" : "ç¼–è¾‘æˆåŠŸã€‚";
                 if (!string.IsNullOrEmpty(KeyValue))
                 {
                     entity.Modify(KeyValue);
@@ -225,6 +224,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
                     Base_SteelDDPerchaseDetail.SortCode = rownum;
                     Base_SteelDDPerchaseDetail.MaterialPrice = item.MaterialPrice;
                     Base_SteelDDPerchaseDetail.MaterialAmount = item.MaterialAmount;
+                    Base_SteelDDPerchaseDetail.WorkCost = item.WorkCost;
                     Base_SteelDDPerchaseDetail.Remark = item.Remark;
                     if (!string.IsNullOrEmpty(item.Fang))
                     {
@@ -251,7 +251,7 @@ namespace DNS.WebApp.Areas.OrderModule.Controllers
             catch (Exception ex)
             {
                 database.Rollback();
-                return Content(new JsonMessage { Success = false, Code = "-1", Message = "²Ù×÷Ê§°Ü£ºÂ¼ÈëµÄÊı¾İÓĞ´íÎó£¬Çë¼ì²é" }.ToString());
+                return Content(new JsonMessage { Success = false, Code = "-1", Message = "æ“ä½œå¤±è´¥ï¼šå½•å…¥çš„æ•°æ®æœ‰é”™è¯¯ï¼Œè¯·æ£€æŸ¥" }.ToString());
             }
         }
     }

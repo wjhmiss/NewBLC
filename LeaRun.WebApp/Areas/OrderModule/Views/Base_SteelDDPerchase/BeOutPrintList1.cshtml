@@ -122,13 +122,13 @@
                         pageindex++;
                         Orderhtml += '<div style="background: #fff;page-break-after:always;width: 100%;"><table id="tb_Order" border="0" class="form-print" style="width: 100%;border-collapse:collapse;">';
                         Orderhtml += '    <tr>';
-                        Orderhtml += '        <td colspan="8" align="center" style="padding: 2px;line-height:22px;">@*<img style="width: 50px;" src="@Url.Content("~/Content/Images/111.jpg")" />*@';
+                        Orderhtml += '        <td colspan="8" align="center" style="padding: 2px;line-height:22px;">';
                         Orderhtml += '            <span style="font-size: 24px; font-weight: bold; height: 30px;line-height:30px;">宁波皓丽金属有限公司' + title + '（' + data.Base_SteelDDPerchase.Base_SteelDDPerchaseCode + '）</span><span style="float:right ;">（' + pageindex + '/' + total + '）</span>';
                         Orderhtml += '        </td>';
                         Orderhtml += '    </tr>';
                         Orderhtml += '    <tr>';
                         Orderhtml += '        <td colspan="8" align="center" style="padding: 2px;line-height:17px;">';
-                        Orderhtml += '            <span style="font-size: 10pt; font-weight: bold; height: 17px;line-height:17px;">地址：宁波市北仑区大矸龙潭山三路15号&nbsp;电话：18892600521&nbsp;邮箱：124176905@qq.com&nbsp;</span>';
+                        Orderhtml += '            <span style="font-size: 10pt; font-weight: bold; height: 17px;line-height:17px;">地址：宁波市北仑区大矸龙潭山三路15号&nbsp;电话：18892600521&nbsp;邮箱：124176905@@qq.com&nbsp;</span>';
                         Orderhtml += '        </td>';
                         Orderhtml += '    </tr>';
                         Orderhtml += '    <tr>';
@@ -164,6 +164,7 @@
                         Orderhtml += '                    <td style="border: 1px solid #000;text-align: center;">件数</td>';
                         Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" >单价</td>';
                         Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;">估量</td>';
+                        Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" >加工费</td>';
                         Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" >总价</td>';
                         if (data.Base_SteelDDPerchase.TypeJC != "进仓") {
                             Orderhtml += '                    <td style=" border: 1px solid #000;text-align: center;" >金额</td>';
@@ -183,6 +184,7 @@
                     Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + OrderDetail[i].Qty + '</td>';
                     Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + OrderDetail[i].MaterialPrice + '</td>';
                     Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + OrderDetail[i].Weight + '</td>';
+                    Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + (OrderDetail[i].WorkCost ? OrderDetail[i].WorkCost : "0") + '</td>';
                     Orderhtml += '    <td style="text-align:center;border: 1px solid #000;">' + OrderDetail[i].MaterialAmount + '</td>';
 
                     if (data.Base_SteelDDPerchase.TypeJC != "进仓") {
